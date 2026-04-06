@@ -43,7 +43,6 @@ var CONFIG = {
   var CFG      = CONFIG;
   var FILL_SZ  = CFG.fillSize;
   var LINE_H   = Math.ceil(1.3 * FILL_SZ);
-  var SCAN_SZ  = 1000;
 
   var LOREM = 'loremipsumdolorsitametconsecteturadipiscingelitseddoeiusmodtemporincididuntutlaboreetdoloremagnaaliquautenimadminimveniamquisnostrudexercitationullamcolaborisnisiutaliquipexeacommodoconsequatduisauteiruredolorinreprehenderitinvoluptatevelitessecillumdoloreeuefugiatnullapariaturexcepteursintoccaecatcupidatatnonproidentsuntinculpaquiofficiadeseruntmollitanimidestlaborumsedutperspiciatisaboreetdoloremagnaaliquautenimadminimveniamquisnostrudexercitationullamcolaborisnisiutundeomnisquisnostrudexercitationullamcolaborisnisiutistenaboreetdoloremagnaaliquautenimadminimveniamquisnostrudexercitationullamcolaborisnisiutuserrorsitvoluptatemaccusantiumdoloremquelaudantiumtotamremquisnostrudaperiameaaboreetdoloremagnaaliquautenimadminimveniamquisnostrudexercitationullamcolaborisnisiutinventoreveritatisetquasiarchitectobeatsequinesciuntvitaedictasuntexplicabonemoaboreetdoloremagnaaliquautenimadminimveniamquisnostrudexercitationullamcolaborisnisiutenimipsamvoluptatemquiavoluptassitaspernaturautodiquianonaboreetdoloremagnaaliquautenimadminimveniamquisnostrudexercitationullamcolaborisnisiutmagnamaliquamquaeratvoluptatemutenimadminimaveniamquisnostrumexercitationemullamcorporissuscipitlaboriosamnisiutaliquidexeacommodoconsequaturquisautemveleumiurereprehenderitquiineavoluptatevelitessequamnihilmolestiae';
   var POOL = LOREM.toLowerCase().repeat(5);
@@ -75,7 +74,7 @@ var CONFIG = {
   }
 
   /* ── scanWord ─────────────────────────────────────────── */
-  function scanWord(word, fontSize) {
+  function scanWord(word, fontSize, SCAN_SZ) {
     var oc  = document.createElement('canvas');
     oc.width = oc.height = SCAN_SZ;
     var c   = oc.getContext('2d');
@@ -138,6 +137,9 @@ var CONFIG = {
     if (maxWid < 1) maxWid = refSize * (CFG.words[0].length || 4) * 0.6;
     var fontSize = (CW * CFG.widthFraction / maxWid) * refSize;
 
+    // Scan canvas must be large enough to hold the word at computed fontSize
+    var SCAN_SZ = Math.max(1000, Math.ceil(CW * 1.1));
+
     var wordWidthInScan    = fontSize * (maxWid / refSize);
     var scanLeftEdge       = (SCAN_SZ - wordWidthInScan) / 2;
     var displayLeftEdge    = (CW - CW * CFG.widthFraction) / 2;
@@ -145,7 +147,7 @@ var CONFIG = {
     var xShift = displayLeftEdge - scanLeftEdge * scaleX;
 
     var WORD_GAP = LINE_H * CFG.wordGap;
-    var scans  = CFG.words.map(function (w) { return scanWord(w, fontSize); });
+    var scans  = CFG.words.map(function (w) { return scanWord(w, fontSize, SCAN_SZ); });
     var totalH = WORD_GAP * (scans.length - 1);
     for (var si = 0; si < scans.length; si++) totalH += scans[si].scanH;
 
