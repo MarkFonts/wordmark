@@ -393,7 +393,14 @@ footer {
   padding: 36px clamp(32px, 7vw, 112px);
   display: flex;
   flex-direction: column;
-  gap: 16px;
+  gap: 12px;
+}
+
+.footer-row {
+  display: grid;
+  /* Wordmark | ig at 50% | tw ~2/3 | in ~5/6 | email flush right */
+  grid-template-columns: 50% 1fr 1fr 1fr auto;
+  align-items: baseline;
 }
 
 .footer-brand {
@@ -403,13 +410,9 @@ footer {
   color: var(--ink);
 }
 
-/* 4-column grid — each link sits at the left of its column track.
-   Columns are ~12.5% of page width (1/8) with gaps to taste.     */
-.footer-links {
-  display: grid;
-  grid-template-columns: repeat(4, 12.5%);
-  gap: 0;
-}
+/* Let nav children sit directly in the parent grid */
+.footer-links { display: contents; }
+
 .footer-links a {
   font-variation-settings: 'wght' 400;
   font-size: 12px;
@@ -419,18 +422,19 @@ footer {
   white-space: nowrap;
 }
 .footer-links a:hover { color: var(--ink); }
+.footer-links a:last-child { text-align: right; }
 
 .footer-credit {
   font-variation-settings: 'wght' 400;
   font-size: 12px;
-  color: var(--muted);
+  color: var(--ink);
+  opacity: 0.2;
 }
 .footer-credit a {
-  color: var(--muted);
+  color: var(--ink);
   text-decoration: underline;
   text-underline-offset: 3px;
 }
-.footer-credit a:hover { color: var(--ink); }
 
 /* ═══ MOBILE ════════════════════════════════════════════
    At ≤680px:
@@ -466,10 +470,9 @@ footer {
     gap: 24px;
   }
   .contact-photo { align-self: auto; }
-  .footer-links {
-    grid-template-columns: repeat(2, 1fr);
-    gap: 8px 0;
-  }
+  .footer-row { display: flex; flex-direction: column; gap: 8px; }
+  .footer-links { display: flex; gap: 16px; flex-wrap: wrap; }
+  .footer-links a:last-child { text-align: left; }
   #logos { padding-top: 56px; }
   .logos-header { padding: 0 clamp(20px, 5vw, 40px) 36px; }
 }
