@@ -123,7 +123,7 @@ var CONFIG = {
   }
 
   /* ── buildAllChars ────────────────────────────────────── */
-  function buildAllChars(CW, layoutCW, CH) {
+  function buildAllChars(CW, layoutCW, CH, heroH) {
     // Probe at a known size to derive fontSize (capped via layoutCW)
     var probe   = document.createElement('canvas').getContext('2d');
     var refSize = 200;
@@ -151,7 +151,7 @@ var CONFIG = {
     var totalH = WORD_GAP * (scans.length - 1);
     for (var si = 0; si < scans.length; si++) totalH += scans[si].scanH;
 
-    var yOff = Math.max(LINE_H * CFG.verticalPad, (CH - totalH) / 2);
+    var yOff = Math.max(LINE_H * CFG.verticalPad, (heroH - totalH) / 2);
 
     var sc = document.createElement('canvas').getContext('2d');
     sc.font = CFG.fillWeight + ' ' + FILL_SZ + 'px ' + CFG.fillFontFamily;
@@ -211,7 +211,7 @@ var CONFIG = {
 
     var WORD_GAP = LINE_H * CFG.wordGap;
     var totalH   = totalScanH + WORD_GAP * (CFG.words.length - 1);
-    return Math.ceil(totalH + LINE_H * CFG.verticalPad * 2) + 80;
+    return Math.ceil(totalH + LINE_H * CFG.verticalPad * 2 + 310 * (CW / 850));
   }
 
   /* ── axis animation ──────────────────────────────────── */
@@ -291,12 +291,8 @@ var CONFIG = {
 
   function init() {
     dpr = window.devicePixelRatio || 1;
-    CW  = canvas.offsetWidth;
-
-    var isMobile = CW < 680;
-    CFG.words         = isMobile ? ['WO','RD','MA','RK'] : CONFIG.words;
-    CFG.widthFraction = isMobile ? 0.72 : CONFIG.widthFraction;
-    CFG.wordGap       = isMobile ? 1.6  : CONFIG.wordGap;
+    var parentW = Math.round(canvas.parentElement.getBoundingClientRect().width);
+    CW  = Math.min(Math.max(parentW, 480), 850);
 
     // Cap layout width at 850px — letterforms freeze at that density;
     // fill text scales proportionally so the ratio stays constant.
@@ -306,11 +302,13 @@ var CONFIG = {
 
     CH = computeCanvasHeight(layoutCW);
 
+    canvas.style.width  = CW + 'px';
     canvas.style.height = CH + 'px';
     canvas.width  = Math.round(CW * dpr);
     canvas.height = Math.round(CH * dpr);
 
-    chars = buildAllChars(CW, layoutCW, CH);
+    var heroH = Math.round(window.innerHeight * 0.7);
+    chars = buildAllChars(CW, layoutCW, CH, heroH);
     if (!rafId) rafId = requestAnimationFrame(loop);
   }
 
@@ -326,10 +324,18 @@ var CONFIG = {
   });
   canvas.addEventListener('mouseleave', function () { mp = null; });
 
+  // Run immediately to set canvas height before fonts load — prevents the
+  // hero text from flashing up then jumping down when JS fires.
+  init();
+
   document.fonts.ready.then(function () {
+    // Refine with accurate font metrics once custom fonts are available.
     init();
-    var t;
-    window.addEventListener('resize', init);
+    var rafResize;
+    window.addEventListener('resize', function () {
+      cancelAnimationFrame(rafResize);
+      rafResize = requestAnimationFrame(init);
+    });
   });
 
   // Re-draw on theme change (colours update from CSS vars)
