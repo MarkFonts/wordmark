@@ -211,7 +211,7 @@ var CONFIG = {
 
     var WORD_GAP = LINE_H * CFG.wordGap;
     var totalH   = totalScanH + WORD_GAP * (CFG.words.length - 1);
-    return Math.ceil(totalH + LINE_H * CFG.verticalPad * 2) + 60;
+    return Math.ceil(totalH + LINE_H * CFG.verticalPad * 2) + 80;
   }
 
   /* ── axis animation ──────────────────────────────────── */
@@ -237,8 +237,7 @@ var CONFIG = {
     var fillFont   = CFG.fillWeight + ' ' + FILL_SZ + 'px ' + CFG.fillFontFamily;
 
     ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
-    ctx.fillStyle = colours.bg;
-    ctx.fillRect(0, 0, CW, CH);
+    ctx.clearRect(0, 0, CW, CH);
 
     ctx.fillStyle        = colours.ink;
     ctx.font             = fillFont;
