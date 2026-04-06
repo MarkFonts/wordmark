@@ -49,6 +49,42 @@
   });
 }());
 
+/* ── balanced work headlines (issue #7) ─────────────────── */
+(function () {
+  function balanceHeadlines() {
+    document.querySelectorAll('.work-headline').forEach(function (el) {
+      el.style.fontSize = '';
+      var copy = el.closest('.work-copy');
+      if (!copy) return;
+      var colW = copy.getBoundingClientRect().width;
+      if (colW < 100) return;
+      var words = el.textContent.trim().split(/\s+/);
+      var ctx = document.createElement('canvas').getContext('2d');
+      var lo = 18, hi = 48, best = lo;
+      for (var iter = 0; iter < 14; iter++) {
+        var mid = (lo + hi) / 2;
+        ctx.font = '700 ' + mid + 'px CalSans, sans-serif';
+        var maxW = 0;
+        for (var i = 0; i < words.length; i++) {
+          maxW = Math.max(maxW, ctx.measureText(words[i]).width);
+        }
+        if (maxW <= colW) { best = mid; lo = mid; }
+        else { hi = mid; }
+        if (hi - lo < 0.2) break;
+      }
+      el.style.fontSize = Math.round(best * 10) / 10 + 'px';
+    });
+  }
+  document.fonts.ready.then(function () {
+    balanceHeadlines();
+    var rafResize;
+    window.addEventListener('resize', function () {
+      cancelAnimationFrame(rafResize);
+      rafResize = requestAnimationFrame(balanceHeadlines);
+    });
+  });
+}());
+
 /* ── image slide-in ─────────────────────────────────────── */
 (function () {
   var io = new IntersectionObserver(function (entries) {
