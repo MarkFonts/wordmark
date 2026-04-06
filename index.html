@@ -1,0 +1,934 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="auto">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Wordmark — Custom Typefaces &amp; Logotypes</title>
+<style>
+@font-face {
+  font-family: 'CalSans';
+  src: url('fonts/CalSans-Bold.woff2') format('woff2');
+  font-weight: 700;
+  font-style: normal;
+  font-display: swap;
+}
+@font-face {
+  font-family: 'CalSansUI';
+  src: url('fonts/CalSansUI-VariableFont_1_7__opsz_wght_GEOM_YTAS_SHRP_.woff2') format('woff2');
+  font-weight: 400 700;
+  font-style: normal;
+  font-display: swap;
+}
+
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+/* ── colour tokens, respects data-theme on <html> ────── */
+:root,
+[data-theme="auto"]  { color-scheme: light dark; }
+[data-theme="dark"]  { color-scheme: dark; }
+[data-theme="light"] { color-scheme: light; }
+
+/* dark defaults */
+:root {
+  --bg:    #242424;
+  --ink:   #ffffff;
+  --muted: rgba(255,255,255,0.42);
+  --r:     10px;
+}
+/* light override */
+@media (prefers-color-scheme: light) {
+  [data-theme="auto"] {
+    --bg:    #f2f0eb;
+    --ink:   #111111;
+    --muted: rgba(17,17,17,0.45);
+  }
+}
+[data-theme="light"] {
+  --bg:    #f2f0eb;
+  --ink:   #111111;
+  --muted: rgba(17,17,17,0.45);
+}
+
+html { scroll-behavior: smooth; }
+
+body {
+  background: var(--bg);
+  color: var(--ink);
+  font-family: 'CalSansUI', -apple-system, sans-serif;
+  font-variation-settings: 'wght' 400;
+  -webkit-font-smoothing: antialiased;
+  overflow-x: hidden;
+  transition: background 0.25s, color 0.25s;
+}
+
+/* ═══ HERO ═════════════════════════════════════════════ */
+#hero { width: 100%; }
+
+#lb-canvas {
+  display: block;
+  width: 100%;
+  margin-top: 20px;
+  /* height driven by JS from actual glyph metrics */
+  cursor: crosshair;
+}
+
+.hero-text {
+  text-align: center;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 14px;
+  padding: 52px 24px 80px;
+}
+
+.hero-headline {
+  font-family: 'CalSans', sans-serif;
+  font-weight: 700;
+  font-size: clamp(22px, 3vw, 34px);
+  color: var(--ink);
+  letter-spacing: -0.025em;
+  line-height: 1.1;
+}
+
+.hero-sub {
+  font-variation-settings: 'wght' 400;
+  font-size: 14px;
+  color: var(--muted);
+  line-height: 1.65;
+  max-width: 360px;
+}
+
+/* ═══ DARK / LIGHT / AUTO TOGGLE ═══════════════════════ */
+#theme-toggle {
+  position: fixed;
+  top: 20px;
+  right: 20px;
+  z-index: 100;
+  display: flex;
+  background: var(--bg);
+  border: 1px solid var(--muted);
+  border-radius: 999px;
+  padding: 2px;
+  gap: 1px;
+  opacity: 0.6;
+  transition: opacity 0.15s;
+}
+#theme-toggle:hover { opacity: 1; }
+
+#theme-toggle button {
+  font-family: 'CalSansUI', -apple-system, sans-serif;
+  font-variation-settings: 'wght' 400;
+  font-size: 8px;
+  letter-spacing: 0.04em;
+  color: var(--muted);
+  background: none;
+  border: none;
+  border-radius: 999px;
+  padding: 2px 6px;
+  cursor: pointer;
+  transition: background 0.15s, color 0.15s;
+  white-space: nowrap;
+}
+#theme-toggle button.active {
+  background: var(--ink);
+  color: var(--bg);
+}
+
+/* ═══ WORK ══════════════════════════════════════════════ */
+#work { padding: 0; }
+
+.work-item {
+  display: grid;
+  /* copy always left, image always right */
+  grid-template-columns: 1fr 1fr;
+  min-height: 100vh;
+  padding: 0 clamp(32px, 7vw, 112px);
+  gap: clamp(32px, 5vw, 80px);
+  align-items: start;
+}
+
+/* no alternating flip — image always in column 2 */
+
+.work-copy {
+  padding-top: clamp(72px, 10vw, 140px);
+  padding-bottom: clamp(72px, 10vw, 140px);
+}
+
+.work-headline {
+  font-family: 'CalSans', sans-serif;
+  font-weight: 700;
+  font-size: clamp(22px, 2.8vw, 36px);
+  letter-spacing: -0.028em;
+  line-height: 1.08;
+  color: var(--ink);
+  margin-bottom: 28px;
+}
+
+.para {
+  font-variation-settings: 'wght' 400;
+  font-size: 15px;
+  line-height: 1.72;
+  color: var(--muted);
+  hyphens: auto;
+  -webkit-hyphens: auto;
+  hyphenate-limit-chars: 6 3 3;
+  max-width: 38ch;
+}
+
+.work-img {
+  position: sticky;
+  top: clamp(24px, 5vw, 56px);
+  align-self: start;
+  border-radius: var(--r);
+  overflow: hidden;
+  background: rgba(127,127,127,0.07);
+  aspect-ratio: 4 / 3;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transform: translateX(48px);
+  opacity: 0;
+  transition: transform 0.75s cubic-bezier(0.22, 1, 0.36, 1),
+              opacity 0.6s ease;
+}
+.work-img.visible { transform: translateX(0); opacity: 1; }
+.work-img img { width: 58%; height: auto; display: block; }
+
+/* ═══ CAROUSEL ══════════════════════════════════════════ */
+#logos { padding-top: 88px; overflow: hidden; }
+.logos-header { padding: 0 clamp(32px, 7vw, 112px) 52px; }
+.logos-headline {
+  font-family: 'CalSans', sans-serif;
+  font-weight: 700;
+  font-size: clamp(20px, 2.6vw, 32px);
+  letter-spacing: -0.025em;
+  color: var(--ink);
+}
+.track-wrap { overflow: hidden; width: 100%; }
+.track {
+  display: flex;
+  gap: 20px;
+  width: max-content;
+  animation: marquee 32s linear infinite;
+  padding-bottom: 88px;
+}
+.track:hover { animation-play-state: paused; }
+@keyframes marquee {
+  from { transform: translateX(0); }
+  to   { transform: translateX(-50%); }
+}
+.logo-slide {
+  flex: 0 0 80vw;
+  max-width: 860px;
+  aspect-ratio: 16 / 7;
+  border-radius: var(--r);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  overflow: hidden;
+}
+.logo-slide img { width: 54%; height: auto; display: block; }
+.s1 { background: #1a1814; }
+.s2 { background: #2b2820; }
+.s3 { background: #111009; }
+.s4 { background: rgba(127,127,127,0.07); }
+
+/* ═══ CONTACT ═══════════════════════════════════════════ */
+#contact {
+  min-height: 100vh;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: clamp(48px, 8vw, 120px) clamp(32px, 7vw, 112px);
+}
+
+.contact-inner {
+  display: flex;
+  align-items: center;
+  gap: clamp(32px, 5vw, 64px);
+  max-width: 560px;
+  width: 100%;
+}
+
+.contact-photo {
+  flex: 0 0 clamp(64px, 10vw, 96px);
+  width: clamp(64px, 10vw, 96px);
+  height: clamp(64px, 10vw, 96px);
+  border-radius: 50%;
+  overflow: hidden;
+  background: rgba(127,127,127,0.1);
+  align-self: flex-start;
+  margin-top: 4px;
+}
+.contact-photo img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  display: block;
+}
+
+.contact-copy { flex: 1; }
+
+.contact-name {
+  font-family: 'CalSans', sans-serif;
+  font-weight: 700;
+  font-size: clamp(20px, 2.4vw, 28px);
+  letter-spacing: -0.025em;
+  color: var(--ink);
+  margin-bottom: 6px;
+}
+
+.contact-role {
+  font-variation-settings: 'wght' 400;
+  font-size: 13px;
+  color: var(--muted);
+  margin-bottom: 20px;
+}
+
+.contact-cta {
+  display: inline-block;
+  font-family: 'CalSansUI', -apple-system, sans-serif;
+  font-variation-settings: 'wght' 700;
+  font-size: 12px;
+  letter-spacing: 0;
+  color: var(--bg);
+  background: var(--ink);
+  padding: 6px 14px;
+  border-radius: 999px;
+  text-decoration: none;
+  transition: opacity 0.15s;
+  margin-bottom: 20px;
+}
+.contact-cta:hover { opacity: 0.75; }
+
+/* staggered social links — 4-col grid, left-aligned in each track */
+.contact-links {
+  display: grid;
+  grid-template-columns: 2.5ch 3.5ch 2.5ch 1fr;
+  gap: 0 2ch;
+  align-items: baseline;
+}
+.contact-links a {
+  font-variation-settings: 'wght' 400;
+  font-size: 12px;
+  color: var(--muted);
+  text-decoration: none;
+  transition: color 0.12s;
+  white-space: nowrap;
+}
+.contact-links a:hover { color: var(--ink); }
+
+/* ═══ FOOTER ════════════════════════════════════════════ */
+footer {
+  padding: 36px clamp(32px, 7vw, 112px);
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+.footer-brand {
+  font-family: 'CalSans', sans-serif;
+  font-weight: 700;
+  font-size: 14px;
+  letter-spacing: -0.02em;
+  color: var(--ink);
+}
+
+/* 4-column grid — each link sits at the left of its column track.
+   Columns are ~12.5% of page width (1/8) with gaps to taste.     */
+.footer-links {
+  display: grid;
+  grid-template-columns: repeat(4, 12.5%);
+  gap: 0;
+}
+.footer-links a {
+  font-variation-settings: 'wght' 400;
+  font-size: 12px;
+  color: var(--muted);
+  text-decoration: none;
+  transition: color 0.12s;
+  white-space: nowrap;
+}
+.footer-links a:hover { color: var(--ink); }
+
+.footer-credit {
+  font-variation-settings: 'wght' 400;
+  font-size: 12px;
+  color: var(--muted);
+}
+.footer-credit a {
+  color: var(--muted);
+  text-decoration: underline;
+  text-underline-offset: 3px;
+}
+.footer-credit a:hover { color: var(--ink); }
+
+/* ═══ MOBILE ════════════════════════════════════════════
+   At ≤680px:
+   • Canvas words reflow to 2-col × 4-row (WO/RD/MA/RK)
+     via CONFIG override applied in JS
+   • Work items collapse to single column, image on top
+   • Images become static (position:sticky needs overflow
+     parent; single-col flow breaks that contract)
+   • Contact stacks vertically
+   • Footer links wrap to 2 cols
+══════════════════════════════════════════════════════ */
+@media (max-width: 680px) {
+  .work-item {
+    grid-template-columns: 1fr;
+    min-height: auto;
+    padding: 0 clamp(20px, 5vw, 40px);
+    gap: 24px;
+  }
+  /* image above copy */
+  .work-img {
+    position: static;
+    /* let the observer still control opacity/transform for the
+       slide-in, but make sure it's visible once it fires */
+    width: 100%;
+  }
+  .work-copy {
+    padding-top: 0;
+    padding-bottom: clamp(48px, 8vw, 80px);
+  }
+  .contact-inner {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 24px;
+  }
+  .contact-photo { align-self: auto; }
+  .footer-links {
+    grid-template-columns: repeat(2, 1fr);
+    gap: 8px 0;
+  }
+  #logos { padding-top: 56px; }
+  .logos-header { padding: 0 clamp(20px, 5vw, 40px) 36px; }
+}
+</style>
+</head>
+<body>
+
+<!-- theme toggle ───────────────────────────────────────── -->
+<div id="theme-toggle" role="group" aria-label="Colour scheme">
+  <button data-mode="auto"  class="active">Auto</button>
+  <button data-mode="light">Light</button>
+  <button data-mode="dark">Dark</button>
+</div>
+
+<!-- hero ───────────────────────────────────────────────── -->
+<section id="hero">
+  <canvas id="lb-canvas" aria-hidden="true"></canvas>
+  <div class="hero-text">
+    <p class="hero-headline">Your words should feel like&nbsp;you.</p>
+    <p class="hero-sub">At Wordmark, we design custom typefaces and logotypes
+that make brands consistent, clear, and unmistakable.</p>
+  </div>
+</section>
+
+<!-- contact ─────────────────────────────────────────────── -->
+<section id="contact">
+  <div class="contact-inner">
+    <div class="contact-photo">
+      <img src="mark-davis.png" alt="Mark Davis">
+    </div>
+    <div class="contact-copy">
+      <p class="contact-name">Mark Davis</p>
+      <p class="contact-role">Type designer &amp; logotype specialist</p>
+      <a class="contact-cta" href="https://cal.com/davis" target="_blank" rel="noopener">Schedule a call &rarr;</a>
+      <nav class="contact-links" aria-label="Contact links">
+        <a href="https://www.instagram.com/wordmark.nyc/" target="_blank" rel="noopener">ig</a>
+        <a href="https://twitter.com/MarkFonts" target="_blank" rel="noopener">tw</a>
+        <a href="https://www.linkedin.com/in/markfonts/" target="_blank" rel="noopener">in</a>
+        <a href="mailto:mark@wordmark.nyc">mark@wordmark.nyc</a>
+      </nav>
+    </div>
+  </div>
+</section>
+
+<!-- work ───────────────────────────────────────────────── -->
+<section id="work">
+  <div class="work-item">
+    <div class="work-copy">
+      <h2 class="work-headline">Every brand deserves a voice that fits.</h2>
+      <p class="para" lang="en">A typeface is not cho&shy;sen &mdash; it is dis&shy;cov&shy;ered through the per&shy;son&shy;al&shy;ity of a brand, worked and re&shy;worked un&shy;til the let&shy;ter&shy;forms stop feel&shy;ing like bor&shy;rowed cloth&shy;ing. We be&shy;gin not with ref&shy;er&shy;ences but with ques&shy;tions: what does this com&shy;pany sound like at eight in the morn&shy;ing? The an&shy;swers are built into ev&shy;ery curve and coun&shy;ter.</p>
+    </div>
+    <div class="work-img">
+      <img src="embleton-logo.png" alt="Embleton logotype">
+    </div>
+  </div>
+  <div class="work-item">
+    <div class="work-copy">
+      <h2 class="work-headline">A single word, made unmistakable.</h2>
+      <p class="para" lang="en">The lo&shy;go&shy;type is the most com&shy;pressed form of brand com&shy;mu&shy;ni&shy;ca&shy;tion. It must work at six pix&shy;els and six feet. We draw each glyph by hand, ad&shy;just&shy;ing op&shy;ti&shy;cal weight and spac&shy;ing un&shy;til the word looks less like it was typed and more like it was al&shy;ways there.</p>
+    </div>
+    <div class="work-img" style="background:rgba(127,127,127,0.04);">
+      <img src="embleton-logo.png" alt="Embleton logotype">
+    </div>
+  </div>
+  <div class="work-item">
+    <div class="work-copy">
+      <h2 class="work-headline">Type that moves with its medium.</h2>
+      <p class="para" lang="en">Var&shy;i&shy;able fonts are not a tech&shy;ni&shy;cal nov&shy;elty &mdash; they are the nat&shy;u&shy;ral con&shy;clu&shy;sion of type de&shy;sign for screens. A sin&shy;gle file that sheds weight on mo&shy;bile, gains sharp&shy;ness at dis&shy;play size, and re&shy;mains le&shy;gi&shy;ble in the body. We de&shy;sign the axes as care&shy;fully as the ex&shy;tremes.</p>
+    </div>
+    <div class="work-img" style="background:#181614;">
+      <img src="embleton-logo.png" alt="Embleton logotype">
+    </div>
+  </div>
+  <div class="work-item">
+    <div class="work-copy">
+      <h2 class="work-headline">Clarity across every touchpoint.</h2>
+      <p class="para" lang="en">Most brand in&shy;con&shy;sis&shy;ten&shy;cy doesn&rsquo;t come from bad taste &mdash; it comes from un&shy;de&shy;fined rules. We au&shy;dit how type is used across web, print, and mo&shy;tion, then write the guide&shy;lines that make good de&shy;ci&shy;sions the path of least re&shy;sis&shy;tance.</p>
+    </div>
+    <div class="work-img" style="background:#0d0c0a;">
+      <img src="embleton-logo.png" alt="Embleton logotype">
+    </div>
+  </div>
+</section>
+
+<!-- carousel ───────────────────────────────────────────── -->
+<section id="logos">
+  <div class="logos-header">
+    <h2 class="logos-headline">Work we&rsquo;re proud of.</h2>
+  </div>
+  <div class="track-wrap">
+    <div class="track">
+      <div class="logo-slide s1"><img src="embleton-logo.png" alt="Embleton"></div>
+      <div class="logo-slide s4"><img src="embleton-logo.png" alt="Embleton"></div>
+      <div class="logo-slide s2"><img src="embleton-logo.png" alt="Embleton"></div>
+      <div class="logo-slide s4"><img src="embleton-logo.png" alt="Embleton"></div>
+      <div class="logo-slide s3"><img src="embleton-logo.png" alt="Embleton"></div>
+      <div class="logo-slide s1"><img src="embleton-logo.png" alt="Embleton"></div>
+      <div class="logo-slide s4"><img src="embleton-logo.png" alt="Embleton"></div>
+      <div class="logo-slide s2"><img src="embleton-logo.png" alt="Embleton"></div>
+      <div class="logo-slide s4"><img src="embleton-logo.png" alt="Embleton"></div>
+      <div class="logo-slide s3"><img src="embleton-logo.png" alt="Embleton"></div>
+    </div>
+  </div>
+</section>
+
+<!-- footer ─────────────────────────────────────────────── -->
+<footer>
+  <span class="footer-brand">Wordmark</span>
+  <nav class="footer-links" aria-label="Contact links">
+    <a href="https://www.instagram.com/wordmark.nyc/" target="_blank" rel="noopener">ig</a>
+    <a href="https://twitter.com/MarkFonts" target="_blank" rel="noopener">tw</a>
+    <a href="https://www.linkedin.com/in/markfonts/" target="_blank" rel="noopener">in</a>
+    <a href="mailto:mark@wordmark.nyc">mark@wordmark.nyc</a>
+  </nav>
+  <p class="footer-credit">Letterbox header pretext effect was created by <a href="https://charlieclark.co/" target="_blank" rel="noopener">Charlie Clark</a></p>
+</footer>
+
+<script data-cfasync="false" src="/cdn-cgi/scripts/5c5dd728/cloudflare-static/email-decode.min.js"></script><script>
+/* ============================================================
+   CONFIG — edit this object to change behaviour.
+   To swap fonts: change FILL_FAMILY / LARGE_FAMILY and update
+   AXES to match your font's axis tags and ranges.
+   ============================================================ */
+var CONFIG = {
+  // The two words rendered as the letterbox header
+  words: ['WORD', 'MARK'],
+
+  // Font used for the large scanned letterforms
+  largeFontFamily: '"CalSans", -apple-system, sans-serif',
+  largeWeight: 700,
+
+  // Font used for the small fill text inside the letterforms
+  fillFontFamily: '"CalSansUI", -apple-system, sans-serif',
+  fillWeight: 400,
+  fillSize: 10,           // px — matches letterbox.sh fill=10
+
+  // Fraction of canvas width the words fill (0–1)
+  widthFraction: 0.92,
+
+  // Vertical padding in LINE_H units above/below the word block
+  verticalPad: 3,
+
+  // Gap between WORD and MARK rows, in LINE_H units
+  wordGap: 2.4,
+
+  // Variable font axes to animate on the FILL text only.
+  // speed:   seconds for one full 0→100→0 cycle
+  // mult:    speed multiplier per axis (so they drift out of phase)
+  // min/max: axis value range
+  // tag:     CSS font-variation-settings tag name
+  axes: [
+    { tag: 'wdth', min: 75,  max: 125, speed: 8, mult: 0.7 },
+    { tag: 'SHRP', min: 0,   max: 100, speed: 8, mult: 0.9 }
+  ]
+};
+/* ============================================================ */
+
+(function () {
+  'use strict';
+
+  var CFG      = CONFIG;
+  var FILL_SZ  = CFG.fillSize;
+  var LINE_H   = Math.ceil(1.3 * FILL_SZ);
+  var SCAN_SZ  = 1000;
+
+  var LOREM = 'loremipsumdolorsitametconsecteturadipiscingelitseddoeiusmodtemporincididuntutlaboreetdoloremagnaaliquautenimadminimveniamquisnostrudexercitationullamcolaborisnisiutaliquipexeacommodoconsequatduisauteiruredolorinreprehenderitinvoluptatevelitessecillumdoloreeuefugiatnullapariaturexcepteursintoccaecatcupidatatnonproidentsuntinculpaquiofficiadeseruntmollitanimidestlaborumsedutperspiciatisaboreetdoloremagnaaliquautenimadminimveniamquisnostrudexercitationullamcolaborisnisiutundeomnisquisnostrudexercitationullamcolaborisnisiutistenaboreetdoloremagnaaliquautenimadminimveniamquisnostrudexercitationullamcolaborisnisiutuserrorsitvoluptatemaccusantiumdoloremquelaudantiumtotamremquisnostrudaperiameaaboreetdoloremagnaaliquautenimadminimveniamquisnostrudexercitationullamcolaborisnisiutinventoreveritatisetquasiarchitectobeatsequinesciuntvitaedictasuntexplicabonemoaboreetdoloremagnaaliquautenimadminimveniamquisnostrudexercitationullamcolaborisnisiutenimipsamvoluptatemquiavoluptassitaspernaturautodiquianonaboreetdoloremagnaaliquautenimadminimveniamquisnostrudexercitationullamcolaborisnisiutmagnamaliquamquaeratvoluptatemutenimadminimaveniamquisnostrumexercitationemullamcorporissuscipitlaboriosamnisiutaliquidexeacommodoconsequaturquisautemveleumiurereprehenderitquiineavoluptatevelitessequamnihilmolestiae';
+  var POOL = LOREM.toLowerCase().repeat(5);
+
+  var isMouseDown = false;
+  window.addEventListener('mousedown', function () { isMouseDown = true; });
+  window.addEventListener('mouseup',   function () { isMouseDown = false; });
+
+  var canvas = document.getElementById('lb-canvas');
+  var ctx    = canvas.getContext('2d');
+
+  /* ── helpers ──────────────────────────────────────────── */
+
+  // Returns the resolved bg/ink colours from CSS custom props
+  function getThemeColours() {
+    var style = getComputedStyle(document.documentElement);
+    var bg  = style.getPropertyValue('--bg').trim()  || '#242424';
+    var ink = style.getPropertyValue('--ink').trim() || '#ffffff';
+    return { bg: bg, ink: ink };
+  }
+
+  // Build the font-variation-settings string for the FILL font,
+  // given an array of { tag, value } pairs.
+  function buildFVS(axisValues) {
+    if (!axisValues || !axisValues.length) return 'normal';
+    return axisValues.map(function (a) {
+      return '"' + a.tag + '" ' + a.value.toFixed(2);
+    }).join(', ');
+  }
+
+  /* ── scanWord ─────────────────────────────────────────── */
+  function scanWord(word, fontSize) {
+    var oc  = document.createElement('canvas');
+    oc.width = oc.height = SCAN_SZ;
+    var c   = oc.getContext('2d');
+    c.font  = CFG.largeWeight + ' ' + fontSize + 'px ' + CFG.largeFontFamily;
+    c.textBaseline = 'alphabetic';
+
+    var mA  = c.measureText('A');
+    var asc = mA.actualBoundingBoxAscent;
+    var dsc = mA.actualBoundingBoxDescent;
+    var cy  = (SCAN_SZ - (asc + dsc)) / 2 + asc;
+
+    var mW  = c.measureText(word);
+    var wid = mW.actualBoundingBoxLeft + mW.actualBoundingBoxRight;
+    var cx  = (SCAN_SZ - wid) / 2 + mW.actualBoundingBoxLeft;
+
+    c.fillStyle = '#000';
+    c.fillText(word, cx - mW.actualBoundingBoxLeft, cy);
+
+    var px     = c.getImageData(0, 0, SCAN_SZ, SCAN_SZ).data;
+    var yStart = Math.max(0, Math.floor(cy - asc));
+    var yEnd   = Math.min(SCAN_SZ, Math.ceil(cy + dsc));
+    var rows   = [];
+
+    for (var row = yStart; row < yEnd; row += LINE_H) {
+      var col = new Uint8Array(SCAN_SZ);
+      var end = Math.min(row + LINE_H, yEnd);
+      for (var y = row; y < end; y++) {
+        var base = y * SCAN_SZ * 4;
+        for (var x = 0; x < SCAN_SZ; x++) {
+          if (px[base + x * 4 + 3] > 60) col[x] = 1;
+        }
+      }
+      var spans = [], s = -1;
+      for (var x2 = 0; x2 <= SCAN_SZ; x2++) {
+        if (x2 < SCAN_SZ && col[x2]) {
+          if (s === -1) s = x2;
+        } else if (s !== -1) {
+          if (x2 - s > 4) spans.push({ x: s, w: x2 - s });
+          s = -1;
+        }
+      }
+      rows.push(spans);
+    }
+
+    return { rows: rows, scanH: Math.max(1, yEnd - yStart) };
+  }
+
+  /* ── buildAllChars ────────────────────────────────────── */
+  function buildAllChars(CW, CH) {
+    // Probe at a known size to derive fontSize
+    var probe   = document.createElement('canvas').getContext('2d');
+    var refSize = 200;
+    probe.font  = CFG.largeWeight + ' ' + refSize + 'px ' + CFG.largeFontFamily;
+    var maxWid  = 0;
+    for (var i = 0; i < CFG.words.length; i++) {
+      var m = probe.measureText(CFG.words[i]);
+      var w = m.actualBoundingBoxLeft + m.actualBoundingBoxRight;
+      if (w > maxWid) maxWid = w;
+    }
+    if (maxWid < 1) maxWid = refSize * (CFG.words[0].length || 4) * 0.6;
+    var fontSize = (CW * CFG.widthFraction / maxWid) * refSize;
+
+    // The word's actual pixel width in the scan canvas coordinate space.
+    // Since we drew at `fontSize` on a SCAN_SZ canvas, the word spans
+    // `fontSize * (maxWid / refSize)` pixels = CW * widthFraction pixels.
+    // scaleX maps from scan-space px → display px.
+    // scan-space word width = fontSize * (maxWid / refSize)
+    // display word width    = CW * widthFraction
+    // Therefore scaleX = (CW * widthFraction) / (fontSize * maxWid / refSize)
+    //                  = (CW * widthFraction) / (CW * widthFraction) = 1.0
+    // BUT — spans are relative to the centred origin within SCAN_SZ,
+    // not zero. The scan canvas is SCAN_SZ wide; word is centred in it.
+    // Word left edge in scan = (SCAN_SZ - wordWidthInScan) / 2
+    // Display left edge      = (CW - CW*widthFraction) / 2
+    // So we need both an offset and a scale.
+    var wordWidthInScan    = fontSize * (maxWid / refSize);
+    var scanLeftEdge       = (SCAN_SZ - wordWidthInScan) / 2;
+    var displayLeftEdge    = (CW - CW * CFG.widthFraction) / 2;
+    // scaleX: scan word pixels → display word pixels (both = same width, so 1.0)
+    var scaleX = (CW * CFG.widthFraction) / wordWidthInScan;
+    // xShift: offset so scan coords map to centred display coords
+    var xShift = displayLeftEdge - scanLeftEdge * scaleX;
+
+    var WORD_GAP = LINE_H * CFG.wordGap;
+    var scans  = CFG.words.map(function (w) { return scanWord(w, fontSize); });
+    var totalH = WORD_GAP * (scans.length - 1);
+    for (var si = 0; si < scans.length; si++) totalH += scans[si].scanH;
+
+    var yOff = Math.max(LINE_H * CFG.verticalPad, (CH - totalH) / 2);
+
+    var sc = document.createElement('canvas').getContext('2d');
+    sc.font = CFG.fillWeight + ' ' + FILL_SZ + 'px ' + CFG.fillFontFamily;
+
+    var chars = [], pi = 0;
+
+    for (var wi = 0; wi < scans.length; wi++) {
+      var scan = scans[wi];
+
+      for (var ri = 0; ri < scan.rows.length; ri++) {
+        var hy    = yOff + ri * LINE_H;
+        var spans = scan.rows[ri];
+
+        for (var spi = 0; spi < spans.length; spi++) {
+          var span = spans[spi];
+          // Map span x from scan-space → display-space using scaleX + xShift
+          var x0   = span.x * scaleX + xShift;
+          var x1   = (span.x + span.w) * scaleX + xShift;
+          var cx   = x0;
+
+          while (cx < x1) {
+            var ch = POOL[pi % POOL.length]; pi++;
+            var cw = sc.measureText(ch).width;
+            if (cx + cw > x1) break;
+            chars.push({ ch: ch, hx: cx, hy: hy, dx: 0, dy: 0 });
+            cx += cw;
+          }
+        }
+      }
+
+      yOff += scan.scanH + WORD_GAP;
+    }
+
+    return chars;
+  }
+
+  /* ── computeCanvasHeight ──────────────────────────────── */
+  function computeCanvasHeight(CW) {
+    var probe   = document.createElement('canvas').getContext('2d');
+    var refSize = 200;
+    probe.font  = CFG.largeWeight + ' ' + refSize + 'px ' + CFG.largeFontFamily;
+    var maxWid  = 0, totalScanH = 0;
+    for (var i = 0; i < CFG.words.length; i++) {
+      var m   = probe.measureText(CFG.words[i]);
+      var w   = m.actualBoundingBoxLeft + m.actualBoundingBoxRight;
+      if (w > maxWid) maxWid = w;
+    }
+    if (maxWid < 1) maxWid = refSize * (CFG.words[0].length || 4) * 0.6;
+    var fontSize = (CW * CFG.widthFraction / maxWid) * refSize;
+
+    // Scan each word briefly to get its pixel height
+    for (var wi = 0; wi < CFG.words.length; wi++) {
+      var sc2 = document.createElement('canvas').getContext('2d');
+      sc2.font = CFG.largeWeight + ' ' + fontSize + 'px ' + CFG.largeFontFamily;
+      sc2.textBaseline = 'alphabetic';
+      var mA  = sc2.measureText('A');
+      totalScanH += Math.ceil(mA.actualBoundingBoxAscent + mA.actualBoundingBoxDescent);
+    }
+
+    var WORD_GAP = LINE_H * CFG.wordGap;
+    var totalH   = totalScanH + WORD_GAP * (CFG.words.length - 1);
+    return Math.ceil(totalH + LINE_H * CFG.verticalPad * 2);
+  }
+
+  /* ── axis animation ──────────────────────────────────── */
+  // Each axis cycles independently:
+  //   value = min + (max-min) * sin²(π * t / period)
+  // where period = axis.speed * axis.mult seconds.
+  // sin² gives a smooth ease-in ease-out 0→peak→0 shape.
+  var startTime = null;
+
+  function getCurrentAxisValues(nowMs) {
+    if (startTime === null) startTime = nowMs;
+    var elapsed = (nowMs - startTime) / 1000; // seconds
+    return CFG.axes.map(function (axis) {
+      var period = axis.speed * axis.mult;
+      var phase  = elapsed / period;
+      // sin²(π·phase) cycles 0→1→0 every full period
+      var t = Math.sin(Math.PI * phase);
+      var v = axis.min + (axis.max - axis.min) * t * t;
+      return { tag: axis.tag, value: v };
+    });
+  }
+
+  /* ── drawFrame ────────────────────────────────────────── */
+  function drawFrame(chars, CW, CH, dpr, mp, nowMs) {
+    var colours    = getThemeColours();
+    var axisValues = getCurrentAxisValues(nowMs);
+    var fvs        = buildFVS(axisValues);
+    var fillFont   = CFG.fillWeight + ' ' + FILL_SZ + 'px ' + CFG.fillFontFamily;
+    var fillFontFVS = fillFont; // font property; fvs set separately
+
+    ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+    ctx.fillStyle = colours.bg;
+    ctx.fillRect(0, 0, CW, CH);
+
+    ctx.fillStyle        = colours.ink;
+    ctx.font             = fillFont;
+    ctx.fontVariationSettings = fvs;  // may not work in all browsers via property
+    ctx.textBaseline     = 'top';
+
+    var radius   = isMouseDown ? 250 : 100;
+    var strength = isMouseDown ? 105 : 35;
+    var scalePk  = isMouseDown ? 6   : 4;
+
+    for (var i = 0; i < chars.length; i++) {
+      var c = chars[i];
+
+      if (mp) {
+        var tx   = c.hx + c.dx;
+        var ty   = c.hy + c.dy;
+        var rx   = tx - mp.x;
+        var ry   = ty - mp.y;
+        var dist = Math.sqrt(rx * rx + ry * ry);
+        if (dist < radius && dist > 0) {
+          var f = (1 - dist / radius) * strength * 0.3;
+          c.dx += (rx / dist) * f;
+          c.dy += (ry / dist) * f;
+        }
+      }
+      c.dx *= 0.94;
+      c.dy *= 0.94;
+
+      var tx2 = c.hx + c.dx;
+      var ty2 = c.hy + c.dy;
+      var scale = 1;
+
+      if (mp) {
+        var d2 = Math.sqrt((tx2 - mp.x) * (tx2 - mp.x) + (ty2 - mp.y) * (ty2 - mp.y));
+        if (d2 < radius) scale = 1 + (scalePk - 1) * (1 - d2 / radius);
+      }
+
+      if (scale > 1.05) {
+        var sz = FILL_SZ * scale;
+        ctx.font = CFG.fillWeight + ' ' + sz.toFixed(1) + 'px ' + CFG.fillFontFamily;
+        ctx.fillText(c.ch, tx2, ty2 - (sz - FILL_SZ) * 0.5);
+        ctx.font = fillFont;
+      } else {
+        ctx.fillText(c.ch, tx2, ty2);
+      }
+    }
+  }
+
+  /* ── init / loop ──────────────────────────────────────── */
+  var chars = [], rafId = null, mp = null, CW, CH, dpr;
+
+  function init() {
+    dpr = window.devicePixelRatio || 1;
+    CW  = canvas.offsetWidth;
+
+    // On narrow screens reflow to 2-letter pairs stacked 4 rows
+    var isMobile = CW < 680;
+    CFG.words         = isMobile ? ['WO','RD','MA','RK'] : CONFIG.words;
+    CFG.widthFraction = isMobile ? 0.72 : CONFIG.widthFraction;
+    CFG.wordGap       = isMobile ? 1.6  : CONFIG.wordGap;
+    CH  = computeCanvasHeight(CW);
+
+    canvas.style.height = CH + 'px';
+    canvas.width  = Math.round(CW * dpr);
+    canvas.height = Math.round(CH * dpr);
+
+    chars = buildAllChars(CW, CH);
+    // Always keep loop running for axis animation
+    if (!rafId) rafId = requestAnimationFrame(loop);
+  }
+
+  function loop(nowMs) {
+    rafId = null;
+    drawFrame(chars, CW, CH, dpr, mp, nowMs);
+
+    var moving = false;
+    for (var i = 0; i < chars.length; i++) {
+      if (Math.abs(chars[i].dx) > 0.01 || Math.abs(chars[i].dy) > 0.01) {
+        moving = true;
+        break;
+      }
+    }
+
+    // Keep looping: axis animation is always running, plus physics
+    rafId = requestAnimationFrame(loop);
+  }
+
+  canvas.addEventListener('mousemove', function (e) {
+    var r = canvas.getBoundingClientRect();
+    mp = { x: e.clientX - r.left, y: e.clientY - r.top };
+  });
+  canvas.addEventListener('mouseleave', function () { mp = null; });
+
+  document.fonts.ready.then(function () {
+    init();
+    var t;
+    window.addEventListener('resize', function () {
+      clearTimeout(t);
+      t = setTimeout(init, 200);
+    });
+  });
+
+  // Re-draw on theme change (colours update from CSS vars)
+  var observer = new MutationObserver(function () {
+    if (chars.length) drawFrame(chars, CW, CH, dpr, mp, performance.now());
+  });
+  observer.observe(document.documentElement, { attributes: true, attributeFilter: ['data-theme'] });
+
+}());
+
+/* ── theme toggle ───────────────────────────────────────── */
+(function () {
+  var html    = document.documentElement;
+  var buttons = document.querySelectorAll('#theme-toggle button');
+
+  // Read saved preference
+  var saved = localStorage.getItem('wm-theme') || 'auto';
+  html.setAttribute('data-theme', saved);
+  setActive(saved);
+
+  buttons.forEach(function (btn) {
+    btn.addEventListener('click', function () {
+      var mode = btn.getAttribute('data-mode');
+      html.setAttribute('data-theme', mode);
+      localStorage.setItem('wm-theme', mode);
+      setActive(mode);
+    });
+  });
+
+  function setActive(mode) {
+    buttons.forEach(function (b) {
+      b.classList.toggle('active', b.getAttribute('data-mode') === mode);
+    });
+  }
+}());
+
+/* ── image slide-in ─────────────────────────────────────── */
+(function () {
+  var io = new IntersectionObserver(function (entries) {
+    entries.forEach(function (e) {
+      if (e.isIntersecting) {
+        e.target.classList.add('visible');
+        io.unobserve(e.target);
+      }
+    });
+  }, { threshold: 0.12 });
+  document.querySelectorAll('.work-img').forEach(function (el) { io.observe(el); });
+}());
+</script>
+</body>
+</html>
