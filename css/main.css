@@ -88,7 +88,52 @@ body {
   font-size: 14px;
   color: var(--muted);
   line-height: 1.65;
-  max-width: 360px;
+  max-width: 520px;
+  margin-top: 38px;
+}
+
+.hero-cta {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.hero-pill {
+  display: inline-flex;
+  align-items: center;
+  font-family: 'CalSans', sans-serif;
+  font-weight: 700;
+  font-size: clamp(22px, 3vw, 34px);
+  line-height: 1.1;
+  color: var(--bg);
+  background: var(--ink);
+  padding: 0.22em 0.65em 0.38em;
+  border-radius: 999px;
+  text-decoration: none;
+  white-space: nowrap;
+  transition: opacity 0.15s;
+}
+.hero-pill:hover { opacity: 0.75; }
+
+.hero-pill-arrow {
+  font-family: 'CalSansUI', -apple-system, sans-serif;
+  font-variation-settings: 'wght' 700;
+}
+
+/* height ≈ pill: font-size × (line-height + 2×padding-em) = font-size × 1.66 */
+.hero-avatar {
+  width: clamp(38px, 5vw, 58px);
+  height: clamp(38px, 5vw, 58px);
+  border-radius: 50%;
+  overflow: hidden;
+  background: rgba(127,127,127,0.1);
+  flex-shrink: 0;
+}
+.hero-avatar img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  display: block;
 }
 
 /* ═══ DARK / LIGHT / AUTO TOGGLE ═══════════════════════ */
