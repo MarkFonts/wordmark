@@ -123,8 +123,8 @@ var CONFIG = {
   }
 
   /* ── buildAllChars ────────────────────────────────────── */
-  function buildAllChars(CW, CH) {
-    // Probe at a known size to derive fontSize
+  function buildAllChars(CW, layoutCW, CH) {
+    // Probe at a known size to derive fontSize (capped via layoutCW)
     var probe   = document.createElement('canvas').getContext('2d');
     var refSize = 200;
     probe.font  = CFG.largeWeight + ' ' + refSize + 'px ' + CFG.largeFontFamily;
@@ -135,16 +135,16 @@ var CONFIG = {
       if (w > maxWid) maxWid = w;
     }
     if (maxWid < 1) maxWid = refSize * (CFG.words[0].length || 4) * 0.6;
-    var fontSize = (CW * CFG.widthFraction / maxWid) * refSize;
+    var fontSize = (layoutCW * CFG.widthFraction / maxWid) * refSize;
 
-    // Scan canvas must be large enough to hold the word at computed fontSize
-    var SCAN_SZ = Math.max(1000, Math.ceil(CW * 1.1));
+    // Scan canvas sized to layoutCW; word renders at natural size (scaleX = 1)
+    var SCAN_SZ = Math.max(1000, Math.ceil(layoutCW * 1.1));
 
-    var wordWidthInScan    = fontSize * (maxWid / refSize);
-    var scanLeftEdge       = (SCAN_SZ - wordWidthInScan) / 2;
-    var displayLeftEdge    = (CW - CW * CFG.widthFraction) / 2;
-    var scaleX = (CW * CFG.widthFraction) / wordWidthInScan;
-    var xShift = displayLeftEdge - scanLeftEdge * scaleX;
+    var wordWidthInScan = fontSize * (maxWid / refSize);  // = layoutCW * widthFraction
+    var scanLeftEdge    = (SCAN_SZ - wordWidthInScan) / 2;
+    var displayLeftEdge = (CW - wordWidthInScan) / 2;     // center in full canvas
+    var scaleX = 1;
+    var xShift = displayLeftEdge - scanLeftEdge;
 
     var WORD_GAP = LINE_H * CFG.wordGap;
     var scans  = CFG.words.map(function (w) { return scanWord(w, fontSize, SCAN_SZ); });
@@ -298,13 +298,20 @@ var CONFIG = {
     CFG.words         = isMobile ? ['WO','RD','MA','RK'] : CONFIG.words;
     CFG.widthFraction = isMobile ? 0.72 : CONFIG.widthFraction;
     CFG.wordGap       = isMobile ? 1.6  : CONFIG.wordGap;
-    CH  = computeCanvasHeight(CW);
+
+    // Cap layout width at 850px — letterforms freeze at that density;
+    // fill text scales proportionally so the ratio stays constant.
+    var layoutCW = Math.min(CW, 850);
+    FILL_SZ = CFG.fillSize * (layoutCW / 850);
+    LINE_H  = Math.ceil(1.3 * FILL_SZ);
+
+    CH = computeCanvasHeight(layoutCW);
 
     canvas.style.height = CH + 'px';
     canvas.width  = Math.round(CW * dpr);
     canvas.height = Math.round(CH * dpr);
 
-    chars = buildAllChars(CW, CH);
+    chars = buildAllChars(CW, layoutCW, CH);
     if (!rafId) rafId = requestAnimationFrame(loop);
   }
 
