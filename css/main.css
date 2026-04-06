@@ -42,7 +42,7 @@
   --muted: rgba(17,17,17,0.45);
 }
 
-html { scroll-behavior: smooth; }
+html { scroll-behavior: smooth; overflow-x: hidden; }
 
 body {
   background: var(--bg);
@@ -424,9 +424,9 @@ footer {
   /* image above copy */
   .work-img {
     position: static;
-    /* let the observer still control opacity/transform for the
-       slide-in, but make sure it's visible once it fires */
+    order: -1;
     width: 100%;
+    margin-bottom: 8px;
   }
   .work-copy {
     padding-top: 0;

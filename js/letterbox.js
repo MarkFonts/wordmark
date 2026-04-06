@@ -188,7 +188,7 @@ var CONFIG = {
   }
 
   /* ── computeCanvasHeight ──────────────────────────────── */
-  function computeCanvasHeight(CW) {
+  function computeCanvasHeight(CW, heroH) {
     var probe   = document.createElement('canvas').getContext('2d');
     var refSize = 200;
     probe.font  = CFG.largeWeight + ' ' + refSize + 'px ' + CFG.largeFontFamily;
@@ -206,12 +206,15 @@ var CONFIG = {
       sc2.font = CFG.largeWeight + ' ' + fontSize + 'px ' + CFG.largeFontFamily;
       sc2.textBaseline = 'alphabetic';
       var mW2 = sc2.measureText(CFG.words[wi]);
-      totalScanH += Math.ceil(mW2.actualBoundingBoxAscent + mW2.actualBoundingBoxDescent);
+      // +LINE_H*0.5 matches the yStart offset added in scanWord
+      totalScanH += Math.ceil(mW2.actualBoundingBoxAscent + mW2.actualBoundingBoxDescent + LINE_H * 0.5);
     }
 
     var WORD_GAP = LINE_H * CFG.wordGap;
     var totalH   = totalScanH + WORD_GAP * (CFG.words.length - 1);
-    return Math.ceil(totalH + LINE_H * CFG.verticalPad * 2 + 310 * (CW / 850));
+    // Use the same yOff logic as buildAllChars so the canvas is always tall enough
+    var yOff = Math.max(LINE_H * CFG.verticalPad, (heroH - totalH) / 2);
+    return Math.ceil(yOff + totalH + LINE_H * CFG.verticalPad + 310 * (CW / 850));
   }
 
   /* ── axis animation ──────────────────────────────────── */
@@ -291,8 +294,8 @@ var CONFIG = {
 
   function init() {
     dpr = window.devicePixelRatio || 1;
-    var parentW = Math.round(canvas.parentElement.getBoundingClientRect().width);
-    CW  = Math.min(Math.max(parentW, 480), 850);
+    var parentW = Math.floor(canvas.parentElement.getBoundingClientRect().width);
+    CW  = Math.min(Math.max(parentW, 320), 850);
 
     // Cap layout width at 850px — letterforms freeze at that density;
     // fill text scales proportionally so the ratio stays constant.
@@ -300,15 +303,17 @@ var CONFIG = {
     FILL_SZ = CFG.fillSize * (layoutCW / 850);
     LINE_H  = Math.ceil(1.3 * FILL_SZ);
 
-    CH = computeCanvasHeight(layoutCW);
+    var heroH = Math.round(window.innerHeight * 0.7);
+    CH = computeCanvasHeight(layoutCW, heroH);
 
     canvas.style.width  = CW + 'px';
     canvas.style.height = CH + 'px';
     canvas.width  = Math.round(CW * dpr);
     canvas.height = Math.round(CH * dpr);
 
-    var heroH = Math.round(window.innerHeight * 0.7);
     chars = buildAllChars(CW, layoutCW, CH, heroH);
+    // Draw immediately so the canvas never shows a blank frame during resize
+    drawFrame(chars, CW, CH, dpr, mp, performance.now());
     if (!rafId) rafId = requestAnimationFrame(loop);
   }
 
