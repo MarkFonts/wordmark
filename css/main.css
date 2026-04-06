@@ -60,7 +60,6 @@ body {
 #lb-canvas {
   display: block;
   width: 100%;
-  margin-top: 20px;
   /* height driven by JS from actual glyph metrics */
   cursor: crosshair;
 }
@@ -71,7 +70,7 @@ body {
   flex-direction: column;
   align-items: center;
   gap: 14px;
-  padding: 52px 24px 80px;
+  padding: 32px 24px 40px;
 }
 
 .hero-headline {

@@ -81,20 +81,20 @@ var CONFIG = {
     c.font  = CFG.largeWeight + ' ' + fontSize + 'px ' + CFG.largeFontFamily;
     c.textBaseline = 'alphabetic';
 
-    var mA  = c.measureText('A');
-    var asc = mA.actualBoundingBoxAscent;
-    var dsc = mA.actualBoundingBoxDescent;
-    var cy  = (SCAN_SZ - (asc + dsc)) / 2 + asc;
-
     var mW  = c.measureText(word);
     var wid = mW.actualBoundingBoxLeft + mW.actualBoundingBoxRight;
     var cx  = (SCAN_SZ - wid) / 2 + mW.actualBoundingBoxLeft;
+
+    // Use the word's own ink bounds — captures O/R overshoot above cap height
+    var asc = mW.actualBoundingBoxAscent;
+    var dsc = mW.actualBoundingBoxDescent;
+    var cy  = (SCAN_SZ - (asc + dsc)) / 2 + asc;
 
     c.fillStyle = '#000';
     c.fillText(word, cx - mW.actualBoundingBoxLeft, cy);
 
     var px     = c.getImageData(0, 0, SCAN_SZ, SCAN_SZ).data;
-    var yStart = Math.max(0, Math.floor(cy - asc));
+    var yStart = Math.max(0, Math.floor(cy - asc - LINE_H * 0.5));
     var yEnd   = Math.min(SCAN_SZ, Math.ceil(cy + dsc));
     var rows   = [];
 
@@ -205,13 +205,13 @@ var CONFIG = {
       var sc2 = document.createElement('canvas').getContext('2d');
       sc2.font = CFG.largeWeight + ' ' + fontSize + 'px ' + CFG.largeFontFamily;
       sc2.textBaseline = 'alphabetic';
-      var mA  = sc2.measureText('A');
-      totalScanH += Math.ceil(mA.actualBoundingBoxAscent + mA.actualBoundingBoxDescent);
+      var mW2 = sc2.measureText(CFG.words[wi]);
+      totalScanH += Math.ceil(mW2.actualBoundingBoxAscent + mW2.actualBoundingBoxDescent);
     }
 
     var WORD_GAP = LINE_H * CFG.wordGap;
     var totalH   = totalScanH + WORD_GAP * (CFG.words.length - 1);
-    return Math.ceil(totalH + LINE_H * CFG.verticalPad * 2);
+    return Math.ceil(totalH + LINE_H * CFG.verticalPad * 2) + 60;
   }
 
   /* ── axis animation ──────────────────────────────────── */
@@ -330,10 +330,7 @@ var CONFIG = {
   document.fonts.ready.then(function () {
     init();
     var t;
-    window.addEventListener('resize', function () {
-      clearTimeout(t);
-      t = setTimeout(init, 200);
-    });
+    window.addEventListener('resize', init);
   });
 
   // Re-draw on theme change (colours update from CSS vars)
