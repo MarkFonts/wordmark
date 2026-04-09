@@ -7,10 +7,12 @@
 }
 @font-face {
   font-family: 'CalSansUI';
-  src: url('../fonts/CalSansUI-VariableFont_1_7__opsz_wght_GEOM_YTAS_SHRP_.woff2') format('woff2');
+  src: url('../fonts/CalSansUI-VariableFont 1.721 [opsz,wght,GEOM,YTAS,SHRP].woff2') format('woff2');
   font-weight: 400 700;
   font-style: normal;
   font-display: swap;
+  /* Variable axes — opsz: 10–10.1 | wght: 400–700 | GEOM: 0–100 | YTAS: 720–800 | SHRP: 0–100 */
+  font-variation-settings: 'opsz' 10, 'wght' 400, 'GEOM' 0, 'YTAS' 720, 'SHRP' 0;
 }
 
 *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
@@ -434,6 +436,22 @@ footer {
   color: var(--ink);
   text-decoration: underline;
   text-underline-offset: 3px;
+}
+
+/* ═══ FOOTER LETTERBOX ══════════════════════════════════ */
+#footer-letterbox {
+  width: 100%;
+  overflow: hidden;
+  background: var(--bg);
+  transition: background 0.25s;
+}
+
+#lb-footer {
+  display: block;
+  margin: 0 auto;
+  background: var(--bg);
+  transition: background 0.25s;
+  cursor: crosshair;
 }
 
 /* ═══ MOBILE ════════════════════════════════════════════
