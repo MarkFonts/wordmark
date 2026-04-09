@@ -32,14 +32,16 @@ var CONFIG_FOOTER = {
   fillWeight:      400,
   fillSize:        10,
   widthFraction:   0.98,
-  verticalPad:     0.5,
+  verticalPad:     0,
   wordGap:         0,
   axes: [
     { tag: 'wdth', min: 75,  max: 125, speed: 8, mult: 0.7 },
     { tag: 'SHRP', min: 0,   max: 100, speed: 8, mult: 0.9 }
   ],
-  maxWidth:       Infinity,   // scale to full parent/browser width
-  heroHeightFrac: 0,          // no vertical centering — compact canvas height
+  maxWidth:       Infinity,
+  heroHeightFrac: 0,
+  topPadVh:       0.333,      // 1/3 screen gap above letters — viewport-height based
+  extraTopPad:    0,
   extraBottomPad: 0
 };
 
@@ -153,7 +155,9 @@ var CONFIG_FOOTER = {
       var totalH   = WORD_GAP * (scans.length - 1);
       for (var si = 0; si < scans.length; si++) totalH += scans[si].scanH;
 
-      var yOff = Math.max(LINE_H * CFG.verticalPad, (heroH - totalH) / 2);
+      var refW2  = Math.min(CW, 850);
+      var topPad = LINE_H * CFG.verticalPad + (CFG.extraTopPad || 0) * (refW2 / 850) + (CFG.topPadVh || 0) * window.innerHeight;
+      var yOff   = Math.max(topPad, (heroH - totalH) / 2);
 
       var sc = document.createElement('canvas').getContext('2d');
       sc.font = CFG.fillWeight + ' ' + FILL_SZ + 'px ' + CFG.fillFontFamily;
@@ -209,9 +213,11 @@ var CONFIG_FOOTER = {
 
       var WORD_GAP = LINE_H * CFG.wordGap;
       var totalH   = totalScanH + WORD_GAP * (CFG.words.length - 1);
-      var yOff     = Math.max(LINE_H * CFG.verticalPad, (heroH - totalH) / 2);
       var refW     = Math.min(CW, 850);
-      return Math.ceil(yOff + totalH + LINE_H * CFG.verticalPad + CFG.extraBottomPad * (refW / 850));
+      var topPad   = LINE_H * CFG.verticalPad + (CFG.extraTopPad  || 0) * (refW / 850) + (CFG.topPadVh || 0) * window.innerHeight;
+      var botPad   = LINE_H * CFG.verticalPad + (CFG.extraBottomPad || 0) * (refW / 850);
+      var yOff     = Math.max(topPad, (heroH - totalH) / 2);
+      return Math.ceil(yOff + totalH + botPad);
     }
 
     /* ── axis animation ─────────────────────────────────── */
@@ -294,6 +300,7 @@ var CONFIG_FOOTER = {
       var capW     = isFinite(CFG.maxWidth) ? CFG.maxWidth : parentW;
       CW           = Math.max(Math.min(parentW, capW), 320);
       var layoutCW = CW;
+
 
       FILL_SZ = CFG.fillSize * Math.pow(Math.min(CW, 850) / 850, 1.4);
       LINE_H  = Math.ceil(1.3 * FILL_SZ);
