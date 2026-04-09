@@ -85,15 +85,22 @@
   var CW, CH, dpr;
 
   function init() {
-    dpr = window.devicePixelRatio || 1;
+    // Cap dpr at 2 — a 3× iPhone has 9× the pixels, tanking mobile fps
+    dpr = Math.min(window.devicePixelRatio || 1, 2);
     CW  = Math.max(Math.floor(canvas.parentElement.getBoundingClientRect().width), 320);
-    // Canvas height matches the hero section so waves fill the same space
-    CH  = Math.max(Math.floor(canvas.parentElement.getBoundingClientRect().height), 200);
+
+    // Match the CSS clamp(90px, 16vw, 300px) to derive canvas height
+    // without creating a circular parent-height dependency.
+    var fs = Math.min(Math.max(CW * 0.16, 90), 300);
+    CH = Math.ceil(fs * 2 * 1.1 * 1.5); // 2 lines × approx line-height × padding
 
     canvas.style.width  = CW + 'px';
     canvas.style.height = CH + 'px';
     canvas.width  = Math.round(CW * dpr);
     canvas.height = Math.round(CH * dpr);
+
+    // Keep the text overlay sized to match the canvas
+    document.documentElement.style.setProperty('--fj-ch', CH + 'px');
   }
 
   /* ── waves ────────────────────────────────────────────── */
@@ -141,32 +148,35 @@
       }
       ctx.stroke();
 
-      // Handles at half-period anchors (peaks and troughs)
+      // Handles at half-period anchors — skip on narrow screens (mobile)
       var nearX = 0, nearY = 0, nearDist = Infinity;
+      var showHandles = CW > 500;
 
       for (var hx = hStep * 0.5; hx <= CW; hx += hStep) {
         var hy    = midY + amp * Math.sin(k * hx + phi);
         var slope = amp * k * Math.cos(k * hx + phi);
-        var arm   = qStep / 3;
-        var armY  = arm * slope;
+        if (showHandles) {
+          var arm  = qStep / 3;
+          var armY = arm * slope;
 
-        ctx.beginPath();
-        ctx.strokeStyle = clr.ink;
-        ctx.lineWidth   = 0.75;
-        ctx.moveTo(hx - arm, hy - armY);
-        ctx.lineTo(hx + arm, hy + armY);
-        ctx.stroke();
-
-        [[hx - arm, hy - armY], [hx + arm, hy + armY]].forEach(function (p) {
           ctx.beginPath();
-          ctx.arc(p[0], p[1], 2, 0, Math.PI * 2);
+          ctx.strokeStyle = clr.ink;
+          ctx.lineWidth   = 0.75;
+          ctx.moveTo(hx - arm, hy - armY);
+          ctx.lineTo(hx + arm, hy + armY);
           ctx.stroke();
-        });
 
-        ctx.beginPath();
-        ctx.fillStyle = clr.ink;
-        ctx.arc(hx, hy, 2.5, 0, Math.PI * 2);
-        ctx.fill();
+          [[hx - arm, hy - armY], [hx + arm, hy + armY]].forEach(function (p) {
+            ctx.beginPath();
+            ctx.arc(p[0], p[1], 2, 0, Math.PI * 2);
+            ctx.stroke();
+          });
+
+          ctx.beginPath();
+          ctx.fillStyle = clr.ink;
+          ctx.arc(hx, hy, 2.5, 0, Math.PI * 2);
+          ctx.fill();
+        }
 
         var dist = Math.abs(hx - CW / 2);
         if (dist < nearDist) { nearDist = dist; nearX = hx; nearY = hy; }

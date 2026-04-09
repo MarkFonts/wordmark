@@ -80,11 +80,14 @@ body {
   cursor: crosshair;
 }
 
-/* Flapjack text overlay — sits in the same grid cell as the canvas,
-   centred vertically. CSS font-variation-settings is used here
-   (not canvas) for reliable axis interpolation. */
+/* Flapjack text overlay — absolutely positioned over the canvas so it
+   always aligns to the canvas height (not the full hero grid cell). */
+#hero { position: relative; }
+
 #flapjack-text {
-  grid-area: 1 / 1;
+  position: absolute;
+  top: 0; left: 0; right: 0;
+  height: var(--fj-ch, 300px); /* set by JS to match canvas height */
   display: flex;
   flex-direction: column;
   align-items: center;
