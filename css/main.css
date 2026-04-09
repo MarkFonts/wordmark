@@ -17,11 +17,46 @@
 @font-face {
   font-family: 'CalSansUI';
   src: url('../fonts/CalSansUI-VariableFont 1.721 [opsz,wght,GEOM,YTAS,SHRP].woff2') format('woff2');
-  font-weight: 400 700;
+  font-weight: 100 900;
   font-style: normal;
   font-display: swap;
   /* Variable axes — opsz: 10–10.1 | wght: 400–700 | GEOM: 0–100 | YTAS: 720–800 | SHRP: 0–100 */
   font-variation-settings: 'opsz' 10, 'wght' 400, 'GEOM' 0, 'YTAS' 720, 'SHRP' 0;
+}
+@font-face {
+  font-family: 'Ambulia Text';
+  src: url('../fonts/AmbuliaTextVF.woff2') format('woff2');
+  font-weight: 100 900;
+  font-style: normal;
+  font-display: swap;
+}
+@font-face {
+  font-family: 'Anglev1';
+  src: url('../fonts/anglev1-Regularv17.woff2') format('woff2');
+  font-weight: 400;
+  font-style: normal;
+  font-display: swap;
+}
+@font-face {
+  font-family: 'Gaussian';
+  src: url('../fonts/GaussianVF.woff2') format('woff2');
+  font-weight: 100 900;
+  font-style: normal;
+  font-display: swap;
+}
+@font-face {
+  font-family: 'Horizon';
+  src: url('../fonts/HorizonVF.woff2') format('woff2');
+  font-weight: 100 900;
+  font-style: normal;
+  font-display: swap;
+}
+@font-face {
+  font-family: 'Pang Serif';
+  src: url('../fonts/PangSerifVF.woff2') format('woff2');
+  font-weight: 100 900;
+  font-style: normal;
+  font-display: swap;
 }
 
 *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
@@ -96,6 +131,16 @@ body {
   gap: 0.04em;
   pointer-events: none;
   overflow: visible;
+  mix-blend-mode: difference;
+}
+
+#fj-floaters {
+  position: absolute;
+  top: 0; left: 0;
+  width: 100%;
+  height: var(--fj-ch, 300px);
+  mix-blend-mode: difference;
+  pointer-events: none;
 }
 
 .fj-line {
@@ -103,7 +148,7 @@ body {
   font-size: clamp(120px, 32vw, 600px);
   line-height: 0.76;
   letter-spacing: 0;
-  color: var(--ink);
+  color: #fff;
   display: block;
   text-align: center;
   font-variation-settings: 'wght' 100, 'FLIP' 0, 'FLOP' 0;

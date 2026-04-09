@@ -40,9 +40,10 @@ var CONFIG_FOOTER = {
   ],
   maxWidth:       Infinity,
   heroHeightFrac: 0,
-  topPadVh:       0.333,      // 1/3 screen gap above letters — viewport-height based
+  topPadVh:       0.2,        // 1/5 screen gap above letters — viewport-height based
   extraTopPad:    0,
-  extraBottomPad: 0
+  extraBottomPad: 0,
+  minFillSize:    6
 };
 
 /* ============================================================
@@ -302,7 +303,7 @@ var CONFIG_FOOTER = {
       var layoutCW = CW;
 
 
-      FILL_SZ = CFG.fillSize * Math.pow(Math.min(CW, 850) / 850, 1.4);
+      FILL_SZ = Math.max(CFG.minFillSize || 0, CFG.fillSize * Math.pow(Math.min(CW, 850) / 850, 1.4));
       LINE_H  = Math.ceil(1.3 * FILL_SZ);
 
       var heroH = CFG.heroHeightFrac > 0 ? Math.round(window.innerHeight * CFG.heroHeightFrac) : 0;

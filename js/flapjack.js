@@ -1,13 +1,24 @@
 (function () {
   'use strict';
 
-  var canvas  = document.getElementById('flapjack-canvas');
-  var wordEl  = document.getElementById('fj-word');
-  var markEl  = document.getElementById('fj-mark');
+  var canvas      = document.getElementById('flapjack-canvas');
+  var floatCanvas = document.getElementById('fj-floaters');
+  var wordEl      = document.getElementById('fj-word');
+  var markEl      = document.getElementById('fj-mark');
   if (!canvas || !wordEl || !markEl) return;
 
-  var ctx = canvas.getContext('2d');
+  var ctx      = canvas.getContext('2d');
+  var fctx     = floatCanvas ? floatCanvas.getContext('2d') : null;
   var MONO_FONT = '"CalSansUI", -apple-system, sans-serif';
+
+  var FONT_POOL = [
+    '"CalSansUI", sans-serif',
+    '"Ambulia Text", serif',
+    '"Anglev1", sans-serif',
+    '"Gaussian", sans-serif',
+    '"Horizon", sans-serif',
+    '"Pang Serif", serif',
+  ];
 
   /* ── wave configs ─────────────────────────────────────── */
   var WAVES = [
@@ -21,13 +32,20 @@
   /* ── auto-oscillators ─────────────────────────────────── */
   var OSC = {
     wght:     { sp: 0.80, ph: 0.50, lo: 100, hi: 990 },  // shared across both lines
-    wordFlip: { sp: 2.60, ph: 0.00, lo: 0,   hi: 79  },
-    wordFlop: { sp: 1.90, ph: 1.20, lo: 0,   hi: 79  },
-    markFlip: { sp: 2.30, ph: 2.10, lo: 0,   hi: 79  },
-    markFlop: { sp: 2.80, ph: 3.70, lo: 0,   hi: 79  }
+    wordFlip: { sp: 2.60, ph: 0.00, lo: 0,   hi: 78  },
+    wordFlop: { sp: 0.628, ph: -1.571, lo: 0, hi: 78, linear: true },
+    markFlip: { sp: 2.30,  ph: 2.10,  lo: 0, hi: 78  },
+    markFlop: { sp: 0.628, ph: -1.571, lo: 0, hi: 78, linear: true }
   };
 
   function osc(o, t) {
+    if (o.linear) {
+      // Triangle wave — same period/phase as sine but constant rate (no ease)
+      var x   = o.sp * t + o.ph;
+      var pos = (((x + Math.PI / 2) / (2 * Math.PI)) % 1 + 1) % 1;
+      var raw = pos < 0.5 ? (4 * pos - 1) : (3 - 4 * pos);
+      return o.lo + (o.hi - o.lo) * 0.5 * (1 + raw);
+    }
     return o.lo + (o.hi - o.lo) * 0.5 * (1 + Math.sin(o.sp * t + o.ph));
   }
 
@@ -89,15 +107,77 @@
     dpr = Math.min(window.devicePixelRatio || 1, 2);
     CW  = Math.max(Math.floor(canvas.parentElement.getBoundingClientRect().width), 320);
 
-    CH = Math.round(window.innerHeight * 0.666);
+    CH = Math.round(window.innerHeight * 0.666) + 20;
 
     canvas.style.width  = CW + 'px';
     canvas.style.height = CH + 'px';
     canvas.width  = Math.round(CW * dpr);
     canvas.height = Math.round(CH * dpr);
 
+    if (floatCanvas) {
+      floatCanvas.style.width  = CW + 'px';
+      floatCanvas.style.height = CH + 'px';
+      floatCanvas.width  = Math.round(CW * dpr);
+      floatCanvas.height = Math.round(CH * dpr);
+    }
+
     // Keep the text overlay sized to match the canvas
     document.documentElement.style.setProperty('--fj-ch', CH + 'px');
+  }
+
+  /* ── floating glyphs ─────────────────────────────────── */
+  var GLYPH_POOL = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789';
+  var floaters   = [];
+
+  function spawnFloater() {
+    var fam = FONT_POOL[Math.floor(Math.random() * FONT_POOL.length)];
+    var isUI = fam.indexOf('CalSansUI') !== -1;
+    return {
+      ch:    GLYPH_POOL[Math.floor(Math.random() * GLYPH_POOL.length)],
+      x:     Math.random() * CW,
+      y:     (0.05 + Math.random() * 0.90) * CH,
+      sz:    18 + Math.random() * 44,
+      vx:    5 + Math.random() * 18,
+      vr:    (Math.random() - 0.5) * 1.0,
+      rot:   Math.random() * Math.PI * 2,
+      alpha: 0.45 + Math.random() * 0.45,
+      fam:   fam,
+      wght:  isUI ? Math.round(400 + Math.random() * 300) : 400
+    };
+  }
+
+  function initFloaters() {
+    floaters = [];
+    for (var i = 0; i < 30; i++) floaters.push(spawnFloater());
+  }
+
+  function drawFloaters(dt) {
+    if (!fctx) return;
+    fctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+    fctx.clearRect(0, 0, CW, CH);
+    fctx.save();
+    fctx.textAlign    = 'center';
+    fctx.textBaseline = 'middle';
+    for (var i = 0; i < floaters.length; i++) {
+      var f = floaters[i];
+      f.x   += f.vx * dt;
+      f.rot += f.vr * dt;
+      if (f.x > CW + f.sz) {
+        var nf = spawnFloater();
+        nf.x = -nf.sz;
+        floaters[i] = nf;
+        f = nf;
+      }
+      fctx.save();
+      fctx.globalAlpha = f.alpha;
+      fctx.translate(f.x, f.y);
+      fctx.rotate(f.rot);
+      fctx.fillStyle = '#fff';
+      fctx.font = f.wght + ' ' + Math.round(f.sz) + 'px ' + f.fam;
+      fctx.fillText(f.ch, 0, 0);
+      fctx.restore();
+    }
+    fctx.restore();
   }
 
   /* ── waves ────────────────────────────────────────────── */
@@ -110,7 +190,7 @@
   function drawWaves(t, clr) {
     waveReadout = [];
     ctx.save();
-    ctx.globalAlpha = 0.20;
+    ctx.globalAlpha = 1.0;
 
     for (var wi = 0; wi < WAVES.length; wi++) {
       var wv    = WAVES[wi];
@@ -124,7 +204,7 @@
       // Cubic bezier wave path — enter from off-canvas left, exit off-canvas
       // right so neither endpoint (stroke cap) is visible inside the frame.
       ctx.beginPath();
-      ctx.strokeStyle = clr.ink;
+      ctx.strokeStyle = '#808080';
       ctx.lineWidth   = 1;
 
       var px0 = -qStep;
@@ -156,7 +236,7 @@
           var armY = arm * slope;
 
           ctx.beginPath();
-          ctx.strokeStyle = clr.ink;
+          ctx.strokeStyle = '#808080';
           ctx.lineWidth   = 0.75;
           ctx.moveTo(hx - arm, hy - armY);
           ctx.lineTo(hx + arm, hy + armY);
@@ -169,7 +249,7 @@
           });
 
           ctx.beginPath();
-          ctx.fillStyle = clr.ink;
+          ctx.fillStyle = '#808080';
           ctx.arc(hx, hy, 2.5, 0, Math.PI * 2);
           ctx.fill();
         }
@@ -219,12 +299,14 @@
   }
 
   /* ── loop ─────────────────────────────────────────────── */
-  var startTime = null, rafId = null;
+  var startTime = null, prevT = null, rafId = null;
 
   function frame(nowMs) {
     rafId = null;
     if (startTime === null) startTime = nowMs;
     var t   = (nowMs - startTime) / 1000;
+    var dt  = prevT === null ? 0 : t - prevT;
+    prevT   = t;
     var clr = getColours();
 
     ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
@@ -232,6 +314,7 @@
     ctx.fillStyle = clr.bg;
     ctx.fillRect(0, 0, CW, CH);
 
+    drawFloaters(dt);
     drawWaves(t, clr);
     drawHUD(clr);
     updateText(t);   // CSS update, not canvas
@@ -241,6 +324,7 @@
 
   function start() {
     init();
+    initFloaters();
     if (!rafId) rafId = requestAnimationFrame(frame);
   }
 
