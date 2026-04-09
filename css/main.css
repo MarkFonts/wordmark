@@ -1,4 +1,13 @@
 @font-face {
+  font-family: 'Flapjack';
+  src: url('../fonts/WMFLAPJACKVF.woff2') format('woff2');
+  font-weight: 100 990;
+  font-style: normal;
+  font-display: swap;
+  /* Variable axes — wght: 100–990 | FLIP: 0–100 | FLOP: 0–100 */
+  font-variation-settings: 'wght' 100, 'FLIP' 0, 'FLOP' 0;
+}
+@font-face {
   font-family: 'CalSans';
   src: url('../fonts/CalSans-Bold.woff2') format('woff2');
   font-weight: 700;
@@ -62,15 +71,37 @@ body {
   width: 100%;
 }
 
-#lb-canvas {
+#flapjack-canvas {
   grid-area: 1 / 1;
   display: block;
-  /* width and height driven entirely by JS — no CSS width so pixels
-     and display size are always set together, preventing stretch */
   margin: 0 auto;
   background: var(--bg);
   transition: background 0.25s;
   cursor: crosshair;
+}
+
+/* Flapjack text overlay — sits in the same grid cell as the canvas,
+   centred vertically. CSS font-variation-settings is used here
+   (not canvas) for reliable axis interpolation. */
+#flapjack-text {
+  grid-area: 1 / 1;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 0.08em;
+  pointer-events: none;
+}
+
+.fj-line {
+  font-family: 'Flapjack', -apple-system, sans-serif;
+  font-size: clamp(90px, 16vw, 300px);
+  line-height: 0.92;
+  letter-spacing: -0.02em;
+  color: var(--ink);
+  display: block;
+  text-align: center;
+  font-variation-settings: 'wght' 100, 'FLIP' 0, 'FLOP' 0;
 }
 
 .hero-text {
