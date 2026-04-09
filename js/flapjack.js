@@ -11,11 +11,11 @@
 
   /* ── wave configs ─────────────────────────────────────── */
   var WAVES = [
-    { amp: 0.13, freq: 1.7, phase: 0.00, speed: 0.38 },
-    { amp: 0.09, freq: 2.4, phase: 1.13, speed: 0.27 },
-    { amp: 0.15, freq: 1.1, phase: 2.41, speed: 0.33 },
-    { amp: 0.07, freq: 2.9, phase: 0.74, speed: 0.51 },
-    { amp: 0.10, freq: 1.9, phase: 3.17, speed: 0.30 }
+    { amp: 0.26, freq: 1.7, phase: 0.00, speed: 0.38 },
+    { amp: 0.18, freq: 2.4, phase: 1.13, speed: 0.27 },
+    { amp: 0.30, freq: 1.1, phase: 2.41, speed: 0.33 },
+    { amp: 0.14, freq: 2.9, phase: 0.74, speed: 0.51 },
+    { amp: 0.20, freq: 1.9, phase: 3.17, speed: 0.30 }
   ];
 
   /* ── auto-oscillators ─────────────────────────────────── */
@@ -89,10 +89,7 @@
     dpr = Math.min(window.devicePixelRatio || 1, 2);
     CW  = Math.max(Math.floor(canvas.parentElement.getBoundingClientRect().width), 320);
 
-    // Match the CSS clamp(90px, 16vw, 300px) to derive canvas height
-    // without creating a circular parent-height dependency.
-    var fs = Math.min(Math.max(CW * 0.16, 90), 300);
-    CH = Math.ceil(fs * 2 * 1.1 * 1.5); // 2 lines × approx line-height × padding
+    CH = Math.round(window.innerHeight * 0.666);
 
     canvas.style.width  = CW + 'px';
     canvas.style.height = CH + 'px';
@@ -124,17 +121,17 @@
       var qStep = CW / (4 * wv.freq);
       var hStep = qStep * 2;
 
-      // Cubic bezier wave path
+      // Cubic bezier wave path — enter from off-canvas left, exit off-canvas
+      // right so neither endpoint (stroke cap) is visible inside the frame.
       ctx.beginPath();
       ctx.strokeStyle = clr.ink;
       ctx.lineWidth   = 1;
 
-      var px0 = 0;
-      var py0 = midY + amp * Math.sin(phi);
+      var px0 = -qStep;
+      var py0 = midY + amp * Math.sin(k * px0 + phi);
       ctx.moveTo(px0, py0);
 
-      for (var px1 = qStep; px1 <= CW + qStep * 0.01; px1 += qStep) {
-        px1  = Math.min(px1, CW);
+      for (var px1 = px0 + qStep; px1 <= CW + qStep; px1 += qStep) {
         var py1  = midY + amp * Math.sin(k * px1 + phi);
         var dx   = px1 - px0;
         var s0   = amp * k * Math.cos(k * px0 + phi);
@@ -150,12 +147,11 @@
 
       // Handles at half-period anchors — skip on narrow screens (mobile)
       var nearX = 0, nearY = 0, nearDist = Infinity;
-      var showHandles = CW > 500;
 
       for (var hx = hStep * 0.5; hx <= CW; hx += hStep) {
         var hy    = midY + amp * Math.sin(k * hx + phi);
         var slope = amp * k * Math.cos(k * hx + phi);
-        if (showHandles) {
+        {
           var arm  = qStep / 3;
           var armY = arm * slope;
 
@@ -208,7 +204,6 @@
     ctx.globalAlpha      = 0.30;
     ctx.fillStyle        = clr.ink;
     ctx.font             = '400 7px ' + MONO_FONT;
-    ctx.fontVariationSettings = '"wght" 400';
     ctx.textAlign        = 'right';
     ctx.textBaseline     = 'bottom';
 

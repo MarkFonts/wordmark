@@ -69,6 +69,7 @@ body {
 #hero {
   display: grid;
   width: 100%;
+  overflow: hidden;
 }
 
 #flapjack-canvas {
@@ -86,21 +87,22 @@ body {
 
 #flapjack-text {
   position: absolute;
-  top: 0; left: 0; right: 0;
+  top: 0; left: -2vw; right: -2vw; /* 2% bleed past canvas edges */
   height: var(--fj-ch, 300px); /* set by JS to match canvas height */
   display: flex;
   flex-direction: column;
   align-items: center;
   justify-content: center;
-  gap: 0.08em;
+  gap: 0.04em;
   pointer-events: none;
+  overflow: visible;
 }
 
 .fj-line {
   font-family: 'Flapjack', -apple-system, sans-serif;
-  font-size: clamp(90px, 16vw, 300px);
-  line-height: 0.92;
-  letter-spacing: -0.02em;
+  font-size: clamp(120px, 32vw, 600px);
+  line-height: 0.76;
+  letter-spacing: 0;
   color: var(--ink);
   display: block;
   text-align: center;
@@ -110,7 +112,7 @@ body {
 .hero-text {
   grid-area: 1 / 1;
   align-self: start;
-  margin-top: 70vh;
+  margin-top: 66.6vh;
   position: relative;
   text-align: center;
   display: flex;
