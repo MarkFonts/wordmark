@@ -128,6 +128,7 @@ body {
   flex-direction: column;
   align-items: center;
   justify-content: center;
+  padding-top: 5%;
   gap: 0.04em;
   pointer-events: none;
   overflow: visible;
@@ -145,7 +146,7 @@ body {
 
 .fj-line {
   font-family: 'Flapjack', -apple-system, sans-serif;
-  font-size: clamp(120px, 32vw, 600px);
+  font-size: clamp(80px, min(32vw, 42vh), 500px);
   line-height: 0.76;
   letter-spacing: 0;
   color: #fff;
@@ -581,4 +582,66 @@ footer {
 
 @media (min-width: 768px) {
   footer { margin-top: -320px; }
+}
+
+/* ═══ STICKERS ══════════════════════════════════════════════ */
+#sticker-layer {
+  position: absolute;
+  top: 0; left: 0;
+  width: 100%;
+  height: 100vh;
+  overflow: hidden;
+  pointer-events: none;
+  z-index: 99;
+}
+
+.sticker {
+  position: absolute;   /* in document flow — scrolls with page */
+  pointer-events: auto; /* re-enable interaction on each sticker */
+  padding: 9px 18px;
+  border-radius: 50px;
+  color: #fff;
+  font-family: 'CalSans', sans-serif;
+  font-weight: 700;
+  font-size: 13px;
+  white-space: nowrap;
+  cursor: grab;
+  user-select: none;
+  will-change: transform;
+  transform: scale(0);
+  opacity: 0;
+  box-shadow: 0 2px 12px rgba(0,0,0,0.18);
+}
+
+@keyframes sticker-pop {
+  0%   { transform: scale(0)    rotate(var(--rot));                opacity: 0; }
+  60%  { transform: scale(1.14) rotate(calc(var(--rot) * -0.35)); opacity: 1; }
+  80%  { transform: scale(0.94) rotate(calc(var(--rot) *  0.12)); }
+  100% { transform: scale(1)    rotate(var(--rot));                opacity: 1; }
+}
+
+@keyframes sticker-wiggle {
+  0%, 100% { transform: rotate(var(--rot))                scale(1);    }
+  30%      { transform: rotate(calc(var(--rot) + 2.5deg)) scale(1.03); }
+  70%      { transform: rotate(calc(var(--rot) - 2.5deg)) scale(1.03); }
+}
+
+.sticker--visible {
+  opacity: 1;
+  animation: sticker-pop 0.65s cubic-bezier(0.34, 1.56, 0.64, 1) forwards;
+}
+
+.sticker--settled {
+  opacity: 1;
+}
+
+.sticker--wiggling {
+  animation: sticker-wiggle 0.18s ease-in-out infinite;
+}
+
+.sticker--dragging {
+  cursor: grabbing;
+  box-shadow: 0 6px 24px rgba(0,0,0,0.28);
+  transform: scale(0.95) !important;
+  animation: none !important;
 }

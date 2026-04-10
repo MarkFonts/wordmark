@@ -11,6 +11,15 @@
   var fctx     = floatCanvas ? floatCanvas.getContext('2d') : null;
   var MONO_FONT = '"CalSansUI", -apple-system, sans-serif';
 
+  /* ── hidden canvas — Three.js CanvasTexture target ───── */
+  // Keeps a live 2D render of WORD / MARK at current axis values so a
+  // THREE.CanvasTexture can consume it. Exposed as window.wmTextCanvas.
+  // Note: canvas 2D font strings map numeric weight → wght axis only;
+  // FLIP and FLOP can't be set via ctx.font — resolve when Three.js scene lands.
+  var hiddenCanvas     = document.createElement('canvas');
+  var hctx             = hiddenCanvas.getContext('2d');
+  window.wmTextCanvas  = hiddenCanvas; // THREE.CanvasTexture hook
+
   var FONT_POOL = [
     '"CalSansUI", sans-serif',
     '"Ambulia Text", serif',
@@ -271,6 +280,23 @@
     var mv = '"wght" ' + av.markWght.toFixed(1) + ', "FLIP" ' + av.markFlip.toFixed(1) + ', "FLOP" ' + av.markFlop.toFixed(1);
     wordEl.style.fontVariationSettings = wv;
     markEl.style.fontVariationSettings = mv;
+
+    // Mirror state to hidden canvas so Three.js CanvasTexture stays in sync.
+    // ctx.font weight approximates the wght axis; FLIP/FLOP require a full
+    // Three.js shader approach — this gives the texture correct weight variation.
+    var sz = 200;
+    hiddenCanvas.width  = CW  * dpr;
+    hiddenCanvas.height = 2   * sz * dpr;
+    hctx.clearRect(0, 0, hiddenCanvas.width, hiddenCanvas.height);
+    hctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+    hctx.textAlign    = 'center';
+    hctx.textBaseline = 'middle';
+    hctx.fillStyle    = '#ffffff';
+    hctx.font = Math.round(av.wordWght) + ' ' + sz + 'px "CalSansUI", sans-serif';
+    hctx.fillText('WORD', CW / 2, sz * 0.5);
+    hctx.font = Math.round(av.markWght) + ' ' + sz + 'px "CalSansUI", sans-serif';
+    hctx.fillText('MARK', CW / 2, sz * 1.5);
+    // if (textTexture) textTexture.needsUpdate = true; // uncomment when Three.js is added
   }
 
   /* ── HUD readout ──────────────────────────────────────── */
