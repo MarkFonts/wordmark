@@ -134,14 +134,6 @@ body {
   overflow: visible;
 }
 
-#fj-floaters {
-  position: absolute;
-  top: 0; left: 0;
-  width: 100%;
-  height: var(--fj-ch, 300px);
-  mix-blend-mode: difference;
-  pointer-events: none;
-}
 
 .fj-line {
   font-family: 'Flapjack', -apple-system, sans-serif;
