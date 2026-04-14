@@ -49,38 +49,55 @@
   });
 }());
 
+
 /* ── balanced work headlines (issue #7) ─────────────────── */
+// Canvas-measures every headline at its live font size, finds the most
+// balanced 2-line split for each, then applies the widest of those splits
+// as a shared max-width — so all headlines break at the same column width.
+// Only runs above 755 px; clears on resize to narrow viewports.
 (function () {
-  function balanceHeadlines() {
-    document.querySelectorAll('.work-headline').forEach(function (el) {
-      el.style.fontSize = '';
-      var copy = el.closest('.work-copy');
-      if (!copy) return;
-      var colW = copy.getBoundingClientRect().width;
-      if (colW < 100) return;
+  var mq = window.matchMedia('(min-width: 756px)');
+
+  function run() {
+    var headlines = document.querySelectorAll('.work-headline');
+    if (!mq.matches) {
+      headlines.forEach(function (el) { el.style.maxWidth = ''; });
+      return;
+    }
+
+    var cv  = document.createElement('canvas');
+    var ctx = cv.getContext('2d');
+    var maxBreakW = 0;
+
+    headlines.forEach(function (el) {
+      var fs    = parseFloat(getComputedStyle(el).fontSize);
+      ctx.font  = '700 ' + fs + 'px CalSans, sans-serif';
       var words = el.textContent.trim().split(/\s+/);
-      var ctx = document.createElement('canvas').getContext('2d');
-      var lo = 18, hi = 48, best = lo;
-      for (var iter = 0; iter < 14; iter++) {
-        var mid = (lo + hi) / 2;
-        ctx.font = '700 ' + mid + 'px CalSans, sans-serif';
-        var maxW = 0;
-        for (var i = 0; i < words.length; i++) {
-          maxW = Math.max(maxW, ctx.measureText(words[i]).width);
-        }
-        if (maxW <= colW) { best = mid; lo = mid; }
-        else { hi = mid; }
-        if (hi - lo < 0.2) break;
+      if (words.length < 2) return;
+
+      var bestDiff = Infinity, bestW = 0;
+      for (var s = 1; s < words.length; s++) {
+        var w1 = ctx.measureText(words.slice(0, s).join(' ')).width;
+        var w2 = ctx.measureText(words.slice(s).join(' ')).width;
+        var diff = Math.abs(w1 - w2);
+        if (diff < bestDiff) { bestDiff = diff; bestW = Math.max(w1, w2); }
       }
-      el.style.fontSize = Math.round(best * 10) / 10 + 'px';
+      if (bestW > maxBreakW) maxBreakW = bestW;
     });
+
+    if (maxBreakW > 0) {
+      headlines.forEach(function (el) {
+        el.style.maxWidth = Math.ceil(maxBreakW) + 'px';
+      });
+    }
   }
+
   document.fonts.ready.then(function () {
-    balanceHeadlines();
-    var rafResize;
+    run();
+    var raf;
     window.addEventListener('resize', function () {
-      cancelAnimationFrame(rafResize);
-      rafResize = requestAnimationFrame(balanceHeadlines);
+      cancelAnimationFrame(raf);
+      raf = requestAnimationFrame(run);
     });
   });
 }());

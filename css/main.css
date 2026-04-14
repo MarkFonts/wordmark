@@ -290,6 +290,7 @@ body {
   line-height: 1.08;
   color: var(--ink);
   margin-bottom: 28px;
+  text-wrap: balance;
 }
 
 .para {
@@ -314,6 +315,7 @@ body {
   display: flex;
   align-items: center;
   justify-content: center;
+  margin-block: 16px;
   transform: translateX(48px);
   opacity: 0;
   transition: transform 0.75s cubic-bezier(0.22, 1, 0.36, 1),
@@ -560,6 +562,7 @@ footer {
     position: static;
     order: -1;
     width: 100%;
+    margin-block: 0;
     margin-bottom: 8px;
   }
   .work-copy {
