@@ -150,47 +150,6 @@
   /* ── copy text layout (pre-computed) ─────────────────────
      Desktop: full-width in x-height zone, layered over glyph.
      Mobile:  not drawn on canvas — HTML header shown instead. */
-  var DEK_TEXT   = 'At\u202FWordmark, we design custom typefaces and logotypes that make brands consistent, clear, and unmistakable.';
-  var textLayout = null;
-
-  function wrapText(text, maxW) {
-    var words = text.split(' '), lines = [], line = '';
-    words.forEach(function (w) {
-      var test = line ? line + ' ' + w : w;
-      if (ctx.measureText(test).width > maxW && line) { lines.push(line); line = w; }
-      else line = test;
-    });
-    if (line) lines.push(line);
-    return lines;
-  }
-
-  function computeTextLayout(baseline_y, xH_y) {
-    if (isMobile) { textLayout = null; return; }
-
-    var zoneH  = baseline_y - xH_y;
-    var textL  = LEFT_PAD;
-    var textR  = Math.round(CW * 0.42);  // ~40% col — forces 4-5 line wrap
-    var availW = textR - textL;
-    if (availW < 60 || zoneH < 12) { textLayout = null; return; }
-
-    canvas.style.fontVariationSettings = '"wght" 400';
-    var fs   = Math.max(9, Math.round(zoneH / 7));
-    ctx.font = fs + 'px ' + FONT;
-    var lines  = wrapText(DEK_TEXT, availW);
-    var lineH  = fs * 1.28;
-    var totalH = lines.length * lineH;
-
-    // only shrink if overflowing — never scale up
-    if (totalH > zoneH * 0.92) {
-      fs       = Math.max(9, Math.round(fs * (zoneH * 0.92) / totalH));
-      ctx.font = fs + 'px ' + FONT;
-      lines    = wrapText(DEK_TEXT, availW);
-      lineH    = fs * 1.28;
-      totalH   = lines.length * lineH;
-    }
-
-    textLayout = { fs, lines, lineH, x: textL, startY: xH_y + (zoneH - totalH) / 2 };
-  }
 
   /* ── layout / resize ─────────────────────────────────────*/
   function init() {
@@ -213,10 +172,28 @@
       ? Math.min(Math.max(20, CW * 0.05), 40)
       : Math.min(Math.max(32, CW * 0.07), 112);
 
-    var fs         = Math.round(CH * 0.90 / (ASC + DESC));  // fits with ~5% breathing top/bottom
+    var fs         = Math.round(CH * 0.70 / (ASC + DESC));  // 15% breathing — clears deep cedillas/ogoneks
+
+    /* ── position HTML header inside x-height zone ── */
     var baseline_y = CH / 2 + ((ASC - DESC) / 2) * fs;
-    var xH_y       = baseline_y - X_H * fs;
-    computeTextLayout(baseline_y, xH_y);
+    var xH_y       = baseline_y - X_H_400 * fs;
+    var headerEl   = document.getElementById('dek-header');
+    if (headerEl) {
+      if (!isMobile) {
+        var zoneH  = baseline_y - xH_y;
+        var fs_h   = Math.max(9, Math.round(zoneH / 7));
+        var colW   = Math.max(60, Math.round(CW * 0.34) - LEFT_PAD);
+        headerEl.style.position   = 'absolute';
+        headerEl.style.top        = Math.round(xH_y) + 'px';
+        headerEl.style.left       = LEFT_PAD + 'px';
+        headerEl.style.width      = colW + 'px';
+        headerEl.style.fontSize   = fs_h + 'px';
+        headerEl.style.lineHeight = '1.28';
+        headerEl.style.padding    = '0';
+      } else {
+        headerEl.style.cssText = '';  // reset to mobile CSS defaults
+      }
+    }
   }
 
   /* ── wght oscillation ────────────────────────────────────*/
@@ -290,7 +267,7 @@
     }
 
     var wght = wghtVal(t);
-    var fs   = Math.round(CH * 0.90 / (ASC + DESC));
+    var fs   = Math.round(CH * 0.70 / (ASC + DESC));
     var ink  = getInk();
     var bg   = getBg();
     var ch   = String.fromCodePoint(glyphs[glyphIdx]);
@@ -360,20 +337,6 @@
     ctx.fillText(ch, CW / 2, baseline_y);
     ctx.restore();
 
-    /* ── 4. Dek copy text layered on top (desktop only) ── */
-    if (textLayout) {
-      ctx.save();
-      canvas.style.fontVariationSettings = '"wght" 400';
-      ctx.font         = textLayout.fs + 'px ' + FONT;
-      ctx.textAlign    = 'left';
-      ctx.textBaseline = 'top';
-      ctx.fillStyle    = ink;
-      ctx.globalAlpha  = 0.85;
-      textLayout.lines.forEach(function (line, i) {
-        ctx.fillText(line, textLayout.x, textLayout.startY + i * textLayout.lineH);
-      });
-      ctx.restore();
-    }
   }
 
   document.fonts.ready.then(function () {
