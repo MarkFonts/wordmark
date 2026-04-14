@@ -48,6 +48,39 @@
     { amp: 0.20, freq: 1.9, phase: 3.17, speed: 0.30 }
   ];
 
+  /* ── colour oscillators (gradient sweep left → right) ─── */
+  var WAVE_COLORS = ['#7C00F6', '#ff2d55', '#e8650a', '#00a67e'];
+
+  var COLOR_OSC = [
+    { sp: 0.37, ph: 0.00 },
+    { sp: 0.22, ph: 1.57 },
+    { sp: 0.51, ph: 3.14 },
+    { sp: 0.18, ph: 4.71 },
+  ];
+
+  // Convert hex + alpha → rgba() string
+  function hexAlpha(hex, a) {
+    var r = parseInt(hex.slice(1, 3), 16);
+    var g = parseInt(hex.slice(3, 5), 16);
+    var b = parseInt(hex.slice(5, 7), 16);
+    return 'rgba(' + r + ',' + g + ',' + b + ',' + a.toFixed(2) + ')';
+  }
+
+  // Linear gradient whose peak sweeps left → right over time
+  function sweepGradient(wxCtx, wi, t) {
+    var co  = COLOR_OSC[wi % 4];
+    var col = WAVE_COLORS[wi % 4];
+    // peakX: 0→CW and back, driven by sine oscillator
+    var peakX = CW * 0.5 * (1 + Math.sin(co.sp * t + co.ph));
+    var grd = wxCtx.createLinearGradient(0, 0, CW, 0);
+    var lo  = hexAlpha(col, 0.20);
+    var hi  = hexAlpha(col, 1.00);
+    grd.addColorStop(0,            lo);
+    grd.addColorStop(peakX / CW,   hi);
+    grd.addColorStop(1,            lo);
+    return grd;
+  }
+
   /* ── auto-oscillators ─────────────────────────────────── */
   var OSC = {
     wght:     { sp: 0.80, ph: 0.50, lo: 100, hi: 990 },  // shared across both lines
@@ -236,9 +269,9 @@
       wx.setTransform(dpr, 0, 0, dpr, 0, 0);
       wx.clearRect(0, 0, CW, CH);
 
-      // Wave curve
+      // Wave curve — colour sweeps left → right via oscillator
       wx.beginPath();
-      wx.strokeStyle = '#808080';
+      wx.strokeStyle = sweepGradient(wx, wi, t);
       wx.lineWidth   = 1;
       var px0 = -qStep;
       var py0 = midY + amp * Math.sin(k * px0 + phi);
