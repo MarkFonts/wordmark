@@ -66,30 +66,36 @@
   }
 
   function travelGradient(wxCtx, t) {
-    var idx  = Math.floor(t / EPOCH_DUR) % TRAVEL_COLORS.length;
-    var prog = (t % EPOCH_DUR) / EPOCH_DUR;   // 0 → 1 across the pass
-    var hex  = TRAVEL_COLORS[idx];
+    var idx = Math.floor(t / EPOCH_DUR) % TRAVEL_COLORS.length;
+    var hex = TRAVEL_COLORS[idx];
     var r = parseInt(hex.slice(1,3),16), g = parseInt(hex.slice(3,5),16), b = parseInt(hex.slice(5,7),16);
-    var rgba = function(a) { return 'rgba('+r+','+g+','+b+','+a.toFixed(2)+')'; };
 
-    // Comet: long soft tail behind, short sharp lead ahead
+    // Peak travels -LEAD → 1+TRAIL so it fully enters/exits before epoch flips
     var TRAIL = 0.55, LEAD = 0.07;
-    var pk = prog;
+    var pk    = (t % EPOCH_DUR) / EPOCH_DUR * (1 + TRAIL + LEAD) - LEAD;
 
-    // Build stops clamped to [0,1], sorted, duplicates merged
-    var raw = [
-      [0,          rgba(0)],
-      [pk - TRAIL, rgba(0)],
-      [pk,         rgba(1)],
-      [pk + LEAD,  rgba(0)],
-      [1,          rgba(0)]
-    ].map(function(s) { return [Math.max(0, Math.min(1, s[0])), s[1]]; })
-     .sort(function(a, b) { return a[0] - b[0]; });
+    // Piecewise-linear alpha profile — evaluated at any canvas position x ∈ [0,1]
+    function alpha(x) {
+      if (x < pk - TRAIL || x > pk + LEAD) return 0;
+      if (x <= pk) return (x - (pk - TRAIL)) / TRAIL;   // tail ramp  0→1
+      return (pk + LEAD - x) / LEAD;                     // lead ramp  1→0
+    }
+
+    // Sample at the slope-change knots that fall inside (0,1), plus the boundaries
+    var keys = [0, 1];
+    [pk - TRAIL, pk, pk + LEAD].forEach(function(x) {
+      if (x > 0.001 && x < 0.999) keys.push(x);
+    });
+    keys.sort(function(a, b) { return a - b; });
 
     var grd  = wxCtx.createLinearGradient(0, 0, CW, 0);
     var last = -1;
-    raw.forEach(function(s) {
-      if (s[0] > last + 0.0001) { grd.addColorStop(s[0], s[1]); last = s[0]; }
+    keys.forEach(function(x) {
+      if (x > last + 0.0001) {
+        var a = Math.max(0, Math.min(1, alpha(x)));
+        grd.addColorStop(x, 'rgba('+r+','+g+','+b+','+a.toFixed(3)+')');
+        last = x;
+      }
     });
     return grd;
   }
