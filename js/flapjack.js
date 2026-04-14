@@ -122,6 +122,10 @@
     canvas.style.height = CH + 'px';
     canvas.width  = Math.round(CW * dpr);
     canvas.height = Math.round(CH * dpr);
+    // Propagate tnum to ctx.font — Chromium reads feature settings from the
+    // canvas element's CSS; Safari/Firefox fall back to proportional digits.
+    canvas.style.fontFeatureSettings  = '"tnum" 1';
+    canvas.style.fontVariantNumeric   = 'tabular-nums';
 
     if (floatCanvas) {
       floatCanvas.style.width  = CW + 'px';
@@ -198,6 +202,7 @@
 
   function drawWaves(t, clr) {
     waveReadout = [];
+    var bIdx = 0;
     ctx.save();
     ctx.globalAlpha = 1.0;
 
@@ -234,40 +239,55 @@
       }
       ctx.stroke();
 
-      // Handles at half-period anchors — skip on narrow screens (mobile)
-      var nearX = 0, nearY = 0, nearDist = Infinity;
+      // Handles at half-period anchors
+      var nearDist = Infinity;
+      var nearLx = 0, nearLy = 0, nearRx = 0, nearRy = 0;
 
       for (var hx = hStep * 0.5; hx <= CW; hx += hStep) {
         var hy    = midY + amp * Math.sin(k * hx + phi);
         var slope = amp * k * Math.cos(k * hx + phi);
-        {
-          var arm  = qStep / 3;
-          var armY = arm * slope;
+        var arm   = qStep / 3;
+        var armY  = arm * slope;
 
+        ctx.beginPath();
+        ctx.strokeStyle = '#808080';
+        ctx.lineWidth   = 0.75;
+        ctx.moveTo(hx - arm, hy - armY);
+        ctx.lineTo(hx + arm, hy + armY);
+        ctx.stroke();
+
+        [[hx - arm, hy - armY], [hx + arm, hy + armY]].forEach(function (p) {
           ctx.beginPath();
-          ctx.strokeStyle = '#808080';
-          ctx.lineWidth   = 0.75;
-          ctx.moveTo(hx - arm, hy - armY);
-          ctx.lineTo(hx + arm, hy + armY);
+          ctx.arc(p[0], p[1], 2, 0, Math.PI * 2);
           ctx.stroke();
+        });
 
-          [[hx - arm, hy - armY], [hx + arm, hy + armY]].forEach(function (p) {
-            ctx.beginPath();
-            ctx.arc(p[0], p[1], 2, 0, Math.PI * 2);
-            ctx.stroke();
-          });
+        ctx.beginPath();
+        ctx.fillStyle = '#808080';
+        ctx.arc(hx, hy, 2.5, 0, Math.PI * 2);
+        ctx.fill();
 
-          ctx.beginPath();
-          ctx.fillStyle = '#808080';
-          ctx.arc(hx, hy, 2.5, 0, Math.PI * 2);
-          ctx.fill();
-        }
-
+        // Track the off-curve handle pair nearest to horizontal center
         var dist = Math.abs(hx - CW / 2);
-        if (dist < nearDist) { nearDist = dist; nearX = hx; nearY = hy; }
+        if (dist < nearDist) {
+          nearDist = dist;
+          nearLx = hx - arm;  nearLy = hy - armY;  // left control point
+          nearRx = hx + arm;  nearRy = hy + armY;  // right control point
+        }
       }
 
-      waveReadout.push({ x: nearX, y: nearY });
+      // Record off-curve handles for waves 1, 3, 5 (arbitrary selection)
+      if (wi === 0 || wi === 2 || wi === 4) {
+        // Fake a live x by expressing phase as pixel translation (phi/k),
+        // then wrapping to canvas width so the value scrolls continuously.
+        var phiPx = phi / k;
+        var fxL = ((nearLx - phiPx) % CW + CW) % CW;
+        var fxR = ((nearRx - phiPx) % CW + CW) % CW;
+        waveReadout.push(
+          { label: 'B\u00E9zier\u202F' + (++bIdx), x: fxL, y: nearLy },
+          { label: 'B\u00E9zier\u202F' + (++bIdx), x: fxR, y: nearRy }
+        );
+      }
     }
 
     ctx.restore();
@@ -304,6 +324,12 @@
     return (v < 0 ? '' : '\u2009') + v.toFixed(4);
   }
 
+  function fmtX(v) {
+    var s = Math.abs(v).toFixed(4).split('.');
+    while (s[0].length < 4) s[0] = '0' + s[0];
+    return s[0] + '.' + s[1];
+  }
+
   function drawHUD(clr) {
     if (!waveReadout.length) return;
     ctx.save();
@@ -316,7 +342,7 @@
     var rowH = 9, rightX = CW - 10, baseY = CH - 8;
     waveReadout.forEach(function (c, i) {
       ctx.fillText(
-        'W' + (i + 1) + '\u2002x\u202F' + fmt(c.x) + '\u2002y\u202F' + fmt(c.y),
+        c.label + '\u2002x\u202F' + fmtX(c.x) + '\u2002y\u202F' + fmtX(c.y),
         rightX,
         baseY - (waveReadout.length - 1 - i) * rowH
       );
