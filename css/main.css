@@ -122,8 +122,8 @@ body {
 
 #flapjack-text {
   position: absolute;
-  top: 0; left: -2vw; right: -2vw; /* 2% bleed past canvas edges */
-  height: var(--fj-ch, 300px); /* set by JS to match canvas height */
+  top: 0; left: -2vw; right: -2vw;
+  height: var(--fj-ch, 300px);
   display: flex;
   flex-direction: column;
   align-items: center;
@@ -132,9 +132,6 @@ body {
   gap: 0.04em;
   pointer-events: none;
   overflow: visible;
-  perspective: 1200px;
-  transform-style: preserve-3d;
-  /* mix-blend-mode lives on .fj-letter so preserve-3d isn't flattened */
 }
 
 #fj-floaters {
@@ -151,19 +148,26 @@ body {
   font-size: clamp(80px, min(32vw, 42vh), 500px);
   line-height: 0.76;
   letter-spacing: 0;
-  color: #fff;
+  color: var(--ink);
   display: flex;
   justify-content: center;
-  transform-style: preserve-3d;
+  position: relative;
   font-variation-settings: 'wght' 100, 'FLIP' 0, 'FLOP' 0;
 }
 
 .fj-letter {
   display: inline-block;
-  transform: translateZ(var(--z, 0px));
-  transform-style: preserve-3d;
-  mix-blend-mode: difference;
-  will-change: transform;
+  position: relative;
+  z-index: var(--lz, 3);
+}
+
+/* per-wave canvases — absolutely fill the text container, sorted by --wzi */
+.fj-wave {
+  position: absolute;
+  top: 0; left: 0;
+  width: 100%; height: 100%;
+  z-index: var(--wzi);
+  pointer-events: none;
 }
 
 .hero-text {

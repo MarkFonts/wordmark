@@ -13,6 +13,12 @@
 
   var ctx      = canvas.getContext('2d');
   var fctx     = floatCanvas ? floatCanvas.getContext('2d') : null;
+
+  // Per-wave canvases — one per WAVES entry, drawn individually so they can
+  // sit at different z-index values and interleave with the letter spans.
+  var waveCanvases = Array.from(document.querySelectorAll('.fj-wave')).map(function (c) {
+    return { el: c, ctx: c.getContext('2d') };
+  });
   var MONO_FONT = '"CalSansUI", -apple-system, sans-serif';
 
   /* ── hidden canvas — Three.js CanvasTexture target ───── */
@@ -138,6 +144,12 @@
       floatCanvas.height = Math.round(CH * dpr);
     }
 
+    // Size per-wave canvases to match main canvas
+    waveCanvases.forEach(function (wc) {
+      wc.el.width  = Math.round(CW * dpr);
+      wc.el.height = Math.round(CH * dpr);
+    });
+
     // Keep the text overlay sized to match the canvas
     document.documentElement.style.setProperty('--fj-ch', CH + 'px');
   }
@@ -207,8 +219,6 @@
   function drawWaves(t, clr) {
     waveReadout = [];
     var bIdx = 0;
-    ctx.save();
-    ctx.globalAlpha = 1.0;
 
     for (var wi = 0; wi < WAVES.length; wi++) {
       var wv    = WAVES[wi];
@@ -219,31 +229,35 @@
       var qStep = CW / (4 * wv.freq);
       var hStep = qStep * 2;
 
-      // Cubic bezier wave path — enter from off-canvas left, exit off-canvas
-      // right so neither endpoint (stroke cap) is visible inside the frame.
-      ctx.beginPath();
-      ctx.strokeStyle = '#808080';
-      ctx.lineWidth   = 1;
+      // Draw wave path on its own canvas so z-index can interleave it with letters
+      var wc = waveCanvases[wi];
+      if (!wc) continue;
+      var wx = wc.ctx;
+      wx.setTransform(dpr, 0, 0, dpr, 0, 0);
+      wx.clearRect(0, 0, CW, CH);
 
+      // Wave curve
+      wx.beginPath();
+      wx.strokeStyle = '#808080';
+      wx.lineWidth   = 1;
       var px0 = -qStep;
       var py0 = midY + amp * Math.sin(k * px0 + phi);
-      ctx.moveTo(px0, py0);
-
+      wx.moveTo(px0, py0);
       for (var px1 = px0 + qStep; px1 <= CW + qStep; px1 += qStep) {
-        var py1  = midY + amp * Math.sin(k * px1 + phi);
-        var dx   = px1 - px0;
-        var s0   = amp * k * Math.cos(k * px0 + phi);
-        var s1   = amp * k * Math.cos(k * px1 + phi);
-        ctx.bezierCurveTo(
+        var py1 = midY + amp * Math.sin(k * px1 + phi);
+        var dx  = px1 - px0;
+        var s0  = amp * k * Math.cos(k * px0 + phi);
+        var s1  = amp * k * Math.cos(k * px1 + phi);
+        wx.bezierCurveTo(
           px0 + dx / 3, py0 + (dx / 3) * s0,
           px1 - dx / 3, py1 - (dx / 3) * s1,
           px1, py1
         );
         px0 = px1; py0 = py1;
       }
-      ctx.stroke();
+      wx.stroke();
 
-      // Handles at half-period anchors
+      // Handles at half-period anchors (drawn on same per-wave canvas)
       var nearDist = Infinity;
       var nearLx = 0, nearLy = 0, nearRx = 0, nearRy = 0;
 
@@ -253,37 +267,33 @@
         var arm   = qStep / 3;
         var armY  = arm * slope;
 
-        ctx.beginPath();
-        ctx.strokeStyle = '#808080';
-        ctx.lineWidth   = 0.75;
-        ctx.moveTo(hx - arm, hy - armY);
-        ctx.lineTo(hx + arm, hy + armY);
-        ctx.stroke();
+        wx.beginPath();
+        wx.strokeStyle = '#808080';
+        wx.lineWidth   = 0.75;
+        wx.moveTo(hx - arm, hy - armY);
+        wx.lineTo(hx + arm, hy + armY);
+        wx.stroke();
 
         [[hx - arm, hy - armY], [hx + arm, hy + armY]].forEach(function (p) {
-          ctx.beginPath();
-          ctx.arc(p[0], p[1], 2, 0, Math.PI * 2);
-          ctx.stroke();
+          wx.beginPath();
+          wx.arc(p[0], p[1], 2, 0, Math.PI * 2);
+          wx.stroke();
         });
 
-        ctx.beginPath();
-        ctx.fillStyle = '#808080';
-        ctx.arc(hx, hy, 2.5, 0, Math.PI * 2);
-        ctx.fill();
+        wx.beginPath();
+        wx.fillStyle = '#808080';
+        wx.arc(hx, hy, 2.5, 0, Math.PI * 2);
+        wx.fill();
 
-        // Track the off-curve handle pair nearest to horizontal center
         var dist = Math.abs(hx - CW / 2);
         if (dist < nearDist) {
           nearDist = dist;
-          nearLx = hx - arm;  nearLy = hy - armY;  // left control point
-          nearRx = hx + arm;  nearRy = hy + armY;  // right control point
+          nearLx = hx - arm;  nearLy = hy - armY;
+          nearRx = hx + arm;  nearRy = hy + armY;
         }
       }
 
-      // Record off-curve handles for waves 1, 3, 5 (arbitrary selection)
       if (wi === 0 || wi === 2 || wi === 4) {
-        // Fake a live x by expressing phase as pixel translation (phi/k),
-        // then wrapping to canvas width so the value scrolls continuously.
         var phiPx = phi / k;
         var fxL = ((nearLx - phiPx) % CW + CW) % CW;
         var fxR = ((nearRx - phiPx) % CW + CW) % CW;
@@ -293,8 +303,6 @@
         );
       }
     }
-
-    ctx.restore();
   }
 
   /* ── update DOM text via CSS font-variation-settings ──── */
