@@ -54,6 +54,17 @@
   var EPOCH_DUR     = WGHT_PERIOD * 2;         // 36 s per colour pass
   var TRAVEL_COLORS = ['#e8650a', '#7C00F6', '#00a67e', '#ff2d55']; // orange purple green pink
 
+  function cometColorAt(s) {
+    var idx = Math.floor(s / EPOCH_DUR) % TRAVEL_COLORS.length;
+    var p   = (s % EPOCH_DUR) / EPOCH_DUR;
+    var c   = TRAVEL_COLORS[idx];
+    var n   = TRAVEL_COLORS[(idx + 1) % TRAVEL_COLORS.length];
+    return 'rgb(' +
+      Math.round(parseInt(c.slice(1,3),16)*(1-p) + parseInt(n.slice(1,3),16)*p) + ',' +
+      Math.round(parseInt(c.slice(3,5),16)*(1-p) + parseInt(n.slice(3,5),16)*p) + ',' +
+      Math.round(parseInt(c.slice(5,7),16)*(1-p) + parseInt(n.slice(5,7),16)*p) + ')';
+  }
+
   function travelGradient(wxCtx, t) {
     var idx  = Math.floor(t / EPOCH_DUR) % TRAVEL_COLORS.length;
     var prog = (t % EPOCH_DUR) / EPOCH_DUR;   // 0 → 1 across the pass
@@ -424,6 +435,11 @@
     drawWaves(t, clr);
     drawHUD(clr);
     updateText(t);   // CSS update, not canvas
+
+    // Expose live comet colours for pill hover gradient
+    var root = document.documentElement;
+    root.style.setProperty('--comet-a', cometColorAt(t));
+    root.style.setProperty('--comet-b', cometColorAt(t + EPOCH_DUR * 0.5));
 
     rafId = requestAnimationFrame(frame);
   }
