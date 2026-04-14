@@ -408,8 +408,7 @@
 
     ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
     ctx.clearRect(0, 0, CW, CH);
-    ctx.fillStyle = clr.bg;
-    ctx.fillRect(0, 0, CW, CH);
+    ctx.clearRect(0, 0, CW, CH); // bg handled by CSS so theme transition matches
 
     drawFloaters(dt);
     drawWaves(t, clr);
