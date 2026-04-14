@@ -46,63 +46,63 @@
     { amp: 0.20, freq: 1.9, phase: 3.17, speed: 0.30 }
   ];
 
-  /* ── colour oscillators (gradient sweep left → right) ─── */
-  var WAVE_COLORS = ['#7C00F6', '#ff2d55', '#e8650a', '#00a67e'];
+  /* ── travelling colour comet ─────────────────────────────
+     One colour at a time sweeps left → right across all wave
+     strokes. Each pass takes 2 × WGHT_PERIOD seconds; colours
+     sequence: orange → purple → green → pink → repeat.       */
+  var WGHT_PERIOD   = 18;                      // must match wghtSnap PERIOD
+  var EPOCH_DUR     = WGHT_PERIOD * 2;         // 36 s per colour pass
+  var TRAVEL_COLORS = ['#e8650a', '#7C00F6', '#00a67e', '#ff2d55']; // orange purple green pink
 
-  var COLOR_OSC = [
-    { sp: 0.37, ph: 0.00 },
-    { sp: 0.22, ph: 1.57 },
-    { sp: 0.51, ph: 3.14 },
-    { sp: 0.18, ph: 4.71 },
-  ];
+  function travelGradient(wxCtx, t) {
+    var idx  = Math.floor(t / EPOCH_DUR) % TRAVEL_COLORS.length;
+    var prog = (t % EPOCH_DUR) / EPOCH_DUR;   // 0 → 1 across the pass
+    var hex  = TRAVEL_COLORS[idx];
+    var r = parseInt(hex.slice(1,3),16), g = parseInt(hex.slice(3,5),16), b = parseInt(hex.slice(5,7),16);
+    var rgba = function(a) { return 'rgba('+r+','+g+','+b+','+a.toFixed(2)+')'; };
 
-  // Convert hex + alpha → rgba() string
-  function hexAlpha(hex, a) {
-    var r = parseInt(hex.slice(1, 3), 16);
-    var g = parseInt(hex.slice(3, 5), 16);
-    var b = parseInt(hex.slice(5, 7), 16);
-    return 'rgba(' + r + ',' + g + ',' + b + ',' + a.toFixed(2) + ')';
-  }
+    // Comet: long soft tail behind, short sharp lead ahead
+    var TRAIL = 0.55, LEAD = 0.07;
+    var pk = prog;
 
-  // Linear gradient whose peak sweeps left → right over time
-  function sweepGradient(wxCtx, wi, t) {
-    var co  = COLOR_OSC[wi % 4];
-    var col = WAVE_COLORS[wi % 4];
-    // peakX: 0→CW and back, driven by sine oscillator
-    var peakX = CW * 0.5 * (1 + Math.sin(co.sp * t + co.ph));
-    var grd = wxCtx.createLinearGradient(0, 0, CW, 0);
-    var lo  = hexAlpha(col, 0.20);
-    var hi  = hexAlpha(col, 1.00);
-    grd.addColorStop(0,            lo);
-    grd.addColorStop(peakX / CW,   hi);
-    grd.addColorStop(1,            lo);
+    // Build stops clamped to [0,1], sorted, duplicates merged
+    var raw = [
+      [0,          rgba(0)],
+      [pk - TRAIL, rgba(0)],
+      [pk,         rgba(1)],
+      [pk + LEAD,  rgba(0)],
+      [1,          rgba(0)]
+    ].map(function(s) { return [Math.max(0, Math.min(1, s[0])), s[1]]; })
+     .sort(function(a, b) { return a[0] - b[0]; });
+
+    var grd  = wxCtx.createLinearGradient(0, 0, CW, 0);
+    var last = -1;
+    raw.forEach(function(s) {
+      if (s[0] > last + 0.0001) { grd.addColorStop(s[0], s[1]); last = s[0]; }
+    });
     return grd;
   }
 
   /* ── auto-oscillators ─────────────────────────────────── */
   var OSC = {
-    wght:     { sp: 0.80, ph: 0.50, lo: 100, hi: 990 },  // shared across both lines
-    wordFlip: { sp: 2.60, ph: 0.00, lo: 0,   hi: 78  },
-    wordFlop: { sp: 0.628, ph: -1.571, lo: 0, hi: 78, linear: true },
-    markFlip: { sp: 2.30,  ph: 2.10,  lo: 0, hi: 78  },
-    markFlop: { sp: 0.628, ph: -1.571, lo: 0, hi: 78, linear: true }
+    wght: { lo: 100, hi: 990 }
+    // FLIP / FLOP oscillators removed — axes only respond to mouse hover
+    // wordFlip: { sp: 2.60, ph: 0.00, lo: 0, hi: 78 },
+    // wordFlop: { sp: 0.628, ph: -1.571, lo: 0, hi: 78, linear: true },
+    // markFlip: { sp: 2.30,  ph: 2.10,  lo: 0, hi: 78 },
+    // markFlop: { sp: 0.628, ph: -1.571, lo: 0, hi: 78, linear: true }
   };
 
-  function osc(o, t) {
-    if (o.linear) {
-      // Triangle wave — same period/phase as sine but constant rate (no ease)
-      var x   = o.sp * t + o.ph;
-      var pos = (((x + Math.PI / 2) / (2 * Math.PI)) % 1 + 1) % 1;
-      var raw = pos < 0.5 ? (4 * pos - 1) : (3 - 4 * pos);
-      return o.lo + (o.hi - o.lo) * 0.5 * (1 + raw);
-    }
-    return o.lo + (o.hi - o.lo) * 0.5 * (1 + Math.sin(o.sp * t + o.ph));
+  // wght: slow, undramatic sine — drifts through the middle, barely grazes extremes.
+  function wghtSnap(t) {
+    var PERIOD = 18; // seconds per full cycle
+    return OSC.wght.lo + (OSC.wght.hi - OSC.wght.lo) * 0.5 *
+           (1 + Math.sin((2 * Math.PI / PERIOD) * t));
   }
 
   /* ── mouse / hover ────────────────────────────────────── */
   var mouse = { active: false, nx: 0.5, ny: 0.5 };
 
-  // Capture mouse on both canvas (waves) and text overlay
   function onMove(e) {
     var r = canvas.getBoundingClientRect();
     mouse.active = true;
@@ -119,24 +119,25 @@
 
   function axisValues(t) {
     if (mouse.active) {
-      var w = 100 + mouse.nx * 890;       // shared wght from mouse x
+      var w = wghtSnap(t);
       return {
         wordWght: w,
         wordFlip: mouse.ny * 79,
-        wordFlop: osc(OSC.wordFlop, t),
+        wordFlop: mouse.nx * 78,
         markWght: w,
         markFlip: (1 - mouse.ny) * 79,
-        markFlop: osc(OSC.markFlop, t)
+        markFlop: mouse.nx * 78
       };
     }
-    var w = osc(OSC.wght, t);
+    // Idle: wght snaps between extremes; FLIP/FLOP held at 0
+    var w = wghtSnap(t);
     return {
       wordWght: w,
-      wordFlip: osc(OSC.wordFlip, t),
-      wordFlop: osc(OSC.wordFlop, t),
+      wordFlip: 0,
+      wordFlop: 0,
       markWght: w,
-      markFlip: osc(OSC.markFlip, t),
-      markFlop: osc(OSC.markFlop, t)
+      markFlip: 0,
+      markFlop: 0
     };
   }
 
@@ -214,7 +215,7 @@
 
       // Wave curve — colour sweeps left → right via oscillator
       wx.beginPath();
-      wx.strokeStyle = sweepGradient(wx, wi, t);
+      wx.strokeStyle = travelGradient(wx, t);
       wx.lineWidth   = 1;
       var px0 = -qStep;
       var py0 = midY + amp * Math.sin(k * px0 + phi);
@@ -244,7 +245,7 @@
         var armY  = arm * slope;
 
         wx.beginPath();
-        wx.strokeStyle = '#808080';
+        wx.strokeStyle = 'rgba(128,128,128,0.75)';
         wx.lineWidth   = 0.75;
         wx.moveTo(hx - arm, hy - armY);
         wx.lineTo(hx + arm, hy + armY);
@@ -257,7 +258,7 @@
         });
 
         wx.beginPath();
-        wx.fillStyle = '#808080';
+        wx.fillStyle = 'rgba(128,128,128,0.75)';
         wx.arc(hx, hy, 2.5, 0, Math.PI * 2);
         wx.fill();
 
@@ -327,7 +328,7 @@
     var sy = CH / canvasRect.height;
 
     ctx.save();
-    ctx.globalAlpha = 0.30;
+    ctx.globalAlpha = 0.10;
     ctx.fillStyle   = clr.ink;
     ctx.textAlign   = 'center';
     var colW   = CW / 3;
