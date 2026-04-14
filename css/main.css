@@ -132,7 +132,9 @@ body {
   gap: 0.04em;
   pointer-events: none;
   overflow: visible;
-  mix-blend-mode: difference;
+  perspective: 1200px;
+  transform-style: preserve-3d;
+  /* mix-blend-mode lives on .fj-letter so preserve-3d isn't flattened */
 }
 
 #fj-floaters {
@@ -150,9 +152,18 @@ body {
   line-height: 0.76;
   letter-spacing: 0;
   color: #fff;
-  display: block;
-  text-align: center;
+  display: flex;
+  justify-content: center;
+  transform-style: preserve-3d;
   font-variation-settings: 'wght' 100, 'FLIP' 0, 'FLOP' 0;
+}
+
+.fj-letter {
+  display: inline-block;
+  transform: translateZ(var(--z, 0px));
+  transform-style: preserve-3d;
+  mix-blend-mode: difference;
+  will-change: transform;
 }
 
 .hero-text {

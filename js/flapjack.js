@@ -7,6 +7,10 @@
   var markEl      = document.getElementById('fj-mark');
   if (!canvas || !wordEl || !markEl) return;
 
+  // Individual letter spans — WORD letters get word axis values, MARK get mark
+  var wordLetters = Array.from(wordEl.querySelectorAll('.fj-letter'));
+  var markLetters = Array.from(markEl.querySelectorAll('.fj-letter'));
+
   var ctx      = canvas.getContext('2d');
   var fctx     = floatCanvas ? floatCanvas.getContext('2d') : null;
   var MONO_FONT = '"CalSansUI", -apple-system, sans-serif';
@@ -298,8 +302,8 @@
     var av = axisValues(t);
     var wv = '"wght" ' + av.wordWght.toFixed(1) + ', "FLIP" ' + av.wordFlip.toFixed(1) + ', "FLOP" ' + av.wordFlop.toFixed(1);
     var mv = '"wght" ' + av.markWght.toFixed(1) + ', "FLIP" ' + av.markFlip.toFixed(1) + ', "FLOP" ' + av.markFlop.toFixed(1);
-    wordEl.style.fontVariationSettings = wv;
-    markEl.style.fontVariationSettings = mv;
+    wordLetters.forEach(function (el) { el.style.fontVariationSettings = wv; });
+    markLetters.forEach(function (el) { el.style.fontVariationSettings = mv; });
 
     // Mirror state to hidden canvas so Three.js CanvasTexture stays in sync.
     // ctx.font weight approximates the wght axis; FLIP/FLOP require a full
