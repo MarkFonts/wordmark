@@ -186,13 +186,19 @@
   // Handles shown only at half-period anchors (peaks + troughs).
   var waveReadout = [];
 
+  // On narrow screens scale all amps so the largest reaches 80 % of CH
+  var MAX_AMP = Math.max.apply(null, WAVES.map(function (w) { return w.amp; }));
+
   function drawWaves(t, clr) {
     waveReadout = [];
-    var bIdx = 0;
+    var bIdx    = 0;
+    // On narrow screens bump amps so they feel more dramatic, but cap at 0.42 of CH
+    // (vs the original ~0.30 max) to avoid waves filling the entire canvas
+    var ampMult = CW <= 480 ? (0.42 / MAX_AMP) : 1;
 
     for (var wi = 0; wi < WAVES.length; wi++) {
       var wv    = WAVES[wi];
-      var amp   = wv.amp * CH;
+      var amp   = wv.amp * CH * ampMult;
       var midY  = CH * 0.5;
       var k     = (2 * Math.PI * wv.freq) / CW;
       var phi   = wv.phase + t * wv.speed;
@@ -313,22 +319,90 @@
   }
 
   function drawHUD(clr) {
-    if (!waveReadout.length) return;
-    ctx.save();
-    ctx.globalAlpha      = 0.30;
-    ctx.fillStyle        = clr.ink;
-    ctx.font             = '400 7px ' + MONO_FONT;
-    ctx.textAlign        = 'right';
-    ctx.textBaseline     = 'bottom';
+    if (waveReadout.length < 6) return;
 
-    var rowH = 9, rightX = CW - 10, baseY = CH - 8;
-    waveReadout.forEach(function (c, i) {
-      ctx.fillText(
-        c.label + '\u2002x\u202F' + fmtX(c.x) + '\u2002y\u202F' + fmtX(c.y),
-        rightX,
-        baseY - (waveReadout.length - 1 - i) * rowH
-      );
-    });
+    var canvasRect = canvas.getBoundingClientRect();
+    var wordRect   = wordEl.getBoundingClientRect();
+    var markRect   = markEl.getBoundingClientRect();
+    var sy = CH / canvasRect.height;
+
+    ctx.save();
+    ctx.globalAlpha = 0.30;
+    ctx.fillStyle   = clr.ink;
+    ctx.textAlign   = 'center';
+    var colW   = CW / 3;
+    var FONT_SZ = (CW > 480 ? '8px ' : '6px ') + MONO_FONT;
+
+    var LINE_H = 8; // px between stacked lines
+
+    // Inline layout: "Bézier N  x…  y…" on one line
+    function hudItem(c, cx, cy) {
+      var coords = '\u2002x\u202F' + fmtX(c.x) + '\u2002y\u202F' + fmtX(c.y);
+
+      canvas.style.fontVariationSettings = '"wght" 700';
+      ctx.font = '700 ' + FONT_SZ;
+      var labelW = ctx.measureText(c.label).width;
+
+      canvas.style.fontVariationSettings = '"wght" 400';
+      ctx.font = '400 ' + FONT_SZ;
+      var coordsW = ctx.measureText(coords).width;
+
+      var startX = cx - (labelW + coordsW) / 2;
+
+      canvas.style.fontVariationSettings = '"wght" 700';
+      ctx.font = '700 ' + FONT_SZ;
+      ctx.textAlign = 'left';
+      ctx.fillText(c.label, startX, cy);
+
+      canvas.style.fontVariationSettings = '"wght" 400';
+      ctx.font = '400 ' + FONT_SZ;
+      ctx.fillText(coords, startX + labelW, cy);
+
+      ctx.textAlign = 'center';
+    }
+
+    // Stacked layout: "Bézier N" on line 1, "x…  y…" on line 2
+    // baseline is 'bottom' when growing up, 'top' when growing down
+    function hudItemStacked(c, cx, cy, growUp) {
+      var coords = 'x\u202F' + fmtX(c.x) + '\u2002y\u202F' + fmtX(c.y);
+      var labelY  = growUp ? cy - LINE_H : cy;
+      var coordsY = growUp ? cy          : cy + LINE_H;
+
+      canvas.style.fontVariationSettings = '"wght" 700';
+      ctx.font = '700 ' + FONT_SZ;
+      ctx.textAlign = 'center';
+      ctx.fillText(c.label, cx, labelY);
+
+      canvas.style.fontVariationSettings = '"wght" 400';
+      ctx.font = '400 ' + FONT_SZ;
+      ctx.fillText(coords, cx, coordsY);
+    }
+
+    if (CW > 480) {
+      // Desktop: 3×2 grid centred inside each line of WORDMARK
+      var wordMidY = ((wordRect.top + wordRect.bottom) / 2 - canvasRect.top) * sy;
+      var markMidY = ((markRect.top + markRect.bottom) / 2 - canvasRect.top) * sy;
+      ctx.textBaseline = 'middle';
+      for (var i = 0; i < 3; i++) {
+        hudItem(waveReadout[i],     colW * i + colW * 0.5, wordMidY);
+      }
+      for (var j = 0; j < 3; j++) {
+        hudItem(waveReadout[j + 3], colW * j + colW * 0.5, markMidY);
+      }
+    } else {
+      // Mobile: stacked 2-line entries, group above WORD and below MARK
+      var wordTop    = (wordRect.top    - canvasRect.top) * sy;
+      var markBottom = (markRect.bottom - canvasRect.top) * sy;
+      var GAP = 26;
+      ctx.textBaseline = 'bottom';
+      for (var i = 0; i < 3; i++) {
+        hudItemStacked(waveReadout[i],     colW * i + colW * 0.5, wordTop - GAP, true);
+      }
+      ctx.textBaseline = 'top';
+      for (var j = 0; j < 3; j++) {
+        hudItemStacked(waveReadout[j + 3], colW * j + colW * 0.5, markBottom + GAP, false);
+      }
+    }
     ctx.restore();
   }
 

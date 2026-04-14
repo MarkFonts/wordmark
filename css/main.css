@@ -218,6 +218,8 @@ body {
 .hero-pill-arrow {
   font-family: 'CalSansUI', -apple-system, sans-serif;
   font-variation-settings: 'wght' 700;
+  position: relative;
+  top: 0.08em;
 }
 
 /* height ≈ pill: font-size × (line-height + 2×padding-em) = font-size × 1.66 */
