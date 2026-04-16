@@ -107,6 +107,9 @@
   function spawnSticker() {
     if (spawned >= MAX) return;
 
+    // Refresh height each spawn — page may have grown since fonts/images loaded
+    layer.style.height = document.body.scrollHeight + 'px';
+
     var text  = TEXTS[textIdx % TEXTS.length];
     textIdx++;
 
@@ -118,17 +121,12 @@
     var heroTop    = heroEl ? heroEl.offsetTop    : 0;
     var pageH      = document.body.scrollHeight;
 
-    var xPx, yPx;
-    if (spawned === 0) {
-      // First sticker: bottom third of hero (hero-text / headline zone), in-viewport
-      xPx = 0.06 * window.innerWidth  + Math.random() * 0.78 * window.innerWidth;
-      yPx = heroTop + heroH * 0.65    + Math.random() * heroH * 0.28;
-    } else {
-      // Subsequent stickers: spread below the hero across the rest of the page
-      var belowHero = heroTop + heroH + 40;
-      xPx = 0.06 * window.innerWidth  + Math.random() * 0.78 * window.innerWidth;
-      yPx = belowHero + Math.random() * Math.max(0, pageH - belowHero - 80);
-    }
+    // All stickers: spawn in the current viewport, below the hero
+    var scrollY = window.pageYOffset || document.documentElement.scrollTop;
+    var vpTop   = Math.max(heroTop + heroH + 40, scrollY + 60);
+    var vpBot   = scrollY + window.innerHeight - 60;
+    var xPx     = 0.06 * window.innerWidth + Math.random() * 0.78 * window.innerWidth;
+    var yPx     = vpTop + Math.random() * Math.max(0, vpBot - vpTop);
 
     var el = document.createElement('div');
     el.className = 'sticker';
@@ -185,21 +183,18 @@
   function startSchedule() {
     if (started) return;
     started = true;
-    // Stretch layer to full document height so below-fold stickers aren't clipped
-    layer.style.height = document.body.scrollHeight + 'px';
     setTimeout(function tick() {
       spawnSticker();
-      if (spawned < MAX) setTimeout(tick, 120000); // 2-min interval
+      if (spawned < MAX) setTimeout(tick, 30000); // 30s interval
     }, 15000); // 15s delay
   }
 
-  if (window.IntersectionObserver) {
-    var io = new IntersectionObserver(function (entries) {
-      if (entries[0].isIntersecting) { startSchedule(); io.disconnect(); }
-    }, { threshold: 0.1 });
-    io.observe(layer);
-  } else {
+  // Layer starts at 0 height so IntersectionObserver threshold would never fire.
+  // Layer is always at top of page — just start after load.
+  if (document.readyState === 'complete') {
     startSchedule();
+  } else {
+    window.addEventListener('load', startSchedule);
   }
 
 }());
