@@ -185,7 +185,7 @@
     started = true;
     setTimeout(function tick() {
       spawnSticker();
-      if (spawned < MAX) setTimeout(tick, 30000); // 30s interval
+      if (spawned < MAX) setTimeout(tick, 120000); // 2-min interval
     }, 15000); // 15s delay
   }
 
