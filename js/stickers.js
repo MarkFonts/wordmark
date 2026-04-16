@@ -6,6 +6,7 @@
 
   var TEXTS = [
     'message\u202F=\u202Fmedium',
+    'drag me',
     'times new up',
     'comic deadpans',
     'a hellvetica good time',
