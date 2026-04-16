@@ -684,8 +684,8 @@ footer {
   padding: 9px 18px;
   border-radius: 50px;
   color: #fff;
-  font-family: 'CalSans', sans-serif;
-  font-weight: 700;
+  font-family: 'CalSansUI', sans-serif;
+  font-variation-settings: 'wght' 700;
   font-size: 13px;
   white-space: nowrap;
   cursor: grab;
