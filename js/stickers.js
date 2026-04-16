@@ -112,15 +112,30 @@
 
     var color = COLORS[Math.floor(Math.random() * COLORS.length)];
     var rot   = Math.random() * 30 - 15;  // ±15°
-    var x     = 8  + Math.random() * 72;  // 8–80 vw
-    var y     = 12 + Math.random() * 68;  // 12–80 vh
+
+    var heroEl     = document.getElementById('hero');
+    var heroH      = heroEl ? heroEl.offsetHeight : window.innerHeight;
+    var heroTop    = heroEl ? heroEl.offsetTop    : 0;
+    var pageH      = document.body.scrollHeight;
+
+    var xPx, yPx;
+    if (spawned === 0) {
+      // First sticker: bottom third of hero (hero-text / headline zone), in-viewport
+      xPx = 0.06 * window.innerWidth  + Math.random() * 0.78 * window.innerWidth;
+      yPx = heroTop + heroH * 0.65    + Math.random() * heroH * 0.28;
+    } else {
+      // Subsequent stickers: spread below the hero across the rest of the page
+      var belowHero = heroTop + heroH + 40;
+      xPx = 0.06 * window.innerWidth  + Math.random() * 0.78 * window.innerWidth;
+      yPx = belowHero + Math.random() * Math.max(0, pageH - belowHero - 80);
+    }
 
     var el = document.createElement('div');
     el.className = 'sticker';
     el.textContent = text;
     el.style.background = color;
-    el.style.left = x + 'vw';
-    el.style.top  = y + 'vh';
+    el.style.left = xPx + 'px';
+    el.style.top  = yPx + 'px';
     el.style.setProperty('--rot', rot + 'deg');
 
     layer.appendChild(el);
@@ -170,6 +185,8 @@
   function startSchedule() {
     if (started) return;
     started = true;
+    // Stretch layer to full document height so below-fold stickers aren't clipped
+    layer.style.height = document.body.scrollHeight + 'px';
     setTimeout(function tick() {
       spawnSticker();
       if (spawned < MAX) setTimeout(tick, 120000); // 2-min interval
