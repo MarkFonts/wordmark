@@ -102,6 +102,50 @@
   });
 }());
 
+/* ── hero pill: sliding gradient synced to comet (issue #25) */
+(function () {
+  var pill = document.querySelector('.hero-pill');
+  if (!pill) return;
+
+  // CSS handles background-image/size/repeat on :hover.
+  // JS only keeps background-position-x pre-synced to the current comet slot
+  // so the correct colour appears the instant the user hovers.
+
+  var EPOCH_DUR = 36;       // must match flapjack.js
+  var HOLD_FRAC = 32 / 36;  // hold for 32 s, ease over final 4 s
+  var lastIdx   = -1;
+  var curPos    = 0;        // current bg-pos-x in %
+
+  function easeExpoOut(x) { return 1 - Math.pow(2, -10 * x); }
+
+  function pillRaf() {
+    requestAnimationFrame(pillRaf);
+    var wc = window.wmComet;
+    if (!wc) return;
+
+    var idx      = wc.idx;       // 0–3
+    var progress = wc.progress;  // 0→1 within epoch
+
+    // Snap bg-pos to 0% the moment epoch wraps pink → orange (both show orange)
+    if (lastIdx === 3 && idx === 0) curPos = 0;
+    lastIdx = idx;
+
+    var fromPos = idx * 25;       // 0, 25, 50, 75
+    var toPos   = (idx + 1) * 25; // 25, 50, 75, 100
+
+    if (progress < HOLD_FRAC) {
+      curPos = fromPos;
+    } else {
+      var t     = (progress - HOLD_FRAC) / (1 - HOLD_FRAC); // 0→1
+      curPos    = fromPos + (toPos - fromPos) * easeExpoOut(t);
+    }
+
+    pill.style.backgroundPositionX = curPos.toFixed(2) + '%';
+  }
+
+  requestAnimationFrame(pillRaf);
+}());
+
 /* ── image slide-in ─────────────────────────────────────── */
 (function () {
   var io = new IntersectionObserver(function (entries) {

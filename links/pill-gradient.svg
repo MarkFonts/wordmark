@@ -1,0 +1,22 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1000 1" preserveAspectRatio="none">
+  <!--
+    Designed for background-size: 800% — each hold position shows 125/1000 units.
+    Slot windows (bg-pos 0/25/50/75/100%): [0-125] [219-344] [438-563] [656-781] [875-1000]
+    Blend zones live entirely in the 94-unit gaps between windows — no bleed at rest.
+  -->
+  <defs>
+    <linearGradient id="g" x1="0" y1="0" x2="1" y2="0" gradientUnits="objectBoundingBox">
+      <stop offset="0%"   stop-color="#e8650a"/>
+      <stop offset="13%"  stop-color="#e8650a"/>
+      <stop offset="21%"  stop-color="#7C00F6"/>
+      <stop offset="35%"  stop-color="#7C00F6"/>
+      <stop offset="43%"  stop-color="#00a67e"/>
+      <stop offset="57%"  stop-color="#00a67e"/>
+      <stop offset="65%"  stop-color="#ff2d55"/>
+      <stop offset="79%"  stop-color="#ff2d55"/>
+      <stop offset="87%"  stop-color="#e8650a"/>
+      <stop offset="100%" stop-color="#e8650a"/>
+    </linearGradient>
+  </defs>
+  <rect width="1000" height="1" fill="url(#g)"/>
+</svg>

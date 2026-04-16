@@ -442,10 +442,11 @@
     drawHUD(clr);
     updateText(t);   // CSS update, not canvas
 
-    // Expose live comet colours for pill hover gradient
-    var root = document.documentElement;
-    root.style.setProperty('--comet-a', cometColorAt(t));
-    root.style.setProperty('--comet-b', cometColorAt(t + EPOCH_DUR * 0.5));
+    // Expose comet state for pill slideshow driver (site.js)
+    window.wmComet = {
+      idx:      Math.floor(t / EPOCH_DUR) % TRAVEL_COLORS.length,
+      progress: (t % EPOCH_DUR) / EPOCH_DUR
+    };
 
     rafId = requestAnimationFrame(frame);
   }
