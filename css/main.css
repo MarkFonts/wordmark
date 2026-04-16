@@ -392,6 +392,7 @@ body {
   hyphens: auto;
   position: relative;
   z-index: 1;  /* sits above canvas */
+  transform: translateY(1.5vh);
 }
 
 #dek-annot {
