@@ -7,12 +7,13 @@
   var ctx = canvas.getContext('2d');
 
   var FONT = '"CalSansUI", sans-serif';
-  var CW, CH, dpr, LEFT_PAD;
+  var CW, CH, BASE_CH, dpr, LEFT_PAD;
+  var BLEED = 32;   // extra canvas px per side — font size stays fixed, prevents glyph clipping
   var isMobile = false;
 
   /* ── CalSansUI metrics (1000 UPM) ────────────────────────*/
   var ASC   = 0.800;
-  var CAP_H = 0.710;
+  var CAP_H = 0.720;
   var DESC  = 0.150;
   /* x-height varies with wght: 515 @ 400, 529 @ 700 */
   var X_H_400 = 0.515;
@@ -20,7 +21,7 @@
   var X_H     = X_H_400;  // used for stable layout in init()
 
   var METRICS = [
-    { label: 'CAP HEIGHT', val: '710',       frac:  CAP_H },
+    { label: 'CAP HEIGHT', val: '720',       frac:  CAP_H },
     { label: 'X-HEIGHT',   val: '515',       frac:  X_H_400 },  // val overridden live in frame()
     { label: 'BASELINE',   val: '0',         frac:  0     },
     { label: 'DESCENDER',  val: '\u2212150', frac: -DESC  },
@@ -158,12 +159,18 @@
     CW       = Math.max(Math.floor(canvas.parentElement.getBoundingClientRect().width), 320);
 
     // Mobile: exactly 50 vh; desktop: 60% of width capped at 52 vh
-    CH = isMobile
+    BASE_CH = isMobile
       ? Math.round(window.innerHeight * 0.50)
       : Math.round(Math.min(CW * 0.60, window.innerHeight * 0.52));
 
-    canvas.style.width  = CW + 'px';
-    canvas.style.height = CH + 'px';
+    // Canvas is BLEED px taller each side so ascenders/descenders never hit the edge.
+    // Negative margins collapse that extra height back out so the section stays the same size.
+    // fs is tied to BASE_CH — font size is unchanged.
+    CH = BASE_CH + BLEED * 2;
+    canvas.style.width        = CW + 'px';
+    canvas.style.height       = CH + 'px';
+    canvas.style.marginTop    = -BLEED + 'px';
+    canvas.style.marginBottom = -BLEED + 'px';
     canvas.width  = Math.round(CW * dpr);
     canvas.height = Math.round(CH * dpr);
     canvas.style.fontFeatureSettings = '"tnum" 1';
@@ -172,9 +179,11 @@
       ? Math.min(Math.max(20, CW * 0.05), 40)
       : Math.min(Math.max(32, CW * 0.07), 112);
 
-    var fs         = Math.round(CH * 0.70 / (ASC + DESC));  // 15% breathing — clears deep cedillas/ogoneks
+    var fs = Math.round(BASE_CH * 0.70 / (ASC + DESC));
 
     /* ── position HTML header inside x-height zone ── */
+    // baseline_y / xH_y are canvas coords; canvas sits BLEED px above its layout position,
+    // so subtract BLEED to convert to #dek-wrap absolute coords for the header.
     var baseline_y = CH / 2 + ((ASC - DESC) / 2) * fs;
     var xH_y       = baseline_y - X_H_400 * fs;
     var headerEl   = document.getElementById('dek-header');
@@ -184,7 +193,7 @@
         var fs_h   = Math.max(9, Math.round(zoneH / 7));
         var colW   = Math.max(60, Math.round(CW * 0.34) - LEFT_PAD);
         headerEl.style.position   = 'absolute';
-        headerEl.style.top        = Math.round(xH_y) + 'px';
+        headerEl.style.top        = Math.round(xH_y - BLEED) + 'px';
         headerEl.style.left       = LEFT_PAD + 'px';
         headerEl.style.width      = colW + 'px';
         headerEl.style.fontSize   = fs_h + 'px';
@@ -267,7 +276,7 @@
     }
 
     var wght = wghtVal(t);
-    var fs   = Math.round(CH * 0.70 / (ASC + DESC));
+    var fs   = Math.round(BASE_CH * 0.70 / (ASC + DESC));
     var ink  = getInk();
     var bg   = getBg();
     var ch   = String.fromCodePoint(glyphs[glyphIdx]);
