@@ -5,7 +5,7 @@
   var track = document.querySelector('.track');
   if (!wrap || !track) return;
 
-  // Disable the CSS animation — JS drives position instead
+  wrap.style.marginBottom = '200px';
   track.style.animation = 'none';
 
   var px      = 0;      // current translateX (always ≤ 0)
