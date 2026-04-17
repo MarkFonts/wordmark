@@ -156,5 +156,5 @@
       }
     });
   }, { threshold: 0.12 });
-  document.querySelectorAll('.work-img').forEach(function (el) { io.observe(el); });
+  document.querySelectorAll('.work-fig').forEach(function (el) { io.observe(el); });
 }());

@@ -285,19 +285,32 @@ body {
 /* ═══ WORK ══════════════════════════════════════════════ */
 #work { padding: 0; }
 
+/* mobile-first: single column by default, 3-col only on desktop */
 .work-item {
   display: grid;
-  /* copy always left, image always right */
-  grid-template-columns: 1fr 1fr;
-  min-height: 100vh;
-  padding: 0 clamp(32px, 7vw, 112px);
-  gap: clamp(32px, 5vw, 80px);
+  grid-template-columns: 1fr;
+  padding: 0 clamp(20px, 5vw, 40px);
+  gap: 24px;
   align-items: start;
 }
 
 .work-copy {
-  padding-top: clamp(72px, 10vw, 140px);
-  padding-bottom: clamp(72px, 10vw, 140px);
+  padding-top: 0;
+  padding-bottom: clamp(48px, 8vw, 80px);
+}
+
+@media (min-width: 681px) {
+  .work-item {
+    /* 3/8 copy | 1/8 caption | 4/8 image */
+    grid-template-columns: 3fr 1fr 4fr;
+    min-height: 100vh;
+    padding: 0 clamp(32px, 7vw, 112px);
+    gap: clamp(32px, 5vw, 80px);
+  }
+  .work-copy {
+    padding-top: clamp(72px, 10vw, 140px);
+    padding-bottom: clamp(72px, 10vw, 140px);
+  }
 }
 
 .work-headline {
@@ -321,31 +334,166 @@ body {
   max-width: 38ch;
 }
 
+/* figure wrapper — takes the right-column slot, handles sticky + slide-in */
+/* ── figcaption layout tokens ───────────────────────────────────── */
+:root {
+  --fig-shape-size: 7px;    /* diameter of the morphing shape */
+  --fig-shape-inset: 20px;  /* inset from image corner */
+  --fig-text-gap: 12px;     /* gap between fig-header and text */
+}
+
+/* ── mobile-first figure defaults ──────────────────────────────── */
+.work-fig {
+  display: flex;
+  flex-direction: column;
+  order: -1;         /* figure above copy in single-col grid */
+  width: 100%;
+}
+
+/* mobile: figcaption above image, text indented to shape centre x */
+.work-figcaption {
+  padding-left: calc(var(--fig-shape-inset) + var(--fig-shape-size) / 2 - 0.5px);
+  padding-right: 20%;
+  padding-bottom: 8px;
+  order: -1;
+}
+
+.fig-header { display: none; }   /* empty on mobile */
+
+.fig-text { flex: 1; }
+
+/* ── desktop override (3-col layout) ────────────────────────────── */
+@media (min-width: 681px) {
+  .work-fig {
+    grid-column: 2 / -1;
+    position: sticky;
+    top: clamp(24px, 5vw, 56px);
+    align-self: start;
+    flex-direction: row;
+    align-items: start;
+    order: 0;
+    width: auto;
+    gap: 0;
+    margin-block: 16px;
+    transform: translateX(48px);
+    opacity: 0;
+    transition: transform 0.75s cubic-bezier(0.22, 1, 0.36, 1),
+                opacity 0.6s ease;
+  }
+  .work-fig.visible { transform: translateX(0); opacity: 1; }
+
+  /* caption takes 1/5 of figure; padding-top aligns rule with shape center */
+  .work-figcaption {
+    display: block;
+    flex: 1;
+    width: auto;
+    padding-left: 0;
+    padding-right: 0;
+    padding-top: calc(var(--fig-shape-inset) + var(--fig-shape-size) / 2 - 0.5px);
+    order: 0;
+  }
+
+  .fig-text { order: 0; font-size: 14px; margin-right: 5px; }
+
+  .fig-header {
+    display: block;           /* spacer — empty div, just provides margin-bottom */
+    margin-bottom: var(--fig-text-gap);
+  }
+}
+
+/* shape: absolutely positioned in image top-left corner */
+.work-shape {
+  position: absolute;
+  top: var(--fig-shape-inset);
+  left: var(--fig-shape-inset);
+  z-index: 2;
+  width: var(--fig-shape-size);
+  height: var(--fig-shape-size);
+  background: var(--ink);
+  border-radius: 50%;
+  /* single animation: morph + 90° rotation, quartic easing, pauses at each pole */
+  animation: shape-cycle 5s linear infinite;
+}
+
+/* Quartic ease-in: circle→square   cubic-bezier(0.895, 0.03, 0.685, 0.22)
+   Quartic ease-out: square→circle  cubic-bezier(0.165, 0.84, 0.44, 1.0)
+   Rotation: clockwise only. 0°→90° (to square) then continues to 180°→circle.
+   Circle at 180° = circle at 0° (symmetric), so hard loop is seamless. */
+@keyframes shape-cycle {
+  0%   { border-radius: 50%; transform: rotate(0deg);   }
+  25%  { border-radius: 50%; transform: rotate(0deg);
+         animation-timing-function: cubic-bezier(0.895, 0.03, 0.685, 0.22); }
+  50%  { border-radius: 1px;  transform: rotate(90deg);  }
+  75%  { border-radius: 1px;  transform: rotate(90deg);
+         animation-timing-function: cubic-bezier(0.165, 0.84, 0.44, 1.0);  }
+  100% { border-radius: 50%; transform: rotate(180deg); }
+}
+
+/* rule inside .work-img; work-img overflow:visible lets it escape to figcaption */
+.fig-rule {
+  position: absolute;
+  z-index: 3;
+  background: var(--ink);
+  /* mobile: vertical line from image top-edge down to shape centre */
+  left: calc(var(--fig-shape-inset) + var(--fig-shape-size) / 2 - 0.5px);
+  top: 0;
+  width: 1px;
+  height: calc(var(--fig-shape-inset) + var(--fig-shape-size) / 2);
+  transform-origin: bottom; /* animates upward from shape */
+  transform: scaleY(0);
+  transition: transform 0.8s cubic-bezier(0.22, 1, 0.36, 1) 0.55s;
+}
+.work-fig.visible .fig-rule { transform: scaleY(1); }
+
+@media (min-width: 681px) {
+  /* desktop: figcaption=flex:1, work-img=flex:4 → figcaption is exactly 25% of work-img width
+     so left:-25% reaches the figcaption's outer edge precisely */
+  .fig-rule {
+    top: calc(var(--fig-shape-inset) + var(--fig-shape-size) / 2 - 0.5px);
+    left: -25%;
+    width: calc(25% + var(--fig-shape-inset) + var(--fig-shape-size) / 2);
+    height: 1px;
+    transform-origin: right;
+    transform: scaleX(0);
+  }
+  .work-fig.visible .fig-rule { transform: scaleX(1); }
+}
+
+.fig-text {
+  font-family: 'CalSansUI', sans-serif;
+  font-variation-settings: 'wght' 400;
+  font-size: 14px;
+  line-height: 1.65;
+  color: var(--muted);
+  font-weight: 400;
+  opacity: 0;
+  transform: translateX(5px);
+  transition: opacity 0.7s ease 1s,
+              transform 0.7s cubic-bezier(0.22, 1, 0.36, 1) 1s;
+}
+.work-fig.visible .fig-text { opacity: 1; transform: translateX(0); }
+
+/* image container — 4/5 of figure (= 4/8 of work-item) */
 .work-img {
-  position: sticky;
-  top: clamp(24px, 5vw, 56px);
-  align-self: start;
+  position: relative; /* contains the absolutely-positioned .work-shape */
+  flex: 4;
+  min-width: 0;
   border-radius: var(--r);
-  overflow: hidden;
+  overflow: visible;  /* rule must be able to break out toward the figcaption */
   background: rgba(127,127,127,0.07);
   aspect-ratio: 4 / 3;
   display: flex;
   align-items: center;
   justify-content: center;
-  margin-block: 16px;
-  transform: translateX(48px);
-  opacity: 0;
-  transition: transform 0.75s cubic-bezier(0.22, 1, 0.36, 1),
-              opacity 0.6s ease;
 }
-.work-img.visible { transform: translateX(0); opacity: 1; }
 .work-img img { width: 58%; height: auto; display: block; }
 
-/* full-bleed photo treatment */
+/* full-bleed photo treatment — border-radius clips the image since work-img overflow is visible */
 .work-img img.fill {
   width: 100%;
   height: 100%;
   object-fit: cover;
+  border-radius: var(--r);
 }
 
 /* theme-switching image pair (cal-ui)
@@ -598,7 +746,7 @@ footer {
    At ≤680px:
    • Canvas words reflow to 2-col × 4-row (WO/RD/MA/RK)
      via CONFIG override applied in JS
-   • Work items collapse to single column, image on top
+   • Work items collapse to single column, caption+rule above image
    • Images become static (position:sticky needs overflow
      parent; single-col flow breaks that contract)
    • Contact stacks vertically
@@ -611,18 +759,10 @@ footer {
     padding: 0 clamp(20px, 5vw, 40px);
     gap: 24px;
   }
-  /* image above copy */
-  .work-img {
-    position: static;
-    order: -1;
-    width: 100%;
-    margin-block: 0;
-    margin-bottom: 8px;
-  }
-  .work-copy {
-    padding-top: 0;
-    padding-bottom: clamp(48px, 8vw, 80px);
-  }
+  .work-img { width: 100%; order: 1; }  /* caption+rule above, image below */
+  .work-figcaption { order: -1; }       /* ensure caption is above image */
+  .fig-text { font-size: 10px; }
+  .work-copy { padding-bottom: clamp(48px, 8vw, 80px); }
   .contact-inner {
     flex-direction: column;
     align-items: flex-start;
