@@ -159,16 +159,17 @@
   }
 
   /* ── theme ────────────────────────────────────────────── */
-  function getColours() {
+  // Cache colours — getComputedStyle is expensive; re-read only on theme change
+  var cachedClr = { bg: '#242424', ink: '#ffffff' };
+  function refreshClr() {
     var s = getComputedStyle(document.documentElement);
-    return {
-      bg:  s.getPropertyValue('--bg').trim()  || '#242424',
-      ink: s.getPropertyValue('--ink').trim() || '#ffffff'
-    };
+    cachedClr.bg  = s.getPropertyValue('--bg').trim()  || '#242424';
+    cachedClr.ink = s.getPropertyValue('--ink').trim() || '#ffffff';
   }
 
   /* ── layout ───────────────────────────────────────────── */
   var CW, CH, dpr;
+  var HIDDEN_SZ = 200; // px — hidden canvas row height for Three.js hook
 
   function init() {
     // Cap dpr at 2 — a 3× iPhone has 9× the pixels, tanking mobile fps
@@ -194,6 +195,12 @@
 
     // Keep the text overlay sized to match the canvas
     document.documentElement.style.setProperty('--fj-ch', CH + 'px');
+
+    // Size hidden canvas once here — updateText() only clears and draws
+    hiddenCanvas.width  = Math.round(CW * dpr);
+    hiddenCanvas.height = Math.round(2 * HIDDEN_SZ * dpr);
+
+    refreshClr();
   }
 
 
@@ -214,6 +221,10 @@
     // (vs the original ~0.30 max) to avoid waves filling the entire canvas
     var ampMult = CW <= 480 ? (0.42 / MAX_AMP) : 1;
 
+    // Create comet gradient once per frame — shared across all 5 wave canvases.
+    // All wave canvases are the same size and transform, so one gradient object covers all.
+    var tGrad = waveCanvases[0] ? travelGradient(waveCanvases[0].ctx, t) : null;
+
     for (var wi = 0; wi < WAVES.length; wi++) {
       var wv    = WAVES[wi];
       var amp   = wv.amp * CH * ampMult;
@@ -232,7 +243,7 @@
 
       // Wave curve — colour sweeps left → right via oscillator
       wx.beginPath();
-      wx.strokeStyle = travelGradient(wx, t);
+      wx.strokeStyle = tGrad || travelGradient(wx, t);
       wx.lineWidth   = 1;
       var px0 = -qStep;
       var py0 = midY + amp * Math.sin(k * px0 + phi);
@@ -308,20 +319,16 @@
     markLetters.forEach(function (el) { el.style.fontVariationSettings = mv; });
 
     // Mirror state to hidden canvas so Three.js CanvasTexture stays in sync.
-    // ctx.font weight approximates the wght axis; FLIP/FLOP require a full
-    // Three.js shader approach — this gives the texture correct weight variation.
-    var sz = 200;
-    hiddenCanvas.width  = CW  * dpr;
-    hiddenCanvas.height = 2   * sz * dpr;
+    // Canvas is sized once in init() — only clear and redraw here each frame.
     hctx.clearRect(0, 0, hiddenCanvas.width, hiddenCanvas.height);
     hctx.setTransform(dpr, 0, 0, dpr, 0, 0);
     hctx.textAlign    = 'center';
     hctx.textBaseline = 'middle';
     hctx.fillStyle    = '#ffffff';
-    hctx.font = Math.round(av.wordWght) + ' ' + sz + 'px "CalSansUI", sans-serif';
-    hctx.fillText('WORD', CW / 2, sz * 0.5);
-    hctx.font = Math.round(av.markWght) + ' ' + sz + 'px "CalSansUI", sans-serif';
-    hctx.fillText('MARK', CW / 2, sz * 1.5);
+    hctx.font = Math.round(av.wordWght) + ' ' + HIDDEN_SZ + 'px "CalSansUI", sans-serif';
+    hctx.fillText('WORD', CW / 2, HIDDEN_SZ * 0.5);
+    hctx.font = Math.round(av.markWght) + ' ' + HIDDEN_SZ + 'px "CalSansUI", sans-serif';
+    hctx.fillText('MARK', CW / 2, HIDDEN_SZ * 1.5);
     // if (textTexture) textTexture.needsUpdate = true; // uncomment when Three.js is added
   }
 
@@ -429,11 +436,12 @@
 
   function frame(nowMs) {
     rafId = null;
+    if (document.hidden) return;   // pause when tab is not visible
     if (startTime === null) startTime = nowMs;
     var t   = (nowMs - startTime) / 1000;
     var dt  = prevT === null ? 0 : t - prevT;
     prevT   = t;
-    var clr = getColours();
+    var clr = cachedClr;
 
     ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
     ctx.clearRect(0, 0, CW, CH); // bg handled by CSS so theme transition matches
@@ -456,9 +464,15 @@
     if (!rafId) rafId = requestAnimationFrame(frame);
   }
 
-  new MutationObserver(function () {}).observe(
+  // Refresh cached colours on theme toggle; replaces the old empty observer
+  new MutationObserver(refreshClr).observe(
     document.documentElement, { attributes: true, attributeFilter: ['data-theme'] }
   );
+
+  // Resume RAF when switching back to this tab
+  document.addEventListener('visibilitychange', function () {
+    if (!document.hidden && !rafId) rafId = requestAnimationFrame(frame);
+  });
 
   start();
   document.fonts.ready.then(function () {

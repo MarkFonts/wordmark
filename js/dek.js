@@ -197,10 +197,17 @@
   var prevNow  = null;
   var annotMs  = 0;
 
-  /* ── theme ───────────────────────────────────────────────*/
-  function getInk() {
-    return getComputedStyle(document.documentElement).getPropertyValue('--ink').trim() || '#ffffff';
+  /* ── theme — cached; only re-read on data-theme mutation ────────────────────*/
+  var cachedInk = '#ffffff';
+  var cachedBg  = '#242424';
+  function refreshTheme() {
+    var s = getComputedStyle(document.documentElement);
+    cachedInk = s.getPropertyValue('--ink').trim() || '#ffffff';
+    cachedBg  = s.getPropertyValue('--bg').trim()  || '#242424';
   }
+  new MutationObserver(refreshTheme).observe(
+    document.documentElement, { attributes: true, attributeFilter: ['data-theme'] }
+  );
   /* ── diacritic shape targets ────────────────────────────
      All coords [dx, dy] as fractions of fs.
      dx: offset from CW/2.  dy: offset from capH_y
@@ -304,9 +311,6 @@
   var cursorX      = -9999;
   var cursorY      = -9999;
 
-  function getBg() {
-    return getComputedStyle(document.documentElement).getPropertyValue('--bg').trim() || '#242424';
-  }
 
   function initParticles() {
     parts = [];
@@ -327,11 +331,12 @@
   }
 
   /* ── frame ───────────────────────────────────────────────*/
-  var startMs = null;
+  var startMs  = null;
+  var dekRafId = null;
 
   function frame(nowMs) {
-    requestAnimationFrame(frame);
-    if (!glyphs.length) return;
+    dekRafId = requestAnimationFrame(frame);
+    if (document.hidden || !glyphs.length) return;
     if (startMs === null) startMs = nowMs;
 
     var t   = (nowMs - startMs) / 1000;
@@ -354,7 +359,7 @@
 
     var wght = wghtVal(t);
     var fs   = Math.round(BASE_CH * 0.70 / (ASC + DESC));
-    var ink  = getInk();
+    var ink  = cachedInk;
     var ch   = String.fromCodePoint(glyphs[glyphIdx]);
 
     var xHFrac  = X_H_400 + (X_H_700 - X_H_400) * (wght - 400) / 300;
@@ -415,7 +420,7 @@
     ctx.lineWidth    = 2;
     ctx.lineJoin     = 'round';
     ctx.strokeText(ch, CW / 2, baseline_y);
-    ctx.fillStyle    = getBg();
+    ctx.fillStyle    = cachedBg;
     ctx.fillText(ch, CW / 2, baseline_y);
     ctx.restore();
 
@@ -520,9 +525,15 @@
   }
 
   document.fonts.ready.then(function () {
+    refreshTheme();
     init();
     buildGlyphList();
-    requestAnimationFrame(frame);
+    dekRafId = requestAnimationFrame(frame);
+
+    // Resume RAF when switching back to this tab
+    document.addEventListener('visibilitychange', function () {
+      if (!document.hidden && !dekRafId) dekRafId = requestAnimationFrame(frame);
+    });
 
     // Cursor tracking for particle repulsion
     canvas.addEventListener('mousemove', function (e) {
