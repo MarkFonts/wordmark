@@ -194,3 +194,26 @@
     });
   });
 }());
+
+/* ── letterbox anchor: WORDMARK always 15px below footer ─── */
+// CONFIG_FOOTER.topPadVh = 0.2 reserves 20vh of blank canvas above the letters.
+// We pull the letterbox div up by (20vh - 15px) so that blank space slides
+// behind the footer and the letters land exactly 15px below footer's bottom edge.
+(function () {
+  var lb  = document.getElementById('footer-letterbox');
+  if (!lb) return;
+
+  var TOP_PAD_VH = 0.2;   // must match CONFIG_FOOTER.topPadVh in letterbox.js
+  var GAP        = 15;    // px between footer bottom edge and WORDMARK letters
+
+  function anchor() {
+    lb.style.marginTop = -(TOP_PAD_VH * window.innerHeight - GAP) + 'px';
+  }
+
+  anchor();
+  var raf;
+  window.addEventListener('resize', function () {
+    cancelAnimationFrame(raf);
+    raf = requestAnimationFrame(anchor);
+  });
+}());

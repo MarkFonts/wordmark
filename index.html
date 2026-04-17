@@ -172,12 +172,7 @@
   </div>
 </section>
 
-<!-- footer letterbox — canvas first so footer text overlaps it from below -->
-<div id="footer-letterbox">
-  <canvas id="lb-footer" aria-label="WORDMARK"></canvas>
-</div>
-
-<!-- footer ─────────────────────────────────────────────── -->
+<!-- footer — sits above letterbox; JS pulls letterbox up so WORDMARK lands 15px below -->
 <footer>
   <div class="footer-row">
     <nav class="footer-links" aria-label="Contact links">
@@ -189,6 +184,11 @@
   </div>
   <p class="footer-credit">&copy; 2026 Mark Davis and Wordmark. Letterbox footer pretext effect was created by <a href="https://charlieclark.co/" target="_blank" rel="noopener">Charlie Clark</a>.</p>
 </footer>
+
+<!-- footer letterbox — JS sets margin-top so WORDMARK letters land 15px below footer -->
+<div id="footer-letterbox">
+  <canvas id="lb-footer" aria-label="WORDMARK"></canvas>
+</div>
 
 <script src="js/flapjack.js"></script>
 <script src="js/dek.js"></script>

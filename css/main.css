@@ -685,8 +685,7 @@ body {
 footer {
   position: relative;
   z-index: 2;
-  margin-top: -210px; /* mobile: sits just above letterforms (~50px gap) */
-  padding: 36px clamp(32px, 7vw, 112px);
+  padding: 10vh clamp(32px, 7vw, 112px) 36px;
   display: flex;
   flex-direction: column;
   gap: 12px;
@@ -694,8 +693,8 @@ footer {
 
 .footer-row {
   display: grid;
-  /* Wordmark | ig at 50% | tw ~2/3 | in ~5/6 | email flush right */
-  grid-template-columns: 50% 1fr 1fr 1fr auto;
+  /* ig/tw/in fill left half (3×1fr = 50%); email starts exactly at centre (3fr = 50%) */
+  grid-template-columns: 1fr 1fr 1fr 3fr;
   align-items: baseline;
 }
 
@@ -718,7 +717,6 @@ footer {
   white-space: nowrap;
 }
 .footer-links a:hover { color: var(--ink); }
-.footer-links a:last-child { text-align: right; }
 
 .footer-credit {
   font-variation-settings: 'wght' 400;
@@ -737,6 +735,8 @@ footer {
   width: 100%;
   background: var(--bg);
   transition: background 0.25s;
+  position: relative;
+  z-index: 1; /* footer z-index:2 paints on top */
 }
 
 #lb-footer {
@@ -774,9 +774,6 @@ footer {
     gap: 24px;
   }
   .contact-photo { align-self: auto; }
-  .footer-row { display: flex; flex-direction: column; gap: 8px; }
-  footer { margin-top: -210px; }
-  .footer-links { display: flex; gap: 16px; flex-wrap: wrap; }
   .footer-links a:last-child { text-align: left; }
   #logos { padding-top: 56px; }
   .logos-header { padding: 0 clamp(20px, 5vw, 40px) 36px; }
@@ -802,7 +799,7 @@ footer {
 }
 
 @media (min-width: 768px) {
-  footer { margin-top: -320px; }
+  footer { padding-bottom: clamp(60px, 8vw, 100px); }
 }
 
 /* ═══ STICKERS ══════════════════════════════════════════════ */
