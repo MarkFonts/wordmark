@@ -158,3 +158,39 @@
   }, { threshold: 0.12 });
   document.querySelectorAll('.work-fig').forEach(function (el) { io.observe(el); });
 }());
+
+/* ── mobile rule height: match figcaption exactly ───────── */
+(function () {
+  var cs       = getComputedStyle(document.documentElement);
+  var MOBILE_MQ = window.matchMedia('(max-width: 680px)');
+
+  function sizeRules() {
+    var inset    = parseFloat(cs.getPropertyValue('--fig-shape-inset'))  || 20;
+    var shape    = parseFloat(cs.getPropertyValue('--fig-shape-size'))   || 7;
+    var toShape  = inset + shape / 2;   /* distance from image top to shape centre */
+
+    document.querySelectorAll('.work-fig').forEach(function (fig) {
+      var caption = fig.querySelector('.work-figcaption');
+      var rule    = fig.querySelector('.fig-rule');
+      if (!caption || !rule) return;
+
+      if (MOBILE_MQ.matches) {
+        var capH = caption.offsetHeight;
+        rule.style.top    = '-' + capH + 'px';
+        rule.style.height = (capH + toShape) + 'px';
+      } else {
+        rule.style.top    = '';
+        rule.style.height = '';
+      }
+    });
+  }
+
+  document.fonts.ready.then(function () {
+    sizeRules();
+    var raf;
+    window.addEventListener('resize', function () {
+      cancelAnimationFrame(raf);
+      raf = requestAnimationFrame(sizeRules);
+    });
+  });
+}());

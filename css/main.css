@@ -337,7 +337,7 @@ body {
 /* figure wrapper — takes the right-column slot, handles sticky + slide-in */
 /* ── figcaption layout tokens ───────────────────────────────────── */
 :root {
-  --fig-shape-size: 7px;    /* diameter of the morphing shape */
+  --fig-shape-size: 11px;   /* diameter of the morphing shape */
   --fig-shape-inset: 20px;  /* inset from image corner */
   --fig-text-gap: 12px;     /* gap between fig-header and text */
 }
@@ -348,11 +348,12 @@ body {
   flex-direction: column;
   order: -1;         /* figure above copy in single-col grid */
   width: 100%;
+  overflow: visible; /* rule must escape work-img upward on mobile */
 }
 
-/* mobile: figcaption above image, text indented to shape centre x */
+/* mobile: figcaption above image — text indented past the rule + gap */
 .work-figcaption {
-  padding-left: calc(var(--fig-shape-inset) + var(--fig-shape-size) / 2 - 0.5px);
+  padding-left: calc(var(--fig-shape-inset) + var(--fig-shape-size) / 2 + 10px);
   padding-right: 20%;
   padding-bottom: 8px;
   order: -1;
@@ -382,14 +383,14 @@ body {
   }
   .work-fig.visible { transform: translateX(0); opacity: 1; }
 
-  /* caption takes 1/5 of figure; padding-top aligns rule with shape center */
+  /* caption takes 1/5 of figure; padding-top puts text below the rule line */
   .work-figcaption {
     display: block;
     flex: 1;
     width: auto;
     padding-left: 0;
     padding-right: 0;
-    padding-top: calc(var(--fig-shape-inset) + var(--fig-shape-size) / 2 - 0.5px);
+    padding-top: calc(var(--fig-shape-inset) + var(--fig-shape-size) / 2 - 0.5px + 17px);
     order: 0;
   }
 
@@ -434,11 +435,11 @@ body {
   position: absolute;
   z-index: 3;
   background: var(--ink);
-  /* mobile: vertical line from image top-edge down to shape centre */
+  /* mobile: top/height set by JS to match figcaption height exactly */
   left: calc(var(--fig-shape-inset) + var(--fig-shape-size) / 2 - 0.5px);
   top: 0;
   width: 1px;
-  height: calc(var(--fig-shape-inset) + var(--fig-shape-size) / 2);
+  height: calc(var(--fig-shape-inset) + var(--fig-shape-size) / 2); /* JS overrides this */
   transform-origin: bottom; /* animates upward from shape */
   transform: scaleY(0);
   transition: transform 0.8s cubic-bezier(0.22, 1, 0.36, 1) 0.55s;
@@ -446,14 +447,18 @@ body {
 .work-fig.visible .fig-rule { transform: scaleY(1); }
 
 @media (min-width: 681px) {
-  /* desktop: figcaption=flex:1, work-img=flex:4 → figcaption is exactly 25% of work-img width
-     so left:-25% reaches the figcaption's outer edge precisely */
+  /* shape shifts down 5px on desktop — override must come after the base .work-shape rule */
+  .work-shape { top: calc(var(--fig-shape-inset) + 12px); }
+
+  /* desktop: horizontal rule — reuses fig-rule, now horizontal, extending left from shape.
+     figcaption flex:1 and work-img flex:4 → figcaption = 25% of work-img width.
+     overflow:visible on work-img lets the rule escape leftward into the figcaption column. */
   .fig-rule {
-    top: calc(var(--fig-shape-inset) + var(--fig-shape-size) / 2 - 0.5px);
+    top: calc(var(--fig-shape-inset) + var(--fig-shape-size) / 2 - 0.5px + 12px);
     left: -25%;
     width: calc(25% + var(--fig-shape-inset) + var(--fig-shape-size) / 2);
     height: 1px;
-    transform-origin: right;
+    transform-origin: right center;
     transform: scaleX(0);
   }
   .work-fig.visible .fig-rule { transform: scaleX(1); }
