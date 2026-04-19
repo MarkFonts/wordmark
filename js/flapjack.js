@@ -65,14 +65,21 @@
       Math.round(parseInt(c.slice(5,7),16)*(1-p) + parseInt(n.slice(5,7),16)*p) + ')';
   }
 
-  function travelGradient(wxCtx, t) {
-    var idx = Math.floor(t / EPOCH_DUR) % TRAVEL_COLORS.length;
-    var hex = TRAVEL_COLORS[idx];
-    var r = parseInt(hex.slice(1,3),16), g = parseInt(hex.slice(3,5),16), b = parseInt(hex.slice(5,7),16);
+  // Base peak position — shared by all gradient layers so they stay synchronized.
+  // Only the trail/lead widths differ per layer.
+  var BASE_TRAIL = 0.55, BASE_LEAD = 0.07;
 
-    // Peak travels -LEAD → 1+TRAIL so it fully enters/exits before epoch flips
-    var TRAIL = 0.55, LEAD = 0.07;
-    var pk    = (t % EPOCH_DUR) / EPOCH_DUR * (1 + TRAIL + LEAD) - LEAD;
+  function travelGradient(wxCtx, t, pk, trail, lead, rgb) {
+    var idx = Math.floor(t / EPOCH_DUR) % TRAVEL_COLORS.length;
+    var r, g, b;
+    if (rgb) {
+      r = rgb[0]; g = rgb[1]; b = rgb[2];
+    } else {
+      var hex = TRAVEL_COLORS[idx];
+      r = parseInt(hex.slice(1,3),16); g = parseInt(hex.slice(3,5),16); b = parseInt(hex.slice(5,7),16);
+    }
+
+    var TRAIL = trail, LEAD = lead;
 
     // Piecewise-linear alpha profile — evaluated at any canvas position x ∈ [0,1]
     function alpha(x) {
@@ -221,9 +228,16 @@
     // (vs the original ~0.30 max) to avoid waves filling the entire canvas
     var ampMult = CW <= 480 ? (0.42 / MAX_AMP) : 1;
 
+    // Shared peak position — all gradient layers use this so they stay in sync.
+    // Wider trail/lead values simply expand the fade zone around the same peak.
+    var basePk = (t % EPOCH_DUR) / EPOCH_DUR * (1 + BASE_TRAIL + BASE_LEAD) - BASE_LEAD;
+
     // Create comet gradient once per frame — shared across all 5 wave canvases.
-    // All wave canvases are the same size and transform, so one gradient object covers all.
-    var tGrad = waveCanvases[0] ? travelGradient(waveCanvases[0].ctx, t) : null;
+    var tGrad = waveCanvases[0] ? travelGradient(waveCanvases[0].ctx, t, basePk, BASE_TRAIL, BASE_LEAD) : null;
+    // Bars: 4% wider fade on each side so they appear/linger just beyond the comet.
+    var bGrad = waveCanvases[0] ? travelGradient(waveCanvases[0].ctx, t, basePk, BASE_TRAIL + 0.04, BASE_LEAD + 0.04, [128, 128, 128]) : null;
+    // Circles: 10% wider — appear first, disappear last.
+    var cGrad = waveCanvases[0] ? travelGradient(waveCanvases[0].ctx, t, basePk, BASE_TRAIL + 0.10, BASE_LEAD + 0.10, [128, 128, 128]) : null;
 
     for (var wi = 0; wi < WAVES.length; wi++) {
       var wv    = WAVES[wi];
@@ -243,7 +257,7 @@
 
       // Wave curve — colour sweeps left → right via oscillator
       wx.beginPath();
-      wx.strokeStyle = tGrad || travelGradient(wx, t);
+      wx.strokeStyle = tGrad || travelGradient(wx, t, basePk, BASE_TRAIL, BASE_LEAD);
       wx.lineWidth   = 1;
       var px0 = -qStep;
       var py0 = midY + amp * Math.sin(k * px0 + phi);
@@ -273,7 +287,7 @@
         var armY  = arm * slope;
 
         wx.beginPath();
-        wx.strokeStyle = 'rgba(128,128,128,0.75)';
+        wx.strokeStyle = bGrad || 'rgba(128,128,128,0.75)';
         wx.lineWidth   = 0.75;
         wx.moveTo(hx - arm, hy - armY);
         wx.lineTo(hx + arm, hy + armY);
@@ -281,12 +295,13 @@
 
         [[hx - arm, hy - armY], [hx + arm, hy + armY]].forEach(function (p) {
           wx.beginPath();
+          wx.strokeStyle = cGrad || 'rgba(128,128,128,0.75)';
           wx.arc(p[0], p[1], 2, 0, Math.PI * 2);
           wx.stroke();
         });
 
         wx.beginPath();
-        wx.fillStyle = 'rgba(128,128,128,0.75)';
+        wx.fillStyle = cGrad || 'rgba(128,128,128,0.75)';
         wx.arc(hx, hy, 2.5, 0, Math.PI * 2);
         wx.fill();
 
