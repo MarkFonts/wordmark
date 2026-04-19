@@ -95,12 +95,13 @@
     el.addEventListener('touchstart', function (e) {
       var t = e.touches[0];
       start(t.clientX, t.clientY);
-    }, { passive: true });
+    }, { passive: false });
     window.addEventListener('touchmove', function (e) {
       if (!dragging) return;
+      e.preventDefault();
       var t = e.touches[0];
       move(t.clientX, t.clientY);
-    }, { passive: true });
+    }, { passive: false });
     window.addEventListener('touchend', end);
   }
 
