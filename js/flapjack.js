@@ -138,9 +138,16 @@
   }
   function onLeave() { mouse.active = false; }
 
+  if (MOUSE_AXES_ENABLED) {
+    canvas.style.cursor = 'crosshair';
+    document.getElementById('flapjack-text').style.pointerEvents = 'auto';
+    document.getElementById('flapjack-text').style.cursor = 'crosshair';
+  } else {
+    canvas.style.cursor = 'default';
+  }
+
   canvas.addEventListener('mousemove',  onMove);
   canvas.addEventListener('mouseleave', onLeave);
-  document.getElementById('flapjack-text').style.pointerEvents = 'auto';
   document.getElementById('flapjack-text').addEventListener('mousemove',  onMove);
   document.getElementById('flapjack-text').addEventListener('mouseleave', onLeave);
 
