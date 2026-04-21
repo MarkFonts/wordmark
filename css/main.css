@@ -17,7 +17,7 @@
 @font-face {
   font-family: 'CalSansUI';
   src: url('../fonts/CalSansUI-VariableFont 1.726 [opsz,wght,GEOM,YTAS,SHRP].woff2') format('woff2');
-  font-weight: 100 900;
+  font-weight: 400 700;
   font-style: normal;
   font-display: swap;
   /* Variable axes — opsz: 10–10.1 | wght: 400–700 | GEOM: 0–100 | YTAS: 720–800 | SHRP: 0–100 */
@@ -59,9 +59,9 @@
   font-display: swap;
 }
 
-*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; font-feature-settings: 'dlig' 0, 'ss20' 0, 'calt' 0; font-variant-ligatures: no-discretionary-ligatures no-contextual; }
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; font-feature-settings: 'dlig' 0, 'ss20' 0, 'calt' 0, 'liga' 0; font-variant-ligatures: no-common-ligatures no-discretionary-ligatures no-contextual; }
 
-.dlig { font-feature-settings: 'dlig' 1, 'ss20' 1, 'calt' 1; font-variant-ligatures: discretionary-ligatures contextual; }
+.dlig { font-feature-settings: 'dlig' 1, 'ss20' 1, 'calt' 1, 'liga' 1; font-variant-ligatures: common-ligatures discretionary-ligatures contextual; }
 
 /* ── colour tokens, respects data-theme on <html> ────── */
 :root,
