@@ -1,8 +1,10 @@
 (function () {
   'use strict';
 
+  var STICKERS_ENABLED = false;
+
   var layer = document.getElementById('sticker-layer');
-  if (!layer) return;
+  if (!layer || !STICKERS_ENABLED) return;
 
   var TEXTS = [
     'message\u202F=\u202Fmedium',

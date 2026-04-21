@@ -1,6 +1,8 @@
 (function () {
   'use strict';
 
+  var MOUSE_AXES_ENABLED = false;
+
   var canvas      = document.getElementById('flapjack-canvas');
   var wordEl      = document.getElementById('fj-word');
   var markEl      = document.getElementById('fj-mark');
@@ -128,6 +130,7 @@
   var mouse = { active: false, nx: 0.5, ny: 0.5 };
 
   function onMove(e) {
+    if (!MOUSE_AXES_ENABLED) return;
     var r = canvas.getBoundingClientRect();
     mouse.active = true;
     mouse.nx = Math.min(Math.max((e.clientX - r.left) / r.width,  0), 1);

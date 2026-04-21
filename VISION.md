@@ -37,12 +37,17 @@ No CMS dependency at launch; can add Decap/Netlify CMS later if needed.
 - **Metric overlay**: dashed rules full-width for cap height (710), x-height, baseline (0), descender (−150); labels and values aligned to site margin (`clamp(32px, 7vw, 112px)`)
   - x-height line and value interpolate live with wght: 515 @ wght 400 → 529 @ wght 700
 - **U+XXXX annotation**: displayed right-aligned, vertically centred in the x-height zone; same 8 px / 28% opacity as metric labels
-- **Clean outer outline**: `strokeText(ink)` then `fillText(dustPattern)` — inner contour strokes buried under fill, leaving only the outer edge visible for composite glyphs
-- **Dust noise fill**: 64×64 noise tile regenerated every frame (±14 brightness scatter around `--bg`), tiled as `CanvasPattern` inside each glyph
-- **Copy text** (desktop only): "At Wordmark, we design custom typefaces…" layered over the glyph in the x-height zone; left-aligned from site margin, column width ~42% of canvas; smaller font so text wraps to 4–5 lines; 85% opacity
-- **Mobile**: copy text shown as HTML `<p id="dek-mobile-header">` above the canvas via CSS; canvas text disabled
-- Glyph font size: `CH × 0.90 / (ASC + DESC)` — fits ascender-to-descender in 90% of canvas height, ~5% breathing top and bottom
-- `#dek-annot` span in DOM for a11y (visually hidden; U+XXXX drawn on canvas instead)
+- **Glyph render**: `strokeText(ink, 2px)` then `fillText(--bg)` — buries internal path overlaps on composite glyphs (Æ, Ø, etc.), leaving only the outer edge visible
+- **Particle constellation fill**: 92 coloured particles in 4 zones, drawn `source-atop` so they are masked to the glyph paint area
+  - Zone 0 (44 pts): wide scatter across full glyph body
+  - Zones 1/2 (18 pts each): tight center clusters — upper and lower half — so narrow glyphs like I/J always have visible activity
+  - Zone 3 (12 pts): diacritic floater — idles invisibly above cap height; when a glyph with a diacritic cycles in, particles drift into the accent formation (acute, grave, circ, tilde, macron, breve, ring, caron, dot, hook, dotb, cedilla, ogonek, horn; full Vietnamese double-stack combinations)
+  - Constellation lines between nearby particles (d < 50 px), alpha fades with distance
+  - **Cursor repulsion**: hover pushes particles away; they drift back on leave
+- **Copy text** (desktop only): "At Wordmark, we design custom typefaces…" positioned in the x-height zone via JS; `translateY(1.5vh)` nudges it slightly over the canvas top edge
+- **Mobile**: copy text shown as HTML `<p id="dek-header">` above the canvas via CSS; canvas text disabled
+- Glyph font size: `BASE_CH × 0.70 / (ASC + DESC)`; canvas padded ±32 px BLEED with negative margins so ascenders/descenders never clip
+- `#dek-annot` span updated every 250 ms with current U+XXXX codepoint
 
 ---
 
@@ -75,11 +80,13 @@ Each work item:
 ## Section 6 — Sticker layer
 
 - `#sticker-layer`: full-page transparent overlay (`position: absolute; pointer-events: none; z-index: 99`)
-- Typography-pun pill stickers spawn one at a time: first at 15 s, then every 2 minutes, up to 6 total
-- Random position, tilt (±15°), colour from `[#7C00F6, #ff2d55, #e8650a, #00a67e]`
-- Pop-in bounce animation; hover wiggle; grab/drag (mouse + touch), scroll-aware
+- Typography-pun pill stickers spawn one at a time: first at 15 s, then every 30 s, up to 6 total
+- All stickers spawn within the current viewport, below the hero section
+- Random tilt (±15°), colour from `[#7C00F6, #ff2d55, #e8650a, #00a67e]`
+- Pop-in bounce animation; hover wiggle; grab/drag (mouse + touch)
 - **Throw physics**: velocity tracked via EMA during drag; release coasts with 0.92/frame friction
-- **Mouseleave settle**: eases to fresh random tilt (±10°) with `power2.out` curve
+- **Mouseleave settle**: eases to fresh random tilt (±10°) with `cubic-bezier(0.34, 1.56, 0.64, 1)`
+- Schedule triggered on `window load` (replaced IntersectionObserver — layer starts at 0 height so threshold:0.1 never fired); layer height refreshed on each spawn
 
 ---
 
@@ -88,7 +95,7 @@ Each work item:
 | Family | File | Use |
 |---|---|---|
 | CalSans Bold | `CalSans-Bold.woff2` | Headlines, hero text, letterbox large forms, sticker pills |
-| CalSansUI Variable | `CalSansUI-VariableFont 1.721 [opsz,wght,GEOM,YTAS,SHRP].woff2` | Body, footer, dek section, hero WORDMARK |
+| CalSansUI Variable | `CalSansUI-VariableFont 1.725 [opsz,wght,GEOM,YTAS,SHRP].woff2` | Body, footer, dek section, hero WORDMARK |
 | Ambulia Text | `AmbuliaTextVF.woff2` | Font pool |
 | Anglev1 | `anglev1-Regularv17.woff2` | Font pool |
 | Gaussian | `GaussianVF.woff2` | Font pool |
@@ -104,10 +111,10 @@ Each work item:
 | File | Purpose |
 |---|---|
 | `js/flapjack.js` | Hero canvas: waves, WORDMARK axis animation, comet gradient, mouse interaction, CSS comet colour export |
-| `js/dek.js` | Dek section: glyph cycling, metric overlay, dust noise, copy text, wght oscillation |
+| `js/dek.js` | Dek section: glyph cycling, metric overlay, particle constellation fill, diacritic floater zone, cursor repulsion, copy text, wght oscillation |
 | `js/letterbox.js` | Footer canvas letterbox renderer |
 | `js/site.js` | Theme toggle, SVG logo inlining, work headline balancing, image slide-in |
-| `js/stickers.js` | Sticker spawn, drag (mouse + touch), throw physics, IntersectionObserver timing |
+| `js/stickers.js` | Sticker spawn (viewport-relative), drag (mouse + touch), throw physics, load-event timing |
 
 ---
 
@@ -143,3 +150,4 @@ Theme toggle: Auto / Light / Dark, persisted in `localStorage` as `wm-theme`.
 
 - **#14** — Carousel bugs (TBD)
 - **#17** — Footer letterbox: confirm whether `wdth` axis should be `GEOM` or `YTAS`
+- **#27** — Memory audit: 300 MB+ usage from flapjack.js / dek.js (TBD)
