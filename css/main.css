@@ -97,6 +97,7 @@ body {
   color: var(--ink);
   font-family: 'CalSansUI', -apple-system, sans-serif;
   font-variation-settings: 'wght' 400;
+  font-feature-settings: 'dlig' 0;
   -webkit-font-smoothing: antialiased;
   overflow-x: clip;
   transition: background 0.25s, color 0.25s;
