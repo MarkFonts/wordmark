@@ -59,7 +59,9 @@
   font-display: swap;
 }
 
-*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; font-feature-settings: 'dlig' 0; }
+
+.dlig { font-feature-settings: 'dlig' 1; }
 
 /* ── colour tokens, respects data-theme on <html> ────── */
 :root,
