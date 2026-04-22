@@ -95,7 +95,7 @@ Each work item:
 | Family | File | Use |
 |---|---|---|
 | CalSans Bold | `CalSans-Bold.woff2` | Headlines, hero text, letterbox large forms, sticker pills |
-| CalSansUI Variable | `CalSansUI-VariableFont 1.726 [opsz,wght,GEOM,YTAS,SHRP].woff2` | Body, footer, dek section, hero WORDMARK |
+| CalSansUI Variable | `CalSansUI-VariableFont 1.727 [opsz,wght,GEOM,YTAS,SHRP].woff2` | Body, footer, dek section, hero WORDMARK |
 | Ambulia Text | `AmbuliaTextVF.woff2` | Font pool |
 | Anglev1 | `anglev1-Regularv17.woff2` | Font pool |
 | Gaussian | `GaussianVF.woff2` | Font pool |
