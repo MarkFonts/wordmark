@@ -6,7 +6,7 @@ var CONFIG = {
   words:           ['WORD', 'MARK'],
   largeFontFamily: '"CalSans", -apple-system, sans-serif',
   largeWeight:     700,
-  fillFontFamily:  '"CalSansUI", -apple-system, sans-serif',
+  fillFontFamily:  '"CalSans", -apple-system, sans-serif',
   fillWeight:      400,
   fillSize:        10,        // px at reference width
   widthFraction:   0.92,      // fraction of layout width the words fill
@@ -28,7 +28,7 @@ var CONFIG_FOOTER = {
   words:           ['WORDMARK'],
   largeFontFamily: '"CalSans", -apple-system, sans-serif',
   largeWeight:     700,
-  fillFontFamily:  '"CalSansUI", -apple-system, sans-serif',
+  fillFontFamily:  '"CalSans", -apple-system, sans-serif',
   fillWeight:      400,
   fillSize:        10,
   widthFraction:   0.98,

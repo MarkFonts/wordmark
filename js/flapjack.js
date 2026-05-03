@@ -19,7 +19,7 @@
   var waveCanvases = Array.from(document.querySelectorAll('.fj-wave')).map(function (c) {
     return { el: c, ctx: c.getContext('2d') };
   });
-  var MONO_FONT = '"CalSansUI", -apple-system, sans-serif';
+  var MONO_FONT = '"CalSans", -apple-system, sans-serif';
 
   /* ── hidden canvas — Three.js CanvasTexture target ───── */
   // Keeps a live 2D render of WORD / MARK at current axis values so a
@@ -31,7 +31,7 @@
   window.wmTextCanvas  = hiddenCanvas; // THREE.CanvasTexture hook
 
   var FONT_POOL = [
-    '"CalSansUI", sans-serif',
+    '"CalSans", sans-serif',
     '"Ambulia Text", serif',
     '"Anglev1", sans-serif',
     '"Gaussian", sans-serif',
@@ -350,9 +350,9 @@
     hctx.textAlign    = 'center';
     hctx.textBaseline = 'middle';
     hctx.fillStyle    = '#ffffff';
-    hctx.font = Math.round(av.wordWght) + ' ' + HIDDEN_SZ + 'px "CalSansUI", sans-serif';
+    hctx.font = Math.round(av.wordWght) + ' ' + HIDDEN_SZ + 'px "CalSans", sans-serif';
     hctx.fillText('WORD', CW / 2, HIDDEN_SZ * 0.5);
-    hctx.font = Math.round(av.markWght) + ' ' + HIDDEN_SZ + 'px "CalSansUI", sans-serif';
+    hctx.font = Math.round(av.markWght) + ' ' + HIDDEN_SZ + 'px "CalSans", sans-serif';
     hctx.fillText('MARK', CW / 2, HIDDEN_SZ * 1.5);
     // if (textTexture) textTexture.needsUpdate = true; // uncomment when Three.js is added
   }

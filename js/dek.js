@@ -6,7 +6,7 @@
   if (!canvas) return;
   var ctx = canvas.getContext('2d');
 
-  var FONT = '"CalSansUI", sans-serif';
+  var FONT = '"CalSans", sans-serif';
   var CW, CH, BASE_CH, dpr, LEFT_PAD;
   var BLEED = 32;   // extra canvas px per side — font size stays fixed, prevents glyph clipping
   var isMobile = false;
@@ -117,9 +117,9 @@
     canvas.style.fontVariationSettings = '"wght" 400';
     RANGES.forEach(function (cp) {
       var ch = String.fromCodePoint(cp);
-      ctx.font = '100px "CalSansUI", sans-serif';
+      ctx.font = '100px "CalSans", sans-serif';
       var wA   = ctx.measureText(ch).width;
-      ctx.font = '100px "CalSansUI", monospace';
+      ctx.font = '100px "CalSans", monospace';
       var wB   = ctx.measureText(ch).width;
       if (wA > 1 && Math.abs(wA - wB) < 0.5) glyphs.push(cp);
     });
