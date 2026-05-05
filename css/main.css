@@ -54,7 +54,7 @@
 
 *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; font-feature-settings: 'dlig' 0, 'ss20' 0, 'calt' 0, 'liga' 0; font-variant-ligatures: no-common-ligatures no-discretionary-ligatures no-contextual; }
 
-.dlig { font-feature-settings: 'dlig' 1, 'ss20' 1, 'calt' 1, 'liga' 1; font-variant-ligatures: common-ligatures discretionary-ligatures contextual; }
+.ss19 { font-feature-settings: 'ss19' 1; }
 
 /* ── colour tokens, respects data-theme on <html> ────── */
 :root,
