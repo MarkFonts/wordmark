@@ -1,4 +1,4 @@
-function a(s,e){self.postMessage(s,e??[])}let t=null;async function i(){a({type:"status",message:"Loading Python runtime..."});const{loadPyodide:s}=await import("https://cdn.jsdelivr.net/pyodide/v0.26.4/full/pyodide.mjs");t=await s({indexURL:"https://cdn.jsdelivr.net/pyodide/v0.26.4/full/"}),a({type:"status",message:"Loading fontTools..."}),await t.loadPackage("fonttools"),a({type:"ready"})}self.onmessage=async s=>{const e=s.data;try{if(e.type==="loadFont"){const n=new Uint8Array(e.fontBytes);t.globals.set("_font_bytes_js",n);const o=await t.runPythonAsync(`
+function a(s,e){self.postMessage(s,e??[])}let t=null;async function i(){a({type:"status",message:"Loading Python runtime..."});const{loadPyodide:s}=await import("https://cdn.jsdelivr.net/pyodide/v0.26.4/full/pyodide.mjs");t=await s({indexURL:"https://cdn.jsdelivr.net/pyodide/v0.26.4/full/"}),a({type:"status",message:"Loading fontTools..."}),await t.loadPackage("fonttools"),a({type:"ready"})}self.onmessage=async s=>{const e=s.data;try{if(e.type==="loadFont"){const o=new Uint8Array(e.fontBytes);t.globals.set("_font_bytes_js",o);const n=await t.runPythonAsync(`
 import io, json
 from fontTools.ttLib import TTFont
 
@@ -24,7 +24,7 @@ for axis in _font_cache['fvar'].axes:
     })
 
 json.dumps(axes_out)
-`);a({type:"axisInfo",axisInfoJson:o})}else if(e.type==="previewFont"){t.globals.set("_thresholds_json",e.thresholdsJson);const o=(await t.runPythonAsync(`
+`);a({type:"axisInfo",axisInfoJson:n})}else if(e.type==="previewFont"){t.globals.set("_thresholds_json",e.thresholdsJson);const n=(await t.runPythonAsync(`
 import io, json
 from fontTools.ttLib import TTFont
 
@@ -69,7 +69,7 @@ def _do_preview():
     out = io.BytesIO(); fnt.save(out); return out.getvalue()
 
 _do_preview()
-`)).toJs();a({type:"previewFontResult",ttf:o.buffer},[o.buffer])}else if(e.type==="measureWords"){t.globals.set("_mw_words_json",e.wordsJson),t.globals.set("_mw_geoms_json",e.geomValuesJson),t.globals.set("_mw_axis_defaults_json",e.axisDefaultsJson);const n=await t.runPythonAsync(`
+`)).toJs();a({type:"previewFontResult",ttf:n.buffer},[n.buffer])}else if(e.type==="measureWords"){t.globals.set("_mw_words_json",e.wordsJson),t.globals.set("_mw_geoms_json",e.geomValuesJson),t.globals.set("_mw_axis_defaults_json",e.axisDefaultsJson);const o=await t.runPythonAsync(`
 import io, json
 from fontTools.ttLib import TTFont
 
@@ -112,12 +112,10 @@ def _measure_words():
             return {}
         subs = {}
         for rec in fv.FeatureVariationRecord:
-            met = all(
-                getattr(c, 'FilterRangeMinValue', -2) <= geom_norm <= getattr(c, 'FilterRangeMaxValue', 2)
-                for c in rec.ConditionSet.ConditionTable
-                if getattr(c, 'AxisIndex', None) == gi
-            )
-            if not met:
+            geom_conds = [c for c in rec.ConditionSet.ConditionTable if getattr(c, 'AxisIndex', None) == gi]
+            if not geom_conds:
+                continue
+            if not all(c.FilterRangeMinValue <= geom_norm <= c.FilterRangeMaxValue for c in geom_conds):
                 continue
             for sr in rec.FeatureTableSubstitution.SubstitutionRecord:
                 for li in sr.Feature.LookupListIndex:
@@ -150,7 +148,7 @@ def _measure_words():
     return json.dumps({'upm': upm, 'widths': widths})
 
 _measure_words()
-`);a({type:"measureWordsResult",dataJson:n})}else if(e.type==="applyConfig"){t.globals.set("_config_json",e.configJson);const o=(await t.runPythonAsync(`
+`);a({type:"measureWordsResult",dataJson:o})}else if(e.type==="applyConfig"){t.globals.set("_config_json",e.configJson);const n=(await t.runPythonAsync(`
 import io, json, logging
 from fontTools.ttLib import TTFont
 from fontTools.varLib.instancer import instantiateVariableFont
@@ -193,4 +191,4 @@ _set_recal_names(result)
 out = io.BytesIO()
 result.save(out)
 out.getvalue()
-`)).toJs();a({type:"fontResult",ttf:o.buffer},[o.buffer])}}catch(n){a({type:"error",message:String(n)})}};i().catch(s=>{a({type:"error",message:`Worker init failed: ${s}`})});
+`)).toJs();a({type:"fontResult",ttf:n.buffer},[n.buffer])}}catch(o){a({type:"error",message:String(o)})}};i().catch(s=>{a({type:"error",message:`Worker init failed: ${s}`})});
