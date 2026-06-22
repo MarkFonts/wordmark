@@ -1,4 +1,4 @@
-function a(o,e){self.postMessage(o,e??[])}let t=null;async function i(){a({type:"status",message:"Loading Python runtime..."});const{loadPyodide:o}=await import("https://cdn.jsdelivr.net/pyodide/v0.26.4/full/pyodide.mjs");t=await o({indexURL:"https://cdn.jsdelivr.net/pyodide/v0.26.4/full/"}),a({type:"status",message:"Loading fontTools..."}),await t.loadPackage("fonttools"),a({type:"ready"})}self.onmessage=async o=>{const e=o.data;try{if(e.type==="loadFont"){const s=new Uint8Array(e.fontBytes);t.globals.set("_font_bytes_js",s);const n=await t.runPythonAsync(`
+function o(s,e){self.postMessage(s,e??[])}let t=null;async function i(){o({type:"status",message:"Loading Python runtime..."});const{loadPyodide:s}=await import("https://cdn.jsdelivr.net/pyodide/v0.26.4/full/pyodide.mjs");t=await s({indexURL:"https://cdn.jsdelivr.net/pyodide/v0.26.4/full/"}),o({type:"status",message:"Loading fontTools..."}),await t.loadPackage("fonttools"),o({type:"ready"})}self.onmessage=async s=>{const e=s.data;try{if(e.type==="loadFont"){const a=new Uint8Array(e.fontBytes);t.globals.set("_font_bytes_js",a);const n=await t.runPythonAsync(`
 import io, json
 from fontTools.ttLib import TTFont
 
@@ -12,6 +12,40 @@ def _set_recal_names(font, family='ReCal Sans'):
     for nameID, value in [(1, family), (2, 'Regular'), (4, family), (6, ps), (16, family), (17, 'Regular')]:
         nt.setName(value, nameID, 3, 1, 0x0409)
 
+# Drop the avar2 axis-to-axis VarStore (Flex's YTAS<-opsz auto-ascender) and
+# unhide YTAS. avar1 segment maps are preserved; no-op on avar v1 fonts.
+def _strip_avar2(font):
+    av = font.get('avar')
+    if av is not None and getattr(av, 'majorVersion', 1) >= 2:
+        av.majorVersion = 1
+        av.minorVersion = 0
+    for a in font['fvar'].axes:
+        if a.axisTag == 'YTAS':
+            a.flags &= ~0x0001
+
+# Graft Flex's cached avar2 store (opsz->YTAS) onto any font (CalSansVF or Flex),
+# keeping the font's own v1 segment maps, and hide YTAS. Both fonts share axis
+# order so the store's deltas/indices stay valid. No-op until Flex's store is
+# cached (loadFlexAvar) — and must run AFTER instancer (which can't touch avar2).
+def _graft_avar2(font):
+    from fontTools.ttLib.tables import otTables as ot
+    store = globals().get('_FLEX_AVAR_STORE')
+    if store is None:
+        return
+    av = font.get('avar')
+    if av is None:
+        return
+    av.majorVersion = 2
+    av.minorVersion = 0
+    if getattr(av, 'table', None) is None:
+        av.table = ot.avar()
+    av.table.VarStore = store
+    av.table.VarIdxMap = globals().get('_FLEX_AVAR_MAP')
+    av.table.Reserved = 0
+    for a in font['fvar'].axes:
+        if a.axisTag == 'YTAS':
+            a.flags |= 0x0001
+
 # Variant order per headline glyph (font's actual rclt suffixes). 'f' reverts to
 # the master above its upper threshold (default · Base · default).
 _GV = {
@@ -21,7 +55,7 @@ _GV = {
     'j': ['default', 'rcltBase', 'rcltGeo'], 't': ['default', 'rcltBase', 'rcltGeo'],
     'y': ['default', 'rcltBase', 'rcltGeo'], 'u': ['default', 'rcltGeo'],
     'C': ['default', 'rcltGeo'], 'c': ['default', 'rcltGeo'], 'M': ['default', 'rcltGeo'],
-    '0': ['default', 'rcltGeo'], '1': ['default', 'rcltGeo'],
+    '0': ['default', 'rcltGeo'], '1': ['default', 'rcltGeo'], '5': ['default', 'rcltGeo'],
 }
 _SUF = {'rcltA11y', 'rcltBase', 'rcltGeo'}
 _NAME = {'IJ': 'I', 'ij': 'I', 'lslash': 'l', 'ldot': 'l', 'tbar': 't',
@@ -152,7 +186,15 @@ for axis in _font_cache['fvar'].axes:
     })
 
 json.dumps(axes_out)
-`);a({type:"axisInfo",axisInfoJson:n})}else if(e.type==="previewFont"){t.globals.set("_thresholds_json",e.thresholdsJson);const n=(await t.runPythonAsync(`
+`);o({type:"axisInfo",axisInfoJson:n})}else if(e.type==="loadFlexAvar"){const a=new Uint8Array(e.fontBytes);t.globals.set("_flex_bytes_js",a),await t.runPythonAsync(`
+import io as _io
+from fontTools.ttLib import TTFont as _TTFont
+_flex_font = _TTFont(_io.BytesIO(bytes(_flex_bytes_js.to_py())))
+_fav = _flex_font.get('avar')
+if _fav is not None and getattr(_fav, 'majorVersion', 1) >= 2:
+    _FLEX_AVAR_STORE = _fav.table.VarStore
+    _FLEX_AVAR_MAP = _fav.table.VarIdxMap
+`)}else if(e.type==="previewFont"){t.globals.set("_thresholds_json",e.thresholdsJson),t.globals.set("_auto_ascender",!!e.autoAscender);const n=(await t.runPythonAsync(`
 import io, json
 from fontTools.ttLib import TTFont
 
@@ -160,10 +202,14 @@ def _do_preview():
     thresh = json.loads(_thresholds_json)
     fnt = TTFont(io.BytesIO(_font_data))
     _rebuild_fv(fnt, thresh)
+    if _auto_ascender:
+        _graft_avar2(fnt)   # opsz->YTAS auto-ascender (works on VF or Flex)
+    else:
+        _strip_avar2(fnt)
     out = io.BytesIO(); fnt.save(out); return out.getvalue()
 
 _do_preview()
-`)).toJs();a({type:"previewFontResult",ttf:n.buffer},[n.buffer])}else if(e.type==="measureWords"){t.globals.set("_mw_words_json",e.wordsJson),t.globals.set("_mw_geoms_json",e.geomValuesJson),t.globals.set("_mw_axis_defaults_json",e.axisDefaultsJson);const s=await t.runPythonAsync(`
+`)).toJs();o({type:"previewFontResult",ttf:n.buffer},[n.buffer])}else if(e.type==="measureWords"){t.globals.set("_mw_words_json",e.wordsJson),t.globals.set("_mw_geoms_json",e.geomValuesJson),t.globals.set("_mw_axis_defaults_json",e.axisDefaultsJson);const a=await t.runPythonAsync(`
 import io, json
 from fontTools.ttLib import TTFont
 
@@ -242,7 +288,7 @@ def _measure_words():
     return json.dumps({'upm': upm, 'widths': widths})
 
 _measure_words()
-`);a({type:"measureWordsResult",dataJson:s})}else if(e.type==="applyConfig"){t.globals.set("_config_json",e.configJson);const n=(await t.runPythonAsync(`
+`);o({type:"measureWordsResult",dataJson:a})}else if(e.type==="applyConfig"){t.globals.set("_config_json",e.configJson);const n=(await t.runPythonAsync(`
 import io, json, logging
 from fontTools.ttLib import TTFont
 from fontTools.varLib.instancer import instantiateVariableFont
@@ -253,6 +299,7 @@ config = json.loads(_config_json)
 new_defaults = config['axisDefaults']      # excludes opsz
 opsz_m = float(config.get('opszMultiplier', 1))
 freeze_opsz = bool(config.get('freezeOpsz', False))
+auto_ascender = bool(config.get('autoAscender', False))
 thresh = config.get('thresholds', {})
 
 buf = io.BytesIO(_font_data)
@@ -263,6 +310,11 @@ font = TTFont(buf)
 # the new conditions. This closes the "what you preview is what you get" gap.
 if thresh:
     _rebuild_fv(font, thresh)
+
+# instancer can't partial-instance an avar2 table, so always strip first; auto
+# ascender re-grafts Flex's avar2 store at the very end (opsz/YTAS aren't shifted,
+# so its deltas stay valid).
+_strip_avar2(font)
 
 # Shift non-opsz axis defaults via instancer
 axis_limits = {}
@@ -276,11 +328,10 @@ for axis in font['fvar'].axes:
 
 result = instantiateVariableFont(font, axis_limits, inplace=True) if axis_limits else font
 
-# opsz: either freeze to a fixed optical size (pin the axis, no variable opsz),
-# or scale the axis by the multiplier. Scaling all user-space values preserves
-# normalized ratios (gvar untouched), so CSS opsz=8 at x3 shows the design that
-# was originally at opsz=24.
-if freeze_opsz:
+# opsz: freeze to a fixed optical size (pin the axis), or scale by the multiplier.
+# Scaling all user-space values preserves normalized ratios. Freeze is skipped when
+# auto-ascender is on (the grafted avar2 needs the opsz axis to remain).
+if freeze_opsz and not auto_ascender:
     oa = next((a for a in result['fvar'].axes if a.axisTag == 'opsz'), None)
     if oa is not None:
         instantiateVariableFont(result, {'opsz': oa.defaultValue}, inplace=True)
@@ -294,8 +345,12 @@ elif opsz_m != 1:
         if 'opsz' in instance.coordinates:
             instance.coordinates['opsz'] *= opsz_m
 
+# Auto Ascender → graft Flex's avar2 (opsz->YTAS) onto the result + hide YTAS.
+if auto_ascender:
+    _graft_avar2(result)
+
 _set_recal_names(result)
 out = io.BytesIO()
 result.save(out)
 out.getvalue()
-`)).toJs();a({type:"fontResult",ttf:n.buffer},[n.buffer])}}catch(s){a({type:"error",message:String(s)})}};i().catch(o=>{a({type:"error",message:`Worker init failed: ${o}`})});
+`)).toJs();o({type:"fontResult",ttf:n.buffer},[n.buffer])}}catch(a){o({type:"error",message:String(a)})}};i().catch(s=>{o({type:"error",message:`Worker init failed: ${s}`})});
