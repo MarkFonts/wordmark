@@ -9,12 +9,12 @@
 }
 @font-face {
   font-family: 'CalSans';
-  src: url('../fonts/CalSans-VariableFont [opsz,wght,GEOM,YTAS,SHRP].ttf') format('truetype');
+  src: url('../fonts/CalSans-VariableFont 1.998 [opsz,wght,GEOM,YTAS,SHRP].ttf') format('truetype');
   font-weight: 400 700;
   font-style: normal;
   font-display: swap;
-  /* Variable axes — opsz: 10–32 | wght: 400–700 | GEOM: 0–100 | YTAS: 720–800 | SHRP: 0–100 */
-  font-variation-settings: 'opsz' 10, 'wght' 400, 'GEOM' 0, 'YTAS' 720, 'SHRP' 0;
+  /* Variable axes (build 1.998) — opsz: 8–45 (default 14) | wght: 400–700 | GEOM: 0–100 (default 25) | YTAS: 720–800 | SHRP: 0–100 | ital: 0–1 */
+  font-variation-settings: 'opsz' 14, 'wght' 400, 'GEOM' 25, 'YTAS' 720, 'SHRP' 0, 'ital' 0;
 }
 @font-face {
   font-family: 'Ambulia Text';
@@ -131,22 +131,42 @@ body {
 }
 
 
-.fj-line {
-  font-family: 'Flapjack', -apple-system, sans-serif;
-  font-size: clamp(80px, min(32vw, 42vh), 500px);
-  line-height: 0.76;
-  letter-spacing: 0;
-  color: var(--ink);
-  display: flex;
+/* Recomposing headline (replaces the animated Flapjack WORDMARK).
+   headline.js builds blocks/lines/word-spans and swaps [data-cols] + --step.
+   --ws is the word-space gap, calibrated to CalSans space (0.207em = 100%). */
+#fj-headline {
+  display: grid;
   justify-content: center;
-  position: relative;
-  font-variation-settings: 'wght' 100, 'FLIP' 0, 'FLOP' 0;
+  align-content: center;
+  align-items: start;                /* lets the per-column stagger read */
+  color: var(--ink);
+  font-family: 'CalSans', -apple-system, sans-serif;
+  font-variation-settings: 'opsz' 45, 'wght' 640, 'GEOM' 25, 'SHRP' 0, 'YTAS' 760;
+  font-kerning: normal;              /* kerning ON (inherited by word spans) */
+}
+/* per-arrangement column count + display size */
+#fj-headline[data-cols="1"] { grid-template-columns: 1fr;             column-gap: 0;     font-size: clamp(26px, 4vw,   60px); }
+#fj-headline[data-cols="2"] { grid-template-columns: repeat(2, auto); column-gap: 1.1em; font-size: clamp(30px, 5.2vw, 92px); }
+#fj-headline[data-cols="3"] { grid-template-columns: repeat(3, auto); column-gap: 0.9em; font-size: clamp(24px, 4.2vw, 72px); }
+#fj-headline[data-cols="4"] { grid-template-columns: repeat(4, auto); column-gap: 0.8em; font-size: clamp(22px, 3.4vw, 56px); }
+
+.fj-block {
+  display: flex;
+  flex-direction: column;
+  margin-top: calc(var(--bi, 0) * var(--step, 0));   /* diagonal cascade */
 }
 
-.fj-letter {
-  display: inline-block;
+.fj-line {
+  display: flex;
+  gap: 0 var(--ws, 0.311em);         /* 150% word space */
+  line-height: 0.98;
+  white-space: nowrap;
+}
+
+.fj-word-unit {
   position: relative;
-  z-index: var(--lz, 3);
+  z-index: var(--lz, 3);             /* weave between wave canvases (--wzi 1–5) */
+  font-feature-settings: 'kern' 1, 'calt' 1;   /* override the global * reset */
 }
 
 /* per-wave canvases — absolutely fill the text container, sorted by --wzi */
@@ -174,7 +194,7 @@ body {
 .hero-headline {
   font-family: 'CalSans', sans-serif;
   font-weight: 700;
-  font-variation-settings: 'opsz' 32, 'wght' 700, 'GEOM' 50;
+  font-variation-settings: 'opsz' 45, 'wght' 700, 'GEOM' 50;
   font-size: clamp(22px, 3vw, 34px);
   color: var(--ink);
   line-height: 1.1;
@@ -200,7 +220,7 @@ body {
   align-items: center;
   font-family: 'CalSans', sans-serif;
   font-weight: 700;
-  font-variation-settings: 'opsz' 32, 'wght' 700, 'GEOM' 50;
+  font-variation-settings: 'opsz' 45, 'wght' 700, 'GEOM' 50;
   font-size: clamp(22px, 3vw, 34px);
   line-height: 1.1;
   color: var(--bg);
@@ -313,7 +333,7 @@ body {
 .work-headline {
   font-family: 'CalSans', sans-serif;
   font-weight: 700;
-  font-variation-settings: 'opsz' 32, 'wght' 700, 'GEOM' 50;
+  font-variation-settings: 'opsz' 45, 'wght' 700, 'GEOM' 50;
   font-size: clamp(22px, 2.8vw, 36px);
   line-height: 1.08;
   color: var(--ink);
@@ -563,7 +583,7 @@ body {
 .logos-headline {
   font-family: 'CalSans', sans-serif;
   font-weight: 700;
-  font-variation-settings: 'opsz' 32, 'wght' 700, 'GEOM' 50;
+  font-variation-settings: 'opsz' 45, 'wght' 700, 'GEOM' 50;
   font-size: clamp(20px, 2.6vw, 32px);
   color: var(--ink);
 }
@@ -636,7 +656,7 @@ body {
 .contact-name {
   font-family: 'CalSans', sans-serif;
   font-weight: 700;
-  font-variation-settings: 'opsz' 32, 'wght' 700, 'GEOM' 50;
+  font-variation-settings: 'opsz' 45, 'wght' 700, 'GEOM' 50;
   font-size: clamp(20px, 2.4vw, 28px);
   color: var(--ink);
   margin-bottom: 6px;
@@ -702,7 +722,7 @@ footer {
 .footer-brand {
   font-family: 'CalSans', sans-serif;
   font-weight: 700;
-  font-variation-settings: 'opsz' 32, 'wght' 700, 'GEOM' 50;
+  font-variation-settings: 'opsz' 45, 'wght' 700, 'GEOM' 50;
   font-size: 14px;
   color: var(--ink);
 }

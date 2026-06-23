@@ -4,13 +4,8 @@
   var MOUSE_AXES_ENABLED = false;
 
   var canvas      = document.getElementById('flapjack-canvas');
-  var wordEl      = document.getElementById('fj-word');
-  var markEl      = document.getElementById('fj-mark');
-  if (!canvas || !wordEl || !markEl) return;
-
-  // Individual letter spans — WORD letters get word axis values, MARK get mark
-  var wordLetters = Array.from(wordEl.querySelectorAll('.fj-letter'));
-  var markLetters = Array.from(markEl.querySelectorAll('.fj-letter'));
+  var headlineEl  = document.getElementById('fj-headline');   // recomposing headline (headline.js)
+  if (!canvas || !headlineEl) return;
 
   var ctx = canvas.getContext('2d');
 
@@ -338,10 +333,12 @@
   /* ── update DOM text via CSS font-variation-settings ──── */
   function updateText(t) {
     var av = axisValues(t);
-    var wv = '"wght" ' + av.wordWght.toFixed(1) + ', "FLIP" ' + av.wordFlip.toFixed(1) + ', "FLOP" ' + av.wordFlop.toFixed(1);
-    var mv = '"wght" ' + av.markWght.toFixed(1) + ', "FLIP" ' + av.markFlip.toFixed(1) + ', "FLOP" ' + av.markFlop.toFixed(1);
-    wordLetters.forEach(function (el) { el.style.fontVariationSettings = wv; });
-    markLetters.forEach(function (el) { el.style.fontVariationSettings = mv; });
+    // Headline is now clean CalSans (recomposing kinetic type), NOT animated Flapjack.
+    // Letter-axis writes disabled so CSS owns the letters; waves/comet/handles/HUD untouched.
+    // var wv = '"wght" ' + av.wordWght.toFixed(1) + ', "FLIP" ' + av.wordFlip.toFixed(1) + ', "FLOP" ' + av.wordFlop.toFixed(1);
+    // var mv = '"wght" ' + av.markWght.toFixed(1) + ', "FLIP" ' + av.markFlip.toFixed(1) + ', "FLOP" ' + av.markFlop.toFixed(1);
+    // wordLetters.forEach(function (el) { el.style.fontVariationSettings = wv; });
+    // markLetters.forEach(function (el) { el.style.fontVariationSettings = mv; });
 
     // Mirror state to hidden canvas so Three.js CanvasTexture stays in sync.
     // Canvas is sized once in init() — only clear and redraw here each frame.
@@ -372,8 +369,7 @@
     if (waveReadout.length < 6) return;
 
     var canvasRect = canvas.getBoundingClientRect();
-    var wordRect   = wordEl.getBoundingClientRect();
-    var markRect   = markEl.getBoundingClientRect();
+    var hlRect     = headlineEl.getBoundingClientRect();   // recomposing headline bbox
     var sy = CH / canvasRect.height;
 
     ctx.save();
@@ -429,9 +425,9 @@
     }
 
     if (CW > 480) {
-      // Desktop: 3×2 grid centred inside each line of WORDMARK
-      var wordMidY = ((wordRect.top + wordRect.bottom) / 2 - canvasRect.top) * sy;
-      var markMidY = ((markRect.top + markRect.bottom) / 2 - canvasRect.top) * sy;
+      // Desktop: 3×2 grid banded over the recomposing headline (upper + lower third)
+      var wordMidY = (hlRect.top + hlRect.height * 0.34 - canvasRect.top) * sy;
+      var markMidY = (hlRect.top + hlRect.height * 0.66 - canvasRect.top) * sy;
       ctx.textBaseline = 'middle';
       for (var i = 0; i < 3; i++) {
         hudItem(waveReadout[i],     colW * i + colW * 0.5, wordMidY);
@@ -440,9 +436,9 @@
         hudItem(waveReadout[j + 3], colW * j + colW * 0.5, markMidY);
       }
     } else {
-      // Mobile: stacked 2-line entries, group above WORD and below MARK
-      var wordTop    = (wordRect.top    - canvasRect.top) * sy;
-      var markBottom = (markRect.bottom - canvasRect.top) * sy;
+      // Mobile: stacked 2-line entries, grouped above + below the headline
+      var wordTop    = (hlRect.top    - canvasRect.top) * sy;
+      var markBottom = (hlRect.bottom - canvasRect.top) * sy;
       var GAP = 26;
       ctx.textBaseline = 'bottom';
       for (var i = 0; i < 3; i++) {
