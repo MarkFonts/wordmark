@@ -14,12 +14,13 @@
   var WORDS = ['Your', 'words', 'should', 'feel', 'like', 'your', 'brand.'];
 
   // Each arrangement: blocks → lines → word indices.
-  //   cols = grid columns ; step = per-column downward stagger (em cascade)
+  //   cols = grid columns ; step = per-column downward stagger, in LINES
+  //   (CSS multiplies by --lh so blocks always land on the baseline grid)
   var ARR = [
-    { cols: 1, step: 0,   blocks: [ [[0, 1, 2, 3, 4, 5, 6]] ] },
-    { cols: 2, step: 1.1, blocks: [ [[0, 1], [2, 3]], [[4, 5], [6]] ] },
-    { cols: 3, step: 1.0, blocks: [ [[0], [1]], [[2], [3], [4]], [[5], [6]] ] },
-    { cols: 4, step: 0.8, blocks: [ [[0, 1]], [[2, 3]], [[4, 5]], [[6]] ] }
+    { cols: 1, step: 0, blocks: [ [[0, 1, 2, 3, 4, 5, 6]] ] },
+    { cols: 2, step: 1, blocks: [ [[0, 1], [2, 3]], [[4, 5], [6]] ] },
+    { cols: 3, step: 1, blocks: [ [[0], [1]], [[2], [3, 4]], [[5], [6]] ] },
+    { cols: 4, step: 1, blocks: [ [[0, 1]], [[2, 3]], [[4, 5]], [[6]] ] }
   ];
 
   var CYCLE_MS = 2600;   // hold per arrangement
@@ -28,7 +29,7 @@
   function build(arr) {
     host.innerHTML = '';
     host.dataset.cols = arr.cols;
-    host.style.setProperty('--step', arr.step + 'em');
+    host.style.setProperty('--step', '' + arr.step);   // unitless line count
     li = 0;
 
     arr.blocks.forEach(function (block, bi) {

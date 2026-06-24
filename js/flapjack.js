@@ -425,9 +425,12 @@
     }
 
     if (CW > 480) {
-      // Desktop: 3×2 grid banded over the recomposing headline (upper + lower third)
-      var wordMidY = (hlRect.top + hlRect.height * 0.34 - canvasRect.top) * sy;
-      var markMidY = (hlRect.top + hlRect.height * 0.66 - canvasRect.top) * sy;
+      // Desktop: two rows straddling the headline centre, with a CONSTANT gap
+      // (independent of arrangement height, so the spacing doesn't jump on swap)
+      var hudMidY  = (hlRect.top + hlRect.height * 0.5 - canvasRect.top) * sy;
+      var HUD_HALF = 100;                // px between each row and centre (200px total)
+      var wordMidY = hudMidY - HUD_HALF;
+      var markMidY = hudMidY + HUD_HALF;
       ctx.textBaseline = 'middle';
       for (var i = 0; i < 3; i++) {
         hudItem(waveReadout[i],     colW * i + colW * 0.5, wordMidY);

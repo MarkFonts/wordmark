@@ -143,6 +143,7 @@ body {
   font-family: 'CalSans', -apple-system, sans-serif;
   font-variation-settings: 'opsz' 45, 'wght' 640, 'GEOM' 25, 'SHRP' 0, 'YTAS' 760;
   font-kerning: normal;              /* kerning ON (inherited by word spans) */
+  --lh: 0.98;                        /* line-height = baseline grid unit */
 }
 /* per-arrangement column count + display size */
 #fj-headline[data-cols="1"] { grid-template-columns: 1fr;             column-gap: 0;     font-size: clamp(26px, 4vw,   60px); }
@@ -153,13 +154,20 @@ body {
 .fj-block {
   display: flex;
   flex-direction: column;
-  margin-top: calc(var(--bi, 0) * var(--step, 0));   /* diagonal cascade */
+  /* stagger in whole line-heights so blocks always land on the baseline grid */
+  margin-top: calc(var(--bi, 0) * var(--step, 0) * var(--lh, 0.98) * 1em);
+}
+
+/* Exception: in the 3-column cascade the last column stacks "your" over
+   "brand." — nudge the BOTTOM line ("brand.") forward 0.4em. */
+#fj-headline[data-cols="3"] .fj-block:last-child .fj-line:last-child {
+  margin-left: 0.4em;
 }
 
 .fj-line {
   display: flex;
   gap: 0 var(--ws, 0.311em);         /* 150% word space */
-  line-height: 0.98;
+  line-height: var(--lh, 0.98);
   white-space: nowrap;
 }
 
@@ -238,6 +246,25 @@ body {
   background-color: transparent;
   color: #fff;
   opacity: 1;
+}
+
+/* ═══ TOP NAMEPLATE ════════════════════════════════════ */
+#site-wordmark {
+  position: fixed;
+  top: 60px;
+  left: 50%;
+  transform: translateX(-50%);
+  z-index: 100;
+  font-family: 'CalSans', -apple-system, sans-serif;
+  font-size: clamp(20px, 2.6vw, 32px);   /* identical to .logos-headline (same breakpoints) */
+  line-height: normal;                    /* match headline box so baselines align on release */
+  font-optical-sizing: auto;              /* opsz auto — driven by font-size */
+  font-variation-settings: 'wght' 700, 'GEOM' 100;
+  letter-spacing: 0.1em;         /* = Illustrator tracking 100 (1/1000 em) */
+  text-indent: 0.1em;            /* offset trailing track so it stays optically centred */
+  color: var(--ink);
+  white-space: nowrap;
+  pointer-events: none;          /* nameplate, not interactive */
 }
 
 .hero-pill-arrow {
@@ -799,6 +826,14 @@ footer {
   .footer-links a:last-child { text-align: left; }
   #logos { padding-top: 56px; }
   .logos-header { padding: 0 clamp(20px, 5vw, 40px) 36px; }
+
+  /* Nameplate: centred on desktop collides with the headline + toggle on phones,
+     so left-align it to the content margin here (vertical behaviour unchanged). */
+  #site-wordmark {
+    left: clamp(20px, 5vw, 40px);
+    transform: none;
+    text-indent: 0;              /* flush to the margin, no centring indent */
+  }
 
   /* Dek: text block on top, canvas block on bottom */
   #dek-wrap {

@@ -18,6 +18,42 @@
 
 <div id="sticker-layer" aria-hidden="true"></div>
 
+<!-- top nameplate ──────────────────────────────────────── -->
+<div id="site-wordmark">WORDMARK</div>
+<script>
+  /* Nameplate pins at top:60px, then releases to scroll with the page once
+     "Marks we've made." (.logos-headline) reaches that same line — so it ends
+     up parallel with that headline and scrolls away from there. */
+  document.addEventListener('DOMContentLoaded', function () {
+    var nm = document.getElementById('site-wordmark');
+    var hl = document.querySelector('.logos-headline');   // exists once DOM is parsed
+    if (!nm || !hl) return;
+    var TOP = 60;          // pinned distance from top of viewport
+    var OFFSET = 0;        // nudge to fine-tune parallel with the headline
+    var releaseY = 0;
+
+    function measure() {
+      // Park equidistant: lock when the nameplate has equal gap to the top of
+      // the browser and to the headline — i.e. one pin-height (TOP) ABOVE it.
+      releaseY = hl.getBoundingClientRect().top + window.scrollY - TOP + OFFSET;
+    }
+    function update() {
+      if (window.scrollY + TOP < releaseY) {        // still in hero/dek → pinned
+        nm.style.position = 'fixed';
+        nm.style.top = TOP + 'px';
+      } else {                                       // released → scrolls with page
+        nm.style.position = 'absolute';
+        nm.style.top = releaseY + 'px';
+      }
+    }
+
+    measure(); update();
+    window.addEventListener('scroll', update, { passive: true });
+    window.addEventListener('resize', function () { measure(); update(); });
+    window.addEventListener('load',   function () { measure(); update(); });
+  });
+</script>
+
 <!-- theme toggle ───────────────────────────────────────── -->
 <div id="theme-toggle" role="group" aria-label="Colour scheme">
   <button data-mode="auto"  class="active">Auto</button>
