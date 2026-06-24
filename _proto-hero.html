@@ -1,0 +1,174 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="dark">
+<head>
+<meta charset="UTF-8">
+<title>WORDMARK — hero proto</title>
+<style>
+@font-face {
+  font-family: 'CalSans';
+  src: url('fonts/CalSans-VariableFont 1.998 [opsz,wght,GEOM,YTAS,SHRP].ttf') format('truetype');
+  font-weight: 400 700;
+  font-display: swap;
+}
+:root {
+  --bg:#242424; --ink:#ffffff; --muted:rgba(255,255,255,0.42);
+  --c0:#e8650a; --c1:#7C00F6; --c2:#00a67e; --c3:#ff2d55;
+}
+[data-theme="light"]{ --bg:#f2f0eb; --ink:#111111; --muted:rgba(17,17,17,0.45); }
+*{box-sizing:border-box;margin:0;padding:0;}
+html,body{height:100%;}
+body{
+  background:var(--bg); color:var(--ink);
+  font-family:'CalSans',sans-serif;
+  display:grid; place-items:center; min-height:100vh;
+  overflow:hidden;
+}
+
+/* ── kinetic headline ─────────────────────────── */
+#kh{
+  position:relative;
+  width:min(92vw,1200px);
+  padding:6vh 0;
+  isolation:isolate;          /* contain z-index stack */
+}
+
+/* layout shells per arrangement — display size lives on the grid so
+   word-gap (em) resolves against the real type size, not inherited 16px */
+.kh-grid{ display:grid; justify-content:center; align-content:center; line-height:0.92; }
+.kh-grid[data-arr="1"]{ grid-template-columns:1fr; font-size:clamp(24px,3.6vw,52px); }
+.kh-grid[data-arr="2"]{ grid-template-columns:repeat(2,auto); gap:0 0.9em; font-size:clamp(30px,5vw,80px); }
+.kh-grid[data-arr="3"]{ grid-template-columns:repeat(3,auto); gap:0 0.8em; align-items:start; font-size:clamp(24px,3.9vw,62px); }
+.kh-grid[data-arr="4"]{ grid-template-columns:repeat(2,auto); gap:0.22em 1em; font-size:clamp(30px,5.2vw,82px); }
+
+.block{ display:flex; flex-direction:column; }
+/* word spacing: --ws is set from ?ws= (%, calibrated to CalSans space = 0.207em) */
+.line{ display:flex; gap:0 var(--ws,0.311em); white-space:nowrap; }
+.word{ display:inline-flex; }
+
+.ltr{
+  position:relative;
+  font-size:1em;                 /* inherit display size from grid */
+  font-variation-settings:'opsz' 45,'wght' var(--w,640),'GEOM' var(--g,40),'SHRP' var(--s,0),'YTAS' 760;
+  line-height:0.92;
+  z-index:var(--z,5);
+  color:var(--ink);
+}
+
+/* ── comet band — threads between letter z-layers ── */
+.comet{
+  position:absolute; top:50%; left:0;
+  width:46%; height:170%;
+  transform:translate(var(--cx,0),-50%);
+  z-index:var(--cz,5);            /* sits between low-z and high-z letters */
+  pointer-events:none;
+  background:radial-gradient(60% 50% at 50% 50%,
+     var(--cc,#e8650a) 0%, color-mix(in srgb,var(--cc,#e8650a) 55%, transparent) 42%, transparent 72%);
+  mix-blend-mode:screen;
+  filter:blur(6px);
+}
+[data-theme="light"] .comet{ mix-blend-mode:multiply; filter:blur(7px); opacity:0.9; }
+
+/* style B — italic + lighter setup line, key words punch heavier */
+body[data-style="b"] .ltr{ --w:430; --g:18; }
+/* true italic via the font's own ital axis ONLY — no font-style:italic (that faux-slants on top) */
+body[data-style="b"] .key .ltr{ font-variation-settings:'opsz' 45,'wght' 720,'GEOM' 70,'SHRP' 30,'YTAS' 800,'ital' 1; }
+
+/* tiny caption */
+#cap{ position:fixed; left:14px; bottom:12px; font-size:12px; color:var(--muted);
+  font-variation-settings:'wght' 500; letter-spacing:0.02em; }
+</style>
+</head>
+<body data-style="a">
+
+<section id="kh">
+  <div class="comet" aria-hidden="true"></div>
+  <div class="kh-grid" data-arr="1"></div>
+</section>
+<div id="cap"></div>
+
+<script>
+const WORDS = ["Your","words","should","feel","like","your","brand."];
+// which words get the "key" emphasis treatment in style B
+const KEY = new Set([1,6]); // "words" + "brand."
+
+// arrangements: array of blocks; each block = array of lines; each line = array of word-indices
+const ARR = {
+  1: [ [[0,1,2,3,4,5,6]] ],
+  2: [ [[0,1],[2,3]], [[4,5],[6]] ],
+  3: [ [[0],[1]], [[2],[3],[4]], [[5],[6]] ],
+  4: [ [[0,1]], [[2,3]], [[4,5]], [[6]] ],
+};
+
+// z-depth pattern per letter so the comet weaves: alternate behind(2)/front(9)
+function zFor(globalLetterIdx){ return (globalLetterIdx % 2 === 0) ? 2 : 9; }
+
+function buildWord(wi){
+  const w = document.createElement('span');
+  w.className = 'word' + (KEY.has(wi) ? ' key' : '');
+  [...WORDS[wi]].forEach((ch,ci)=>{
+    const s = document.createElement('span');
+    s.className = 'ltr';
+    s.textContent = ch;
+    s.style.setProperty('--z', zFor(wi*3+ci));
+    w.appendChild(s);
+  });
+  return w;
+}
+
+function render(arr){
+  const grid = document.querySelector('.kh-grid');
+  grid.dataset.arr = arr;
+  grid.innerHTML = '';
+  ARR[arr].forEach(block=>{
+    const b = document.createElement('div'); b.className='block';
+    block.forEach(line=>{
+      const l = document.createElement('div'); l.className='line';
+      line.forEach(wi=> l.appendChild(buildWord(wi)));
+      b.appendChild(l);
+    });
+    grid.appendChild(b);
+  });
+}
+
+// ── query-param driven state (for screenshots) ──
+const q = new URLSearchParams(location.search);
+const arr   = q.get('arr')   || '1';
+const theme = q.get('theme') || 'dark';
+const style = q.get('style') || 'a';
+const cometX= parseFloat(q.get('cx') ?? '0.28');   // 0..1 fraction across
+const cc    = q.get('cc') || 'var(--c0)';
+document.documentElement.dataset.theme = theme;
+document.body.dataset.style = style;
+
+// axis overrides (apply to all letters via inherited CSS vars)
+if(q.get('g')!==null) document.body.style.setProperty('--g', q.get('g'));
+if(q.get('s')!==null) document.body.style.setProperty('--s', q.get('s'));
+if(q.get('w')!==null) document.body.style.setProperty('--w', q.get('w'));
+
+// word spacing: ?ws= percent, calibrated to CalSans space advance (0.207em = 100%)
+const wsPct = parseFloat(q.get('ws') ?? '150');
+document.body.style.setProperty('--ws', (0.207 * wsPct/100).toFixed(4) + 'em');
+
+render(arr);
+
+const comet = document.querySelector('.comet');
+const cInner = getComputedStyle(document.documentElement);
+const colorMap = {0:'#e8650a',1:'#7C00F6',2:'#00a67e',3:'#ff2d55'};
+comet.style.setProperty('--cc', colorMap[q.get('c')||0]);
+// position: cx is 0..1 of the kh width; band is 46% wide so travel 0..54%
+function place(){
+  const w = document.querySelector('#kh').clientWidth;
+  comet.style.setProperty('--cx', (cometX * w * 0.54) + 'px');
+}
+place(); window.addEventListener('resize',place);
+
+document.getElementById('cap').textContent =
+  `arr ${arr} · style ${style} · ${theme} · word-space ${wsPct}%`;
+
+// auto-cycle when not screenshotting (?live=1)
+if(q.get('live')==='1'){
+  let a=1; setInterval(()=>{ a = a%4+1; render(a); place(); }, 1600);
+}
+</script>
+</body>
+</html>
