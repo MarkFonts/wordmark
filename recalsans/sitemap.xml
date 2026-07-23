@@ -2,6 +2,11 @@
 <urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
   <url><loc>https://wordmark.nyc/recalsans/</loc><changefreq>monthly</changefreq></url>
   <url><loc>https://wordmark.nyc/recalsans/poppins/</loc><changefreq>monthly</changefreq></url>
+  <url><loc>https://wordmark.nyc/recalsans/inter/</loc><changefreq>monthly</changefreq></url>
+  <url><loc>https://wordmark.nyc/recalsans/geist/</loc><changefreq>monthly</changefreq></url>
+  <url><loc>https://wordmark.nyc/recalsans/futura/</loc><changefreq>monthly</changefreq></url>
+  <url><loc>https://wordmark.nyc/recalsans/neutra/</loc><changefreq>monthly</changefreq></url>
+  <url><loc>https://wordmark.nyc/recalsans/circular/</loc><changefreq>monthly</changefreq></url>
   <url><loc>https://wordmark.nyc/recalsans/gotham/</loc><changefreq>monthly</changefreq></url>
   <url><loc>https://wordmark.nyc/recalsans/gt-america/</loc><changefreq>monthly</changefreq></url>
 </urlset>
