@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- Public, hand-maintained URLs. The recalsans landing pages live in their own
+     generated sitemap (recalsans/sitemap.xml), indexed by sitemap.xml.
+     Font-proofer client proofs are intentionally NOT listed — they are per-client
+     links and may be confidential. Add specific ones here only when public. -->
+<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
+  <url><loc>https://wordmark.nyc/</loc><changefreq>monthly</changefreq><priority>1.0</priority></url>
+  <url><loc>https://wordmark.nyc/font-proofer/</loc><changefreq>monthly</changefreq></url>
+</urlset>
