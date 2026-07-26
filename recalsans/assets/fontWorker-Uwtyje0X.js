@@ -373,4 +373,4 @@ _set_recal_names(result)
 out = io.BytesIO()
 result.save(out)
 out.getvalue()
-`)).toJs();o({type:"fontResult",ttf:n.buffer},[n.buffer])}}catch(a){o({type:"error",message:String(a)})}};i().catch(s=>{o({type:"error",message:`Worker init failed: ${s}`})});
+`)).toJs();o({type:"fontResult",ttf:n.buffer,id:e.id},[n.buffer])}}catch(a){o({type:"error",message:String(a)})}};i().catch(s=>{o({type:"error",message:`Worker init failed: ${s}`})});
