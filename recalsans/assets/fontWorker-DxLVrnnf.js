@@ -1,4 +1,4 @@
-function o(s,e){self.postMessage(s,e??[])}let t=null;async function i(){o({type:"status",message:"Loading Python runtime..."});const{loadPyodide:s}=await import("https://cdn.jsdelivr.net/pyodide/v0.26.4/full/pyodide.mjs");t=await s({indexURL:"https://cdn.jsdelivr.net/pyodide/v0.26.4/full/"}),o({type:"status",message:"Loading fontTools..."}),await t.loadPackage("fonttools"),o({type:"ready"})}self.onmessage=async s=>{const e=s.data;try{if(e.type==="loadFont"){const a=new Uint8Array(e.fontBytes);t.globals.set("_font_bytes_js",a);const n=await t.runPythonAsync(`
+function a(o,e){self.postMessage(o,e??[])}let t=null;async function i(){a({type:"status",message:"Loading Python runtime..."});const{loadPyodide:o}=await import("https://cdn.jsdelivr.net/pyodide/v0.26.4/full/pyodide.mjs");t=await o({indexURL:"https://cdn.jsdelivr.net/pyodide/v0.26.4/full/"}),a({type:"status",message:"Loading fontTools..."}),await t.loadPackage("fonttools"),a({type:"ready"})}self.onmessage=async o=>{const e=o.data;try{if(e.type==="loadFont"){const s=new Uint8Array(e.fontBytes);t.globals.set("_font_bytes_js",s);const n=await t.runPythonAsync(`
 import io, json
 from fontTools.ttLib import TTFont
 
@@ -186,7 +186,7 @@ for axis in _font_cache['fvar'].axes:
     })
 
 json.dumps(axes_out)
-`);o({type:"axisInfo",axisInfoJson:n})}else if(e.type==="loadFlexAvar"){const a=new Uint8Array(e.fontBytes);t.globals.set("_flex_bytes_js",a),await t.runPythonAsync(`
+`);a({type:"axisInfo",axisInfoJson:n})}else if(e.type==="loadFlexAvar"){const s=new Uint8Array(e.fontBytes);t.globals.set("_flex_bytes_js",s),await t.runPythonAsync(`
 import io as _io
 from fontTools.ttLib import TTFont as _TTFont
 _flex_font = _TTFont(_io.BytesIO(bytes(_flex_bytes_js.to_py())))
@@ -208,13 +208,11 @@ def _do_preview():
     # point size in the preview EXACTLY as the export does (axis defaults stay stock —
     # the instrument applies those live via CSS font-variation-settings).
     opsz_m = float(_opsz_mult)
-    if _freeze_opsz and not _auto_ascender:
-        oa = next((a for a in fnt['fvar'].axes if a.axisTag == 'opsz'), None)
-        if oa is not None:
-            fv = oa.defaultValue if _frozen_opsz is None else float(_frozen_opsz)
-            fv = min(max(fv, oa.minValue), oa.maxValue)
-            instantiateVariableFont(fnt, {'opsz': fv}, inplace=True)
-    elif opsz_m != 1:
+    # opsz FREEZE is NOT baked in the preview anymore — the specimen applies it live via
+    # CSS ('opsz' N + font-optical-sizing:none), which the browser interpolates for free.
+    # The ~5s instancer + gvar re-save it caused only ever mattered for the static
+    # download. Only the cheap SCALER relabel stays here (optical-sizing:auto maps size).
+    if opsz_m != 1:
         for axis in fnt['fvar'].axes:
             if axis.axisTag == 'opsz':
                 axis.minValue *= opsz_m; axis.defaultValue *= opsz_m; axis.maxValue *= opsz_m
@@ -226,7 +224,7 @@ def _do_preview():
     out = io.BytesIO(); fnt.save(out); return out.getvalue()
 
 _do_preview()
-`)).toJs();o({type:"previewFontResult",ttf:n.buffer},[n.buffer])}else if(e.type==="measureWords"){t.globals.set("_mw_words_json",e.wordsJson),t.globals.set("_mw_geoms_json",e.geomValuesJson),t.globals.set("_mw_axis_defaults_json",e.axisDefaultsJson);const a=await t.runPythonAsync(`
+`)).toJs();a({type:"previewFontResult",ttf:n.buffer},[n.buffer])}else if(e.type==="measureWords"){t.globals.set("_mw_words_json",e.wordsJson),t.globals.set("_mw_geoms_json",e.geomValuesJson),t.globals.set("_mw_axis_defaults_json",e.axisDefaultsJson);const s=await t.runPythonAsync(`
 import io, json
 from fontTools.ttLib import TTFont
 
@@ -305,8 +303,8 @@ def _measure_words():
     return json.dumps({'upm': upm, 'widths': widths})
 
 _measure_words()
-`);o({type:"measureWordsResult",dataJson:a})}else if(e.type==="applyConfig"){t.globals.set("_config_json",e.configJson);const n=(await t.runPythonAsync(`
-import io, json, logging
+`);a({type:"measureWordsResult",dataJson:s})}else if(e.type==="applyConfig"){t.globals.set("_config_json",e.configJson);const n=(await t.runPythonAsync(`
+import io, json, logging, time
 from fontTools.ttLib import TTFont
 from fontTools.varLib.instancer import instantiateVariableFont
 
@@ -320,21 +318,27 @@ frozen_opsz = config.get('frozenOpszValue', None)   # opsz to pin to when frozen
 auto_ascender = bool(config.get('autoAscender', False))
 thresh = config.get('thresholds', {})
 
+_t0 = time.perf_counter()
 buf = io.BytesIO(_font_data)
 font = TTFont(buf)
+_t_parse = time.perf_counter()
 
 # Bake the user's glyph thresholds into FeatureVariations using the SAME rebuild
 # as the live preview, BEFORE instancing — so the default shift re-normalizes
 # the new conditions. This closes the "what you preview is what you get" gap.
 if thresh:
     _rebuild_fv(font, thresh)
+_t_fv = time.perf_counter()
 
 # instancer can't partial-instance an avar2 table, so always strip first; auto
 # ascender re-grafts Flex's avar2 store at the very end (opsz/YTAS aren't shifted,
 # so its deltas stay valid).
 _strip_avar2(font)
 
-# Shift non-opsz axis defaults via instancer
+# Shift non-opsz axis defaults via instancer — but ONLY for axes that actually move.
+# instantiateVariableFont is ~expensive (seconds in Pyodide) even when the "shift" is a
+# no-op, so a preset like Circular (GEOM 25 = the stock default) was paying a full
+# instancer pass to change nothing. Skip any axis whose new default equals its current.
 axis_limits = {}
 for axis in font['fvar'].axes:
     tag = axis.axisTag
@@ -342,9 +346,11 @@ for axis in font['fvar'].axes:
         continue  # handled separately below
     nd = float(new_defaults.get(tag, axis.defaultValue))
     nd = min(max(nd, axis.minValue), axis.maxValue)
-    axis_limits[tag] = (axis.minValue, nd, axis.maxValue)
+    if nd != axis.defaultValue:
+        axis_limits[tag] = (axis.minValue, nd, axis.maxValue)
 
 result = instantiateVariableFont(font, axis_limits, inplace=True) if axis_limits else font
+_t_shift = time.perf_counter()
 
 # opsz: freeze to a fixed optical size (pin the axis), or scale by the multiplier.
 # Scaling all user-space values preserves normalized ratios. Freeze is skipped when
@@ -364,6 +370,7 @@ elif opsz_m != 1:
     for instance in result['fvar'].instances:
         if 'opsz' in instance.coordinates:
             instance.coordinates['opsz'] *= opsz_m
+_t_inst = time.perf_counter()
 
 # Auto Ascender → graft Flex's avar2 (opsz->YTAS) onto the result + hide YTAS.
 if auto_ascender:
@@ -372,5 +379,13 @@ if auto_ascender:
 _set_recal_names(result)
 out = io.BytesIO()
 result.save(out)
+_t_save = time.perf_counter()
+
+_ms = lambda a, b: round(1000 * (b - a))
+_bake_timing = (
+    "[bake] parse=%dms rebuild_fv=%dms axis_shift=%dms opsz=%dms save=%dms | total=%dms"
+    % (_ms(_t0, _t_parse), _ms(_t_parse, _t_fv), _ms(_t_fv, _t_shift),
+       _ms(_t_shift, _t_inst), _ms(_t_inst, _t_save), _ms(_t0, _t_save))
+)
 out.getvalue()
-`)).toJs();o({type:"fontResult",ttf:n.buffer,id:e.id},[n.buffer])}}catch(a){o({type:"error",message:String(a)})}};i().catch(s=>{o({type:"error",message:`Worker init failed: ${s}`})});
+`)).toJs();try{a({type:"status",message:String(t.globals.get("_bake_timing")??"")})}catch{}a({type:"fontResult",ttf:n.buffer,id:e.id},[n.buffer])}}catch(s){a({type:"error",message:String(s)})}};i().catch(o=>{a({type:"error",message:`Worker init failed: ${o}`})});
