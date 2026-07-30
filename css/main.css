@@ -382,6 +382,22 @@ body {
   max-width: 38ch;
 }
 
+.learn-more {
+  font-variation-settings: 'wght' 400;
+  font-size: 15px;
+  line-height: 1.72;
+  color: var(--muted);
+  max-width: 38ch;
+  margin-top: 20px;
+}
+.learn-more a {
+  color: var(--ink);
+  text-decoration: underline;
+  text-underline-offset: 3px;
+  transition: color 0.12s;
+}
+.learn-more a:hover { color: var(--muted); }
+
 /* figure wrapper — takes the right-column slot, handles sticky + slide-in */
 /* ── figcaption layout tokens ───────────────────────────────────── */
 :root {
