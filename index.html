@@ -229,10 +229,11 @@
       <a href="https://www.instagram.com/wordmark.nyc/" target="_blank" rel="noopener">ig</a>
       <a href="https://twitter.com/MarkFonts" target="_blank" rel="noopener">tw</a>
       <a href="https://www.linkedin.com/in/markfonts/" target="_blank" rel="noopener">in</a>
-      <a class="ss19" id="contact-link" target="_blank" rel="noopener">marka&#8201;twordmark.nyc</a>
+      <a id="contact-link" target="_blank" rel="noopener">mark&#128386;wordmark.nyc</a>
       <script>
         var u="mark",d="wordmark.nyc",s="Let%E2%80%99s+leave+a+mark",b="We+should+talk%21";
-        document.getElementById("contact-link").href="mailto:"+u+"@"+d+"?subject="+s+"&body="+b;
+        // spam-trap: at_spam_trap glyph (U+1F582) stands in for "@" so no real address appears in the DOM
+        document.getElementById("contact-link").href="mailto:"+u+String.fromCodePoint(0x1F582)+d+"?subject="+s+"&body="+b;
       </script>
     </nav>
   </div>
