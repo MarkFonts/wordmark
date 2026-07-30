@@ -20,7 +20,7 @@
   gtag('js', new Date());
   gtag('config', 'G-MZ4M1P8P1P');
 </script>
-<link rel="stylesheet" href="css/main.css">
+<link rel="stylesheet" href="css/main.css?v=2">
 </head>
 <body>
 
@@ -200,12 +200,12 @@
   <div class="work-item">
     <div class="work-copy">
       <h2 class="work-headline">Optimize every moment… whether they can see your logo or not.</h2>
-      <p class="para" lang="en">Most brand in&shy;con&shy;sis&shy;ten&shy;cy doesn&rsquo;t come from bad taste &mdash; it comes from un&shy;de&shy;fined rules. We au&shy;dit how type is used across web, print, and mo&shy;tion, then write the guide&shy;lines that make good de&shy;ci&shy;sions the path of least re&shy;sis&shy;tance.</p>
+      <p class="para" lang="en">Consistency holds when the rules are explicit. We audit how type is used across web, print, and motion, then write the guidelines that make good decisions the path of least resistance.</p>
     </div>
     <figure class="work-fig">
       <figcaption class="work-figcaption">
         <div class="fig-header" aria-hidden="true"></div>
-        <h3 class="fig-text">WORDMARK was brought in by Otherward to make their <a href="https://nymzo.world/" target="_blank">NYMZO</a> challenger luxury chess brand logotype global launch and product ready.</h3>
+        <h3 class="fig-text"><a href="https://nymzo.world/" target="_blank">NYMZO</a> is a challenger brand in luxury chess. Otherward brought in WORDMARK to take the logotype to global launch and product readiness.</h3>
       </figcaption>
       <div class="work-img">
         <div class="work-shape" aria-hidden="true"></div>
@@ -229,11 +229,16 @@
       <a href="https://www.instagram.com/wordmark.nyc/" target="_blank" rel="noopener">ig</a>
       <a href="https://twitter.com/MarkFonts" target="_blank" rel="noopener">tw</a>
       <a href="https://www.linkedin.com/in/markfonts/" target="_blank" rel="noopener">in</a>
-      <a id="contact-link" target="_blank" rel="noopener">mark&#128386;wordmark.nyc</a>
+      <a id="contact-link" rel="noopener">mark&#128386;wordmark.nyc</a>
       <script>
         var u="mark",d="wordmark.nyc",s="Let%E2%80%99s+leave+a+mark",b="We+should+talk%21";
-        // spam-trap: at_spam_trap glyph (U+1F582) stands in for "@" so no real address appears in the DOM
-        document.getElementById("contact-link").href="mailto:"+u+String.fromCodePoint(0x1F582)+d+"?subject="+s+"&body="+b;
+        var link=document.getElementById("contact-link");
+        // scraper-clean placeholder href: at_spam_trap glyph (U+1F582), no real "@"
+        link.href="mailto:"+u+String.fromCodePoint(0x1F582)+d+"?subject="+s+"&body="+b;
+        // swap in the real, sendable address on genuine interaction, BEFORE the click navigates
+        function armMailto(){link.href="mailto:"+u+"@"+d+"?subject="+s+"&body="+b;}
+        link.addEventListener("mousedown",armMailto);
+        link.addEventListener("focus",armMailto);
       </script>
     </nav>
   </div>
@@ -248,7 +253,7 @@
 <script src="js/headline.js"></script>
 <script src="js/flapjack.js"></script>
 <script src="js/dek.js"></script>
-<script src="js/letterbox.js"></script>
+<script src="js/letterbox.js?v=2"></script>
 <script src="js/site.js"></script>
 <script src="js/carousel.js"></script>
 <script src="js/stickers.js"></script>

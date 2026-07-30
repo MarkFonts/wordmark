@@ -9,12 +9,15 @@
 }
 @font-face {
   font-family: 'CalSans';
-  src: url('../fonts/CalSans-VariableFont 1.998 [opsz,wght,GEOM,YTAS,SHRP].ttf?v=2') format('truetype');
+  src: url('../fonts/CalSans-VariableFont 1.998 [opsz,wght,GEOM,YTAS,SHRP].woff2') format('woff2'),
+       url('../fonts/CalSans-VariableFont 1.998 [opsz,wght,GEOM,YTAS,SHRP].ttf?v=2') format('truetype');
   font-weight: 400 700;
   font-style: normal;
   font-display: swap;
-  /* Variable axes (build 1.998) — opsz: 8–45 (default 14) | wght: 400–700 | GEOM: 0–100 (default 25) | YTAS: 720–800 | SHRP: 0–100 | ital: 0–1 */
-  font-variation-settings: 'opsz' 14, 'wght' 400, 'GEOM' 25, 'YTAS' 720, 'SHRP' 0, 'ital' 0;
+  /* Variable axes (build 1.998) — opsz: 8–45 (default 14) | wght: 400–700 | GEOM: 0–100 (default 25) | YTAS: 720–800 | SHRP: 0–100 | ital: 0–1.
+     NO font-variation-settings pin here: pinning 'wght' 400 locks the axis for
+     canvas (which can't override it the way DOM elements do per-rule), which
+     froze the footer letterbox at 400. Elements set their own wght as needed. */
 }
 @font-face {
   font-family: 'Ambulia Text';
@@ -779,6 +782,13 @@ footer {
   text-underline-offset: 3px;
 }
 
+/* Desktop: nudge the contact email's left edge to line up with the
+   work-image column above it (image starts ~51% of content vs the
+   footer grid's 50%). */
+@media (min-width: 681px) {
+  #contact-link { padding-left: 1.05vw; }
+}
+
 /* ═══ FOOTER LETTERBOX ══════════════════════════════════ */
 #footer-letterbox {
   width: 100%;
@@ -813,6 +823,14 @@ footer {
     padding: 0 clamp(20px, 5vw, 40px);
     gap: 24px;
   }
+  /* Match the footer's side gutters to the rest of the content
+     (content uses clamp(20px,5vw,40px); footer defaulted to the wider
+     clamp(32px,7vw,112px)). Also drop the desktop email nudge. */
+  footer {
+    padding-left: clamp(20px, 5vw, 40px);
+    padding-right: clamp(20px, 5vw, 40px);
+  }
+  #contact-link { padding-left: 0; }
   .work-img { width: 100%; order: 1; }  /* caption+rule above, image below */
   .work-figcaption { order: -1; }       /* ensure caption is above image */
   .fig-text { font-size: 10px; }
