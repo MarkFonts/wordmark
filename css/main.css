@@ -766,15 +766,55 @@ footer {
    columns, room for the wide link gap), photos filling the image column so
    their combined width matches the nymzo figure. Both top-aligned. */
 @media (min-width: 681px) {
-  footer {
-    display: grid;
-    grid-template-columns: minmax(0, 3fr) minmax(0, 1fr) minmax(0, 4fr);
-    column-gap: clamp(32px, 5vw, 80px);
-    align-items: start;
-    padding-top: 22vh;   /* footer photo lands ~100vh below the last sticky, matching the image rhythm */
+  /* CLOSING STAGE — the last work item is a tall stage that keeps the NYMZO
+     image pinned in the right column while the copy scrolls away and the footer
+     rises from the bottom into the left column beside it. */
+  .closing {
+    position: relative;
+    min-height: 210vh;               /* runway: portrait scoots in, then footer arrives (TUNING KNOB) */
+    grid-template-rows: auto 1fr;    /* copy row, then a filler row that drops the footer to the bottom */
   }
-  .footer-brick  { grid-column: 1; }
-  .footer-photos { grid-column: 2 / -1; }   /* same span as the work figure */
+  .closing .work-copy { grid-column: 1; grid-row: 1; }
+  /* image spans the full stage height so its sticky pin holds the whole way down */
+  .closing .work-fig { grid-row: 1 / -1; align-self: start; }
+  /* footer: bottom-left of the stage, single left column, NOT sticky — it rises
+     from the bottom beside the still-pinned image */
+  .closing > footer {
+    grid-column: 1;
+    grid-row: 2;
+    align-self: end;
+    display: block;
+    margin: 0;
+    padding: 0;
+    z-index: 3;
+  }
+  /* Portrait rides its OWN top-anchored sticky track, decoupled from the
+     bottom-anchored footer. Two independent knobs now:
+       • .portrait-track height → HOW LONG it stays stuck (pin duration)
+       • .footer-portrait top   → WHERE it pins (scroll → sticky line) */
+  .portrait-track {
+    grid-column: 1;
+    grid-row: 2;
+    align-self: start;             /* sits just under the copy, top of the row */
+    height: 170vh;                 /* PIN-DURATION KNOB — taller = stuck longer */
+  }
+  .footer-portrait {
+    display: block;
+    position: sticky;
+    top: 15vh;                     /* 7.5vh aligns with right hand image WHERE it pins (lower % = higher on screen) */
+  }
+  .footer-portrait img {
+    width: 440px;
+    height: 293px;
+    object-fit: cover;
+    border-radius: var(--r);   /* rounded corners */
+    display: block;
+  }
+}
+
+/* hide the portrait on mobile — max-width query so it can't override desktop */
+@media (max-width: 680px) {
+  .footer-portrait { display: none; }
 }
 
 /* Single wide photo, sized to match the work image (4/5 of the figure span,
@@ -854,6 +894,40 @@ footer {
   background: var(--bg);
   transition: background 0.25s;
   cursor: crosshair;
+}
+
+/* ── Letterbox scroll reveal (branch: letterbox-reveal) ──────────────
+   ADDITIVE layer — the base letterbox above (20vh explode-headroom pad,
+   un-clipped overflow, the whole canvas) is left intact. On desktop we pin the
+   letterbox to the viewport bottom and TRANSLATE the entire unit between three
+   keyframes: hidden → peek → full. No clip box, so the explode radius is never
+   cut. Background goes transparent so the letters float over the content during
+   the reveal (the solid bg was only for the seamless bottom). site.js sets the
+   hidden/peek shift pixels and toggles .lb-peek / .lb-full. */
+@media (min-width: 681px) {
+  #footer-letterbox {
+    position: fixed;
+    left: 0;
+    bottom: 0;
+    width: 100%;
+    margin-top: 0 !important;
+    background: transparent;
+    z-index: 3;
+    will-change: transform;
+    transform: translateY(60%);   /* fallback; site.js drives translateY per-frame (parallax) */
+  }
+  #lb-footer { background: transparent; }
+
+  /* scroll runway: reserves exactly the letterbox's live flow height below the
+     footer, so the full WORDMARK rests right under the footer like the live site.
+     site.js sets the precise px; this is the pre-JS fallback. */
+  .reveal-room { height: 24vh; }
+}
+
+/* mobile/tablet: no runway, no reveal — the anchor handles the letterbox.
+   max-width query so it can't override the desktop rule via source order */
+@media (max-width: 680px) {
+  .reveal-room { height: 0; }
 }
 
 /* ═══ MOBILE ════════════════════════════════════════════

@@ -20,7 +20,7 @@
   gtag('js', new Date());
   gtag('config', 'G-MZ4M1P8P1P');
 </script>
-<link rel="stylesheet" href="css/main.css?v=3">
+<link rel="stylesheet" href="css/main.css?v=17">
 </head>
 <body>
 
@@ -201,7 +201,10 @@
       </div>
     </figure>
   </div>
-  <div class="work-item">
+  <!-- CLOSING STAGE: a tall stage so the NYMZO image (sticky) stays pinned in
+       the right column while the copy scrolls away and the footer rises from the
+       bottom into the left column beside it. -->
+  <div class="work-item closing">
     <div class="work-copy">
       <h2 class="work-headline">Optimize every moment… whether they can see your logo or not.</h2>
       <p class="para" lang="en">Consistency holds when the rules are explicit. We audit how type is used across web, print, and motion, then write the guidelines that make good decisions the path of least resistance.</p>
@@ -217,36 +220,42 @@
         <img class="fill" src="links/pngs/nymzo-2.png" alt="NYMZO logotype">
       </div>
     </figure>
+    <!-- portrait rides its OWN sticky track (top-anchored) so its pin duration is
+         decoupled from the footer: track height = how long it stays stuck -->
+    <div class="portrait-track">
+      <div class="footer-portrait"><img src="links/pngs/DSC07752.jpeg" alt="Mark Davis" width="440" height="293" loading="lazy"></div>
+    </div>
+    <!-- footer nested in the stage: not sticky, sits at the bottom-left and rises
+         into view beside the still-pinned NYMZO image -->
+    <footer>
+      <div class="footer-brick">
+        <nav class="footer-links" aria-label="Contact links">
+          <a href="https://www.instagram.com/wordmark.nyc/" target="_blank" rel="noopener">ig</a>
+          <a href="https://twitter.com/MarkFonts" target="_blank" rel="noopener">tw</a>
+          <a href="https://www.linkedin.com/in/markfonts/" target="_blank" rel="noopener">in</a>
+          <a id="contact-link" rel="noopener">mark&#128386;wordmark.nyc</a>
+          <script>
+            var u="mark",d="wordmark.nyc",s="Let%E2%80%99s+leave+a+mark",b="We+should+talk%21";
+            var link=document.getElementById("contact-link");
+            // scraper-clean placeholder href: at_spam_trap glyph (U+1F582), no real "@"
+            link.href="mailto:"+u+String.fromCodePoint(0x1F582)+d+"?subject="+s+"&body="+b;
+            // swap in the real, sendable address on genuine interaction, BEFORE the click navigates
+            function armMailto(){link.href="mailto:"+u+"@"+d+"?subject="+s+"&body="+b;}
+            link.addEventListener("mousedown",armMailto);
+            link.addEventListener("focus",armMailto);
+          </script>
+        </nav>
+        <p class="footer-credit">&copy; 2026 Mark Davis and WORDMARK.<br>Letterbox footer pretext effect was created by <a href="https://charlieclark.co/" target="_blank" rel="noopener">Charlie Clark</a>.</p>
+      </div>
+    </footer>
   </div>
 </section>
 
-<!-- footer — sits above letterbox; JS pulls letterbox up so WORDMARK lands 15px below -->
-<footer>
-  <div class="footer-brick">
-    <nav class="footer-links" aria-label="Contact links">
-      <a href="https://www.instagram.com/wordmark.nyc/" target="_blank" rel="noopener">ig</a>
-      <a href="https://twitter.com/MarkFonts" target="_blank" rel="noopener">tw</a>
-      <a href="https://www.linkedin.com/in/markfonts/" target="_blank" rel="noopener">in</a>
-      <a id="contact-link" rel="noopener">mark&#128386;wordmark.nyc</a>
-      <script>
-        var u="mark",d="wordmark.nyc",s="Let%E2%80%99s+leave+a+mark",b="We+should+talk%21";
-        var link=document.getElementById("contact-link");
-        // scraper-clean placeholder href: at_spam_trap glyph (U+1F582), no real "@"
-        link.href="mailto:"+u+String.fromCodePoint(0x1F582)+d+"?subject="+s+"&body="+b;
-        // swap in the real, sendable address on genuine interaction, BEFORE the click navigates
-        function armMailto(){link.href="mailto:"+u+"@"+d+"?subject="+s+"&body="+b;}
-        link.addEventListener("mousedown",armMailto);
-        link.addEventListener("focus",armMailto);
-      </script>
-    </nav>
-    <p class="footer-credit">&copy; 2026 Mark Davis and WORDMARK.<br>Letterbox footer pretext effect was created by <a href="https://charlieclark.co/" target="_blank" rel="noopener">Charlie Clark</a>.</p>
-  </div>
-  <div class="footer-photos">
-    <img src="links/pngs/DSC07752.jpeg" alt="Mark Davis" loading="lazy">
-  </div>
-</footer>
+<!-- reveal runway: desktop scroll room below the closing stage; site.js sizes it
+     so the full WORDMARK rests 50px under the footer block -->
+<div class="reveal-room" aria-hidden="true"></div>
 
-<!-- footer letterbox — JS sets margin-top so WORDMARK letters land 15px below footer -->
+<!-- footer letterbox — fixed + scroll-revealed on desktop (see site.js) -->
 <div id="footer-letterbox">
   <canvas id="lb-footer" aria-label="WORDMARK"></canvas>
 </div>
@@ -255,7 +264,7 @@
 <script src="js/flapjack.js"></script>
 <script src="js/dek.js"></script>
 <script src="js/letterbox.js?v=2"></script>
-<script src="js/site.js"></script>
+<script src="js/site.js?v=10"></script>
 <script src="js/carousel.js"></script>
 <script src="js/stickers.js"></script>
 </body>

@@ -217,3 +217,106 @@
     raf = requestAnimationFrame(anchor);
   });
 }());
+
+/* ── letterbox progressive reveal (branch: letterbox-reveal) ─────────
+   Desktop-only, additive to the anchor above. A low-parallax progressive
+   disclosure: the whole letterbox creeps up with scroll — hidden through the
+   hero, gradually to a ~3-row peek across the work blocks, then up to full as
+   the footer arrives. Whole-unit translate driven per frame, NO clip, so the
+   explode radius is never cut. */
+(function () {
+  if (window.matchMedia('(max-width: 680px)').matches) return;   // mobile keeps the anchor
+  var lb     = document.getElementById('footer-letterbox');
+  var canvas = document.getElementById('lb-footer');
+  var stage  = document.querySelector('.closing');   // the tall closing stage (last work item)
+  var items  = [].slice.call(document.querySelectorAll('.work-item'));
+  if (!lb || !canvas || !stage || items.length < 4) return;
+
+  // NYMZO caption + rule — reverse out (drift left + fade, rule retracts to the dot)
+  // as the footer arrives, leaving a clean image beside the footer text
+  var captionEl = stage.querySelector('.work-figcaption');
+  var ruleEl    = stage.querySelector('.fig-rule');
+
+  var PEEK    = 60;    // px of the WORDMARK top shown at the full peek (~3 rows)
+  var hiddenY = 190;   // translateY (px) for fully hidden
+  var peekY   = 130;   // translateY (px) for the peek
+  // full (resting, live position) = translateY(0)
+
+  // find the WORDMARK ink-band top (CSS px) so the shifts align to the letters
+  function measureShifts() {
+    var wmTop = 155;
+    try {
+      var ctx = canvas.getContext('2d'), dpr = window.devicePixelRatio || 1;
+      var W = canvas.width, H = canvas.height, d = ctx.getImageData(0, 0, W, H).data;
+      for (var y = 0; y < H; y++) {
+        var n = 0, base = y * W * 4;
+        for (var x = 0; x < W; x += 8) { if (d[base + x * 4 + 3] > 60) n++; }
+        if (n > 15) { wmTop = Math.round(y / dpr); break; }
+      }
+    } catch (e) {}
+    var cvH  = Math.round(canvas.getBoundingClientRect().height);
+    var inkH = cvH - wmTop;  // WORDMARK block height
+    hiddenY = inkH + 4;      // WORDMARK just below the fold
+    peekY   = inkH - PEEK;   // top ~PEEK px showing
+    // Reserve the WORDMARK's visible height + a 50px gap below the footer, so at
+    // the bottom the footer block rests with the full WORDMARK 50px beneath it.
+    var room = document.querySelector('.reveal-room');
+    if (room) room.style.height = (inkH + 50) + 'px';
+  }
+
+  function docTop(el) { var y = 0; while (el) { y += el.offsetTop; el = el.offsetParent; } return y; }
+  function clamp(v, a, b) { return v < a ? a : (v > b ? b : v); }
+  function lerp(a, b, t) { return a + (b - a) * t; }
+
+  var A = {};
+  function recalc() {
+    A.b2       = docTop(items[1]);   // block 2
+    A.stageTop = docTop(stage);      // top of the closing stage
+    A.max      = document.documentElement.scrollHeight - window.innerHeight;
+  }
+  // scroll position, robust to the page's scroll mechanism
+  function scrollNow() { return A.stageTop - stage.getBoundingClientRect().top; }
+
+  function update() {
+    var s = scrollNow(), vh = window.innerHeight;
+    var rampStart   = A.b2 - vh;          // block 2's top enters the viewport
+    var revealStart = A.max - vh;         // full reveal happens over the final viewport
+    // phase 1 — progressive: hidden → peek, growing across blocks 2–3 into the stage,
+    // reaching the ~3-row peek as the closing stage tops out
+    var p1 = clamp((s - rampStart) / Math.max(1, A.stageTop - rampStart), 0, 1);
+    var y  = lerp(hiddenY, peekY, p1);
+    // hold at the peek through the stage, then phase 2 — peek → full over the final
+    // viewport, in sync with the footer rising into place (its own slower pace)
+    var p2 = clamp((s - revealStart) / Math.max(1, A.max - revealStart), 0, 1);
+    y = lerp(y, 0, p2);
+    lb.style.transform = 'translateY(' + y.toFixed(1) + 'px)';
+
+    // NYMZO caption + rule reverse-out, completing a touch before the very bottom
+    var pOut = clamp((s - revealStart) / Math.max(1, (A.max - revealStart) * 0.7), 0, 1);
+    if (captionEl) {
+      if (pOut > 0) {
+        captionEl.style.transform = 'translateX(' + (-28 * pOut).toFixed(1) + 'px)';
+        captionEl.style.opacity   = (1 - pOut).toFixed(3);
+      } else {
+        captionEl.style.transform = '';
+        captionEl.style.opacity   = '';
+      }
+    }
+    if (ruleEl) {
+      if (pOut > 0) {
+        ruleEl.style.transition = 'none';               // scrub, don't ease
+        ruleEl.style.transform  = 'scaleX(' + (1 - pOut).toFixed(3) + ')';  // retract into the dot
+      } else {
+        ruleEl.style.transition = '';                   // hand back to the CSS entrance
+        ruleEl.style.transform  = '';
+      }
+    }
+
+  }
+
+  // measureShifts sizes the room first, THEN recalc reads the resulting scrollHeight
+  function init() { measureShifts(); recalc(); }
+  document.fonts.ready.then(function () { setTimeout(init, 500); });
+  window.addEventListener('resize', function () { measureShifts(); recalc(); });
+  (function loop() { update(); requestAnimationFrame(loop); }());
+}());
