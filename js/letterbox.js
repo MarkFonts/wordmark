@@ -85,10 +85,31 @@ var CONFIG_FOOTER = {
   /* ============================================================
      Factory — one call per canvas
      ============================================================ */
-  function createLetterbox(canvasEl, CFG) {
+  function createLetterbox(canvasEl, CFG, frontEls) {
     if (!canvasEl) return;
 
     var ctx    = canvasEl.getContext('2d');
+    // Optional extra front-layer canvases (z-depth speckle). allCtxs[0] = back
+    // (main canvas), allCtxs[1+] = front layers. Single-canvas when none passed.
+    frontEls   = frontEls || [];
+    var allEls  = [canvasEl].concat(frontEls);
+    var allCtxs = allEls.map(function (el) { return el.getContext('2d'); });
+    var NLAYERS = allCtxs.length;
+
+    // Speckle "juggle": ~1/3 of glyphs are painted on BOTH canvases — full ink on
+    // the back, oscillating alpha on the front. On the flat WORDMARK the back copy
+    // makes them look solid (the fading front copy is invisible, ink over ink); but
+    // where an image sits between the layers the back copy is hidden, so only the
+    // fading front copy shows and those letters shimmer in/out over the image.
+    // splitActive refreshed each build (buildAllChars) to handle breakpoint crossings.
+    var splitActive   = true;
+    var JUGGLE_GROUPS = 3;          // the "on top" third rotates through this many phase groups
+    var JUGGLE_SPEED  = 0.0016;     // rad/ms → ~4s cycle
+    function seededFrac(i, salt) {
+      var x = Math.sin(i * 127.1 + 311.7 + salt) * 43758.5453;
+      return x - Math.floor(x);
+    }
+
     var FILL_SZ = CFG.fillSize;
     var LINE_H  = Math.ceil(1.3 * FILL_SZ);
 
@@ -141,6 +162,7 @@ var CONFIG_FOOTER = {
 
     /* ── buildAllChars ──────────────────────────────────── */
     function buildAllChars(CW, layoutCW, heroH) {
+      splitActive = window.matchMedia('(min-width: 681px)').matches;   // fresh per build
       var probe   = document.createElement('canvas').getContext('2d');
       var refSize = 200;
       probe.font  = CFG.largeWeight + ' ' + refSize + 'px ' + CFG.largeFontFamily;
@@ -189,7 +211,10 @@ var CONFIG_FOOTER = {
               var cw = sc.measureText(ch).width;
               if (cx2 + cw > x1) break;   // doesn't fit — leave it for the next span, don't consume/drop it
               pi++;
-              chars.push({ ch: ch, hx: cx2, hy: hy, dx: 0, dy: 0 });
+              var idx = chars.length;
+              var grp = Math.floor(seededFrac(idx, 5) * JUGGLE_GROUPS);
+              chars.push({ ch: ch, hx: cx2, hy: hy, dx: 0, dy: 0,
+                           jphase: grp * (6.2832 / JUGGLE_GROUPS) });   // front-alpha phase
               cx2 += cw;
             }
           }
@@ -245,6 +270,18 @@ var CONFIG_FOOTER = {
       });
     }
 
+    /* ── draw one glyph on a context (handles the mouse-scale size swap) ── */
+    function drawGlyph(g, c, tx2, ty2, scale, fillFont) {
+      if (scale > 1.05) {
+        var sz = FILL_SZ * scale;
+        g.font = CFG.fillWeight + ' ' + sz.toFixed(1) + 'px ' + CFG.fillFontFamily;
+        g.fillText(c.ch, tx2, ty2 - (sz - FILL_SZ) * 0.5);
+        g.font = fillFont;
+      } else {
+        g.fillText(c.ch, tx2, ty2);
+      }
+    }
+
     /* ── drawFrame ──────────────────────────────────────── */
     function drawFrame(chars, CW, CH, dpr, mp, nowMs) {
       var colours    = getThemeColours();
@@ -252,13 +289,15 @@ var CONFIG_FOOTER = {
       var fvs        = buildFVS(axisValues);
       var fillFont   = CFG.fillWeight + ' ' + FILL_SZ + 'px ' + CFG.fillFontFamily;
 
-      ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
-      ctx.clearRect(0, 0, CW, CH);
-
-      ctx.fillStyle             = colours.ink;
-      ctx.font                  = fillFont;
-      ctx.fontVariationSettings = fvs;
-      ctx.textBaseline          = 'top';
+      for (var li = 0; li < allCtxs.length; li++) {
+        var lc = allCtxs[li];
+        lc.setTransform(dpr, 0, 0, dpr, 0, 0);
+        lc.clearRect(0, 0, CW, CH);
+        lc.fillStyle             = colours.ink;   // all layers ink; z-order alone makes the speckle
+        lc.font                  = fillFont;
+        lc.fontVariationSettings = fvs;
+        lc.textBaseline          = 'top';
+      }
 
       var radius   = isMouseDown ? 250 : 100;
       var strength = isMouseDown ? 105 : 35;
@@ -291,13 +330,17 @@ var CONFIG_FOOTER = {
           if (d2 < radius) scale = 1 + (scalePk - 1) * (1 - d2 / radius);
         }
 
-        if (scale > 1.05) {
-          var sz = FILL_SZ * scale;
-          ctx.font = CFG.fillWeight + ' ' + sz.toFixed(1) + 'px ' + CFG.fillFontFamily;
-          ctx.fillText(c.ch, tx2, ty2 - (sz - FILL_SZ) * 0.5);
-          ctx.font = fillFont;
-        } else {
-          ctx.fillText(c.ch, tx2, ty2);
+        // back canvas — every glyph at full ink (the flat WORDMARK stays complete)
+        drawGlyph(allCtxs[0], c, tx2, ty2, scale, fillFont);
+        // front canvas — same glyph at a group-phased alpha. Invisible on the flat
+        // WORDMARK (ink over the full back copy), but over an image the back copy is
+        // hidden so only this shows → the visible "top" third rotates over the image.
+        if (splitActive && allCtxs[1]) {
+          var a  = 0.5 + 0.5 * Math.sin(nowMs * JUGGLE_SPEED + c.jphase);
+          var fc = allCtxs[1];
+          fc.globalAlpha = a * a;            // squared → one third clearly dominates
+          drawGlyph(fc, c, tx2, ty2, scale, fillFont);
+          fc.globalAlpha = 1;
         }
       }
     }
@@ -319,10 +362,13 @@ var CONFIG_FOOTER = {
       var heroH = CFG.heroHeightFrac > 0 ? Math.round(window.innerHeight * CFG.heroHeightFrac) : 0;
       CH = computeCanvasHeight(CW, layoutCW, heroH);
 
-      canvasEl.style.width  = CW + 'px';
-      canvasEl.style.height = CH + 'px';
-      canvasEl.width  = Math.round(CW * dpr);
-      canvasEl.height = Math.round(CH * dpr);
+      for (var ei = 0; ei < allEls.length; ei++) {
+        var el = allEls[ei];
+        el.style.width  = CW + 'px';
+        el.style.height = CH + 'px';
+        el.width  = Math.round(CW * dpr);
+        el.height = Math.round(CH * dpr);
+      }
 
       chars = buildAllChars(CW, layoutCW, heroH);
       drawFrame(chars, CW, CH, dpr, mp, performance.now());
@@ -351,12 +397,13 @@ var CONFIG_FOOTER = {
   }
 
   /* ── bootstrap both canvases ──────────────────────────── */
-  var heroEl   = document.getElementById('lb-canvas');
-  var footerEl = document.getElementById('lb-footer');
+  var heroEl       = document.getElementById('lb-canvas');
+  var footerEl     = document.getElementById('lb-footer');
+  var footerFront  = document.getElementById('lb-footer-front');   // z-depth speckle layer
 
   // Draw immediately with whatever fonts are available to avoid blank frames
   var initHero   = createLetterbox(heroEl,   CONFIG);
-  var initFooter = createLetterbox(footerEl, CONFIG_FOOTER);
+  var initFooter = createLetterbox(footerEl, CONFIG_FOOTER, footerFront ? [footerFront] : null);
 
   document.fonts.ready.then(function () {
     if (initHero)   initHero();

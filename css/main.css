@@ -771,9 +771,14 @@ footer {
      rises from the bottom into the left column beside it. */
   .closing {
     position: relative;
-    min-height: 210vh;               /* runway: portrait scoots in, then footer arrives (TUNING KNOB) */
+    min-height: 150vh;               /* runway (TUNING KNOB) — now safe to tweak; portrait stays put */
     grid-template-rows: auto 1fr;    /* copy row, then a filler row that drops the footer to the bottom */
+    /* minmax(0,..) so the 440px portrait in col 1 can't blow the track out and
+       steal width from the image column (keeps the NYMZO image full-width) */
+    grid-template-columns: minmax(0, 3fr) minmax(0, 1fr) minmax(0, 4fr);
   }
+  .portrait-track { min-width: 0; }
+  .footer-portrait img { max-width: 100%; }   /* shrink within col 1 if it's narrower than 440px */
   .closing .work-copy { grid-column: 1; grid-row: 1; }
   /* image spans the full stage height so its sticky pin holds the whole way down */
   .closing .work-fig { grid-row: 1 / -1; align-self: start; }
@@ -786,6 +791,7 @@ footer {
     display: block;
     margin: 0;
     padding: 0;
+    transform: translateY(-10px);   /* nudge 10px up, closer to the portrait (visual only) */
     z-index: 3;
   }
   /* Portrait rides its OWN top-anchored sticky track, decoupled from the
@@ -795,8 +801,8 @@ footer {
   .portrait-track {
     grid-column: 1;
     grid-row: 2;
-    align-self: start;             /* sits just under the copy, top of the row */
-    height: 170vh;                 /* PIN-DURATION KNOB — taller = stuck longer */
+    align-self: stretch;           /* fill the row → portrait stays pinned regardless of
+                                      the runway, so tweaking min-height no longer moves it */
   }
   .footer-portrait {
     display: block;
@@ -896,6 +902,23 @@ footer {
   cursor: crosshair;
 }
 
+/* front speckle layer — its own in-flow canvas inside #footer-letterbox-front,
+   sized identically to the back canvas by JS so they overlay exactly. */
+#lb-footer-front {
+  display: block;
+  margin: 0 auto;
+  background: transparent;
+}
+/* Front container overlays the back container. On mobile it's hidden (the split
+   is desktop-only; letterbox.js puts every glyph on the back canvas there). */
+#footer-letterbox-front {
+  width: 100%;
+  pointer-events: none;   /* cursor passes through to the back canvas's explode */
+}
+@media (max-width: 680px) {
+  #footer-letterbox-front { display: none; }
+}
+
 /* ── Letterbox scroll reveal (branch: letterbox-reveal) ──────────────
    ADDITIVE layer — the base letterbox above (20vh explode-headroom pad,
    un-clipped overflow, the whole canvas) is left intact. On desktop we pin the
@@ -905,18 +928,30 @@ footer {
    the reveal (the solid bg was only for the seamless bottom). site.js sets the
    hidden/peek shift pixels and toggles .lb-peek / .lb-full. */
 @media (min-width: 681px) {
-  #footer-letterbox {
+  /* Both letterbox containers pin to the viewport bottom and are moved together
+     by site.js. The z-sandwich: back (z:1) → work images (z:2) → front (z:3). */
+  #footer-letterbox,
+  #footer-letterbox-front {
     position: fixed;
     left: 0;
     bottom: 0;
     width: 100%;
     margin-top: 0 !important;
     background: transparent;
-    z-index: 3;
     will-change: transform;
     transform: translateY(60%);   /* fallback; site.js drives translateY per-frame (parallax) */
   }
+  #footer-letterbox       { z-index: 1; }   /* back — behind the sliding images */
+  #footer-letterbox-front { z-index: 3; pointer-events: none; }  /* front — over them */
   #lb-footer { background: transparent; }
+
+  /* work images sit BETWEEN the two letterbox layers so the front speckle rides
+     over them; the whole fig is transparent to the cursor so it still reaches the
+     back canvas's explode handler — only the caption links stay clickable */
+  .work-fig { z-index: 2; pointer-events: none; }
+  .work-fig a { pointer-events: auto; }
+  /* portrait joins the z:2 layer so the front speckle rides over it as well */
+  .footer-portrait { z-index: 2; pointer-events: none; }
 
   /* scroll runway: reserves exactly the letterbox's live flow height below the
      footer, so the full WORDMARK rests right under the footer like the live site.

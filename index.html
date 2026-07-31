@@ -20,7 +20,7 @@
   gtag('js', new Date());
   gtag('config', 'G-MZ4M1P8P1P');
 </script>
-<link rel="stylesheet" href="css/main.css?v=17">
+<link rel="stylesheet" href="css/main.css?v=22">
 </head>
 <body>
 
@@ -255,16 +255,21 @@
      so the full WORDMARK rests 50px under the footer block -->
 <div class="reveal-room" aria-hidden="true"></div>
 
-<!-- footer letterbox — fixed + scroll-revealed on desktop (see site.js) -->
+<!-- footer letterbox — fixed + scroll-revealed on desktop (see site.js).
+     Two separate fixed containers so the work images can sandwich between them:
+     back (z:1) → work images (z:2) → front speckle (z:3). site.js moves both. -->
 <div id="footer-letterbox">
   <canvas id="lb-footer" aria-label="WORDMARK"></canvas>
+</div>
+<div id="footer-letterbox-front" aria-hidden="true">
+  <canvas id="lb-footer-front" aria-hidden="true"></canvas>
 </div>
 
 <script src="js/headline.js"></script>
 <script src="js/flapjack.js"></script>
 <script src="js/dek.js"></script>
-<script src="js/letterbox.js?v=2"></script>
-<script src="js/site.js?v=10"></script>
+<script src="js/letterbox.js?v=7"></script>
+<script src="js/site.js?v=12"></script>
 <script src="js/carousel.js"></script>
 <script src="js/stickers.js"></script>
 </body>

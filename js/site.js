@@ -227,6 +227,7 @@
 (function () {
   if (window.matchMedia('(max-width: 680px)').matches) return;   // mobile keeps the anchor
   var lb     = document.getElementById('footer-letterbox');
+  var lbFront = document.getElementById('footer-letterbox-front');   // front speckle container (moves with lb)
   var canvas = document.getElementById('lb-footer');
   var stage  = document.querySelector('.closing');   // the tall closing stage (last work item)
   var items  = [].slice.call(document.querySelectorAll('.work-item'));
@@ -270,7 +271,7 @@
 
   var A = {};
   function recalc() {
-    A.b2       = docTop(items[1]);   // block 2
+    A.b1       = docTop(items[0]);   // block 1
     A.stageTop = docTop(stage);      // top of the closing stage
     A.max      = document.documentElement.scrollHeight - window.innerHeight;
   }
@@ -279,7 +280,7 @@
 
   function update() {
     var s = scrollNow(), vh = window.innerHeight;
-    var rampStart   = A.b2 - vh;          // block 2's top enters the viewport
+    var rampStart   = A.b1 - vh;          // block 1's top enters the viewport
     var revealStart = A.max - vh;         // full reveal happens over the final viewport
     // phase 1 — progressive: hidden → peek, growing across blocks 2–3 into the stage,
     // reaching the ~3-row peek as the closing stage tops out
@@ -289,7 +290,9 @@
     // viewport, in sync with the footer rising into place (its own slower pace)
     var p2 = clamp((s - revealStart) / Math.max(1, A.max - revealStart), 0, 1);
     y = lerp(y, 0, p2);
-    lb.style.transform = 'translateY(' + y.toFixed(1) + 'px)';
+    var tf = 'translateY(' + y.toFixed(1) + 'px)';
+    lb.style.transform = tf;
+    if (lbFront) lbFront.style.transform = tf;   // front layer tracks the back exactly
 
     // NYMZO caption + rule reverse-out, completing a touch before the very bottom
     var pOut = clamp((s - revealStart) / Math.max(1, (A.max - revealStart) * 0.7), 0, 1);
