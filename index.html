@@ -4,6 +4,7 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>WORDMARK — Custom Typefaces &amp; Logotypes</title>
+<meta name="description" content="We design custom typefaces and logotypes that make brands consistent, clear, and unmistakable.">
 <meta property="og:title" content="WORDMARK — Custom Typefaces &amp; Logotypes">
 <meta property="og:description" content="We design custom typefaces and logotypes that make brands consistent, clear, and unmistakable.">
 <meta property="og:image" content="https://wordmark.nyc/thumb.png">
@@ -59,6 +60,7 @@
     window.addEventListener('scroll', update, { passive: true });
     window.addEventListener('resize', function () { measure(); update(); });
     window.addEventListener('load',   function () { measure(); update(); });
+    if (document.fonts && document.fonts.ready) { document.fonts.ready.then(function () { measure(); update(); }); }
   });
 </script>
 
@@ -88,7 +90,7 @@
     <!-- headline now lives in #flapjack-text above; this row is just the CTA -->
     <div class="hero-cta">
       <div class="hero-avatar"><img src="mark-davis.png" alt="Mark Davis"></div>
-      <a class="hero-pill" href="https://cal.com/davis" target="_blank" rel="noopener">Let&rsquo;s talk type!&thinsp;<span class="hero-pill-arrow">&#x2197;</span></a>
+      <a class="hero-pill" href="https://cal.com/davis" target="_blank" rel="noopener">Let&rsquo;s talk type&thinsp;<span class="hero-pill-arrow">&#x2197;</span></a>
     </div>
   </div>
 </section>
@@ -148,12 +150,12 @@
   <div class="work-item">
     <div class="work-copy">
       <h2 class="work-headline">Brands tell unique stories with letters that fit.</h2>
-      <p class="para" lang="en">Brands may share type, but every one tells a different story through innovative, thoughtful typographic choices.</p>
+      <p class="para" lang="en">Brands may share typefaces. None of them should sound alike. The difference is in the choices, the ones you can point to and the ones you only feel.</p>
     </div>
     <figure class="work-fig">
       <figcaption class="work-figcaption">
         <div class="fig-header" aria-hidden="true"></div>
-        <h3 class="fig-text">WORDMARK developed typography for the National Museum of Women in the Arts&rsquo; remodel, resulting in illuminated signage and creative direction with Sandrine Nugue Studio.</h3>
+        <h3 class="fig-text">Typography for the National Museum of Women in the Arts&rsquo; remodel: illuminated signage, with creative direction by Sandrine Nugue Studio.</h3>
       </figcaption>
       <div class="work-img">
         <div class="work-shape" aria-hidden="true"></div>
@@ -170,7 +172,7 @@
     <figure class="work-fig">
       <figcaption class="work-figcaption">
         <div class="fig-header" aria-hidden="true"></div>
-        <h3 class="fig-text">WORDMARK assisted Timothy Luke in his logotype exploration and variable type engineering for the Nike FLYEASE wordmark.</h3>
+        <h3 class="fig-text">Logotype exploration and variable type engineering for the Nike FLYEASE wordmark, with Timothy Luke.</h3>
       </figcaption>
       <div class="work-img">
         <div class="work-shape" aria-hidden="true"></div>
@@ -181,17 +183,18 @@
   </div>
   <div class="work-item">
     <div class="work-copy">
-      <h2 class="work-headline">Custom-tuned variable fonts: more precision for your needs.</h2>
-      <p class="para" lang="en">Var&shy;i&shy;able fonts are the nat&shy;u&shy;ral evo&shy;lu&shy;tion of the 30 year-old font file format updated for high-DPI screens, no matter the device or platform.</p>
+      <h2 class="work-headline">One font file. Every size, weight, and mood.</h2>
+      <p class="para" lang="en">Var&shy;i&shy;able fonts are the 30-year-old font for&shy;mat, re&shy;built for ev&shy;ery screen. We tune them by hand, axis by axis, so your type holds at any size.</p>
       <p class="learn-more">To learn more &mdash;
         <a href="/recalsans/">ReCal Sans</a>,
         <a href="/font-proofer/">Font Proofer</a>,
-        <a href="https://cal.com/font" target="_blank" rel="noopener">cal.com/font</a></p>
+        <a href="https://cal.com/font" target="_blank" rel="noopener">cal.com/font</a>,
+        <a href="https://github.com/calcom/sans" target="_blank" rel="noopener">GitHub</a></p>
     </div>
     <figure class="work-fig">
       <figcaption class="work-figcaption">
         <div class="fig-header" aria-hidden="true"></div>
-        <h3 class="fig-text">WORDMARK was embedded with the product design and engineering teams at Cal.com to create a bespoke, replacement to open-source Inter. six variable axes and tailwind type-scale friendly.</h3>
+        <h3 class="fig-text">A bespoke replacement for open-source Inter, built inside Cal.com&rsquo;s product and engineering teams: six variable axes tuned to their Tailwind type scale, so every heading and label speaks in one voice.</h3>
       </figcaption>
       <div class="work-img">
         <div class="work-shape" aria-hidden="true"></div>
@@ -206,8 +209,8 @@
        bottom into the left column beside it. -->
   <div class="work-item closing">
     <div class="work-copy">
-      <h2 class="work-headline">Optimize every moment… whether they can see your logo or not.</h2>
-      <p class="para" lang="en">Consistency holds when the rules are explicit. We audit how type is used across web, print, and motion, then write the guidelines that make good decisions the path of least resistance.</p>
+      <h2 class="work-headline">Consistency holds when the rules are explicit.</h2>
+      <p class="para" lang="en">We audit how your type behaves across web, print, and motion, then write the guidelines that make the right choice the easy one. Even where your logo never appears.</p>
     </div>
     <figure class="work-fig">
       <figcaption class="work-figcaption">
