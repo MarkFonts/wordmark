@@ -8,29 +8,30 @@
 <meta property="og:url" content="https://wordmark.nyc/fontchooserchooser/">
 <meta property="og:title" content="It was really hard to find and choose a font chooser…">
 <meta property="og:description" content="…so I made a finder and chooser to choose them. A directory of the 21 font choosers Reddit shipped in one year. 3 already dead.">
-<meta property="og:image" content="https://wordmark.nyc/fontchooserchooser/og.png?v=2">
-<meta property="og:image:width" content="1200">
-<meta property="og:image:height" content="600">
+<meta property="og:image" content="https://wordmark.nyc/fontchooserchooser/og.png">
+<meta property="og:image:width" content="2400">
+<meta property="og:image:height" content="1200">
 <meta property="og:image:type" content="image/png">
 <meta property="og:image:alt" content="It was really hard to find and choose a font chooser — a directory of 21 font choosers Reddit shipped in one year.">
 <meta property="og:site_name" content="WORDMARK">
 <meta name="twitter:card" content="summary_large_image">
 <meta name="twitter:title" content="It was really hard to find and choose a font chooser…">
 <meta name="twitter:description" content="…so I made a finder and chooser to choose them. 21 font choosers, 3 already dead.">
-<meta name="twitter:image" content="https://wordmark.nyc/fontchooserchooser/og.png?v=2">
+<meta name="twitter:image" content="https://wordmark.nyc/fontchooserchooser/og.png">
 <meta name="description" content="A directory of the 21 'Google Fonts is too hard' tools Reddit shipped in one year.">
 <style>
   :root{
     --bg:#ffffff; --bg2:#f7f6fb; --ink:#17151f; --ink2:#5b5768; --line:#e8e5f2;
     --grad1:#7c3aed; --grad2:#2563eb; --accent:#7c3aed; --accent-ink:#ffffff;
     --card:#ffffff; --chip:#f1eefb; --live:#0d9d58; --dead:#d43d3d;
+    --holo-metal-dark:#5b5470; --holo-metal-light:#a9a2c4;
     --mono:"JetBrains Mono","SF Mono",ui-monospace,Menlo,Consolas,monospace;
   }
   @media (prefers-color-scheme: dark){
-    :root{ --bg:#0b0b14; --bg2:#12111d; --ink:#f0eef7; --ink2:#9b96ad; --line:#252336;
+    :root{ --bg:#0b0b14; --holo-metal-dark:#8e88a8; --holo-metal-light:#f3f0fb; --bg2:#12111d; --ink:#f0eef7; --ink2:#9b96ad; --line:#252336;
       --card:#161425; --chip:#221f38; --live:#2fce7f; --dead:#ff6b6b; }
   }
-  :root[data-theme="dark"]{ --bg:#0b0b14; --bg2:#12111d; --ink:#f0eef7; --ink2:#9b96ad; --line:#252336;
+  :root[data-theme="dark"]{ --bg:#0b0b14; --holo-metal-dark:#8e88a8; --holo-metal-light:#f3f0fb; --bg2:#12111d; --ink:#f0eef7; --ink2:#9b96ad; --line:#252336;
       --card:#161425; --chip:#221f38; --live:#2fce7f; --dead:#ff6b6b; }
   :root[data-theme="light"]{ --bg:#ffffff; --bg2:#f7f6fb; --ink:#17151f; --ink2:#5b5768; --line:#e8e5f2;
       --card:#ffffff; --chip:#f1eefb; --live:#0d9d58; --dead:#d43d3d; }
@@ -51,7 +52,31 @@
   .badge{display:inline-block;font-size:12.5px;font-weight:600;background:var(--chip);color:var(--accent);
     border-radius:999px;padding:6px 14px;margin-bottom:22px}
   h1{font-size:clamp(34px,5.6vw,58px);line-height:1.06;letter-spacing:-.035em;font-weight:800;margin:0 0 8px;text-wrap:balance}
-  h1 .grad{background:linear-gradient(90deg,var(--grad1),var(--grad2));-webkit-background-clip:text;background-clip:text;color:transparent}
+  /* holo — ported from ReCal src/instrument/holo.css (seam-tab mechanism):
+     a diffraction colour band screened over drifting brushed metal, clipped to the glyphs. */
+  @property --holo0{syntax:"<percentage>";inherits:false;initial-value:0%}
+  @property --holo1{syntax:"<percentage>";inherits:false;initial-value:0%}
+  h1 .grad{
+    background-image:
+      linear-gradient(90deg,
+        transparent 0 40%,
+        rgba(255,30,168,0) 40%, #ff1ea8 42.5%, #ffe600 45%, #21ff6a 47%, #1a3cff 49%,
+        #ffffff 50.5%,
+        rgba(255,30,168,.85) 52%, rgba(255,230,0,.85) 54.5%, rgba(26,60,255,.85) 57%,
+        rgba(26,60,255,0) 60%),
+      linear-gradient(100deg, var(--holo-metal-dark) 0%, var(--holo-metal-light) 28%,
+        var(--holo-metal-dark) 52%, var(--holo-metal-light) 78%, var(--holo-metal-dark) 100%);
+    background-size:200% 100%, 200% 100%;
+    background-position:var(--holo1) center, var(--holo0) center;
+    background-repeat:no-repeat;
+    background-blend-mode:screen, normal;
+    -webkit-background-clip:text;background-clip:text;
+    -webkit-text-fill-color:transparent;color:transparent;
+    animation:holo-0 3s linear infinite, holo-1 14.3s ease-out infinite}
+  @keyframes holo-0{from{--holo0:100%}to{--holo0:0%}}
+  @keyframes holo-1{0%{--holo1:125%}25%{--holo1:-25%}100%{--holo1:-25%}}
+  @media (prefers-reduced-motion: reduce){
+    h1 .grad{animation:none;--holo1:50%;--holo0:50%}}
   #cycler{cursor:pointer;border-bottom:3px dotted var(--accent)}
   .cycle-note{font-size:12.5px;color:var(--ink2);font-family:var(--mono);margin:2px 0 18px}
   .sub{font-size:18px;color:var(--ink2);max-width:640px;margin:14px auto 30px;text-wrap:balance}
