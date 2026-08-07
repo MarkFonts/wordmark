@@ -129,7 +129,7 @@
   .hline .fit{white-space:nowrap;display:inline-block;line-height:1}
   .hline3{height:clamp(26px,4.2vw,48px)}
   .headblock .cycle-note{height:22px;display:flex;align-items:center;justify-content:center;margin:8px 0 12px;
-    font-family:"JetBrains Mono",var(--mono)}
+    font-family:"JetBrains Mono",var(--mono);color:var(--ink2);opacity:.1;transition:opacity .25s ease}
 
 </style>
 <style>
@@ -339,6 +339,7 @@ function applyFace(){const n=FACES[ci];
   HL.forEach(h=>{h.style.fontFamily=`"GF ${n}", sans-serif`;h.style.fontWeight='400';h.style.letterSpacing='0';});
   document.getElementById('cyclenote').textContent=
     `headline font: ${n} (${ci+1}/${FACES.length})`+(considered?` — fonts considered: ${considered} — decision reached: no`:' — click to keep not deciding');
+  document.getElementById('cyclenote').style.opacity=Math.min(1,0.1+considered*0.1125);
   fitLines();
   if(document.fonts&&document.fonts.load){document.fonts.load(`16px "GF ${n}"`).then(fitLines).catch(()=>{});}
 }
