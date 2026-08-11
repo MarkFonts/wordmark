@@ -1,12 +1,29 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
+<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9"
+        xmlns:image="http://www.google.com/schemas/sitemap-image/1.1">
   <url><loc>https://wordmark.nyc/recalsans/</loc><changefreq>monthly</changefreq></url>
-  <url><loc>https://wordmark.nyc/recalsans/poppins/</loc><changefreq>monthly</changefreq></url>
-  <url><loc>https://wordmark.nyc/recalsans/inter/</loc><changefreq>monthly</changefreq></url>
-  <url><loc>https://wordmark.nyc/recalsans/geist/</loc><changefreq>monthly</changefreq></url>
-  <url><loc>https://wordmark.nyc/recalsans/futura/</loc><changefreq>monthly</changefreq></url>
-  <url><loc>https://wordmark.nyc/recalsans/neutra/</loc><changefreq>monthly</changefreq></url>
-  <url><loc>https://wordmark.nyc/recalsans/circular/</loc><changefreq>monthly</changefreq></url>
-  <url><loc>https://wordmark.nyc/recalsans/gotham/</loc><changefreq>monthly</changefreq></url>
-  <url><loc>https://wordmark.nyc/recalsans/gt-america/</loc><changefreq>monthly</changefreq></url>
+  <url><loc>https://wordmark.nyc/recalsans/poppins/</loc><changefreq>monthly</changefreq>
+    <image:image><image:loc>https://wordmark.nyc/recalsans/og/poppins.jpg</image:loc><image:title>Poppins alternative — ReCal Sans</image:title><image:caption>The word Poppins set in ReCal Sans, a free open-source variable alternative to Poppins.</image:caption></image:image>
+  </url>
+  <url><loc>https://wordmark.nyc/recalsans/inter/</loc><changefreq>monthly</changefreq>
+    <image:image><image:loc>https://wordmark.nyc/recalsans/og/inter.jpg</image:loc><image:title>Inter alternative — ReCal Sans</image:title><image:caption>The word Inter set in ReCal Sans, a free open-source variable alternative to Inter.</image:caption></image:image>
+  </url>
+  <url><loc>https://wordmark.nyc/recalsans/geist/</loc><changefreq>monthly</changefreq>
+    <image:image><image:loc>https://wordmark.nyc/recalsans/og/geist.jpg</image:loc><image:title>Geist alternative — ReCal Sans</image:title><image:caption>The word Geist set in ReCal Sans, a free open-source variable alternative to Geist.</image:caption></image:image>
+  </url>
+  <url><loc>https://wordmark.nyc/recalsans/futura/</loc><changefreq>monthly</changefreq>
+    <image:image><image:loc>https://wordmark.nyc/recalsans/og/futura.jpg</image:loc><image:title>Futura alternative — ReCal Sans</image:title><image:caption>The word Futura set in ReCal Sans, a free open-source variable alternative to Futura.</image:caption></image:image>
+  </url>
+  <url><loc>https://wordmark.nyc/recalsans/neutra/</loc><changefreq>monthly</changefreq>
+    <image:image><image:loc>https://wordmark.nyc/recalsans/og/neutra.jpg</image:loc><image:title>Neutra alternative — ReCal Sans</image:title><image:caption>The word Neutra set in ReCal Sans, a free open-source variable alternative to Neutra.</image:caption></image:image>
+  </url>
+  <url><loc>https://wordmark.nyc/recalsans/circular/</loc><changefreq>monthly</changefreq>
+    <image:image><image:loc>https://wordmark.nyc/recalsans/og/circular.jpg</image:loc><image:title>Circular alternative — ReCal Sans</image:title><image:caption>The word Circular set in ReCal Sans, a free open-source variable alternative to Circular.</image:caption></image:image>
+  </url>
+  <url><loc>https://wordmark.nyc/recalsans/gotham/</loc><changefreq>monthly</changefreq>
+    <image:image><image:loc>https://wordmark.nyc/recalsans/og/gotham.jpg</image:loc><image:title>Gotham alternative — ReCal Sans</image:title><image:caption>The word Gotham set in ReCal Sans, a free open-source variable alternative to Gotham.</image:caption></image:image>
+  </url>
+  <url><loc>https://wordmark.nyc/recalsans/gt-america/</loc><changefreq>monthly</changefreq>
+    <image:image><image:loc>https://wordmark.nyc/recalsans/og/gt-america.jpg</image:loc><image:title>GT America alternative — ReCal Sans</image:title><image:caption>The word GT America set in ReCal Sans, a free open-source variable alternative to GT America.</image:caption></image:image>
+  </url>
 </urlset>
