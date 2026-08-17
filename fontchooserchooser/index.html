@@ -548,7 +548,11 @@ void main(){
         // structure: a hash has no spatial coherence, so when it defines the read
         // you get pixelation and can never get bands. Direction+frequency define
         // the bands; the grain only breaks them up so they don't look printed.
-        vec2  cell  = floor(gl_FragCoord.xy / max(u_grainPx * u_dpr, 1.0));
+        vec2  cell  = floor(gl_FragCoord.xy / max(u_grainPx, 1.0));   // native device px
+        // Grain is measured in DEVICE pixels, not CSS pixels: multiplying by dpr
+        // made every cell 2 physical pixels on a retina screen, i.e. the grain was
+        // rendered at half resolution and scaled up. The warp below keeps u_dpr —
+        // it is a low-frequency fold that should hold its physical size.
         float grain = hash21(cell);
         float warp  = vnoise(gl_FragCoord.xy / (80.0 * u_dpr));
         float p = fract(grain + (warp - 0.5) * 0.3);
@@ -801,7 +805,7 @@ void main(){
     }
   }catch(e){ sgl=null; }
   const mix=document.createElement('canvas');
-  const dpr=Math.min(devicePixelRatio||1,2);
+  const dpr=devicePixelRatio||1;   // native ppi — never round down to 2x
   let ptr=[0.5,0.55];
 
   window.paintFoilWord=function(){
