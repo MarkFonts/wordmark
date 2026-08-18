@@ -59,6 +59,21 @@ def split_rules(css: str):
 def main(path: str) -> None:
     html = open(path).read()
 
+    # Strip any block this script wrote before, so re-running replaces rather than
+    # stacks. The marker is the comment header emitted below.
+    marker = "/* ── Display-P3, scaled"
+    if marker in html:
+        i = html.index(marker)
+        d, j = 0, html.index("{", i)
+        for k in range(j, len(html)):
+            if html[k] == "{":
+                d += 1
+            elif html[k] == "}":
+                d -= 1
+                if d == 0:
+                    break
+        html = html[:i] + html[k + 1:]
+
     # The page has two <style> blocks: the design system, then the embedded @font-face
     # rules. Only the first carries colour.
     start = html.index("<style>")

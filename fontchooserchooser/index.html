@@ -31,12 +31,12 @@
   }
   @media (prefers-color-scheme: dark){
     :root{ --bg:#0b0b14; --holo-metal-dark:#8e88a8; --holo-metal-light:#f3f0fb; --bg2:#12111d; --ink:#f0eef7; --ink2:#9b96ad; --line:#252336;
-      --card:#161425; --chip:#221f38; --live:#2fce7f; --dead:#ff6b6b; }
+      --card:#161425; --chip:#221f38; --live:#2fce7f; --dead:#ff6b6b; --visit:#3ee8f0; }
   }
   :root[data-theme="dark"]{ --bg:#0b0b14; --holo-metal-dark:#8e88a8; --holo-metal-light:#f3f0fb; --bg2:#12111d; --ink:#f0eef7; --ink2:#9b96ad; --line:#252336;
-      --card:#161425; --chip:#221f38; --live:#2fce7f; --dead:#ff6b6b; }
+      --card:#161425; --chip:#221f38; --live:#2fce7f; --dead:#ff6b6b; --visit:#3ee8f0; }
   :root[data-theme="light"]{ --bg:#ffffff; --bg2:#f7f6fb; --ink:#17151f; --ink2:#5b5768; --line:#e8e5f2;
-      --card:#ffffff; --chip:#f1eefb; --live:#0d9d58; --dead:#d43d3d; }
+      --card:#ffffff; --chip:#f1eefb; --live:#0d9d58; --dead:#d43d3d; --visit:#0e8fa8; }
 
   *{box-sizing:border-box}
   body{margin:0;background:var(--bg);color:var(--ink);
@@ -126,6 +126,7 @@
   .meta{font-family:var(--mono);font-size:11.5px;color:var(--ink2);display:flex;gap:12px;flex-wrap:wrap;margin-top:auto;padding-top:6px}
   .card .links{display:flex;gap:14px;font-size:13px;font-weight:600}
   .card .links a{color:var(--accent);text-decoration:none}
+  .card .links a.visit{color:var(--visit)}
   .card .links a:hover{text-decoration:underline}
   .tagrow{display:flex;gap:6px;flex-wrap:wrap}
   .tag{font-size:11px;font-weight:600;background:var(--chip);color:var(--ink2);border-radius:6px;padding:2px 8px}
@@ -194,6 +195,9 @@
 
 
 
+
+
+
 /* ── Display-P3, scaled ──────────────────────────────────────────────
    Same component values re-read against P3's wider primaries: hues hold,
    chroma opens up, neutrals are unchanged. sRGB displays never see this
@@ -209,12 +213,12 @@
     }
   @media (prefers-color-scheme: dark){
       :root{ --bg:color(display-p3 0.0431 0.0431 0.0784); --holo-metal-dark:color(display-p3 0.5569 0.5333 0.6588); --holo-metal-light:color(display-p3 0.9529 0.9412 0.9843); --bg2:color(display-p3 0.0706 0.0667 0.1137); --ink:color(display-p3 0.9412 0.9333 0.9686); --ink2:color(display-p3 0.6078 0.5882 0.6784); --line:color(display-p3 0.1451 0.1373 0.2118);
-        --card:color(display-p3 0.0863 0.0784 0.1451); --chip:color(display-p3 0.1333 0.1216 0.2196); --live:color(display-p3 0.1843 0.8078 0.4980); --dead:color(display-p3 1.0000 0.4196 0.4196); }
+        --card:color(display-p3 0.0863 0.0784 0.1451); --chip:color(display-p3 0.1333 0.1216 0.2196); --live:color(display-p3 0.1843 0.8078 0.4980); --dead:color(display-p3 1.0000 0.4196 0.4196); --visit:color(display-p3 0.2431 0.9098 0.9412); }
     }
   :root[data-theme="dark"]{ --bg:color(display-p3 0.0431 0.0431 0.0784); --holo-metal-dark:color(display-p3 0.5569 0.5333 0.6588); --holo-metal-light:color(display-p3 0.9529 0.9412 0.9843); --bg2:color(display-p3 0.0706 0.0667 0.1137); --ink:color(display-p3 0.9412 0.9333 0.9686); --ink2:color(display-p3 0.6078 0.5882 0.6784); --line:color(display-p3 0.1451 0.1373 0.2118);
-        --card:color(display-p3 0.0863 0.0784 0.1451); --chip:color(display-p3 0.1333 0.1216 0.2196); --live:color(display-p3 0.1843 0.8078 0.4980); --dead:color(display-p3 1.0000 0.4196 0.4196); }
+        --card:color(display-p3 0.0863 0.0784 0.1451); --chip:color(display-p3 0.1333 0.1216 0.2196); --live:color(display-p3 0.1843 0.8078 0.4980); --dead:color(display-p3 1.0000 0.4196 0.4196); --visit:color(display-p3 0.2431 0.9098 0.9412); }
   :root[data-theme="light"]{ --bg:color(display-p3 1.0000 1.0000 1.0000); --bg2:color(display-p3 0.9686 0.9647 0.9843); --ink:color(display-p3 0.0902 0.0824 0.1216); --ink2:color(display-p3 0.3569 0.3412 0.4078); --line:color(display-p3 0.9098 0.8980 0.9490);
-        --card:color(display-p3 1.0000 1.0000 1.0000); --chip:color(display-p3 0.9451 0.9333 0.9843); --live:color(display-p3 0.0510 0.6157 0.3451); --dead:color(display-p3 0.8314 0.2392 0.2392); }
+        --card:color(display-p3 1.0000 1.0000 1.0000); --chip:color(display-p3 0.9451 0.9333 0.9843); --live:color(display-p3 0.0510 0.6157 0.3451); --dead:color(display-p3 0.8314 0.2392 0.2392); --visit:color(display-p3 0.0549 0.5608 0.6588); }
   h1 .grad{
       background-image:
         linear-gradient(90deg,
@@ -440,7 +444,7 @@ function render(){
       <p class="note">${esc(t.note)}</p>
       <div class="tagrow">${t.cat.filter(c=>c!=='dead').map(c=>`<span class="tag">${{browse:'browse/search',pairing:'pairing',compare:'compare',ai:'✨ AI'}[c]}</span>`).join('')}${t.maybe?'<span class="tag">link unconfirmed</span>':''}${dead?'<span class="tag" style="color:var(--dead)">💀 domain deceased</span>':''}</div>
       <div class="meta"><span>${esc(t.sub)}</span><span>${t.d}</span><span>▲ ${t.ups}</span></div>
-      <div class="links"><a href="${t.r}" target="_blank" rel="noopener">Reddit receipt ↗</a>${t.u?`<a href="${t.u}" target="_blank" rel="noopener">Visit${t.maybe?' (probably)':''} ↗</a>`:'<span style="color:var(--ink2);font-weight:400">💀 no link survives</span>'}</div>`;
+      <div class="links"><a href="${t.r}" target="_blank" rel="noopener">Reddit receipt ↗</a>${t.u?`<a class="visit" href="${t.u}" target="_blank" rel="noopener">Visit${t.maybe?' (probably)':''} ↗</a>`:'<span style="color:var(--ink2);font-weight:400">💀 no link survives</span>'}</div>`;
     grid.appendChild(el);
   }
   if(!shown)grid.innerHTML='<p style="grid-column:1/-1;text-align:center;color:var(--ink2)">No choosers match. Incredible — you have found a gap in the market. Do not fill it.</p>';
