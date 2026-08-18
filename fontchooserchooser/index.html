@@ -471,7 +471,7 @@ function render(){
         const vid=P.v?`<video controls muted loop playsinline preload="none"${th?` poster="${th.u}"`:''} src="${P.v}"></video>`:'';
         return `<details class="post"><summary>the post</summary><div class="post-body">${vid}
           <div class="post-title">${esc(t.t)}</div>
-          <div class="post-meta"><span>u/${esc(P.a)}</span><span>${P.d}</span><span>▲ ${P.u}</span><span>${P.c} comments</span><span>${P.r}% upvoted</span>${P.vd?`<span>▶ ${P.vd}s</span>`:''}</div>
+          <div class="post-meta"><span>u/${esc(P.a)}</span><span>${P.d}</span><span>▲ ${P.u}</span><span>${P.c} comments</span>${P.vd?`<span>▶ ${P.vd}s</span>`:''}</div>
           <div class="post-x">${esc(P.x)}</div></div></details>`;})()}
       <div class="links">${t.u?`<a class="visit" href="${t.u}" target="_blank" rel="noopener">Visit${t.maybe?' (probably)':''} ↗</a>`:'<span style="color:var(--ink2);font-weight:400">💀 no link survives</span>'}<a class="receipt" href="${t.r}" target="_blank" rel="noopener">Reddit receipt ↗</a></div>`;
     grid.appendChild(el);
