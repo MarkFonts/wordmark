@@ -145,6 +145,18 @@
   .post-title{font-size:13px;line-height:1.4}
   .post-meta{font-family:var(--mono);font-size:11px;color:var(--ink2);display:flex;gap:10px;flex-wrap:wrap}
   .post-x{font-size:12.5px;color:var(--ink2);line-height:1.45;font-style:italic}
+
+  .thumb-spin{position:absolute;inset:0;display:none;place-items:center;pointer-events:none;
+    background:rgba(11,11,20,.35)}
+  .thumb.loading .thumb-spin{display:grid}
+  .thumb.loading .vidbadge{opacity:0}
+  .thumb.playing .vidbadge{opacity:0}
+  .thumb-spin i{width:26px;height:26px;border-radius:50%;display:block;
+    border:2px solid rgba(255,255,255,.25);border-top-color:#fff;animation:thumb-spin .7s linear infinite}
+  @keyframes thumb-spin{to{transform:rotate(360deg)}}
+  .vidbadge{transition:opacity .2s ease}
+  @media (prefers-reduced-motion: reduce){
+    .thumb-spin i{animation-duration:2.4s}}
   .steps{display:grid;grid-template-columns:repeat(auto-fit,minmax(240px,1fr));gap:16px}
   .step{background:var(--card);border:1px solid var(--line);border-radius:16px;padding:24px;text-align:center}
   .step .emoji{font-size:34px}
@@ -224,6 +236,9 @@
 
 
 
+
+
+
 /* ── Display-P3, scaled ──────────────────────────────────────────────
    Same component values re-read against P3's wider primaries: hues hold,
    chroma opens up, neutrals are unchanged. sRGB displays never see this
@@ -269,6 +284,10 @@
   .vidbadge{position:absolute;left:10px;bottom:10px;font-size:11px;font-weight:700;font-family:var(--mono);
       background:color(display-p3 0.0000 0.0000 0.0000 / .72);color:color(display-p3 1.0000 1.0000 1.0000);border-radius:999px;padding:4px 11px}
   .post-body video{width:100%;border-radius:10px;display:block;background:color(display-p3 0.0000 0.0000 0.0000)}
+  .thumb-spin{position:absolute;inset:0;display:none;place-items:center;pointer-events:none;
+      background:color(display-p3 0.0431 0.0431 0.0784 / .35)}
+  .thumb-spin i{width:26px;height:26px;border-radius:50%;display:block;
+      border:2px solid color(display-p3 1.0000 1.0000 1.0000 / .25);border-top-color:color(display-p3 1.0000 1.0000 1.0000);animation:thumb-spin .7s linear infinite}
   /* .holo-loading from ReCal holo.css, adapted: clipped to the letterforms, the
        rainbow held at 40% alpha, and the color(display-p3 0.1647 0.1647 0.1647) base swapped for a near-white so
        the label still reads as light type on the gradient pill. */
@@ -474,7 +493,7 @@ function render(){
            file is untouched until hover, which is also the only way six 1080p clips can
            live on one page. */
         const inner = (P&&P.v)
-          ? `<video class="thumbvid" poster="${th.u}" src="${P.v}" muted loop playsinline preload="none" width="480" height="150"></video><span class="vidbadge">▶ hover to play</span>`
+          ? `<video class="thumbvid" poster="${th.u}" src="${P.v}" muted loop playsinline preload="none" width="480" height="150"></video><span class="vidbadge">▶ hover to play</span><span class="thumb-spin"><i></i></span>`
           : `<img src="${th.u}" alt="Reddit post preview: ${esc(t.n)}" loading="lazy" decoding="async" width="480" height="150">`;
         return `<div class="thumb">${inner}</div>`; })()}<div class="top"><h3>${esc(t.n)}</h3>
       <span class="status ${dead?'dead':'live'}">${dead?'💀 DEAD':'LIVE'}</span></div>
@@ -539,13 +558,23 @@ if(document.fonts&&document.fonts.ready){document.fonts.ready.then(fitLines);}
     const c=e.target.closest&&e.target.closest('.card');
     const v=c&&c.querySelector('video.thumbvid');
     if(!v) return;
-    if(!v.dataset.warmed){ v.dataset.warmed='1'; v.preload='auto'; v.load(); }
-    v.play().catch(()=>{});
+    const box=v.parentElement;
+    if(!v.dataset.warmed){
+      v.dataset.warmed='1'; v.preload='auto'; v.load();
+      /* The states come from the element, not from a timer: a 2-5MB file over a slow
+         connection would otherwise sit on a still poster with no sign it is working. */
+      v.addEventListener('playing', ()=>box.classList.remove('loading'));
+      v.addEventListener('canplay', ()=>box.classList.remove('loading'));
+      v.addEventListener('error',   ()=>{box.classList.remove('loading');
+        const b=box.querySelector('.vidbadge'); if(b){b.textContent='▶ watch on Reddit'; b.style.opacity='1';}});
+    }
+    if(v.readyState < 3) box.classList.add('loading');
+    v.play().then(()=>{box.classList.remove('loading');box.classList.add('playing');}).catch(()=>{});
   }, true);
   document.addEventListener('pointerleave', e=>{
     const c=e.target.closest&&e.target.closest('.card');
     const v=c&&c.querySelector('video.thumbvid');
-    if(v){ v.pause(); }
+    if(v){ v.pause(); v.parentElement.classList.remove('loading','playing'); }
   }, true);
 
 let toastTimer;
