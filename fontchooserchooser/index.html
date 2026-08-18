@@ -125,8 +125,9 @@
   .note{font-size:13.5px;margin:0}
   .meta{font-family:var(--mono);font-size:11.5px;color:var(--ink2);display:flex;gap:12px;flex-wrap:wrap;margin-top:auto;padding-top:6px}
   .card .links{display:flex;gap:14px;font-size:13px;font-weight:600}
-  .card .links a{color:var(--accent);text-decoration:none}
-  .card .links a.visit{color:var(--visit)}
+  .card .links a{color:var(--visit);text-decoration:none}
+  .card .links a.receipt{color:var(--ink2);font-weight:500}
+  .card .links a.receipt:hover{color:var(--accent)}
   .card .links a:hover{text-decoration:underline}
   .tagrow{display:flex;gap:6px;flex-wrap:wrap}
   .tag{font-size:11px;font-weight:600;background:var(--chip);color:var(--ink2);border-radius:6px;padding:2px 8px}
@@ -192,6 +193,9 @@
   .hline3{height:clamp(26px,4.2vw,48px)}
   .headblock .cycle-note{height:22px;display:flex;align-items:center;justify-content:center;margin:8px 0 12px;
     font-family:"JetBrains Mono",var(--mono);color:var(--ink2);opacity:.1;transition:opacity .25s ease}
+
+
+
 
 
 
@@ -444,7 +448,7 @@ function render(){
       <p class="note">${esc(t.note)}</p>
       <div class="tagrow">${t.cat.filter(c=>c!=='dead').map(c=>`<span class="tag">${{browse:'browse/search',pairing:'pairing',compare:'compare',ai:'✨ AI'}[c]}</span>`).join('')}${t.maybe?'<span class="tag">link unconfirmed</span>':''}${dead?'<span class="tag" style="color:var(--dead)">💀 domain deceased</span>':''}</div>
       <div class="meta"><span>${esc(t.sub)}</span><span>${t.d}</span><span>▲ ${t.ups}</span></div>
-      <div class="links"><a href="${t.r}" target="_blank" rel="noopener">Reddit receipt ↗</a>${t.u?`<a class="visit" href="${t.u}" target="_blank" rel="noopener">Visit${t.maybe?' (probably)':''} ↗</a>`:'<span style="color:var(--ink2);font-weight:400">💀 no link survives</span>'}</div>`;
+      <div class="links">${t.u?`<a class="visit" href="${t.u}" target="_blank" rel="noopener">Visit${t.maybe?' (probably)':''} ↗</a>`:'<span style="color:var(--ink2);font-weight:400">💀 no link survives</span>'}<a class="receipt" href="${t.r}" target="_blank" rel="noopener">Reddit receipt ↗</a></div>`;
     grid.appendChild(el);
   }
   if(!shown)grid.innerHTML='<p style="grid-column:1/-1;text-align:center;color:var(--ink2)">No choosers match. Incredible — you have found a gap in the market. Do not fill it.</p>';
