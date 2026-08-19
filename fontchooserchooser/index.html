@@ -157,6 +157,20 @@
   .vidbadge{transition:opacity .2s ease}
   @media (prefers-reduced-motion: reduce){
     .thumb-spin i{animation-duration:2.4s}}
+
+  .log{max-width:620px;margin:0 auto;text-align:left;padding:26px 0 4px;
+    border-top:1px solid var(--line)}
+  #updated{margin:56px 0 0;font-size:12px;opacity:1;color:var(--ink2);
+    letter-spacing:.02em}
+  .log h3{font-family:var(--mono);font-size:11px;letter-spacing:.1em;text-transform:uppercase;
+    color:var(--ink2);margin:0 0 10px;font-weight:600}
+  .log ol{list-style:none;margin:0;padding:0;display:grid;gap:11px}
+  .log li{display:grid;grid-template-columns:104px 1fr;gap:12px;font-size:12px;line-height:1.5}
+  .log time{font-family:var(--mono);font-size:11px;color:var(--ink2);white-space:nowrap;padding-top:1px}
+  .log p{margin:0;color:var(--ink2)}
+  .log b{color:var(--ink);font-weight:600}
+  @media (max-width:560px){
+    .log li{grid-template-columns:1fr;gap:2px}}
   .steps{display:grid;grid-template-columns:repeat(auto-fit,minmax(240px,1fr));gap:16px}
   .step{background:var(--card);border:1px solid var(--line);border-radius:16px;padding:24px;text-align:center}
   .step .emoji{font-size:34px}
@@ -183,7 +197,7 @@
     background:var(--ink);color:var(--bg);font-size:13.5px;font-weight:600;padding:11px 20px;border-radius:12px;
     transition:all .25s ease;max-width:90vw;text-align:center}
   #toast.show{transform:translateX(-50%);opacity:1}
-  .fine{font-size:11.5px;font-family:var(--mono);opacity:.75}
+  .fine{font-size:11.5px;font-family:var(--mono);opacity:.75;margin-top:40px}
 
   /* .holo-loading from ReCal holo.css, adapted: clipped to the letterforms, the
      rainbow held at 40% alpha, and the #2a2a2a base swapped for a near-white so
@@ -218,6 +232,21 @@
   .hline3{height:clamp(26px,4.2vw,48px)}
   .headblock .cycle-note{height:22px;display:flex;align-items:center;justify-content:center;margin:8px 0 12px;
     font-family:"JetBrains Mono",var(--mono);color:var(--ink2);opacity:.1;transition:opacity .25s ease}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
@@ -444,7 +473,18 @@
   <div class="waitline">
     <button class="cta" onclick="waitlist()">Join the waitlist</button>
   </div>
-  <p class="fine" id="updated">Updated 19 August 2026. FontBog is not dead after all, its author replied to say it had moved to fonts.josh.earth, so the dead count is two. FontColle is now FontFridge.</p>
+  <p class="fine" id="updated">Updated August 19, 2026</p>
+  <!-- The log records what changed about the DIRECTORY: entries added, renamed,
+       moved, resurrected. Not what changed about this page's build. -->
+  <div class="log">
+    <h3>Update log</h3>
+    <ol>
+      <li><time>Aug 19, 2026</time><p><b>FontBog is not dead.</b> Its author replied to the thread to say it had moved to fonts.josh.earth, so the dead count is two. The r/fonts pairing tool is confirmed as FontPair AI, which never posted its link. Screenshots added for the seven entries whose Reddit post had none.</p></li>
+      <li><time>Aug 14, 2026</time><p><b>FontColle is now FontFridge</b>, and has moved to font.chingru.com.</p></li>
+      <li><time>Aug 10, 2026</time><p><b>FontColle arrived</b> as the twenty-second, four days after this page argued there were twenty-one.</p></li>
+      <li><time>Aug 6, 2026</time><p><b>Published</b> with twenty-one font choosers indexed and three presumed dead.</p></li>
+    </ol>
+  </div>
   <p class="fine">Built with 0 seconds of market research, in solidarity with the genre. All project names, Reddit titles, dates and upvotes are real and link to the originals; the roasting is aimed at the pattern, not the people. Keep shipping, you beautiful redundant tools. Set in Reddit Sans — the one font on this page that did its market research.</p>
 </footer>
 </div>
@@ -452,7 +492,7 @@
 
 <script>
 const POSTS={"1vkq816": {"a": "lycheeru", "d": "2026-08-10", "u": 70, "c": 20, "v": null, "vd": null, "x": "Google Fonts is a great place to dig for treasure, but its filtering is far too weak. Right now I can only filter for Variable Font…"}, "1unxwtp": {"a": "DirtInternational183", "d": "2026-07-05", "u": 36, "c": 7, "v": null, "vd": null, "x": "I always had a problem when making a new project of finding what font to use. Whilst I’d know approximately what I liked, I found scrolling through a long list quite unproductive…"}, "1uavcaq": {"a": "haystack_in_needle", "d": "2026-06-20", "u": 26, "c": 1, "v": "https://v.redd.it/70q24dgukf8h1/CMAF_1080.mp4?source=fallback", "vd": 51, "x": "The idea is simple: comparing fonts should be fast enough that you do not lose your first impression."}, "1t0sced": {"a": "haystack_in_needle", "d": "2026-05-01", "u": 64, "c": 15, "v": null, "vd": null, "x": "I kept doing the same thing when comparing fonts: switch font A to font B, stare at the text, then switch back because I had already forgotten the exact difference."}, "1u1g4dk": {"a": "labdoe", "d": "2026-06-09", "u": 26, "c": 2, "v": "https://v.redd.it/49eqorco5b6h1/CMAF_1080.mp4?source=fallback", "vd": 33, "x": "When choosing a typeface, I usually start with a rough feeling in mind. Something formal, less playful, more geometric. Most font libraries don’t really support that workflow."}, "1ttldeg": {"a": "surin1", "d": "2026-06-01", "u": 1, "c": 1, "v": "https://v.redd.it/01jmdwivmm4h1/CMAF_1080.mp4?source=fallback", "vd": 25, "x": "In the process of curating typography for the app, I ended up making 30 different Google Font pairings…"}, "1tvjuda": {"a": "abhishek_8899", "d": "2026-06-03", "u": 11, "c": 3, "v": null, "vd": null, "x": "FontPocket lets you explore Google Fonts differently using technical filters, save your favourites, and come back to them anytime."}, "1t59e6j": {"a": "Patient-Phase-7199", "d": "2026-05-06", "u": 13, "c": 2, "v": null, "vd": null, "x": "(no post text, and no link — the tool was never named in the thread)"}, "1p390up": {"a": "That_Scarcity9744", "d": "2025-11-21", "u": 63, "c": 33, "v": "https://v.redd.it/un5n6m734o2g1/CMAF_1080.mp4?source=fallback", "vd": 66, "x": "I spent way too many hours scrolling through Google Fonts trying to find “that one font that feels professional but approachable but not too corporate.”"}, "1r5h1mh": {"a": "Butchered_at_Birth", "d": "2026-02-15", "u": 40, "c": 11, "v": null, "vd": null, "x": "I have a ton of local fonts and no way to quickly preview pairings with them. Every tool out there is Google Fonts only."}, "1qpyx9s": {"a": "WinterJacob", "d": "2026-01-29", "u": 0, "c": 5, "v": null, "vd": null, "x": "I usually know the vibe I want (like “clean and modern” or “cozy and rounded”), but scrolling through thousands of Google Fonts…"}, "1twfag0": {"a": "Eyrak", "d": "2026-06-04", "u": 41, "c": 10, "v": null, "vd": null, "x": "i made it just for fun. it got sans, serif, display, script, and mono. there is a quick mode for each category and then a more rigourous mode."}, "1rwgtuw": {"a": "HappyFish5000", "d": "2026-03-17", "u": 6, "c": 2, "v": null, "vd": null, "x": "Every time you want to see your text in another font, you have to go back to the font dropdown, scroll through the list, and select the next one."}, "1t1l57t": {"a": "adrmonlj", "d": "2026-05-02", "u": 5, "c": 15, "v": null, "vd": null, "x": "I’ve been teaching myself design recently and one thing I kept struggling with was picking type. Most tools let you preview fonts, but not really decide between them."}, "1qu18mx": {"a": "Bruh-Sound-Effect-6", "d": "2026-02-02", "u": 2, "c": 2, "v": null, "vd": null, "x": "An update to my previous post on pairing fonts. Since then, I have developed an application that puts the theory into practice."}, "1qf73jf": {"a": "ElonAltmann", "d": "2026-01-17", "u": 4, "c": 0, "v": null, "vd": null, "x": "Upon suggestions, I spent hours working on this tool, I hope you guys like it, its 100% Free."}, "1s1eer9": {"a": "Semi_Colonizer", "d": "2026-03-23", "u": 3, "c": 0, "v": null, "vd": null, "x": "(no post text)"}, "1shpqji": {"a": "Main-Fortune6420", "d": "2026-04-10", "u": 18, "c": 5, "v": null, "vd": null, "x": "The pairing score compares two fonts across 5 metrics: 30% x-height, 25% stroke contrast, 20% stroke type…"}, "1sze3g3": {"a": "joshmarinacci", "d": "2026-04-29", "u": 1, "c": 0, "v": null, "vd": null, "x": "I didn’t like any of the Google Fonts indexes out there so I built my own. It’s fast and lets you search for fonts containing specific code points and variable font axes."}, "1sfzuz5": {"a": "Sudden_Diet2923", "d": "2026-04-08", "u": 10, "c": 2, "v": "https://v.redd.it/da20dq1j60ug1/CMAF_1080.mp4?source=fallback", "vd": 17, "x": "I kept seeing beautiful posts on Instagram and thinking… why do my fonts always look slightly off?"}, "1rtpk27": {"a": "ahsenkamal", "d": "2026-03-14", "u": 2, "c": 13, "v": null, "vd": null, "x": "I recently found out there wasn’t something like this, so i built fontdb.app. Maybe I didn’t search enough…"}, "1v71yf0": {"a": "nahsgid", "d": "2026-07-26", "u": 4, "c": 1, "v": "https://v.redd.it/2zi23dgcdkfh1/CMAF_1080.mp4?source=fallback", "vd": 36, "x": "Every site I built with an agent came out with the same boring Inter or Geist fonts and a lot of AI-sloppy writing."}, "1tsg257": {"a": "0_2_Hero", "d": "2026-05-31", "u": 6, "c": 7, "v": null, "vd": null, "x": "You upload a screenshot, logo, mockup, or image with text, crop the text, and it finds the closest free Google Font match."}};
-const THUMBS={"1vkq816":{v:0,u:"media/1vkq816.jpg"},"1p390up":{v:1,u:"media/1p390up.jpg"},"1qf73jf":{v:0,u:"media/1qf73jf.jpg"},"1r5h1mh":{v:0,u:"media/1r5h1mh.jpg"},"1sfzuz5":{v:1,u:"media/1sfzuz5.jpg"},"1shpqji":{v:0,u:"media/1shpqji.jpg"},"1t0sced":{v:0,u:"media/1t0sced.jpg"},"1t1l57t":{v:0,u:"media/1t1l57t.jpg"},"1t59e6j":{v:0,u:"media/1t59e6j.jpg"},"1tsg257":{v:0,u:"media/1tsg257.jpg"},"1ttldeg":{v:1,u:"media/1ttldeg.jpg"},"1tvjuda":{v:0,u:"media/1tvjuda.jpg"},"1u1g4dk":{v:1,u:"media/1u1g4dk.jpg"},"1uavcaq":{v:1,u:"media/1uavcaq.jpg"},"1unxwtp":{v:0,u:"media/1unxwtp.jpg"},"1v71yf0":{v:1,u:"media/1v71yf0.jpg"},"1sze3g3":{v:0,u:"media/1sze3g3.jpg"}};
+const THUMBS={"1vkq816":{v:0,u:"media/1vkq816.jpg"},"1p390up":{v:1,u:"media/1p390up.jpg"},"1qf73jf":{v:0,u:"media/1qf73jf.jpg"},"1r5h1mh":{v:0,u:"media/1r5h1mh.jpg"},"1sfzuz5":{v:1,u:"media/1sfzuz5.jpg"},"1shpqji":{v:0,u:"media/1shpqji.jpg"},"1t0sced":{v:0,u:"media/1t0sced.jpg"},"1t1l57t":{v:0,u:"media/1t1l57t.jpg"},"1t59e6j":{v:0,u:"media/1t59e6j.jpg"},"1tsg257":{v:0,u:"media/1tsg257.jpg"},"1ttldeg":{v:1,u:"media/1ttldeg.jpg"},"1tvjuda":{v:0,u:"media/1tvjuda.jpg"},"1u1g4dk":{v:1,u:"media/1u1g4dk.jpg"},"1uavcaq":{v:1,u:"media/1uavcaq.jpg"},"1unxwtp":{v:0,u:"media/1unxwtp.jpg"},"1v71yf0":{v:1,u:"media/1v71yf0.jpg"},"1sze3g3":{v:0,u:"media/1sze3g3.jpg"},"1qpyx9s":{v:0,u:"media/1qpyx9s.jpg"},"1twfag0":{v:0,u:"media/1twfag0.jpg"},"1rwgtuw":{v:0,u:"media/1rwgtuw.jpg"},"1qu18mx":{v:0,u:"media/1qu18mx.jpg"},"1s1eer9":{v:0,u:"media/1s1eer9.jpg"},"1rtpk27":{v:0,u:"media/1rtpk27.jpg"}};
 const TOOLS=[
  {n:"FontFridge",u:"https://font.chingru.com/",r:"https://www.reddit.com/comments/1vkq816/",t:"FontColle: an enhanced Google Fonts filter",sub:"r/typography",d:"Aug 2026",ups:70,cat:["browse"],spec:'"GF Rubik Lines", sans-serif',note:"Google Fonts can tell you a family is variable. It cannot tell you which ones carry an opsz axis, or ssXX, or hlig. This can, plus UPM, x-height and cap ratio. MIT, open source, credits every designer. The 22nd tool, and the only one that found a gap Google Fonts actually has. Under active development."},
  {n:"Jellyfont",u:"https://www.jellyfont.xyz/",r:"https://www.reddit.com/comments/1unxwtp/",t:"Jellyfont: Visual Search Engine for Fonts",sub:"r/fonts + r/typography + r/graphic_design",d:"Jul 2026",ups:36,cat:["browse"],spec:'"GF Rubik Bubbles", sans-serif',note:"Cross-posted to three subreddits, because a visual search engine for fonts sells itself thrice."},
