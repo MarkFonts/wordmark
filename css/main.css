@@ -71,7 +71,24 @@
   --ink:   #ffffff;
   --muted: rgba(255,255,255,0.42);
   --r:     10px;
+  --corner-k: 1.2;
+  --ui-font: 'CalSans', -apple-system, sans-serif;
 }
+
+/* G2 corners — the house superellipse, k=1.2 (the real exponent is 2^k).
+ * Named rather than universal: .hero-avatar and .work-shape are true circles on square
+ * boxes, where a superellipse reads as a rounded square, and the house file's opt-out list
+ * names .ui-avatar / .ui-dot, not ours.
+ * Safari has no corner-shape and fails it silently, keeping the plain radius these already
+ * had — that is the intended degradation, not a gap to polyfill.
+ * .hero-pill clears the cap rule (padding-x >= 0.6 x radius) at every size: its padding is
+ * em-based and its radius is half a line-height, so the ratio does not move. */
+.hero-pill,
+.work-img,
+.work-img img.fill {
+  corner-shape: superellipse(var(--corner-k, 1.2));
+}
+
 /* light override */
 @media (prefers-color-scheme: light) {
   [data-theme="auto"] {
@@ -294,40 +311,18 @@ body {
 }
 
 /* ═══ DARK / LIGHT / AUTO TOGGLE ═══════════════════════ */
+/* The control itself is the house Toggle Group (css/toggle-group.css). What stays here is
+   placement: a fixed affordance that recedes until you reach for it. */
 #theme-toggle {
   position: fixed;
   top: 20px;
   right: 20px;
   z-index: 100;
-  display: flex;
-  background: var(--bg);
-  border: 1px solid var(--muted);
-  border-radius: 999px;
-  padding: 2px;
-  gap: 1px;
   opacity: 0.6;
   transition: opacity 0.15s;
 }
 #theme-toggle:hover { opacity: 1; }
-
-#theme-toggle button {
-  font-family: 'CalSans', -apple-system, sans-serif;
-  font-variation-settings: 'wght' 400;
-  font-size: 8px;
-  letter-spacing: 0.04em;
-  color: var(--muted);
-  background: none;
-  border: none;
-  border-radius: 999px;
-  padding: 2px 6px;
-  cursor: pointer;
-  transition: background 0.15s, color 0.15s;
-  white-space: nowrap;
-}
-#theme-toggle button.active {
-  background: var(--ink);
-  color: var(--bg);
-}
+#theme-toggle button { font-variation-settings: 'wght' 400; }
 
 /* ═══ WORK ══════════════════════════════════════════════ */
 #work { padding: 0; }
