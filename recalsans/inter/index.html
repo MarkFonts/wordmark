@@ -24,7 +24,7 @@
 <meta name="twitter:image:alt" content="The word Inter set in ReCal Sans, a free open-source variable alternative to Inter.">
 <link rel="icon" type="image/svg+xml" href="/recalsans/favicon.svg">
 <link rel="preload" href="/recalsans/fonts/CalSansVF.ttf" as="font" type="font/ttf" crossorigin>
-<script type="application/ld+json">[{"@context":"https://schema.org","@type":"WebApplication","image":"https://wordmark.nyc/recalsans/og/inter.jpg","name":"ReCal Sans customizer","applicationCategory":"DesignApplication","operatingSystem":"Web browser","offers":{"@type":"Offer","price":"0","priceCurrency":"USD"},"url":"https://wordmark.nyc/recalsans/","description":"Inter is already free and excellent — the reason to look further is voice. ReCal Sans adds a geometric-form axis Inter doesn’t have: one file that runs from accessibility-optimized shapes to geometric display, tuned and downloaded in the browser.","isAccessibleForFree":true,"license":"https://opensource.org/license/ofl-1-1"},{"@context":"https://schema.org","@type":"FAQPage","mainEntity":[{"@type":"Question","name":"Inter is already free — why use ReCal Sans instead?","acceptedAnswer":{"@type":"Answer","text":"Because of control, not cost. Inter ships fixed; ReCal Sans is variable and customizable — a GEOM axis from accessibility-optimized to geometric forms, a real optical-size axis, and adjustable ascender height. You set the defaults in the browser and download a font with those decisions baked in."}},{"@type":"Question","name":"How is ReCal Sans different from Inter?","acceptedAnswer":{"@type":"Answer","text":"Inter ships fixed. ReCal Sans is variable and customizable: a single GEOM axis moves letterforms from accessibility-optimized through clean UI to geometric display, and a real optical-size axis keeps the design honest across sizes. You bake your own settings into the exported font."}},{"@type":"Question","name":"Can I use ReCal Sans commercially?","acceptedAnswer":{"@type":"Answer","text":"Yes — the SIL Open Font License permits commercial use, embedding, and modification. The font ReCal produces is yours to ship."}}]},{"@context":"https://schema.org","@type":"BreadcrumbList","itemListElement":[{"@type":"ListItem","position":1,"name":"WORDMARK","item":"https://wordmark.nyc/"},{"@type":"ListItem","position":2,"name":"ReCal Sans","item":"https://wordmark.nyc/recalsans/"},{"@type":"ListItem","position":3,"name":"Inter alternative","item":"https://wordmark.nyc/recalsans/inter/"}]}]</script>
+<script type="application/ld+json">[{"@context":"https://schema.org","@type":"WebApplication","image":"https://wordmark.nyc/recalsans/og/inter.jpg","name":"ReCal Sans customizer","applicationCategory":"DesignApplication","operatingSystem":"Web browser","offers":{"@type":"Offer","price":"0","priceCurrency":"USD"},"url":"https://wordmark.nyc/recalsans/","description":"Inter is already free and excellent — the reason to look further is voice. ReCal Sans adds a geometric-form axis Inter doesn’t have: one file that runs from accessibility-optimized shapes to geometric display, tuned and downloaded in the browser.","isAccessibleForFree":true,"license":"https://opensource.org/license/ofl-1-1"},{"@context":"https://schema.org","@type":"FAQPage","mainEntity":[{"@type":"Question","name":"Inter is already free — why use ReCal Sans instead?","acceptedAnswer":{"@type":"Answer","text":"Because of voice, not cost. Inter is an excellent screen face and it already carries an optical-size axis — what it does not carry is a way out of its own register. ReCal Sans adds a GEOM axis that moves the letterforms from accessibility-optimized through clean UI to geometric display, covering ground Inter deliberately does not."}},{"@type":"Question","name":"How is ReCal Sans different from Inter?","acceptedAnswer":{"@type":"Answer","text":"Inter varies weight, optical size and slant inside one deliberately neutral design. ReCal Sans varies the design itself: GEOM travels from accessibility-optimized shapes through clean UI to geometric display, so a single file can be a UI face on one screen and a display face on the next."}},{"@type":"Question","name":"Can I use ReCal Sans commercially?","acceptedAnswer":{"@type":"Answer","text":"Yes — the SIL Open Font License permits commercial use, embedding, and modification. The font ReCal produces is yours to ship."}}]},{"@context":"https://schema.org","@type":"BreadcrumbList","itemListElement":[{"@type":"ListItem","position":1,"name":"WORDMARK","item":"https://wordmark.nyc/"},{"@type":"ListItem","position":2,"name":"ReCal Sans","item":"https://wordmark.nyc/recalsans/"},{"@type":"ListItem","position":3,"name":"Inter alternative","item":"https://wordmark.nyc/recalsans/inter/"}]}]</script>
 <!-- Google tag (gtag.js) -->
 <script async src="https://www.googletagmanager.com/gtag/js?id=G-MZ4M1P8P1P"></script>
 <script>
@@ -35,7 +35,7 @@ gtag('config', 'G-MZ4M1P8P1P');
 </script>
 <!-- Boot the app frozen into this page's preset (initial state only — fully editable) -->
 <script>window.__RECAL_BOOT = {"scene":"paragraph","pitch":{"title":"Tuned toward Inter","paragraphs":["A clean UI register — the screen-native neutrality Inter is famous for, plus a geometric axis Inter doesn’t carry. Everything here is live: drag the axes, edit this text, press ⇄ to see it in Inter itself, then download the font with your settings baked in."]},"preset":"Inter","compare":{"label":"Inter","family":"'Inter', sans-serif","wghtRange":[100,900],"opszRange":[14,32],"italic":true,"css":"https://fonts.googleapis.com/css2?family=Inter:ital,opsz,wght@0,14..32,100..900;1,14..32,100..900&display=swap"}};</script>
-<script type="module" crossorigin src="/recalsans/assets/index-oT53IXZ1.js"></script>
+<script type="module" crossorigin src="/recalsans/assets/index-bPmp69aK.js"></script>
 <link rel="stylesheet" crossorigin href="/recalsans/assets/index-BsOqGF81.css">
 <style>
   /* The app owns the first viewport; reserve it pre-mount so the article never jumps. */
@@ -74,10 +74,23 @@ gtag('config', 'G-MZ4M1P8P1P');
      another pair of quotes makes it one invalid string that the browser drops -- which
      is what silently left these headings inheriting GEOM 25 and nothing else. */
   .seo-below h1, .seo-below h2 { font-variation-settings:'GEOM' 25; font-optical-sizing:auto; font-feature-settings:'ss16' 1; }
-  /* The specimen is the preset in use, so it takes the freezes as well as the axes. */
-  .seo-below .specimen { font-feature-settings:'ss16' 1; }
-  .seo-below .specimen { font-size:clamp(48px,11vw,104px); line-height:1; letter-spacing:-.02em; margin:28px 0 8px;
-    font-variation-settings:'GEOM' 25; font-optical-sizing:auto; }
+  /* The specimen grid is the preset in use, so it takes the freezes as well as the axes.
+     Each row adds this preset's own 'wght'/'ital' on top of p.axes -- wght is never in
+     p.axes itself (see the h1/h2 rule above for why). opsz is dropped from the pinned
+     set for the same reason it's dropped from h1/h2: these rows render at their own
+     display size, not the preset's specimen size, so they get their own optical
+     treatment (auto) instead of inheriting a pinned opsz meant for a different size. */
+  .seo-below .specimen-grid { margin:28px 0 48px; }
+  .seo-below .specimen-row { font-feature-settings:'ss16' 1;
+    font-size:clamp(32px,6.4vw,58px); line-height:1.15; letter-spacing:-.01em; font-style:normal;
+    font-optical-sizing:auto; padding:18px 0; border-bottom:1px solid var(--sline); }
+  .seo-below .specimen-row:first-child { padding-top:0; }
+  .seo-below .specimen-row .style-cap { display:block; font-size:13px; color:var(--smut);
+    /* letter-spacing does NOT re-relativize on inherit -- it's the parent's resolved px
+       value (-.01em of the ~40-58px specimen) that would otherwise land here verbatim,
+       reading as roughly -3% tracking on 13px text. Reset it for this element's own size. */
+    letter-spacing:normal;
+    font-variation-settings:'GEOM' 25, 'wght' 400, 'ital' 0; font-style:normal; margin-bottom:6px; }
 .card-fig{margin:26px 0 32px;max-width:820px}
 .card-fig img{width:100%;height:auto;display:block;border-radius:10px;border:1px solid #262626}
 .card-fig figcaption{margin-top:10px;font-size:14px;color:#8a8a8a}
@@ -113,8 +126,22 @@ gtag('config', 'G-MZ4M1P8P1P');
     <figcaption>Inter set in ReCal Sans at GEOM 25 — free and open source under the OFL.</figcaption>
   </figure>
 
-  <div class="specimen" aria-label="ReCal Sans specimen">2160 just Groovy, I’ll Magic</div>
-  <div class="specimen-cap">ReCal Sans — live specimen, tuned toward Inter</div>
+  <!-- THE CAPS ARE STYLE NAMES, NOTHING MORE. They used to read "ReCal Sans Bold Italic,
+       reconfigured and inspired by <referent> Bold Italic" on all eight rows -- 80 words
+       identical on every one of the eight pages after swapping the name, and 8 of the ~20
+       mentions of the referent on the page. The comparison is made ONCE, in the caption
+       below the grid; repeating it per row bought no meaning and read as stuffing. -->
+  <div class="specimen-grid" aria-label="ReCal Sans specimen, all weights and italics, tuned toward Inter">
+    <div class="specimen-row" style="font-variation-settings:'GEOM' 25, 'wght' 400, 'ital' 0"><span class="style-cap">Regular</span>Horizon 68</div>
+    <div class="specimen-row" style="font-variation-settings:'GEOM' 25, 'wght' 400, 'ital' 1"><span class="style-cap">Regular Italic</span>Balance 719</div>
+    <div class="specimen-row" style="font-variation-settings:'GEOM' 25, 'wght' 500, 'ital' 0"><span class="style-cap">Medium</span>Contrast 29</div>
+    <div class="specimen-row" style="font-variation-settings:'GEOM' 25, 'wght' 500, 'ital' 1"><span class="style-cap">Medium Italic</span>Precision 1794</div>
+    <div class="specimen-row" style="font-variation-settings:'GEOM' 25, 'wght' 600, 'ital' 0"><span class="style-cap">Semibold</span>Interval 953</div>
+    <div class="specimen-row" style="font-variation-settings:'GEOM' 25, 'wght' 600, 'ital' 1"><span class="style-cap">Semibold Italic</span>Outline 602</div>
+    <div class="specimen-row" style="font-variation-settings:'GEOM' 25, 'wght' 700, 'ital' 0"><span class="style-cap">Bold</span>Texture 46</div>
+    <div class="specimen-row" style="font-variation-settings:'GEOM' 25, 'wght' 700, 'ital' 1"><span class="style-cap">Bold Italic</span>Sequence 891</div>
+  </div>
+  <div class="specimen-cap">ReCal Sans — all 8 weights &amp; italics, tuned toward Inter</div>
 
   <p>Inter is the modern UI workhorse: a tall x-height screen grotesque with meticulous spacing, variable weight and optical sizing, free under the OFL. If you need neutral, Inter is close to unbeatable — and "free alternative" would be an empty pitch, because Inter costs nothing.</p>
   <p>What ReCal Sans adds is range of voice. Its GEOM axis moves the letterforms themselves — from disambiguated, accessibility-first shapes through clean UI forms to circular geometric display — where Inter stays deliberately neutral. Keep the optical sizing you expect, pick the construction you want, and bake it into a static file that ships anywhere.</p>
@@ -126,8 +153,8 @@ gtag('config', 'G-MZ4M1P8P1P');
 
   <h2>Frequently asked</h2>
   <dl class="faq">
-    <dt>Inter is already free — why use ReCal Sans instead?</dt><dd>Because of control, not cost. Inter ships fixed; ReCal Sans is variable and customizable — a GEOM axis from accessibility-optimized to geometric forms, a real optical-size axis, and adjustable ascender height. You set the defaults in the browser and download a font with those decisions baked in.</dd>
-    <dt>How is ReCal Sans different from Inter?</dt><dd>Inter ships fixed. ReCal Sans is variable and customizable: a single GEOM axis moves letterforms from accessibility-optimized through clean UI to geometric display, and a real optical-size axis keeps the design honest across sizes. You bake your own settings into the exported font.</dd>
+    <dt>Inter is already free — why use ReCal Sans instead?</dt><dd>Because of voice, not cost. Inter is an excellent screen face and it already carries an optical-size axis — what it does not carry is a way out of its own register. ReCal Sans adds a GEOM axis that moves the letterforms from accessibility-optimized through clean UI to geometric display, covering ground Inter deliberately does not.</dd>
+    <dt>How is ReCal Sans different from Inter?</dt><dd>Inter varies weight, optical size and slant inside one deliberately neutral design. ReCal Sans varies the design itself: GEOM travels from accessibility-optimized shapes through clean UI to geometric display, so a single file can be a UI face on one screen and a display face on the next.</dd>
     <dt>Can I use ReCal Sans commercially?</dt><dd>Yes — the SIL Open Font License permits commercial use, embedding, and modification. The font ReCal produces is yours to ship.</dd>
   </dl>
 
