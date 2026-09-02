@@ -24,7 +24,7 @@
 <meta name="twitter:image:alt" content="The word Geist set in ReCal Sans, a free open-source variable alternative to Geist.">
 <link rel="icon" type="image/svg+xml" href="/recalsans/favicon.svg">
 <link rel="preload" href="/recalsans/fonts/CalSansVF.ttf" as="font" type="font/ttf" crossorigin>
-<script type="application/ld+json">[{"@context":"https://schema.org","@type":"WebApplication","image":"https://wordmark.nyc/recalsans/og/geist.jpg","name":"ReCal Sans customizer","applicationCategory":"DesignApplication","operatingSystem":"Web browser","offers":{"@type":"Offer","price":"0","priceCurrency":"USD"},"url":"https://wordmark.nyc/recalsans/","description":"Geist is free and sharp — the reason to reach past it is control. ReCal Sans adds real optical sizing and a geometric-form axis you set yourself, then bake into a static font in the browser.","isAccessibleForFree":true,"license":"https://opensource.org/license/ofl-1-1"},{"@context":"https://schema.org","@type":"FAQPage","mainEntity":[{"@type":"Question","name":"Geist is already free — why use ReCal Sans instead?","acceptedAnswer":{"@type":"Answer","text":"Because of range, not cost. Geist is drawn tight around developer tooling — one register, sized by you rather than by the font. ReCal Sans adds a real optical-size axis and a GEOM axis you set yourself, then bakes both into a static file you ship."}},{"@type":"Question","name":"How is ReCal Sans different from Geist?","acceptedAnswer":{"@type":"Answer","text":"Geist ships as fixed families drawn for one register, with no optical-size axis to adapt them. ReCal Sans is a single variable file: GEOM re-draws the letterforms between accessibility-optimized and geometric, opsz keeps the drawing honest from body copy to headline, and you freeze your settings in before you ship."}},{"@type":"Question","name":"Can I use ReCal Sans commercially?","acceptedAnswer":{"@type":"Answer","text":"Yes — the SIL Open Font License permits commercial use, embedding, and modification. The font ReCal produces is yours to ship."}}]},{"@context":"https://schema.org","@type":"BreadcrumbList","itemListElement":[{"@type":"ListItem","position":1,"name":"WORDMARK","item":"https://wordmark.nyc/"},{"@type":"ListItem","position":2,"name":"ReCal Sans","item":"https://wordmark.nyc/recalsans/"},{"@type":"ListItem","position":3,"name":"Geist alternative","item":"https://wordmark.nyc/recalsans/geist/"}]}]</script>
+<script type="application/ld+json">[{"@context":"https://schema.org","@type":"WebApplication","image":"https://wordmark.nyc/recalsans/og/geist.jpg","@id":"https://wordmark.nyc/recalsans/geist/#app","name":"ReCal Sans customizer — Geist preset","applicationCategory":"DesignApplication","operatingSystem":"Web browser","offers":{"@type":"Offer","price":"0","priceCurrency":"USD"},"url":"https://wordmark.nyc/recalsans/geist/","mainEntityOfPage":"https://wordmark.nyc/recalsans/geist/","description":"Geist is free and sharp — the reason to reach past it is control. ReCal Sans adds real optical sizing and a geometric-form axis you set yourself, then bake into a static font in the browser.","isAccessibleForFree":true,"license":"https://opensource.org/license/ofl-1-1"},{"@context":"https://schema.org","@type":"FAQPage","mainEntity":[{"@type":"Question","name":"Geist is already free — why use ReCal Sans instead?","acceptedAnswer":{"@type":"Answer","text":"Because of range, not cost. Geist is drawn tight around developer tooling — one register, sized by you rather than by the font. ReCal Sans adds a real optical-size axis and a GEOM axis you set yourself, then bakes both into a static file you ship."}},{"@type":"Question","name":"How is ReCal Sans different from Geist?","acceptedAnswer":{"@type":"Answer","text":"Geist ships as fixed families drawn for one register, with no optical-size axis to adapt them. ReCal Sans is a single variable file: GEOM re-draws the letterforms between accessibility-optimized and geometric, opsz keeps the drawing honest from body copy to headline, and you freeze your settings in before you ship."}},{"@type":"Question","name":"Can I use ReCal Sans commercially?","acceptedAnswer":{"@type":"Answer","text":"Yes — the SIL Open Font License permits commercial use, embedding and modification. The font is yours to ship."}}]},{"@context":"https://schema.org","@type":"BreadcrumbList","itemListElement":[{"@type":"ListItem","position":1,"name":"WORDMARK","item":"https://wordmark.nyc/"},{"@type":"ListItem","position":2,"name":"ReCal Sans","item":"https://wordmark.nyc/recalsans/"},{"@type":"ListItem","position":3,"name":"Geist alternative","item":"https://wordmark.nyc/recalsans/geist/"}]}]</script>
 <!-- Google tag (gtag.js) -->
 <script async src="https://www.googletagmanager.com/gtag/js?id=G-MZ4M1P8P1P"></script>
 <script>
@@ -81,9 +81,18 @@ gtag('config', 'G-MZ4M1P8P1P');
      display size, not the preset's specimen size, so they get their own optical
      treatment (auto) instead of inheriting a pinned opsz meant for a different size. */
   .seo-below .specimen-grid { margin:28px 0 48px; }
+  /* THE SPECIMEN SHOWS THE PRESET, OPTICAL SIZE INCLUDED. opsz used to be stripped from
+     these rows in favour of font-optical-sizing:auto, which at 58px resolved to opsz ~58 --
+     so /gotham/ captioned itself "opsz 10" above a specimen rendering at nothing of the
+     kind, and every page's specimen was a preset the preset does not describe.
+     A small opsz shown large is a deliberate peak target, not a bug: plenty of families
+     freeze one drawing and let the designer track in by hand at display size. That is what
+     the -.03em is -- the manual correction the pinned opsz asks for -- and the caption
+     states both so the reader knows this is a choice. font-optical-sizing:none stops the UA
+     from re-deriving opsz from font-size and overriding the pin. */
   .seo-below .specimen-row { font-feature-settings:'cv03' 1, 'cv11' 1, 'ss16' 1;
-    font-size:clamp(32px,6.4vw,58px); line-height:1.15; letter-spacing:-.01em; font-style:normal;
-    font-optical-sizing:auto; padding:18px 0; border-bottom:1px solid var(--sline); }
+    font-size:clamp(32px,6.4vw,58px); line-height:1.15; letter-spacing:-.03em; font-style:normal;
+    font-optical-sizing:none; padding:18px 0; border-bottom:1px solid var(--sline); }
   .seo-below .specimen-row:first-child { padding-top:0; }
   .seo-below .specimen-row .style-cap { display:block; font-size:13px; color:var(--smut);
     /* letter-spacing does NOT re-relativize on inherit -- it's the parent's resolved px
@@ -104,6 +113,9 @@ gtag('config', 'G-MZ4M1P8P1P');
   .seo-below .also { display:flex; flex-wrap:wrap; gap:10px; margin-top:14px; }
   .seo-below .also a { font-size:14px; color:var(--sfg); border:1px solid var(--sline); border-radius:999px; padding:6px 14px; text-decoration:none; }
   .seo-below .also a:hover { border-color:var(--sfg); }
+  .seo-below ul.freezes { list-style:none; margin:0 0 20px; padding:0; }
+  .seo-below ul.freezes li { font-size:16px; color:#ccc; padding:7px 0; border-bottom:1px solid var(--sline); }
+  .seo-below ul.freezes code { font-family:ui-monospace,SFMono-Regular,Menlo,monospace; font-size:14px; color:var(--sfg); }
   .seo-below footer { margin-top:72px; padding-top:24px; border-top:1px solid var(--sline); font-size:13px; color:var(--smut); }
   .seo-below footer a { color:var(--smut); }
 </style>
@@ -112,7 +124,7 @@ gtag('config', 'G-MZ4M1P8P1P');
 <div id="root"></div>
 <article class="seo-below" id="about">
 <div class="wrap">
-  <div class="live-note">▲ The customizer above is live — it loaded with the Geist preset already applied. <a href="#top" onclick="scrollTo({top:0,behavior:'smooth'});return false">Back to the tool</a></div>
+  <div class="live-note">▲ Live above, already set to Geist. <a href="#top" onclick="scrollTo({top:0,behavior:'smooth'});return false">Back to the tool</a></div>
   <nav class="crumb"><a href="https://wordmark.nyc/">WORDMARK</a> › <a href="/recalsans/">ReCal Sans</a> › Geist alternative</nav>
 
   <h1>A tunable, variable alternative to Geist</h1>
@@ -127,30 +139,57 @@ gtag('config', 'G-MZ4M1P8P1P');
   </figure>
 
   <div class="specimen-grid" aria-label="ReCal Sans specimen, all weights and italics, tuned toward Geist">
-    <div class="specimen-row" style="font-variation-settings:'GEOM' 50, 'wght' 400, 'ital' 0"><span class="style-cap">Regular</span>Garage 96</div>
-    <div class="specimen-row" style="font-variation-settings:'GEOM' 50, 'wght' 400, 'ital' 1"><span class="style-cap">Regular Italic</span>Gravity 719</div>
-    <div class="specimen-row" style="font-variation-settings:'GEOM' 50, 'wght' 500, 'ital' 0"><span class="style-cap">Medium</span>Gadget 68</div>
-    <div class="specimen-row" style="font-variation-settings:'GEOM' 50, 'wght' 500, 'ital' 1"><span class="style-cap">Medium Italic</span>Voyage Grid</div>
-    <div class="specimen-row" style="font-variation-settings:'GEOM' 50, 'wght' 600, 'ital' 0"><span class="style-cap">Semibold</span>Gallery 1794</div>
-    <div class="specimen-row" style="font-variation-settings:'GEOM' 50, 'wght' 600, 'ital' 1"><span class="style-cap">Semibold Italic</span>Signal Garage</div>
-    <div class="specimen-row" style="font-variation-settings:'GEOM' 50, 'wght' 700, 'ital' 0"><span class="style-cap">Bold</span>Guardian 29</div>
-    <div class="specimen-row" style="font-variation-settings:'GEOM' 50, 'wght' 700, 'ital' 1"><span class="style-cap">Bold Italic</span>Grand Canvas</div>
+    <div class="specimen-row" style="font-variation-settings:'GEOM' 50, 'opsz' 16, 'wght' 400, 'ital' 0"><span class="style-cap">Regular</span>Garage 96</div>
+    <div class="specimen-row" style="font-variation-settings:'GEOM' 50, 'opsz' 16, 'wght' 400, 'ital' 1"><span class="style-cap">Regular Italic</span>Gravity 719</div>
+    <div class="specimen-row" style="font-variation-settings:'GEOM' 50, 'opsz' 16, 'wght' 500, 'ital' 0"><span class="style-cap">Medium</span>Gadget 68</div>
+    <div class="specimen-row" style="font-variation-settings:'GEOM' 50, 'opsz' 16, 'wght' 500, 'ital' 1"><span class="style-cap">Medium Italic</span>Voyage Grid</div>
+    <div class="specimen-row" style="font-variation-settings:'GEOM' 50, 'opsz' 16, 'wght' 600, 'ital' 0"><span class="style-cap">Semibold</span>Gallery 1794</div>
+    <div class="specimen-row" style="font-variation-settings:'GEOM' 50, 'opsz' 16, 'wght' 600, 'ital' 1"><span class="style-cap">Semibold Italic</span>Signal Garage</div>
+    <div class="specimen-row" style="font-variation-settings:'GEOM' 50, 'opsz' 16, 'wght' 700, 'ital' 0"><span class="style-cap">Bold</span>Guardian 29</div>
+    <div class="specimen-row" style="font-variation-settings:'GEOM' 50, 'opsz' 16, 'wght' 700, 'ital' 1"><span class="style-cap">Bold Italic</span>Grand Canvas</div>
   </div>
-  <div class="specimen-cap">ReCal Sans — all 8 weights &amp; italics, tuned toward Geist</div>
+  <!-- The caption carries the settings the specimen is actually rendered at, tracking
+       included. The pinned opsz is a small drawing shown large on purpose; saying so is
+       what separates a peak target from a mistake. -->
+  <div class="specimen-cap">ReCal Sans — all 8 weights &amp; italics, tuned toward Geist · GEOM 50 · opsz 16 · tracking &minus;0.03em</div>
 
   <p>Geist is a crisp, Swiss-leaning developer sans — variable weight, tight spacing, free under the OFL. It nails one voice extremely well: the terminal-adjacent modernism of the platform it was drawn for. It also ships without italics and without optical sizing.</p>
   <p>ReCal Sans covers that same clean-geometric ground at GEOM 50, then keeps going: a real optical-size axis so text sizes stay readable, an italic axis, ascender and sharpness controls, and glyph-swap thresholds you can move. Tune the file to your product, download it, ship it.</p>
 
   <a class="cta" href="#top" onclick="scrollTo({top:0,behavior:'smooth'});return false">Customize it above ↑</a>
 
-  <h2>How it compares to Geist</h2>
-  <p>ReCal Sans doesn't imitate Geist — it gives you the axes to land in the same neighborhood and then keep going, honestly. What you preview is what you download: a static, deployable TTF with your decisions baked in.</p>
+  <!-- THE FOUR SECTIONS BELOW ARE WHY THESE PAGES ARE NOT EACH OTHER. Everything above
+       argues for ReCal Sans in general; this is the part that only makes sense on THIS
+       page -- the giveaway glyph, the place ReCal Sans honestly loses, a measured x-height
+       figure, and what the frozen optical size actually encodes. Written from the type
+       designer's own notes. If a future preset ships without them it ships as a duplicate. -->
+  <h2>The tell: what gives Geist away</h2>
+  <p>Geist follows Inter and adds spice: the tailed a, and flat terminations cut perpendicular to the stroke on t, f and j. This preset names both by their labels in the font — cv03, the accessible tailed a, and cv11, the humanist G — alongside the humanist 6 and 9.</p>
+
+  <h2>Where ReCal Sans loses</h2>
+  <p>The same terminal trade as Inter, plus one thing Cal Sans simply cannot do: Geist's dots are square, and there is no swap here that makes a round dot square. Beyond that, Geist cuts nearly every terminal square to the baseline where Cal Sans angles most of them to open the counters — gaining at small sizes what it gives up in evenness.</p>
+
+  <h2>Will it drop into a Geist layout?</h2>
+  <p>Close stylistically, not a drop-in: the copyfit differs. WORDMARK builds metrically compatible versions on request — mark@wordmark.nyc.</p>
+  <p>At the same point size Geist feels identical. Measured on the cap-height-normalized comparison, Geist runs about 4% taller.</p>
+
+  <h2>Why the specimen is frozen where it is</h2>
+  <p>A frozen optical size is the reference face’s sweet spot in Cal Sans’ terms — mostly letterfit.</p>
+  <p>Frozen at opsz 16: a middle fit, near where Geist itself is comfortable. Set it far larger and it still wants a little tracking in, which is what the specimen above shows.</p>
+
+  <h2>What this preset freezes</h2>
+  <p>Baked into the font you download, named as CalSansVF declares them:</p>
+  <ul class="freezes">
+      <li><code>cv03</code> — Accessible/tailed a</li>
+      <li><code>cv11</code> — Humanist G</li>
+      <li><code>ss16</code> — Humanist/Grotesk 6 and 9</li>
+  </ul>
 
   <h2>Frequently asked</h2>
   <dl class="faq">
     <dt>Geist is already free — why use ReCal Sans instead?</dt><dd>Because of range, not cost. Geist is drawn tight around developer tooling — one register, sized by you rather than by the font. ReCal Sans adds a real optical-size axis and a GEOM axis you set yourself, then bakes both into a static file you ship.</dd>
     <dt>How is ReCal Sans different from Geist?</dt><dd>Geist ships as fixed families drawn for one register, with no optical-size axis to adapt them. ReCal Sans is a single variable file: GEOM re-draws the letterforms between accessibility-optimized and geometric, opsz keeps the drawing honest from body copy to headline, and you freeze your settings in before you ship.</dd>
-    <dt>Can I use ReCal Sans commercially?</dt><dd>Yes — the SIL Open Font License permits commercial use, embedding, and modification. The font ReCal produces is yours to ship.</dd>
+    <dt>Can I use ReCal Sans commercially?</dt><dd>Yes — the SIL Open Font License permits commercial use, embedding and modification. The font is yours to ship.</dd>
   </dl>
 
   <h2>More alternatives</h2>

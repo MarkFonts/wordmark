@@ -24,7 +24,7 @@
 <meta name="twitter:image:alt" content="The word Futura set in ReCal Sans, a free open-source variable alternative to Futura.">
 <link rel="icon" type="image/svg+xml" href="/recalsans/favicon.svg">
 <link rel="preload" href="/recalsans/fonts/CalSansVF.ttf" as="font" type="font/ttf" crossorigin>
-<script type="application/ld+json">[{"@context":"https://schema.org","@type":"WebApplication","image":"https://wordmark.nyc/recalsans/og/futura.jpg","name":"ReCal Sans customizer","applicationCategory":"DesignApplication","operatingSystem":"Web browser","offers":{"@type":"Offer","price":"0","priceCurrency":"USD"},"url":"https://wordmark.nyc/recalsans/","description":"ReCal Sans is a free, open-source variable geometric sans you can tune in the browser and download. If you reach for Futura, this is an OFL alternative with true geometric forms, tall ascenders, and a real optical-size axis.","isAccessibleForFree":true,"license":"https://opensource.org/license/ofl-1-1"},{"@context":"https://schema.org","@type":"FAQPage","mainEntity":[{"@type":"Question","name":"Is there a free alternative to Futura?","acceptedAnswer":{"@type":"Answer","text":"Yes. ReCal Sans is free and open-source under the SIL Open Font License. Push GEOM to 100 and raise the ascender axis and you reach the circles-first construction and above-cap-height extenders Futura established in 1927 — plus an optical-size axis no metal-era design was ever drawn with. Tune it in the browser, download a static TTF, pay nothing."}},{"@type":"Question","name":"How is ReCal Sans different from Futura?","acceptedAnswer":{"@type":"Answer","text":"Futura is a 1927 design distributed as static styles: what the foundry drew is what you set. ReCal Sans reaches the same geometric territory through axes instead — GEOM for the construction, an ascender axis for those characteristic tall extenders, terminal sharpness, and an optical-size axis the original never had."}},{"@type":"Question","name":"Can I use ReCal Sans commercially?","acceptedAnswer":{"@type":"Answer","text":"Yes — the SIL Open Font License permits commercial use, embedding, and modification. The font ReCal produces is yours to ship."}}]},{"@context":"https://schema.org","@type":"BreadcrumbList","itemListElement":[{"@type":"ListItem","position":1,"name":"WORDMARK","item":"https://wordmark.nyc/"},{"@type":"ListItem","position":2,"name":"ReCal Sans","item":"https://wordmark.nyc/recalsans/"},{"@type":"ListItem","position":3,"name":"Futura alternative","item":"https://wordmark.nyc/recalsans/futura/"}]}]</script>
+<script type="application/ld+json">[{"@context":"https://schema.org","@type":"WebApplication","image":"https://wordmark.nyc/recalsans/og/futura.jpg","@id":"https://wordmark.nyc/recalsans/futura/#app","name":"ReCal Sans customizer — Futura preset","applicationCategory":"DesignApplication","operatingSystem":"Web browser","offers":{"@type":"Offer","price":"0","priceCurrency":"USD"},"url":"https://wordmark.nyc/recalsans/futura/","mainEntityOfPage":"https://wordmark.nyc/recalsans/futura/","description":"ReCal Sans is a free, open-source variable geometric sans you can tune in the browser and download. If you reach for Futura, this is an OFL alternative with true geometric forms, tall ascenders, and a real optical-size axis.","isAccessibleForFree":true,"license":"https://opensource.org/license/ofl-1-1"},{"@context":"https://schema.org","@type":"FAQPage","mainEntity":[{"@type":"Question","name":"Is there a free alternative to Futura?","acceptedAnswer":{"@type":"Answer","text":"Yes. ReCal Sans is free and open-source under the SIL Open Font License. Push GEOM to 100 and raise the ascender axis and you reach the circles-first construction and above-cap-height extenders Futura established in 1927 — plus an optical-size axis no metal-era design was ever drawn with. Tune it in the browser, download a static TTF, pay nothing."}},{"@type":"Question","name":"How is ReCal Sans different from Futura?","acceptedAnswer":{"@type":"Answer","text":"Futura is a 1927 design distributed as static styles: what the foundry drew is what you set. ReCal Sans reaches the same geometric territory through axes instead — GEOM for the construction, an ascender axis for those characteristic tall extenders, terminal sharpness, and an optical-size axis the original never had."}},{"@type":"Question","name":"Can I use ReCal Sans commercially?","acceptedAnswer":{"@type":"Answer","text":"Yes — the SIL Open Font License permits commercial use, embedding and modification. The font is yours to ship."}}]},{"@context":"https://schema.org","@type":"BreadcrumbList","itemListElement":[{"@type":"ListItem","position":1,"name":"WORDMARK","item":"https://wordmark.nyc/"},{"@type":"ListItem","position":2,"name":"ReCal Sans","item":"https://wordmark.nyc/recalsans/"},{"@type":"ListItem","position":3,"name":"Futura alternative","item":"https://wordmark.nyc/recalsans/futura/"}]}]</script>
 <!-- Google tag (gtag.js) -->
 <script async src="https://www.googletagmanager.com/gtag/js?id=G-MZ4M1P8P1P"></script>
 <script>
@@ -81,9 +81,18 @@ gtag('config', 'G-MZ4M1P8P1P');
      display size, not the preset's specimen size, so they get their own optical
      treatment (auto) instead of inheriting a pinned opsz meant for a different size. */
   .seo-below .specimen-grid { margin:28px 0 48px; }
+  /* THE SPECIMEN SHOWS THE PRESET, OPTICAL SIZE INCLUDED. opsz used to be stripped from
+     these rows in favour of font-optical-sizing:auto, which at 58px resolved to opsz ~58 --
+     so /gotham/ captioned itself "opsz 10" above a specimen rendering at nothing of the
+     kind, and every page's specimen was a preset the preset does not describe.
+     A small opsz shown large is a deliberate peak target, not a bug: plenty of families
+     freeze one drawing and let the designer track in by hand at display size. That is what
+     the -.03em is -- the manual correction the pinned opsz asks for -- and the caption
+     states both so the reader knows this is a choice. font-optical-sizing:none stops the UA
+     from re-deriving opsz from font-size and overriding the pin. */
   .seo-below .specimen-row {
-    font-size:clamp(32px,6.4vw,58px); line-height:1.15; letter-spacing:-.01em; font-style:normal;
-    font-optical-sizing:auto; padding:18px 0; border-bottom:1px solid var(--sline); }
+    font-size:clamp(32px,6.4vw,58px); line-height:1.15; letter-spacing:-.03em; font-style:normal;
+    font-optical-sizing:none; padding:18px 0; border-bottom:1px solid var(--sline); }
   .seo-below .specimen-row:first-child { padding-top:0; }
   .seo-below .specimen-row .style-cap { display:block; font-size:13px; color:var(--smut);
     /* letter-spacing does NOT re-relativize on inherit -- it's the parent's resolved px
@@ -104,6 +113,9 @@ gtag('config', 'G-MZ4M1P8P1P');
   .seo-below .also { display:flex; flex-wrap:wrap; gap:10px; margin-top:14px; }
   .seo-below .also a { font-size:14px; color:var(--sfg); border:1px solid var(--sline); border-radius:999px; padding:6px 14px; text-decoration:none; }
   .seo-below .also a:hover { border-color:var(--sfg); }
+  .seo-below ul.freezes { list-style:none; margin:0 0 20px; padding:0; }
+  .seo-below ul.freezes li { font-size:16px; color:#ccc; padding:7px 0; border-bottom:1px solid var(--sline); }
+  .seo-below ul.freezes code { font-family:ui-monospace,SFMono-Regular,Menlo,monospace; font-size:14px; color:var(--sfg); }
   .seo-below footer { margin-top:72px; padding-top:24px; border-top:1px solid var(--sline); font-size:13px; color:var(--smut); }
   .seo-below footer a { color:var(--smut); }
 </style>
@@ -112,7 +124,7 @@ gtag('config', 'G-MZ4M1P8P1P');
 <div id="root"></div>
 <article class="seo-below" id="about">
 <div class="wrap">
-  <div class="live-note">▲ The customizer above is live — it loaded with the Futura preset already applied. <a href="#top" onclick="scrollTo({top:0,behavior:'smooth'});return false">Back to the tool</a></div>
+  <div class="live-note">▲ Live above, already set to Futura. <a href="#top" onclick="scrollTo({top:0,behavior:'smooth'});return false">Back to the tool</a></div>
   <nav class="crumb"><a href="https://wordmark.nyc/">WORDMARK</a> › <a href="/recalsans/">ReCal Sans</a> › Futura alternative</nav>
 
   <h1>A free, tunable alternative to Futura</h1>
@@ -127,30 +139,50 @@ gtag('config', 'G-MZ4M1P8P1P');
   </figure>
 
   <div class="specimen-grid" aria-label="ReCal Sans specimen, all weights and italics, tuned toward Futura">
-    <div class="specimen-row" style="font-variation-settings:'GEOM' 100, 'YTAS' 800, 'SHRP' 100, 'wght' 400, 'ital' 0"><span class="style-cap">Regular</span>Neue Form</div>
-    <div class="specimen-row" style="font-variation-settings:'GEOM' 100, 'YTAS' 800, 'SHRP' 100, 'wght' 400, 'ital' 1"><span class="style-cap">Regular Italic</span>Klare Linie</div>
-    <div class="specimen-row" style="font-variation-settings:'GEOM' 100, 'YTAS' 800, 'SHRP' 100, 'wght' 500, 'ital' 0"><span class="style-cap">Medium</span>Bauhaus Kreis</div>
-    <div class="specimen-row" style="font-variation-settings:'GEOM' 100, 'YTAS' 800, 'SHRP' 100, 'wght' 500, 'ital' 1"><span class="style-cap">Medium Italic</span>Reine Geometrie</div>
-    <div class="specimen-row" style="font-variation-settings:'GEOM' 100, 'YTAS' 800, 'SHRP' 100, 'wght' 600, 'ital' 0"><span class="style-cap">Semibold</span>Kühne Zukunft</div>
-    <div class="specimen-row" style="font-variation-settings:'GEOM' 100, 'YTAS' 800, 'SHRP' 100, 'wght' 600, 'ital' 1"><span class="style-cap">Semibold Italic</span>Cercle Parfait</div>
-    <div class="specimen-row" style="font-variation-settings:'GEOM' 100, 'YTAS' 800, 'SHRP' 100, 'wght' 700, 'ital' 0"><span class="style-cap">Bold</span>Nouvelle Ère</div>
-    <div class="specimen-row" style="font-variation-settings:'GEOM' 100, 'YTAS' 800, 'SHRP' 100, 'wght' 700, 'ital' 1"><span class="style-cap">Bold Italic</span>Círculo Perfecto</div>
+    <div class="specimen-row" style="font-variation-settings:'GEOM' 100, 'YTAS' 800, 'SHRP' 100, 'opsz' 16, 'wght' 400, 'ital' 0"><span class="style-cap">Regular</span>Neue Form</div>
+    <div class="specimen-row" style="font-variation-settings:'GEOM' 100, 'YTAS' 800, 'SHRP' 100, 'opsz' 16, 'wght' 400, 'ital' 1"><span class="style-cap">Regular Italic</span>Klare Linie</div>
+    <div class="specimen-row" style="font-variation-settings:'GEOM' 100, 'YTAS' 800, 'SHRP' 100, 'opsz' 16, 'wght' 500, 'ital' 0"><span class="style-cap">Medium</span>Bauhaus Kreis</div>
+    <div class="specimen-row" style="font-variation-settings:'GEOM' 100, 'YTAS' 800, 'SHRP' 100, 'opsz' 16, 'wght' 500, 'ital' 1"><span class="style-cap">Medium Italic</span>Reine Geometrie</div>
+    <div class="specimen-row" style="font-variation-settings:'GEOM' 100, 'YTAS' 800, 'SHRP' 100, 'opsz' 16, 'wght' 600, 'ital' 0"><span class="style-cap">Semibold</span>Kühne Zukunft</div>
+    <div class="specimen-row" style="font-variation-settings:'GEOM' 100, 'YTAS' 800, 'SHRP' 100, 'opsz' 16, 'wght' 600, 'ital' 1"><span class="style-cap">Semibold Italic</span>Cercle Parfait</div>
+    <div class="specimen-row" style="font-variation-settings:'GEOM' 100, 'YTAS' 800, 'SHRP' 100, 'opsz' 16, 'wght' 700, 'ital' 0"><span class="style-cap">Bold</span>Nouvelle Ère</div>
+    <div class="specimen-row" style="font-variation-settings:'GEOM' 100, 'YTAS' 800, 'SHRP' 100, 'opsz' 16, 'wght' 700, 'ital' 1"><span class="style-cap">Bold Italic</span>Círculo Perfecto</div>
   </div>
-  <div class="specimen-cap">ReCal Sans — all 8 weights &amp; italics, tuned toward Futura</div>
+  <!-- The caption carries the settings the specimen is actually rendered at, tracking
+       included. The pinned opsz is a small drawing shown large on purpose; saying so is
+       what separates a peak target from a mistake. -->
+  <div class="specimen-cap">ReCal Sans — all 8 weights &amp; italics, tuned toward Futura · GEOM 100 · YTAS 800 · SHRP 100 · opsz 16 · tracking &minus;0.03em</div>
 
   <p>Futura is the geometric sans — Paul Renner’s 1927 circles-and-triangles modernism, with its pointed apexes, long ascenders, and single-story a. Nearly a century on it still reads as "the future," and it is still licensed commercially, weight by weight.</p>
   <p>ReCal Sans at GEOM 100 goes fully geometric: circular bowls, sharpened terminals, and an ascender axis you can push to Futura’s classical proportions. Unlike a static Futura license, the file is free (OFL), variable, and optically sized — one download covers captions to display. Tune it, then bake your settings in.</p>
 
   <a class="cta" href="#top" onclick="scrollTo({top:0,behavior:'smooth'});return false">Customize it above ↑</a>
 
-  <h2>How it compares to Futura</h2>
-  <p>ReCal Sans doesn't imitate Futura — it gives you the axes to land in the same neighborhood and then keep going, honestly and for free. What you preview is what you download: a static, deployable TTF with your decisions baked in.</p>
+  <!-- THE FOUR SECTIONS BELOW ARE WHY THESE PAGES ARE NOT EACH OTHER. Everything above
+       argues for ReCal Sans in general; this is the part that only makes sense on THIS
+       page -- the giveaway glyph, the place ReCal Sans honestly loses, a measured x-height
+       figure, and what the frozen optical size actually encodes. Written from the type
+       designer's own notes. If a future preset ships without them it ships as a duplicate. -->
+  <h2>The tell: what gives Futura away</h2>
+  <p>The Bauhaus original, 1927 — the far bookend of the GEOM axis and the face an entire genre of geometrics descends from. It is also the one Cal Sans was drawn in argument with, and its designer's scruples about it are part of the project. Divisive and authoritative. Futura keeps humanist t, f and j rather than flat constructions, but takes the crossed t, the spurless u and the entirely flat y.</p>
+
+  <h2>Where ReCal Sans loses</h2>
+  <p>Cal Sans gets close here — closer than anywhere else on this list. What it does not have is Futura's trajanic proportion: the narrow R, A and S. Cal Sans pulled that punch, deliberately, and the difference shows most in caps.</p>
+
+  <h2>Will it drop into a Futura layout?</h2>
+  <p>Close stylistically, not a drop-in: the copyfit differs. WORDMARK builds metrically compatible versions on request — mark@wordmark.nyc.</p>
+  <p>At the same point size Futura feels smaller — the low x-height under those long extenders is the whole effect. Measured on the cap-height-normalized comparison, Futura runs about 13% shorter.</p>
+
+  <h2>Why the specimen is frozen where it is</h2>
+  <p>A frozen optical size is the reference face’s sweet spot in Cal Sans’ terms — mostly letterfit.</p>
+  <p>Frozen at opsz 16: a middle fit. Cal Sans grows rounder and lifts its x-height very slightly as optical size rises, and 16 is where this preset's geometry sits closest to Futura's.</p>
+
 
   <h2>Frequently asked</h2>
   <dl class="faq">
     <dt>Is there a free alternative to Futura?</dt><dd>Yes. ReCal Sans is free and open-source under the SIL Open Font License. Push GEOM to 100 and raise the ascender axis and you reach the circles-first construction and above-cap-height extenders Futura established in 1927 — plus an optical-size axis no metal-era design was ever drawn with. Tune it in the browser, download a static TTF, pay nothing.</dd>
     <dt>How is ReCal Sans different from Futura?</dt><dd>Futura is a 1927 design distributed as static styles: what the foundry drew is what you set. ReCal Sans reaches the same geometric territory through axes instead — GEOM for the construction, an ascender axis for those characteristic tall extenders, terminal sharpness, and an optical-size axis the original never had.</dd>
-    <dt>Can I use ReCal Sans commercially?</dt><dd>Yes — the SIL Open Font License permits commercial use, embedding, and modification. The font ReCal produces is yours to ship.</dd>
+    <dt>Can I use ReCal Sans commercially?</dt><dd>Yes — the SIL Open Font License permits commercial use, embedding and modification. The font is yours to ship.</dd>
   </dl>
 
   <h2>More alternatives</h2>
