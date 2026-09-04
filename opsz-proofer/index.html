@@ -641,7 +641,15 @@ input[type="range"]::-moz-range-thumb { corner-shape: round; }
     --text: #e8e8e8;  --text-rgb: 232, 232, 232;
     --border: #333333;  --border-subtle: #222222;
     --accent: #e8e8e8;  --signal: #eeff41;
-    --radius: 8px;
+    --radius: 8px;  --radius-sm: 6px;
+    /* Two different jobs, so two different contract names. --bg-elevated is "raised
+       panel fill" and carries the segmented control's chosen half; --surface-hi is
+       "hover active fill" and is read by ~20 rules across the primitives. Giving the
+       pill --surface-hi would have made every hover state in the house wear the
+       pill's value -- pure white on a #f5faff page in light mode. */
+    --bg-elevated: #2e2e2e;
+    --surface-hi: #252525;
+    --seg-lift: 0 1px 2px rgba(0,0,0,.45), inset 0 1px 0 rgba(255,255,255,.05);
     --ui-font: "Face", system-ui, sans-serif;
     --ui-fvs: "GEOM" 25;
     --spec: "Newsreader", serif;
@@ -660,7 +668,8 @@ input[type="range"]::-moz-range-thumb { corner-shape: round; }
       --bg: #f5faff; --surface-1: #eaf3fb; --surface-2: #ddeaf6;
       --text: #111111; --text-rgb: 17, 17, 17;
       --border: #c4d8eb; --border-subtle: #d9e8f5;
-      --accent: #111111; --signal: #5c6b00;
+      --accent: #111111; --signal: #5c6b00; --bg-elevated: #ffffff; --surface-hi: #ddeaf6;
+      --seg-lift: 0 1px 2px rgba(17,17,17,.10), 0 0 0 1px rgba(17,17,17,.04);
     }
   }
   :root[data-theme="light"] {
@@ -668,14 +677,16 @@ input[type="range"]::-moz-range-thumb { corner-shape: round; }
     --bg: #f5faff; --surface-1: #eaf3fb; --surface-2: #ddeaf6;
     --text: #111111; --text-rgb: 17, 17, 17;
     --border: #c4d8eb; --border-subtle: #d9e8f5;
-    --accent: #111111; --signal: #5c6b00;
+    --accent: #111111; --signal: #5c6b00; --bg-elevated: #ffffff; --surface-hi: #ddeaf6;
+    --seg-lift: 0 1px 2px rgba(17,17,17,.10), 0 0 0 1px rgba(17,17,17,.04);
   }
   :root[data-theme="dark"] {
     color-scheme: dark;
     --bg: #0f0f0f; --surface-1: #111111; --surface-2: #1a1a1a;
     --text: #e8e8e8; --text-rgb: 232, 232, 232;
     --border: #333333; --border-subtle: #222222;
-    --accent: #e8e8e8; --signal: #eeff41;
+    --accent: #e8e8e8; --signal: #eeff41; --bg-elevated: #2e2e2e; --surface-hi: #252525;
+    --seg-lift: 0 1px 2px rgba(0,0,0,.45), inset 0 1px 0 rgba(255,255,255,.05);
   }
 
   /* The non-role from TYPOGRAPHY.md: ui + tabular figures, so digits do not
@@ -733,18 +744,34 @@ input[type="range"]::-moz-range-thumb { corner-shape: round; }
     font-optical-sizing: none;
   }
 
-  .seg { display: flex; border: 1px solid var(--border); border-radius: var(--radius); overflow: hidden; }
+  /* Segmented control: a recessed track with the chosen option raised out of it.
+     The old version filled the selected half with --accent, which put a black slab
+     in a bar of quiet chrome -- a toggle is a state, and state does not outrank the
+     thing it is toggling. Raising a surface says "this one" without spending ink or
+     hue. --bg-elevated is a step above the panel in both themes, so the lift reads
+     the same way up as it does down. */
+  .seg {
+    display: inline-flex;
+    gap: var(--nudge);
+    padding: var(--nudge);
+    background: var(--surface-2);
+    border-radius: var(--radius);
+  }
   .seg button {
     font-family: var(--ui-font);
-    background: var(--surface-2); color: rgba(var(--text-rgb), var(--ink-quiet));
-    border: 0; border-right: 1px solid var(--border);
-    padding: var(--spacing-02) var(--spacing-04); cursor: pointer;
+    background: transparent;
+    color: rgba(var(--text-rgb), var(--ink-quiet));
+    border: 0;
+    border-radius: var(--radius-sm);
+    padding: var(--spacing-02) var(--spacing-04);
+    cursor: pointer;
     transition: background var(--dur-fast), color var(--dur-fast);
   }
-  .seg button:last-child { border-right: 0; }
   .seg button:hover { color: rgba(var(--text-rgb), var(--ink-full)); }
   .seg button[aria-pressed="true"] {
-    background: var(--accent); color: var(--bg);
+    background: var(--bg-elevated);
+    color: rgba(var(--text-rgb), var(--ink-full));
+    box-shadow: var(--seg-lift);
   }
 
   .ghost {
@@ -924,29 +951,29 @@ input[type="range"]::-moz-range-thumb { corner-shape: round; }
     </div>
 
     <div class="field">
-      <label class="t-label ink-full" for="txt">Specimen</label>
+      <label class="t-ui ink-quiet" for="txt">Specimen</label>
       <input type="text" id="txt" class="specimen-input" value="vwx" spellcheck="false" />
     </div>
 
     <div class="field">
-      <span class="t-label ink-full">Grid axis</span>
+      <span class="t-ui ink-quiet">Grid axis</span>
       <div class="seg t-ui" id="gridAxisSeg"></div>
     </div>
 
     <div class="axis-rail" id="axisCtls"></div>
 
     <div class="field">
-      <label class="t-label ink-full" for="sizeList">Render sizes</label>
+      <label class="t-ui ink-quiet" for="sizeList">Render sizes</label>
       <input type="text" id="sizeList" class="t-ui readout" style="width:248px" value="6 7 8 9 10 11 12 14 16 18 24 36 48 72" spellcheck="false" />
     </div>
 
     <div class="field">
-      <label class="t-label ink-full" for="opszList">Axis samples</label>
+      <label class="t-ui ink-quiet" for="opszList">Axis samples</label>
       <input type="text" id="opszList" class="t-ui readout" style="width:200px" value="6 8 10 12 14 18 24 36 48 72" spellcheck="false" />
     </div>
 
     <div class="field">
-      <span class="t-label ink-full">Size unit</span>
+      <span class="t-ui ink-quiet">Size unit</span>
       <div class="seg t-ui" id="unitSeg">
         <button type="button" data-unit="pt" aria-pressed="true">pt</button>
         <button type="button" data-unit="px" aria-pressed="false">px</button>
@@ -954,7 +981,7 @@ input[type="range"]::-moz-range-thumb { corner-shape: round; }
     </div>
 
     <div class="field">
-      <span class="t-label ink-full">Font</span>
+      <span class="t-ui ink-quiet">Font</span>
       <button type="button" class="ghost t-ui" id="loadBtn">Load .ttf</button>
       <input type="file" id="fileIn" accept=".ttf,.otf,.woff2,.woff" hidden />
     </div>
@@ -1001,7 +1028,7 @@ input[type="range"]::-moz-range-thumb { corner-shape: round; }
       <div class="stage" id="stage"></div>
       <div class="rail">
         <div class="field">
-          <span class="t-label ink-full">View</span>
+          <span class="t-ui ink-quiet">View</span>
           <div class="seg t-ui" id="ladderSeg">
             <button type="button" data-mode="onion" aria-pressed="true">Overlay</button>
             <button type="button" data-mode="stack" aria-pressed="false">Stack</button>
