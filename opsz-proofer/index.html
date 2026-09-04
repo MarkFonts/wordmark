@@ -1,0 +1,1437 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Optical Size Proofer &mdash; WORDMARK</title>
+<meta name="description" content="Proof one variable-font axis across every render size at once. A size-by-axis grid, and every axis sample superimposed on one glyph.">
+<meta property="og:type" content="website">
+<meta property="og:url" content="https://wordmark.nyc/opsz-proofer/">
+<meta property="og:title" content="Optical Size Proofer">
+<meta property="og:description" content="Type once. Every render size and every optical-size value re-render at the same moment.">
+<meta property="og:site_name" content="WORDMARK">
+<meta name="twitter:card" content="summary_large_image">
+<link rel="icon" href="/favicon.svg">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<!-- Newsreader is the default specimen. Its Google Fonts woff2 keeps the whole
+     opsz 6-72 axis, which is the only reason this tool can use it. -->
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Newsreader:opsz,wght@6..72,200..800&display=swap">
+<style>
+html, body { margin: 0; padding: 0; }
+
+/* ---- the chrome face ---- */
+@font-face {
+  font-family: "Face";
+  src: url(CalSansUI.woff2) format("woff2");
+  font-weight: 400 700;
+  font-display: block;
+}
+
+/* ============================================================================
+   wm-primitives, injected from shared/src by build.py. Do not edit here --
+   edit the submodule.
+   ============================================================================ */
+/* ==== shared/src/motion.css ==== */
+/* motion.css -- the durations. Additive, like type.css: it defines tokens and styles no
+   element, so importing it cannot reach existing markup.
+
+   There were three "fast" values in use before this file existed -- .1s, .12s and .15s,
+   chosen a rule at a time -- and a --dur-fast that ONLY ReCal defined, at 140ms, while
+   every primitive fell back to .12s. The same component animated at two speeds depending
+   on which app rendered it, and nothing said which was right.
+
+   THE VALUES ARE ReCal's, not the fallbacks'. 140/240ms were written down in its spec
+   ("Motion, house spring, spec directive 4") and sat beside a --spring easing; .12s/.22s
+   were typed inline, one transition at a time, and then copied. Between a number somebody
+   specified and a number that accumulated, the specified one is the system. Everything
+   moves ~17% slower than the fallbacks did, which is one frame at 60Hz.
+
+   A host may still override them; what it may not do is spell a duration out in a rule.
+   lint-tokens enforces that.
+
+   fast    a state change on one element: hover, press, focus, a colour
+   med     something resizing or revealing: a collapse, a panel
+   layout  a LARGE surface moving: the sidebar, the tab riding its edge, the mobile
+           sheet. It is its own step because the alternative was those three landing on
+           `med` and collapsing 60-80ms faster than they were drawn to -- and because
+           two of them had independently picked ~300ms for exactly this job, which is
+           evidence rather than taste.
+   slow    something crossing the screen
+   hint    not motion at all -- how long a one-time hint stays before it fades */
+:root {
+  --dur-fast: 140ms;
+  --dur-med:  240ms;
+  --dur-layout: 300ms;
+  --dur-slow: 400ms;
+  --dur-hint: 3s;
+}
+
+/* ==== shared/src/type.css ==== */
+/* type.css — the WORDMARK type tokens. See TYPOGRAPHY.md for the reasoning.
+ *
+ * Purely additive: importing this file changes nothing on its own. Nothing here styles an
+ * element type or a bare selector, so it cannot reach existing markup by accident — you opt
+ * in per element by adding a `t-*` class.
+ *
+ * Sizes are declared in rem against a 16px root so they follow the reader's own text size.
+ * We talk about them in px because that is how type is discussed.
+ *
+ * Two things the host app must provide, because they are the app's, not ours:
+ *   --ui-font   the chrome face
+ *   --text-rgb  the text color as "R, G, B" — COMMA-separated, because ink is written
+ *               rgba(var(--text-rgb), α). The rgb(… / α) slash form silently fails here.
+ * Both have fallbacks below so a missing one degrades rather than breaks, but an app that
+ * relies on the fallback is not on the system.
+ */
+
+:root {
+  /* ---- roles: each spends SIZE and nothing else ----
+     micro is the ANNOTATION size: metric-rule labels, axis tags, slider end-markers,
+     group labels, glyph captions. Things pinned to something else that name it. It sat at
+     8px, where exactly one declaration used it, while the real annotations were at 9 and
+     10 — so 9 is where they actually live, and 8 was a size we were not using. ---- */
+  --type-micro-size: 0.5625rem;   --type-micro-lead: 1.2;    /*   9px */
+  --type-label-size: 0.75rem;     --type-label-lead: 1.3;    /*  12px */
+  --type-ui-size: 0.75rem;        --type-ui-lead: 1.4;       /*  12px */
+  --type-body-size: 1rem;         --type-body-lead: 1.55;    /*  16px */
+  --type-lede-size: 1.125rem;     --type-lede-lead: 1.5;     /*  18px */
+  --type-title-size: 1.625rem;    --type-title-lead: 1.2;    /*  26px */
+  --type-display-size: 2.8125rem; --type-display-lead: 1.1;  /*  45px */
+
+  /* ---- poster: the monster scale, ratio root-2 so every second step doubles.
+     Sets size and leading only — never an axis — so it serves any face. ---- */
+  --poster-1: 3rem;    --poster-2: 4.25rem;  --poster-3: 6rem;   /*  48 /  68 /  96px */
+  --poster-4: 8.5rem;  --poster-5: 12rem;                        /* 136 / 192px */
+
+  /* ---- ink: opacity on the text color. Three levels, never four. ---- */
+  --ink-full: 1;  --ink-quiet: .62;  --ink-faint: .38;
+
+  /* ---- the ONLY tracking value in the system. Capitals must be letterspaced and
+     nothing else may be: tracking by size is opsz's job, and doing it by hand
+     double-counts the axis. There is deliberately no negative value here. ---- */
+  --track-caps: .12em;
+
+  /* Fallbacks. An app on the system overrides both. */
+  --text-rgb: 232, 232, 232;
+}
+
+/* ---- the API ---- */
+.t-micro, .t-label, .t-ui, .t-body, .t-lede, .t-title, .t-display {
+  font-family: var(--ui-font, system-ui, sans-serif);
+  font-variation-settings: var(--ui-fvs, normal);
+}
+/* opsz tracks the size. Every role, no exceptions.
+   The chrome roles used to pin opsz 10 so labels would not "drift" from content. That threw
+   away the two things the axis is for:
+     — SIDEBEARINGS. Every glyph gains letterfit between opsz 10 and 8. This is the whole
+       point of the axis and it applies to all text, not to special characters: at 200px the
+       same string measures 657.4 at opsz 8 against 646.2 at opsz 10.
+     — the a, which swaps at opsz 8 (a and its accented forms). Only the a. The serifed I
+       and l are A11y-landing forms and need low GEOM as well, so they are a separate thing.
+   Small type needs the extra fit more than large type needs anything, so the role that most
+   needed the axis was the one we froze.
+   Pin opsz only to override spacing deliberately, or to make a cvXX choice on purpose —
+   never as a default. */
+.t-micro, .t-label, .t-ui, .t-body, .t-lede, .t-title, .t-display { font-optical-sizing: auto; }
+
+.t-micro   { font-size: var(--type-micro-size);   line-height: var(--type-micro-lead); }
+.t-ui      { font-size: var(--type-ui-size);      line-height: var(--type-ui-lead); }
+.t-body    { font-size: var(--type-body-size);    line-height: var(--type-body-lead); }
+.t-lede    { font-size: var(--type-lede-size);    line-height: var(--type-lede-lead); }
+.t-title   { font-size: var(--type-title-size);   line-height: var(--type-title-lead); }
+.t-display { font-size: var(--type-display-size); line-height: var(--type-display-lead); }
+
+/* label is the one role that spends CASE rather than size — it sits at chrome size in
+   full ink and is distinguished by being capitalised. Small + caps + muted + heavy is
+   four signals for one idea, and is the habit this role exists to replace. */
+.t-label {
+  font-size: var(--type-label-size);
+  line-height: var(--type-label-lead);
+  letter-spacing: var(--track-caps);
+  text-transform: uppercase;
+}
+
+.p1, .p2, .p3, .p4, .p5 {
+  font-family: var(--ui-font, system-ui, sans-serif);
+  font-variation-settings: var(--ui-fvs, normal);
+  font-optical-sizing: auto;
+}
+.p1 { font-size: var(--poster-1); line-height: 1.05; }
+.p2 { font-size: var(--poster-2); line-height: 1.02; }
+.p3 { font-size: var(--poster-3); line-height: 1.00; }
+.p4 { font-size: var(--poster-4); line-height: .98; }
+.p5 { font-size: var(--poster-5); line-height: .96; }
+
+.ink-full  { color: rgba(var(--text-rgb), var(--ink-full)); }
+.ink-quiet { color: rgba(var(--text-rgb), var(--ink-quiet)); }
+.ink-faint { color: rgba(var(--text-rgb), var(--ink-faint)); }
+
+/* rule — the quietest signal there is. Same size, weight, color and case; only a
+   hairline under the words. */
+.sig-rule {
+  text-decoration: underline;
+  text-decoration-thickness: 1px;
+  text-underline-offset: .28em;
+}
+
+/* ==== shared/src/space.css ==== */
+/* space.css — the padding scale. See TYPOGRAPHY.md §Space.
+ *
+ * Derived from what the live surface already used, not invented: 117 padding numbers across
+ * 21 distinct values. This scale snaps 78 of them exactly, moves 39, and moves NOTHING by
+ * more than 25%. Every alternative tested was worse — dropping 6 breaks 12 declarations by a
+ * third, and a strict 4-grid moves 25 of them past 25%.
+ *
+ * Structure is the poster scale's: every second step doubles.
+ *     4 → 8 → 16 → 32 → 64      with 6, 12, 24, 48 as the midpoints
+ * 1/2/3 are not part of that progression. They are hairline insets — a 1px ring, a 2px nudge
+ * on a 3px bar — where the number is not spacing, it is optical alignment.
+ */
+
+:root {
+  /* hairline insets — optical alignment, NOT spacing, which is why they carry no
+     step number. A 1px ring and a 2px nudge on a 3px bar are alignment decisions;
+     numbering them would invite picking one because it is "one step down". */
+  --hair: 1px;
+  --nudge: 2px;
+  --tick: 3px;
+
+  /* the scale — two-digit steps, Carbon's convention, our values.
+     Carbon has no 6, and 6 is load-bearing here: dropping it breaks 12
+     declarations by a third. The t-shirt names are for prose, not code. */
+  --spacing-01: 0.25rem;    /*  4px   2xs */
+  --spacing-02: 0.375rem;   /*  6px   xs  */
+  --spacing-03: 0.5rem;     /*  8px   sm  */
+  --spacing-04: 0.75rem;    /* 12px   md  */
+  --spacing-05: 1rem;       /* 16px   lg  */
+  --spacing-06: 1.5rem;     /* 24px   xl  */
+  --spacing-07: 2rem;       /* 32px   2xl */
+  --spacing-08: 3rem;       /* 48px   3xl */
+  --spacing-09: 4rem;       /* 64px   4xl */
+}
+
+/* ── The cap rule ─────────────────────────────────────────────────────────────────
+ * On a rounded control the shape is SHORTER near the edge, so a letter placed there has
+ * less material above and below it than the padding number implies.
+ *
+ * The usable form, at our --corner-k of 1.2:
+ *
+ *     padding-x  >=  0.6 x border-radius
+ *
+ * NOT ">= the radius". That was a first draft derived from a CIRCULAR cap, and it is wrong
+ * twice over. A superellipse hugs the corner, so height recovers much faster: at k=1.2 you
+ * have 95% of the height by 0.61r and 99% by 0.81r, and the last 0.4% costs you the whole
+ * remaining radius. It also quietly dictates a proportion — on a pill the radius is half the
+ * height, so "padding-x >= radius" demands 14px horizontal against 6px vertical, which is a
+ * ratio nobody would choose.
+ *
+ * Both live pills already cleared it comfortably: zone-chip at 12px has 99.5% of its height,
+ * ssd-chip at 6px has 98.9%. Nothing needed changing.
+ *
+ * The number moves with k. Recompute rather than copying 0.6 if --corner-k changes.
+ */
+
+/* ── The alignment rule ───────────────────────────────────────────────────────────
+ * Horizontal padding is not free to round to the nearest step. When one control sits
+ * above another, the reader sees their TEXT edges, and a text edge is the sum of every
+ * padding and border between it and the shared box edge:
+ *
+ *     text inset  =  sum(border) + sum(padding-left)  down the nesting chain
+ *
+ * Controls that stack must land on the same total. Check the sum, not the step.
+ *
+ * StyleScopeDropdown is the worked example, and it was BROKEN before the tokens went in
+ * — three sibling surfaces disagreed because each padding had been chosen on its own:
+ *
+ *     .ssd-btn                 1 border + 12          = 13
+ *     .ssd-list + .ssd-row     1 border +  5 + 10     = 16   <- 3px off
+ *     .ssd-list--dense .row    1 border +  5 + 12     = 18   <- 5px off
+ *
+ * The scale fixes it because the steps compose: 4 + 8 = 12, the button's own step.
+ *
+ *     .ssd-btn                 1 + --spacing-04            = 13
+ *     .ssd-list + .ssd-row     1 + --spacing-01 + --spacing-03  = 13
+ *     .ssd-list--dense .row    1 + --spacing-01 + --spacing-03  = 13
+ *
+ * That is the argument for a scale whose steps sum to other steps, and it is why the
+ * dense variant now differs from the normal one ONLY in the vertical (--spacing-02 vs
+ * --spacing-03) — which is what "dense" was ever supposed to mean.
+ */
+
+/* ==== shared/src/corners.css ==== */
+/* corners.css — one corner law for every control in the house.
+ *
+ * corner-shape is a NO-OP when border-radius is 0, so a universal rule reaches every rounded
+ * corner without touching a single existing declaration. `*` also has zero specificity, so
+ * the exclusions below win by being named once rather than by editing every circle.
+ *
+ * k is CSS's superellipse parameter and the real exponent is 2^k — verified against the
+ * engine, which folds superellipse(1) to `round` and superellipse(2) to `squircle`. At 1.2 a
+ * pill keeps its round cap while curvature eases to zero before the straight edge, so the cap
+ * no longer meets the side at a curvature break.
+ *
+ * SAFARI has no corner-shape and fails it SILENTLY — plain border-radius, no warning. That is
+ * the intended degradation: the corner every app shipped before this file. Nothing regresses.
+ * Do not reach for a clip-path polyfill at this scale; clip-path also clips shadows, focus
+ * rings and overflow.
+ */
+
+:root {
+  --corner-k: 1.2;
+  --stroke-hover: 1.2px;
+  --stroke-press: 1.8px;
+
+}
+
+*, *::before, *::after { corner-shape: superellipse(var(--corner-k, 1.2)); }
+
+/* ── Circles opt out ──────────────────────────────────────────────────────────────
+   Every one is a true circle on a square box — a knob, a dot, a radio, a spinner — where a
+   superellipse reads as a rounded square rather than a shape decision. There are no 50%
+   radii on non-square boxes, so this list is complete and needs no judgement per site.
+   Native range thumbs are named explicitly: vendor pseudo-elements are not reliably reached
+   by the universal rule above. */
+.spinner, .ui-spinner, .gg-geom-dot, .vslider-thumb, .preview-dot, .mode-throb,
+.ui-dot, .ui-avatar, .ui-thumb, .ui-radio, .ui-radio.on::after, .ui-switch::after,
+.ui-sk--circle, .ui-tl-dot, .ui-step-n, .ui-alert-ic,
+input[type="radio"], input[type="radio"]:checked::after {
+  corner-shape: round;
+}
+
+/* Each vendor thumb gets its OWN rule, and that is not a style preference.
+   A comma-separated selector list is all-or-nothing: one selector the engine cannot
+   parse invalidates the WHOLE rule. ::-moz-range-thumb is a SyntaxError in Chrome and
+   ::-webkit-slider-thumb is one in Firefox, so listing them together with the circles
+   above silently deleted every exclusion — avatars, dots, radios and switch knobs all
+   rendered as superellipses. Keep them apart, and never fold a vendor pseudo-element
+   into a shared list. */
+/* ── Mimics opt out ───────────────────────────────────────────────────────────────
+   font-proofer proofs type inside replicas of other people's products. Those surfaces
+   exist to look like Cal.com and Coss, so the house corner is exactly the signature they
+   must not carry — a squircle there is a wrong answer, not a house style. Namespace-wide,
+   because the replicas grow and nobody should have to remember to add each new part. */
+[class*="calcom-"], [class*="coss-"] { corner-shape: round; }
+
+input[type="range"]::-webkit-slider-thumb { corner-shape: round; }
+input[type="range"]::-moz-range-thumb { corner-shape: round; }
+
+/* ── Press ────────────────────────────────────────────────────────────────────────
+   The stroke lands before the fill: it acknowledges the tap, the fill confirms on release.
+   :active deliberately beats whatever selected or filled state sits under it.
+
+   CAVEAT, observed in Chromium: an inset box-shadow follows border-radius but NOT
+   corner-shape, so on a superellipse control this ring paints as a rounded rectangle
+   inside a squircle, and the mismatch shows while the tap is held. It is least
+   noticeable at small radii, which is where most of these controls live. Where a
+   control is a PILL — radius half its height, the whole edge curved — press it with a
+   background or border-colour change instead; both are clipped to the real shape. */
+.ui-btn:active:not(:disabled), .ui-seg > span:active, .ui-tab:active, .ui-chip:active,
+.ui-tool:active, .gp-copy:active:not(:disabled), .ssd-btn:active:not(:disabled),
+.inline-emph-btn:active:not(:disabled) {
+  background: none;
+  box-shadow: inset 0 0 0 var(--stroke-press, 1.8px) currentColor;
+}
+
+/* ==== shared/src/scrollbar.css ==== */
+/* House scrollbar — one thin 6px bar everywhere, shared by ReCal + font-proofer.
+   Global on purpose: every scrollable container in both apps gets the same bar
+   (explicit webkit width also keeps it always-visible on macOS overlay setups).
+   Tokens (override per app/theme):
+     --scrollbar-thumb        thumb color        (default: --border)
+     --scrollbar-thumb-hover  thumb hover color  (default: --text-dim)
+   A container needing NO bar keeps `scrollbar-width: none` / `display: none`
+   (more specific, still wins). */
+
+* {
+  scrollbar-width: thin;
+  scrollbar-color: var(--scrollbar-thumb, var(--border, rgba(128, 128, 128, 0.5))) transparent;
+}
+::-webkit-scrollbar { width: 6px; height: 6px; }
+::-webkit-scrollbar-track { background: transparent; }
+::-webkit-scrollbar-thumb {
+  background: var(--scrollbar-thumb, var(--border, rgba(128, 128, 128, 0.5)));
+  border-radius: 3px;
+}
+::-webkit-scrollbar-thumb:hover {
+  background: var(--scrollbar-thumb-hover, var(--text-dim, rgba(160, 160, 160, 0.8)));
+}
+::-webkit-scrollbar-corner { background: transparent; }
+
+/* ==== shared/src/AxisSlider.css ==== */
+/* AxisSlider — moved from the font-proofer slider CSS, with token fallbacks so it
+   themes in both apps (font-proofer --bg-* / --track-empty and ReCal --surface-*).
+   The number field stays essentially native: color-scheme drives its light/dark
+   up/down steppers, so each app just needs color-scheme on its root. */
+
+.slider-row { display: flex; flex-direction: column; gap: 3px; }
+.slider-row--off { opacity: 0.4; }
+
+.slider-label { display: flex; align-items: center; justify-content: space-between; gap: 6px; }
+.slider-label-left {
+  display: flex; align-items: baseline; gap: var(--spacing-01, 4px);
+  min-width: 0; overflow: visible; padding-bottom: var(--nudge, 2px);
+}
+.slider-label-text {
+  font-size: var(--type-ui-size);
+  color: var(--text-muted);
+  font-family: var(--ui-font, system-ui, sans-serif);
+  white-space: nowrap; overflow: visible; text-overflow: clip;
+}
+.slider-label-text--tagged { flex: 0 0 105px; }
+.slider-tag {
+  font-size: var(--type-micro-size);
+  color: var(--text-muted);
+  font-family: var(--ui-font, system-ui, sans-serif);
+  letter-spacing: 0;              /* the tag is lowercase: the caps token does not apply */
+  flex-shrink: 0;
+  font-feature-settings: "tnum";
+}
+/* min–max readout: quieter than the tag, tabular so it doesn't jitter while dragging */
+.slider-range {
+  color: var(--text-dim);
+  font-variant-numeric: tabular-nums;
+  white-space: nowrap;
+}
+
+/* value = optional ◆ marker + the editable number/auto field */
+.slider-value { display: flex; align-items: baseline; gap: var(--spacing-01, 4px); flex-shrink: 0; }
+.slider-marker {
+  font-size: var(--type-micro-size); line-height: 1;
+  color: var(--marker-default, var(--accent, currentColor));
+  transform: translateY(-1px);
+}
+.slider-number {
+  font-family: var(--ui-font, system-ui, sans-serif);
+  font-size: var(--type-ui-size);
+  color: var(--text);
+  background: transparent;
+  border: none;
+  text-align: right;
+  width: 66px;
+  padding: var(--nudge, 2px) 0;
+  font-feature-settings: "tnum";
+  color-scheme: inherit;
+}
+.slider-number:focus { outline: none; }
+
+.slider-auto-btn {
+  font: inherit;
+  font-size: var(--type-micro-size, 0.5625rem);
+  letter-spacing: .06em;
+  text-transform: lowercase;
+  padding: 0 var(--spacing-02, 6px);
+  margin-left: var(--nudge, 2px);
+  min-height: 16px;
+  border: 1px solid var(--border);
+  border-radius: 999px;
+  corner-shape: superellipse(var(--corner-k, 1.2));
+  background: none;
+  color: var(--text-muted, var(--text));
+  cursor: pointer;
+}
+.slider-auto-btn:hover { color: var(--text); }
+.slider-auto-btn--on { background: var(--text); color: var(--bg, var(--surface)); border-color: var(--text); }
+.slider-auto-btn:focus-visible { outline: 2px solid var(--accent, currentColor); outline-offset: 1px; }
+@media (pointer: coarse) { .slider-auto-btn { min-height: 32px; padding: 0 var(--spacing-03, 8px); } }
+
+/* ── the stepper ─────────────────────────────────────────────────────────────
+   Ours, because a text field has no native one — and because the native one could
+   never be styled the same way twice: font-proofer forced WebKit's visible with an
+   opacity hack that did nothing in Firefox, and ReCal left it hidden until hover, so
+   one primitive drew two different controls. This draws one.
+
+   Revealed on approach, not always on. A rail of eight dials with sixteen permanent
+   arrowheads is noise, and the field and the track are already two ways in before the
+   arrows are a third. */
+.slider-step {
+  display: inline-flex;
+  flex-direction: column;
+  margin-left: var(--nudge, 2px);
+  opacity: 0;
+  transition: opacity .12s;
+  /* HUNG, not reserved. A hidden stepper still owned its column, so every row paid
+     ~16px -- a quarter of the field -- for something most people never see appear.
+     Out of flow it costs nothing at rest, the field hugs its digits, and nothing
+     shifts when the arrows arrive because they were never in the layout.
+     They land where the suffix is, and the suffix yields as they come: one slot,
+     two occupants, never empty. On a coarse pointer they are permanent (below), and
+     a permanent thing IS part of the object, so there they go back in flow and are
+     measured with it. */
+  position: absolute;
+  left: 100%;
+  top: 0;
+  bottom: 0;
+  justify-content: center;
+}
+.slider-value { position: relative; }
+.slider-row:hover .slider-step,
+.slider-row:focus-within .slider-step { opacity: 1; }
+/* One trigger for both halves of the swap, and the same duration, or for 120ms there
+   are two things in one place. --hidden stays for the focus case the component sets
+   in JS; this adds the hover case it could not see. */
+.slider-row:hover .slider-suffix,
+.slider-row:focus-within .slider-suffix { opacity: 0; }
+.slider-suffix { transition: opacity var(--dur-fast, .12s); }
+
+/* SVG chevrons, not ▲▼. A glyph arrow is measured by whatever face is loaded — its
+   width, its baseline and its optical weight all move with the font — so the column it
+   sits in cannot be sized, and everything to its left gets padded to accommodate it.
+   A 10x6 path is exactly 10x6 in every face, which is what lets the field beside it be
+   as narrow as its digits. */
+.slider-step-btn {
+  padding: 0;
+  border: 0;
+  background: none;
+  color: var(--text-muted, var(--text));
+  cursor: pointer;
+  /* square, so the press state is a circle rather than an oval */
+  width: 16px;
+  height: 12px;
+  display: grid;
+  place-items: center;
+  position: relative;
+  border-radius: 999px;
+  corner-shape: superellipse(var(--corner-k, 1.2));
+}
+.slider-step-btn svg { display: block; }
+.slider-step-btn:hover { color: var(--text); }
+.slider-step-btn:focus-visible { outline: 1px solid var(--accent, currentColor); }
+
+/* The press lands as a filled circle behind the chevron. A background on the button
+   itself would be a 16x12 pill; this is a true circle sized to the button's short side,
+   so it reads the same whatever the hit area grows to on touch. */
+.slider-step-btn::before {
+  content: '';
+  position: absolute;
+  width: 100%;
+  aspect-ratio: 1;
+  border-radius: 50%;
+  background: currentColor;
+  opacity: 0;
+  transform: scale(.6);
+  transition: opacity .12s, transform .12s;
+  pointer-events: none;
+}
+.slider-step-btn:active::before { opacity: .16; transform: scale(1); }
+
+@media (pointer: coarse) {
+  /* Permanent here, so back into the layout and measured with the row -- and the
+     suffix stops yielding, because nothing is being anticipated. */
+  .slider-step { opacity: 1; position: static; }
+  .slider-row:hover .slider-suffix,
+  .slider-row:focus-within .slider-suffix { opacity: 1; }
+  .slider-step-btn { width: 32px; height: 22px; }
+}
+@media (prefers-reduced-motion: reduce) {
+  .slider-step-btn::before { transition: none; }
+}
+.slider-number:disabled { cursor: default; }
+
+.slider-track-wrap { position: relative; }
+.slider-track-wrap input[type="range"] {
+  -webkit-appearance: none; appearance: none;
+  width: 100%; height: 24px;
+  background: transparent; cursor: pointer; margin: 0; display: block;
+}
+.slider-track-wrap input[type="range"]::-webkit-slider-runnable-track {
+  height: 2px;
+  background: linear-gradient(
+    to right,
+    var(--border) 0%,
+    var(--border) var(--locked-pct, 100%),
+    var(--track-empty, var(--surface-hi, #2b2b2b)) var(--locked-pct, 100%),
+    var(--track-empty, var(--surface-hi, #2b2b2b)) 100%
+  );
+  border-radius: 1px;
+}
+.slider-track-wrap input[type="range"]::-webkit-slider-thumb {
+  -webkit-appearance: none;
+  width: 14px; height: 14px; border-radius: 50%;
+  background: var(--text); margin-top: -6px; cursor: pointer;
+}
+.slider-track-wrap input[type="range"]::-moz-range-track {
+  height: 2px;
+  background: linear-gradient(
+    to right,
+    var(--border) 0%,
+    var(--border) var(--locked-pct, 100%),
+    var(--track-empty, var(--surface-hi, #2b2b2b)) var(--locked-pct, 100%),
+    var(--track-empty, var(--surface-hi, #2b2b2b)) 100%
+  );
+  border-radius: 1px;
+}
+.slider-track-wrap input[type="range"]::-moz-range-thumb {
+  width: 14px; height: 14px; border-radius: 50%;
+  background: var(--text); border: none; cursor: pointer;
+}
+
+.slider-auto-hint {
+  position: fixed;
+  font-size: var(--type-ui-size);
+  color: var(--text);
+  background: var(--bg-elevated, var(--surface, #2e2e2e));
+  border: 1px solid var(--border);
+  border-radius: var(--radius, 6px);
+  padding: var(--spacing-01, 4px) var(--spacing-03, 8px);
+  pointer-events: none;
+  z-index: 1000;
+  white-space: nowrap;
+  animation: hint-fade var(--dur-hint, 3s) forwards;
+}
+@keyframes hint-fade { 0% { opacity: 1; } 60% { opacity: 1; } 100% { opacity: 0; } }
+
+/* ── variant: diamond — rotate-45 marker-default thumb (Type-Matrix style), for
+   default-editing rails. Pairs with `reference` to burn the stock value behind it. */
+.slider-row--diamond input[type="range"]::-webkit-slider-thumb {
+  width: 12px; height: 12px; border-radius: 2px;
+  background: var(--marker-default, var(--accent, var(--text)));
+  transform: rotate(45deg);
+  box-shadow: 0 0 0 1px var(--bg, #0f0f0f);
+  margin-top: -5px;
+}
+.slider-row--diamond input[type="range"]::-moz-range-thumb {
+  width: 12px; height: 12px; border-radius: 2px;
+  background: var(--marker-default, var(--accent, var(--text)));
+  transform: rotate(45deg);
+  box-shadow: 0 0 0 1px var(--bg, #0f0f0f);
+}
+
+/* Burned stock reference — a faint ghost dot at the shipped value, behind the thumb. */
+.slider-ref {
+  position: absolute; top: 12px; width: 8px; height: 8px; margin-left: -4px;
+  border-radius: 1px; background: var(--text-muted); opacity: 0.28;
+  transform: translateY(-50%) rotate(45deg); /* rhombus, mirrors the thumb */
+  pointer-events: none; z-index: 0;
+}
+
+/* ── variant: skeletal — thin/minimal, for ephemeral preview/demo sliders. */
+.slider-row--skeletal input[type="range"]::-webkit-slider-thumb { width: 10px; height: 10px; margin-top: -4px; }
+.slider-row--skeletal input[type="range"]::-moz-range-thumb { width: 10px; height: 10px; }
+
+/* Static unit label after the editable field (px/%/em) — hides while the field is
+   focused so you edit just the raw number, reappears on blur. No layout shift. */
+.slider-suffix {
+  font-size: var(--type-ui-size); color: var(--text-muted);
+  font-feature-settings: "tnum"; margin-left: -3px; pointer-events: none;
+}
+.slider-suffix--hidden { visibility: hidden; }
+
+/* ============================================================================
+   opsz-proofer
+   ============================================================================ */
+/* opsz-proofer -- the page's own CSS.
+ *
+ * The house system is NOT in this file. build.py injects shared/src/{type,space,
+ * corners,scrollbar}.css ahead of it, so the roles, the --pad-* scale, the corner
+ * law and the scrollbar come from wm-primitives at build time rather than as a
+ * snapshot that quietly rots. What lives here is only what the house leaves to the
+ * app: the palette, the bridge tokens AxisSlider reads, and this page's components.
+ *
+ * lint-tokens runs over this file, so every padding is a --pad-* step and every
+ * font-size is a --type-* role.
+ */
+
+  /* -- the app's palette. Values are the house standalone-page block. -- */
+
+  :root {
+    color-scheme: dark;
+
+    --bg: #0f0f0f;  --surface-1: #111111;  --surface-2: #1a1a1a;
+    --text: #e8e8e8;  --text-rgb: 232, 232, 232;
+    --border: #333333;  --border-subtle: #222222;
+    --accent: #e8e8e8;  --signal: #eeff41;
+    --radius: 8px;
+    --ui-font: "Face", system-ui, sans-serif;
+    --ui-fvs: "GEOM" 25;
+    --spec: "Newsreader", serif;
+
+    /* AxisSlider and the scrollbar read these; they are the ink levels by another
+       name, so the primitive keeps working without a fourth grey appearing. */
+    --text-muted: rgba(var(--text-rgb), var(--ink-quiet));
+    --text-dim:   rgba(var(--text-rgb), var(--ink-faint));
+    --track-empty: var(--surface-2);
+    --scrollbar-thumb: var(--surface-2);
+  }
+
+  @media (prefers-color-scheme: light) {
+    :root {
+      color-scheme: light;
+      --bg: #f5faff; --surface-1: #eaf3fb; --surface-2: #ddeaf6;
+      --text: #111111; --text-rgb: 17, 17, 17;
+      --border: #c4d8eb; --border-subtle: #d9e8f5;
+      --accent: #111111; --signal: #5c6b00;
+    }
+  }
+  :root[data-theme="light"] {
+    color-scheme: light;
+    --bg: #f5faff; --surface-1: #eaf3fb; --surface-2: #ddeaf6;
+    --text: #111111; --text-rgb: 17, 17, 17;
+    --border: #c4d8eb; --border-subtle: #d9e8f5;
+    --accent: #111111; --signal: #5c6b00;
+  }
+  :root[data-theme="dark"] {
+    color-scheme: dark;
+    --bg: #0f0f0f; --surface-1: #111111; --surface-2: #1a1a1a;
+    --text: #e8e8e8; --text-rgb: 232, 232, 232;
+    --border: #333333; --border-subtle: #222222;
+    --accent: #e8e8e8; --signal: #eeff41;
+  }
+
+  /* The non-role from TYPOGRAPHY.md: ui + tabular figures, so digits do not
+     jitter while a slider drags. type.css does not ship it yet. */
+  .readout { font-feature-settings: "tnum" 1; font-variant-numeric: tabular-nums; }
+
+  /* A circle on a square box. The corners.css exclusion list cannot know about
+     this page's own legend swatch, so it is named here. */
+  .swatch { corner-shape: round; }
+
+  /* ============================================================================
+     The page
+     ============================================================================ */
+
+  * { box-sizing: border-box; }
+
+  .page {
+    min-height: 100vh;
+    background: var(--bg);
+    color: rgba(var(--text-rgb), var(--ink-full));
+  }
+
+  /* -- header rail -- */
+
+  .bar {
+    position: sticky; top: 0; z-index: 40;
+    background: var(--surface-1);
+    border-bottom: 1px solid var(--border);
+    display: flex; flex-wrap: wrap; align-items: flex-end;
+    gap: var(--spacing-04) var(--spacing-06);
+    padding: var(--spacing-04) var(--spacing-05);
+  }
+
+  .brand { display: flex; flex-direction: column; gap: var(--hair); margin-right: var(--spacing-01); }
+
+  .field { display: flex; flex-direction: column; gap: var(--spacing-02); }
+
+  input[type="text"] {
+    font-family: var(--ui-font); color: rgba(var(--text-rgb), var(--ink-full));
+    background: var(--surface-2);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    padding: var(--spacing-01) var(--spacing-03);
+  }
+  input[type="text"]:focus-visible,
+  button:focus-visible, summary:focus-visible {
+    outline: 2px solid var(--signal); outline-offset: 1px;
+  }
+  /* The specimen field is the artifact under test: its setting is the user's,
+     so it is deliberately not on a role. */
+  .specimen-input {
+    width: 200px;
+    font-family: var(--spec);
+    font-size: 1.0625rem;
+    font-optical-sizing: none;
+  }
+
+  .seg { display: flex; border: 1px solid var(--border); border-radius: var(--radius); overflow: hidden; }
+  .seg button {
+    font-family: var(--ui-font);
+    background: var(--surface-2); color: rgba(var(--text-rgb), var(--ink-quiet));
+    border: 0; border-right: 1px solid var(--border);
+    padding: var(--spacing-02) var(--spacing-04); cursor: pointer;
+    transition: background var(--dur-fast), color var(--dur-fast);
+  }
+  .seg button:last-child { border-right: 0; }
+  .seg button:hover { color: rgba(var(--text-rgb), var(--ink-full)); }
+  .seg button[aria-pressed="true"] {
+    background: var(--accent); color: var(--bg);
+  }
+
+  .ghost {
+    font-family: var(--ui-font); color: rgba(var(--text-rgb), var(--ink-quiet));
+    background: var(--surface-2); border: 1px solid var(--border);
+    border-radius: var(--radius); padding: var(--spacing-02) var(--spacing-04); cursor: pointer;
+    transition: color var(--dur-fast);
+  }
+  .ghost:hover { color: rgba(var(--text-rgb), var(--ink-full)); }
+
+  /* The AxisSlider markup this page uses is styled by shared/src/AxisSlider.css,
+     injected by build.py. The primitive sets no width -- it takes the width of
+     whatever rail holds it -- so the two rails here give it one. */
+  .axis-rail { display: flex; gap: var(--spacing-06); align-items: flex-end; }
+  .axis-rail .slider-row,
+  .rail .slider-row,
+  .calib-body .slider-row { width: 184px; }
+
+  /* -- panels -- */
+
+  .panel { padding: var(--spacing-05) var(--spacing-05) var(--spacing-01); }
+  .panel + .panel { border-top: 1px solid var(--border-subtle); }
+  .panel-head { display: flex; align-items: baseline; gap: var(--spacing-04); flex-wrap: wrap; margin-bottom: var(--spacing-04); }
+  .panel-head h2 { margin: 0; }
+  .panel-head p { margin: 0; max-width: 64ch; }
+
+  /* -- proof grid -- */
+
+  .scroller {
+    overflow: auto; max-height: 72vh;
+    border: 1px solid var(--border-subtle);
+    border-radius: var(--radius);
+    background: var(--surface-1);
+  }
+
+  table.grid { border-collapse: separate; border-spacing: 0; }
+  table.grid th, table.grid td {
+    border-right: 1px solid var(--border-subtle);
+    border-bottom: 1px solid var(--border-subtle);
+    padding: 0;
+  }
+
+  table.grid thead th {
+    position: sticky; top: 0; z-index: 20;
+    background: var(--surface-1);
+    border-bottom: 1px solid var(--border);
+    font-weight: 400;
+    color: rgba(var(--text-rgb), var(--ink-quiet));
+    padding: var(--spacing-02) var(--spacing-04);
+    text-align: left; white-space: nowrap;
+  }
+  table.grid thead th .sub { display: block; color: rgba(var(--text-rgb), var(--ink-faint)); }
+  table.grid thead th.corner { left: 0; z-index: 30; border-right: 1px solid var(--border); }
+
+  table.grid th.rowhead {
+    position: sticky; left: 0; z-index: 10;
+    background: var(--surface-1);
+    border-right: 1px solid var(--border);
+    font-weight: 400;
+    color: rgba(var(--text-rgb), var(--ink-full));
+    padding: var(--spacing-02) var(--spacing-04);
+    text-align: right; white-space: nowrap; vertical-align: middle;
+  }
+  table.grid th.rowhead em {
+    display: block; font-style: normal;
+    font-size: var(--type-micro-size);
+    color: rgba(var(--text-rgb), var(--ink-faint));
+  }
+
+  td.cell { vertical-align: middle; background: var(--surface-1); }
+  /* Where the axis value matches the render size. One signal: a rule under the
+     words, the quietest there is - no tint, no hue. */
+  td.cell.track .spec {
+    text-decoration: underline;
+    text-decoration-thickness: 1px;
+    text-underline-offset: .22em;
+    text-decoration-color: rgba(var(--text-rgb), var(--ink-faint));
+  }
+
+  /* The specimen. Nothing here is on a role: size and axes are the user's. */
+  .spec {
+    display: inline-block;
+    font-family: var(--spec);
+    font-optical-sizing: none;
+    color: rgba(var(--text-rgb), var(--ink-full));
+    white-space: nowrap;
+    line-height: 1.26;
+    padding: var(--spacing-01) var(--spacing-04);
+  }
+  .spec.auto { font-optical-sizing: auto; }
+
+  tr.hot td.cell { background: var(--surface-2); }
+
+  /* -- shape ladder -- */
+
+  .ladder-wrap { display: flex; gap: var(--spacing-06); align-items: flex-start; flex-wrap: wrap; }
+  .stage {
+    position: relative; flex: 1 1 520px; min-width: 300px;
+    border: 1px solid var(--border-subtle); border-radius: var(--radius);
+    background: var(--surface-1); overflow: auto; padding: var(--spacing-06);
+  }
+
+  /* One stack per character: every sample sits in the same grid cell, so the
+     contours share a glyph origin and the cell sizes to the widest sample. */
+  .onion-row { display: flex; gap: var(--spacing-07); align-items: flex-start; flex-wrap: wrap; }
+  .onion { display: grid; justify-items: start; }
+  .onion .layer {
+    grid-area: 1 / 1;
+    font-family: var(--spec); font-optical-sizing: none;
+    white-space: pre; line-height: 1;
+    transition: color var(--dur-fast) ease;
+  }
+
+  .stack-row {
+    display: flex; align-items: baseline; gap: var(--spacing-04);
+    padding: var(--spacing-01) 0; border-bottom: 1px solid var(--border-subtle);
+  }
+  .stack-row:last-child { border-bottom: 0; }
+  .stack-row .tag { width: 48px; flex: none; text-align: right; color: rgba(var(--text-rgb), var(--ink-faint)); }
+  .stack-row .spec { padding: 0; line-height: 1.08; }
+
+  .rail { display: flex; flex-direction: column; gap: var(--spacing-04); flex: 0 0 192px; }
+  .legend { display: flex; flex-direction: column; gap: var(--hair); }
+  .legend .chip {
+    display: flex; align-items: center; gap: var(--spacing-03);
+    font-family: var(--ui-font);
+    color: rgba(var(--text-rgb), var(--ink-quiet));
+    background: transparent; border: 0; border-radius: var(--radius);
+    padding: var(--spacing-01) var(--spacing-03); cursor: pointer; text-align: left; width: 100%;
+    transition: background var(--dur-fast), color var(--dur-fast);
+  }
+  .legend .chip:hover { background: var(--surface-2); }
+  .legend .chip[data-pin="a"] { color: var(--signal); }
+  .legend .chip[data-pin="b"] { color: rgba(var(--text-rgb), var(--ink-full)); }
+  .legend .swatch {
+    width: 8px; height: 8px; flex: none; border-radius: 50%;
+    background: currentColor; opacity: var(--ink-faint);
+  }
+  .legend .chip[data-pin] .swatch { opacity: 1; }
+
+  /* -- calibration -- */
+
+  details.calib { margin: 0 0 var(--spacing-04); }
+  details.calib summary {
+    color: rgba(var(--text-rgb), var(--ink-faint));
+    cursor: pointer; list-style: none;
+  }
+  details.calib summary::-webkit-details-marker { display: none; }
+  details.calib summary::before { content: "+  "; }
+  details.calib[open] summary::before { content: "-  "; }
+  .calib-body { display: flex; align-items: center; gap: var(--spacing-05); flex-wrap: wrap; padding: var(--spacing-04) 0 var(--spacing-02); }
+  .card-ref {
+    height: 48px; border: 1px dashed var(--border); border-radius: var(--radius);
+    display: flex; align-items: center; justify-content: center;
+    color: rgba(var(--text-rgb), var(--ink-faint));
+  }
+
+  .note { max-width: 70ch; padding: var(--spacing-02) var(--spacing-05) var(--spacing-07); color: rgba(var(--text-rgb), var(--ink-quiet)); }
+  .note b { font-weight: 400; color: var(--signal); }
+
+  .page.dragging { outline: 2px solid var(--signal); outline-offset: -2px; }
+
+  @media (prefers-reduced-motion: reduce) {
+    .page *, .page *::before, .page *::after { transition: none; animation: none; }
+  }
+  }
+</style>
+</head>
+<body>
+
+<div class="page t-ui" id="page">
+
+  <div class="bar">
+    <div class="brand">
+      <b class="t-title">Optical Size Proofer</b>
+      <span class="t-ui ink-quiet" id="fontName">Newsreader</span>
+    </div>
+
+    <div class="field">
+      <label class="t-label ink-full" for="txt">Specimen</label>
+      <input type="text" id="txt" class="specimen-input" value="vwx" spellcheck="false" />
+    </div>
+
+    <div class="field">
+      <span class="t-label ink-full">Grid axis</span>
+      <div class="seg t-ui" id="gridAxisSeg"></div>
+    </div>
+
+    <div class="axis-rail" id="axisCtls"></div>
+
+    <div class="field">
+      <label class="t-label ink-full" for="sizeList">Render sizes</label>
+      <input type="text" id="sizeList" class="t-ui readout" style="width:248px" value="6 7 8 9 10 11 12 14 16 18 24 36 48 72" spellcheck="false" />
+    </div>
+
+    <div class="field">
+      <label class="t-label ink-full" for="opszList">Axis samples</label>
+      <input type="text" id="opszList" class="t-ui readout" style="width:200px" value="6 8 10 12 14 18 24 36 48 72" spellcheck="false" />
+    </div>
+
+    <div class="field">
+      <span class="t-label ink-full">Size unit</span>
+      <div class="seg t-ui" id="unitSeg">
+        <button type="button" data-unit="pt" aria-pressed="true">pt</button>
+        <button type="button" data-unit="px" aria-pressed="false">px</button>
+      </div>
+    </div>
+
+    <div class="field">
+      <span class="t-label ink-full">Font</span>
+      <button type="button" class="ghost t-ui" id="loadBtn">Load .ttf</button>
+      <input type="file" id="fileIn" accept=".ttf,.otf,.woff2,.woff" hidden />
+    </div>
+  </div>
+
+  <section class="panel">
+    <div class="panel-head">
+      <h2 class="t-lede ink-full">Proof grid</h2>
+      <p class="t-ui ink-quiet">Every row is a render size; every column pins the optical-size axis at one value. An underlined cell is where the axis value matches the size &mdash; the mapping you get for free. Read down a column to watch one axis value hold up, or fail, across the range.</p>
+    </div>
+
+    <details class="calib">
+      <summary class="t-ui">True-size calibration</summary>
+      <div class="calib-body">
+        <div class="card-ref t-ui" id="cardRef">ID card &mdash; 85.6 mm</div>
+        <div class="slider-row" style="width:200px">
+          <div class="slider-label">
+            <span class="slider-label-left">
+              <span class="slider-label-text t-ui">screen</span>
+            </span>
+            <span class="slider-value">
+              <input class="slider-number t-ui readout" type="number" id="calibNum" min="120" max="700" step="1" />
+              <span class="slider-suffix t-micro">ppi</span>
+            </span>
+          </div>
+          <div class="slider-track-wrap"><input type="range" id="calib" min="180" max="620" step="1" value="323" /></div>
+        </div>
+        <span class="t-ui ink-quiet" style="max-width:34ch">Drag until the box matches a real card. Then <b>pt</b> rows are physically true on this screen.</span>
+      </div>
+    </details>
+
+    <div class="scroller" id="gridScroll">
+      <table class="grid t-ui readout" id="grid"></table>
+    </div>
+  </section>
+
+  <section class="panel">
+    <div class="panel-head">
+      <h2 class="t-lede ink-full">Shape ladder</h2>
+      <p class="t-ui ink-quiet">Outline shape is a function of the axis alone, so this drops the size dimension and superimposes every sample at one display size. Bracket growth, hairline thinning, and terminal changes read as the spread between contours. Click two values to compare them directly.</p>
+    </div>
+
+    <div class="ladder-wrap">
+      <div class="stage" id="stage"></div>
+      <div class="rail">
+        <div class="field">
+          <span class="t-label ink-full">View</span>
+          <div class="seg t-ui" id="ladderSeg">
+            <button type="button" data-mode="onion" aria-pressed="true">Overlay</button>
+            <button type="button" data-mode="stack" aria-pressed="false">Stack</button>
+          </div>
+        </div>
+        <div class="slider-row">
+          <div class="slider-label">
+            <span class="slider-label-left">
+              <span class="slider-label-text t-ui">display size</span>
+            </span>
+            <span class="slider-value">
+              <input class="slider-number t-ui readout" type="number" id="ladderNum" min="60" max="420" step="2" value="180" />
+              <span class="slider-suffix t-micro">px</span>
+            </span>
+          </div>
+          <div class="slider-track-wrap"><input type="range" id="ladderSize" min="60" max="420" step="2" value="180" /></div>
+        </div>
+        <div class="legend t-ui readout" id="legend"></div>
+      </div>
+    </div>
+  </section>
+
+  <p class="note t-ui">
+    The <b>auto</b> column is the browser's own mapping, what a reader gets when nobody sets the axis. Every other cell pins it explicitly &mdash; and a pinned axis against a changing size is exactly the deliberate mismatch the type law calls a spent signal rather than a free compensation. Drop any variable font on this page to proof it instead; axes come from <b>fvar</b>.
+  </p>
+
+</div>
+
+<script>
+(function () {
+  "use strict";
+
+  const state = {
+    text: "vwx",
+    sizes: [6, 7, 8, 9, 10, 11, 12, 14, 16, 18, 24, 36, 48, 72],
+    samples: [6, 8, 10, 12, 14, 18, 24, 36, 48, 72],
+    unit: "pt",
+    calibPx: 323,
+    axes: [
+      { tag: "opsz", min: 6, def: 18, max: 72 },
+      { tag: "wght", min: 200, def: 400, max: 800 }
+    ],
+    gridAxis: "opsz",
+    others: { wght: 400 },
+    ladderMode: "onion",
+    ladderSize: 180,
+    pinA: null,
+    pinB: null
+  };
+
+  const $ = (id) => document.getElementById(id);
+  const esc = (s) => String(s).replace(/&/g, "&amp;").replace(/</g, "&lt;")
+    .replace(/>/g, "&gt;").replace(/"/g, "&quot;");
+
+  const pxPerUnit = () =>
+    state.unit === "px" ? 1 : (25.4 / 72) * (state.calibPx / 85.6);
+
+  function fvs(axisValue) {
+    const parts = [];
+    if (axisValue !== null) parts.push('"' + state.gridAxis + '" ' + axisValue);
+    for (const tag in state.others) {
+      if (tag !== state.gridAxis) parts.push('"' + tag + '" ' + state.others[tag]);
+    }
+    return parts.length ? parts.join(", ") : "normal";
+  }
+
+  function parseNums(str, lo, hi) {
+    const out = [];
+    for (const tok of str.split(/[\s,]+/)) {
+      const n = parseFloat(tok);
+      if (!isNaN(n) && n >= lo && n <= hi && out.indexOf(n) === -1) out.push(n);
+    }
+    return out.sort((a, b) => a - b);
+  }
+
+  const gridAxisDef = () =>
+    state.axes.find((a) => a.tag === state.gridAxis) || { min: 6, def: 18, max: 72 };
+
+  function niceSteps(min, max) {
+    const out = [];
+    for (let i = 0; i < 8; i++) out.push(Math.round(min + (max - min) * (i / 7)));
+    return out.filter((v, i, a) => a.indexOf(v) === i);
+  }
+
+  function resetPins() {
+    state.pinA = state.samples[0];
+    state.pinB = state.samples[state.samples.length - 1];
+  }
+
+  /* -- proof grid -- */
+
+  function nearestSample(size) {
+    let best = null, bestD = Infinity;
+    for (const s of state.samples) {
+      const d = Math.abs(s - size);
+      if (d < bestD) { bestD = d; best = s; }
+    }
+    return bestD <= Math.max(1.5, size * 0.16) ? best : null;
+  }
+
+  function renderGrid() {
+    const ppu = pxPerUnit();
+    const ax = state.gridAxis;
+
+    let html = '<thead><tr><th class="corner">size<span class="sub t-micro">' + state.unit +
+      '</span></th><th>auto<span class="sub t-micro">browser</span></th>';
+    for (const s of state.samples) {
+      html += "<th>" + s + '<span class="sub t-micro">' + ax + "</span></th>";
+    }
+    html += "</tr></thead><tbody>";
+
+    for (const size of state.sizes) {
+      const cssPx = size * ppu;
+      const track = nearestSample(size);
+      html += '<tr data-size="' + size + '"><th class="rowhead">' + size +
+        (state.unit === "pt" ? "<em>" + cssPx.toFixed(1) + " px</em>" : "") + "</th>";
+      html += '<td class="cell"><span class="spec auto" style="font-size:' + cssPx +
+        "px;font-variation-settings:" + esc(fvs(null)) + '">' + esc(state.text) + "</span></td>";
+      for (const s of state.samples) {
+        html += '<td class="cell' + (s === track ? " track" : "") + '">' +
+          '<span class="spec" style="font-size:' + cssPx + "px;font-variation-settings:" +
+          esc(fvs(s)) + '">' + esc(state.text) + "</span></td>";
+      }
+      html += "</tr>";
+    }
+    $("grid").innerHTML = html + "</tbody>";
+  }
+
+  /* -- shape ladder --
+     Ink carries the field; --signal points at one of the two values under
+     discussion. No zone colours: those are a ReCal-scoped vocabulary and mean
+     nothing here. */
+
+  function layerColor(value) {
+    if (value === state.pinA) return "var(--signal)";
+    if (value === state.pinB) return "rgba(var(--text-rgb), var(--ink-full))";
+    return "rgba(var(--text-rgb), .12)";
+  }
+
+  function renderLadder() {
+    const size = state.ladderSize;
+    let html;
+
+    if (state.ladderMode === "stack") {
+      html = "";
+      for (const s of state.samples) {
+        html += '<div class="stack-row"><span class="tag t-ui readout">' + s + "</span>" +
+          '<span class="spec" style="font-size:' + size + "px;font-variation-settings:" +
+          esc(fvs(s)) + ";color:" + layerColor(s) + '">' + esc(state.text) + "</span></div>";
+      }
+    } else {
+      const chars = Array.from(state.text).filter((c) => c.trim() !== "");
+      html = '<div class="onion-row">';
+      for (const ch of chars) {
+        html += '<div class="onion">';
+        for (const s of state.samples) {
+          html += '<span class="layer" style="font-size:' + size + "px;font-variation-settings:" +
+            esc(fvs(s)) + ";color:" + layerColor(s) + '">' + esc(ch) + "</span>";
+        }
+        html += "</div>";
+      }
+      html += "</div>";
+    }
+    $("stage").innerHTML = html;
+  }
+
+  function renderLegend() {
+    let html = "";
+    for (const s of state.samples) {
+      const pin = s === state.pinA ? "a" : (s === state.pinB ? "b" : null);
+      html += '<button type="button" class="chip"' + (pin ? ' data-pin="' + pin + '"' : "") +
+        ' data-val="' + s + '"><span class="swatch"></span>' +
+        state.gridAxis + " " + s + "</button>";
+    }
+    $("legend").innerHTML = html;
+  }
+
+  /* -- axis controls (wm-primitives AxisSlider) -- */
+
+  function sliderRow(tag, min, max, value) {
+    return '<div class="slider-row" data-row="' + tag + '">' +
+      '<div class="slider-label"><span class="slider-label-left">' +
+      '<span class="slider-label-text t-ui">' + tag + "</span>" +
+      '<span class="slider-range t-micro readout">' + min + "\u2013" + max + "</span></span>" +
+      '<span class="slider-value"><input class="slider-number t-ui readout" type="number" ' +
+      'data-num="' + tag + '" min="' + min + '" max="' + max + '" step="1" value="' + value + '" />' +
+      "</span></div>" +
+      '<div class="slider-track-wrap"><input type="range" data-axis="' + tag + '" min="' + min +
+      '" max="' + max + '" step="1" value="' + value + '" /></div></div>';
+  }
+
+  function renderAxisControls() {
+    let seg = "";
+    for (const a of state.axes) {
+      seg += '<button type="button" data-tag="' + a.tag + '" aria-pressed="' +
+        (a.tag === state.gridAxis) + '">' + a.tag + "</button>";
+    }
+    $("gridAxisSeg").innerHTML = seg;
+
+    let html = "";
+    for (const a of state.axes) {
+      if (a.tag === state.gridAxis) continue;
+      if (state.others[a.tag] === undefined) state.others[a.tag] = a.def;
+      html += sliderRow(a.tag, a.min, a.max, state.others[a.tag]);
+    }
+    $("axisCtls").innerHTML = html;
+
+    $("axisCtls").querySelectorAll("[data-axis], [data-num]").forEach((el) => {
+      el.addEventListener("input", () => {
+        const tag = el.dataset.axis || el.dataset.num;
+        const v = +el.value;
+        if (isNaN(v)) return;
+        state.others[tag] = v;
+        const row = $("axisCtls").querySelector('[data-row="' + tag + '"]');
+        row.querySelector("[data-axis]").value = v;
+        row.querySelector("[data-num]").value = v;
+        renderGrid(); renderLadder();
+      });
+    });
+
+    // Scroll-to-adjust, matching AxisSlider.
+    $("axisCtls").querySelectorAll(".slider-row").forEach((row) => {
+      row.addEventListener("wheel", (e) => {
+        e.preventDefault();
+        const tag = row.dataset.row;
+        const r = row.querySelector("[data-axis]");
+        const next = Math.min(+r.max, Math.max(+r.min, state.others[tag] + (e.deltaY < 0 ? 1 : -1)));
+        state.others[tag] = next;
+        r.value = next;
+        row.querySelector("[data-num]").value = next;
+        renderGrid(); renderLadder();
+      }, { passive: false });
+    });
+  }
+
+  function renderAll() { renderGrid(); renderLadder(); renderLegend(); }
+
+  /* -- fvar -- */
+
+  function parseFvar(buf) {
+    const dv = new DataView(buf);
+    let base = 0;
+    if (dv.getUint32(0) === 0x74746366) base = dv.getUint32(12); // 'ttcf'
+    const numTables = dv.getUint16(base + 4);
+    let fvarOff = null;
+    for (let i = 0; i < numTables; i++) {
+      const p = base + 12 + i * 16;
+      const tag = String.fromCharCode(dv.getUint8(p), dv.getUint8(p + 1), dv.getUint8(p + 2), dv.getUint8(p + 3));
+      if (tag === "fvar") fvarOff = dv.getUint32(p + 8);
+    }
+    if (fvarOff === null) return [];
+    const arrOff = dv.getUint16(fvarOff + 4);
+    const count = dv.getUint16(fvarOff + 8);
+    const size = dv.getUint16(fvarOff + 10);
+    const axes = [];
+    for (let i = 0; i < count; i++) {
+      const p = fvarOff + arrOff + i * size;
+      axes.push({
+        tag: String.fromCharCode(dv.getUint8(p), dv.getUint8(p + 1), dv.getUint8(p + 2), dv.getUint8(p + 3)),
+        min: dv.getInt32(p + 4) / 65536,
+        def: dv.getInt32(p + 8) / 65536,
+        max: dv.getInt32(p + 12) / 65536
+      });
+    }
+    return axes;
+  }
+
+  let faceCount = 0;
+
+  async function loadFontFile(file) {
+    const buf = await file.arrayBuffer();
+    let axes = [];
+    try { axes = parseFvar(buf); } catch (err) { axes = []; }
+
+    const fam = "SpecUser" + (++faceCount);
+    const face = new FontFace(fam, buf);
+    try {
+      await face.load();
+    } catch (err) {
+      $("fontName").textContent = file.name + " \u2014 could not load";
+      return;
+    }
+    document.fonts.add(face);
+    document.documentElement.style.setProperty("--spec", '"' + fam + '", serif');
+    $("fontName").textContent = file.name.replace(/\.(ttf|otf|woff2?|woff)$/i, "");
+
+    if (!axes.length) {
+      $("fontName").textContent += " \u2014 static, no fvar";
+      state.axes = [];
+      state.others = {};
+      $("gridAxisSeg").innerHTML = "";
+      $("axisCtls").innerHTML = "";
+      renderAll();
+      return;
+    }
+
+    state.axes = axes;
+    state.gridAxis = axes.some((a) => a.tag === "opsz") ? "opsz" : axes[0].tag;
+    state.others = {};
+    for (const a of axes) if (a.tag !== state.gridAxis) state.others[a.tag] = a.def;
+    state.samples = niceSteps(gridAxisDef().min, gridAxisDef().max);
+    $("opszList").value = state.samples.join(" ");
+    resetPins();
+    renderAxisControls();
+    renderAll();
+  }
+
+  /* -- wiring -- */
+
+  $("txt").addEventListener("input", (e) => {
+    state.text = e.target.value || " ";
+    renderGrid(); renderLadder();
+  });
+
+  $("sizeList").addEventListener("change", (e) => {
+    const v = parseNums(e.target.value, 1, 800);
+    if (v.length) { state.sizes = v; renderGrid(); }
+    e.target.value = state.sizes.join(" ");
+  });
+
+  $("opszList").addEventListener("change", (e) => {
+    const d = gridAxisDef();
+    const v = parseNums(e.target.value, d.min, d.max);
+    if (v.length) { state.samples = v; resetPins(); renderAll(); }
+    e.target.value = state.samples.join(" ");
+  });
+
+  $("gridAxisSeg").addEventListener("click", (e) => {
+    const b = e.target.closest("button[data-tag]");
+    if (!b) return;
+    state.gridAxis = b.dataset.tag;
+    state.samples = niceSteps(gridAxisDef().min, gridAxisDef().max);
+    $("opszList").value = state.samples.join(" ");
+    resetPins();
+    renderAxisControls();
+    renderAll();
+  });
+
+  $("unitSeg").addEventListener("click", (e) => {
+    const b = e.target.closest("button[data-unit]");
+    if (!b) return;
+    state.unit = b.dataset.unit;
+    for (const el of $("unitSeg").children) el.setAttribute("aria-pressed", el === b);
+    renderGrid();
+  });
+
+  $("ladderSeg").addEventListener("click", (e) => {
+    const b = e.target.closest("button[data-mode]");
+    if (!b) return;
+    state.ladderMode = b.dataset.mode;
+    for (const el of $("ladderSeg").children) el.setAttribute("aria-pressed", el === b);
+    renderLadder();
+  });
+
+  function setLadderSize(v) {
+    state.ladderSize = v;
+    $("ladderSize").value = v;
+    $("ladderNum").value = v;
+    renderLadder();
+  }
+  $("ladderSize").addEventListener("input", (e) => setLadderSize(+e.target.value));
+  $("ladderNum").addEventListener("input", (e) => {
+    const v = +e.target.value;
+    if (!isNaN(v) && v >= 60 && v <= 420) setLadderSize(v);
+  });
+
+  // Clicking cycles a value through: pointed at (A) -> compared (B) -> off.
+  $("legend").addEventListener("click", (e) => {
+    const b = e.target.closest(".chip");
+    if (!b) return;
+    const v = +b.dataset.val;
+    if (v === state.pinA) { state.pinA = state.pinB; state.pinB = v; }
+    else if (v === state.pinB) { state.pinB = null; }
+    else { state.pinB = state.pinA; state.pinA = v; }
+    renderLadder(); renderLegend();
+  });
+
+  $("grid").addEventListener("mouseover", (e) => {
+    const tr = e.target.closest("tr[data-size]");
+    document.querySelectorAll("tr.hot").forEach((r) => r.classList.remove("hot"));
+    if (tr) tr.classList.add("hot");
+  });
+  $("gridScroll").addEventListener("mouseleave", () => {
+    document.querySelectorAll("tr.hot").forEach((r) => r.classList.remove("hot"));
+  });
+
+  function applyCalib(px) {
+    state.calibPx = px;
+    $("cardRef").style.width = px + "px";
+    $("calib").value = px;
+    $("calibNum").value = Math.round(px / 85.6 * 25.4);
+    try { localStorage.setItem("opszProofCalib", String(px)); } catch (err) {}
+  }
+  $("calib").addEventListener("input", (e) => {
+    applyCalib(+e.target.value);
+    if (state.unit === "pt") renderGrid();
+  });
+  $("calibNum").addEventListener("input", (e) => {
+    const ppi = +e.target.value;
+    if (isNaN(ppi) || ppi < 120 || ppi > 700) return;
+    applyCalib(ppi * 85.6 / 25.4);
+    if (state.unit === "pt") renderGrid();
+  });
+
+  $("loadBtn").addEventListener("click", () => $("fileIn").click());
+  $("fileIn").addEventListener("change", (e) => {
+    if (e.target.files[0]) loadFontFile(e.target.files[0]);
+  });
+
+  const page = $("page");
+  ["dragenter", "dragover"].forEach((t) =>
+    page.addEventListener(t, (e) => { e.preventDefault(); page.classList.add("dragging"); }));
+  ["dragleave", "drop"].forEach((t) =>
+    page.addEventListener(t, (e) => { e.preventDefault(); page.classList.remove("dragging"); }));
+  page.addEventListener("drop", (e) => {
+    const f = e.dataTransfer.files[0];
+    if (f) loadFontFile(f);
+  });
+
+  /* -- boot -- */
+
+  let saved = null;
+  try { saved = localStorage.getItem("opszProofCalib"); } catch (err) {}
+  applyCalib(saved ? +saved : 323);
+
+  resetPins();
+  renderAxisControls();
+  renderAll();
+  if (document.fonts && document.fonts.ready) document.fonts.ready.then(renderAll);
+})();
+</script>
+</body>
+</html>
