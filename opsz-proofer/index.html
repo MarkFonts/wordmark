@@ -355,16 +355,16 @@ input[type="range"]::-moz-range-thumb { corner-shape: round; }
 
 * {
   scrollbar-width: thin;
-  scrollbar-color: var(--scrollbar-thumb, var(--border, rgba(128, 128, 128, 0.5))) transparent;
+  scrollbar-color: var(--scrollbar-thumb, var(--border)) transparent;
 }
 ::-webkit-scrollbar { width: 6px; height: 6px; }
 ::-webkit-scrollbar-track { background: transparent; }
 ::-webkit-scrollbar-thumb {
-  background: var(--scrollbar-thumb, var(--border, rgba(128, 128, 128, 0.5)));
+  background: var(--scrollbar-thumb, var(--border));
   border-radius: 3px;
 }
 ::-webkit-scrollbar-thumb:hover {
-  background: var(--scrollbar-thumb-hover, var(--text-dim, rgba(160, 160, 160, 0.8)));
+  background: var(--scrollbar-thumb-hover, var(--text-dim));
 }
 ::-webkit-scrollbar-corner { background: transparent; }
 
@@ -372,260 +372,563 @@ input[type="range"]::-moz-range-thumb { corner-shape: round; }
 /* AxisSlider — moved from the font-proofer slider CSS, with token fallbacks so it
    themes in both apps (font-proofer --bg-* / --track-empty and ReCal --surface-*).
    The number field stays essentially native: color-scheme drives its light/dark
-   up/down steppers, so each app just needs color-scheme on its root. */
+   up/down steppers, so each app just needs color-scheme on its root.
 
-.slider-row { display: flex; flex-direction: column; gap: 3px; }
-.slider-row--off { opacity: 0.4; }
+   EVERYTHING HERE IS LAYERED, and that is the interface.
 
-.slider-label { display: flex; align-items: center; justify-content: space-between; gap: 6px; }
-.slider-label-left {
-  display: flex; align-items: baseline; gap: var(--spacing-01, 4px);
-  min-width: 0; overflow: visible; padding-bottom: var(--nudge, 2px);
-}
-.slider-label-text {
-  font-size: var(--type-ui-size);
-  color: var(--text-muted);
-  font-family: var(--ui-font, system-ui, sans-serif);
-  white-space: nowrap; overflow: visible; text-overflow: clip;
-}
-.slider-label-text--tagged { flex: 0 0 105px; }
-.slider-tag {
-  font-size: var(--type-micro-size);
-  color: var(--text-muted);
-  font-family: var(--ui-font, system-ui, sans-serif);
-  letter-spacing: 0;              /* the tag is lowercase: the caps token does not apply */
-  flex-shrink: 0;
-  font-feature-settings: "tnum";
-}
-/* min–max readout: quieter than the tag, tabular so it doesn't jitter while dragging */
-.slider-range {
-  color: var(--text-dim);
-  font-variant-numeric: tabular-nums;
-  white-space: nowrap;
-}
+   An unlayered rule beats any layered one at any specificity, so an app can always
+   override a primitive without knowing or matching how this file writes its selectors.
+   Before the layer, it could not: font-proofer dressed the value field with
+   `input[type="text"].slider-number` and the only way past it was to out-specify it,
+   which took three attempts -- `.slider-row--track .slider-number` lost, then
+   `input.slider-number` tied and lost on source order, and only
+   `input[type="text"].slider-number` with a row class won. Each fix made the next
+   collision worse, and none of it was visible until something silently did nothing.
 
-/* value = optional ◆ marker + the editable number/auto field */
-.slider-value { display: flex; align-items: baseline; gap: var(--spacing-01, 4px); flex-shrink: 0; }
-.slider-marker {
-  font-size: var(--type-micro-size); line-height: 1;
-  color: var(--marker-default, var(--accent, currentColor));
-  transform: translateY(-1px);
-}
-.slider-number {
-  font-family: var(--ui-font, system-ui, sans-serif);
-  font-size: var(--type-ui-size);
-  color: var(--text);
-  background: transparent;
-  border: none;
-  text-align: right;
-  width: 66px;
-  padding: var(--nudge, 2px) 0;
-  font-feature-settings: "tnum";
-  color-scheme: inherit;
-}
-.slider-number:focus { outline: none; }
+   So: theme through TOKENS (--border, --radius, --accent, --bg-elevated), choose
+   behaviour through PROPS (variant, field), and reach in with a selector only as a last
+   resort -- where the layer now guarantees you win on the first try.
 
-.slider-auto-btn {
-  font: inherit;
-  font-size: var(--type-micro-size, 0.5625rem);
-  letter-spacing: 0;              /* lowercase, like the tag above: no caps token */
-  text-transform: lowercase;
-  padding: 0 var(--spacing-02, 6px);
-  margin-left: var(--nudge, 2px);
-  min-height: 16px;
-  border: 1px solid var(--border);
-  border-radius: 999px;
-  corner-shape: superellipse(var(--corner-k, 1.2));
-  background: none;
-  color: var(--text-muted, var(--text));
-  cursor: pointer;
-}
-.slider-auto-btn:hover { color: var(--text); }
-.slider-auto-btn--on { background: var(--text); color: var(--bg, var(--surface)); border-color: var(--text); }
-.slider-auto-btn:focus-visible { outline: 2px solid var(--accent, currentColor); outline-offset: 1px; }
-@media (pointer: coarse) { .slider-auto-btn { min-height: 32px; padding: 0 var(--spacing-03, 8px); } }
+   Same decision as color.css and type.css, applied to the control layer. */
+@layer wm.controls {
+  .slider-row { display: flex; flex-direction: column; gap: 3px; }
+  .slider-row--off { opacity: 0.4; }
 
-/* ── the stepper ─────────────────────────────────────────────────────────────
-   Ours, because a text field has no native one — and because the native one could
-   never be styled the same way twice: font-proofer forced WebKit's visible with an
-   opacity hack that did nothing in Firefox, and ReCal left it hidden until hover, so
-   one primitive drew two different controls. This draws one.
+  .slider-label { display: flex; align-items: center; justify-content: space-between; gap: 6px; }
+  .slider-label-left {
+    display: flex; align-items: baseline; gap: var(--spacing-01, 4px);
+    /* Takes the row's leftover rather than collapsing to its own content. On flex:0 1 auto
+       it sized to content, which starved the label of its 105px column and let the tag
+       land wherever the label happened to end -- a ragged tag edge down the rail. */
+    flex: 1 1 auto;
+    min-width: 0; overflow: visible; padding-bottom: var(--nudge, 2px);
+  }
+  .slider-label-text {
+    font-size: var(--type-ui-size);
+    color: var(--text-muted);
+    font-family: var(--ui-font, system-ui, sans-serif);
+    white-space: nowrap; overflow: visible; text-overflow: clip;
+  }
+  /* The name is never clipped. It shared a fixed column with the auto pill, and the pill
+     pushed "Optical Size" into "Optical Si..." -- trading a whole word for five pixels of
+     alignment, which is the wrong way round. A truncated name is a worse defect than a
+     tag that sits five pixels right of its neighbours. */
+  .slider-label-name { white-space: nowrap; }
+  /* One column, so the tags line up down the rail -- but shrinkable, and the NAME is what
+     gives way, never the tag. At font-proofer's sidebar width the row has 227px: a RIGID
+     105px plus the tag plus the value group wants 240, and with nothing allowed to yield
+     the tag spilled 13px past its own container. The value field, which the host paints
+     with a background, then covered the last letter: "opsz" read as "ops". Ellipsis rather
+     than clip, because the tag already names the axis -- the long name is the half that
+     can afford to lose a character. */
+  .slider-label-text--tagged {
+    /* ONE column width for the whole rail, so every tag lands on the same x -- a rail
+       whose abbreviations do not line up looks broken even when each row is fine on its
+       own. A component cannot measure its siblings, so the width is a property the rail
+       sets once: raise --axis-label-w wherever a row carries the auto pill (or a long
+       name), and every row moves together. The 105px default is the widest bare name in
+       the house rails ("Ascender Height", 96px) plus air.
+       Never clip to hold the column -- see .slider-label-name. */
+    min-width: var(--axis-label-w, 105px);
+    flex: 0 0 auto;
+    display: inline-flex;
+    align-items: baseline;
+    gap: var(--spacing-01, 4px);
+  }
+  .slider-tag {
+    font-size: var(--type-micro-size);
+    color: var(--text-muted);
+    font-family: var(--ui-font, system-ui, sans-serif);
+    letter-spacing: 0;              /* the tag is lowercase: the caps token does not apply */
+    flex-shrink: 0;
+    font-feature-settings: "tnum";
+  }
+  /* min–max readout: quieter than the tag, tabular so it doesn't jitter while dragging */
+  .slider-range {
+    color: var(--text-dim);
+    font-variant-numeric: tabular-nums;
+    white-space: nowrap;
+  }
 
-   Revealed on approach, not always on. A rail of eight dials with sixteen permanent
-   arrowheads is noise, and the field and the track are already two ways in before the
-   arrows are a third. */
-.slider-step {
-  display: inline-flex;
-  flex-direction: column;
-  margin-left: var(--nudge, 2px);
-  opacity: 0;
-  transition: opacity var(--dur-fast, .12s);
-  /* HUNG, not reserved. A hidden stepper still owned its column, so every row paid
-     ~16px -- a quarter of the field -- for something most people never see appear.
-     Out of flow it costs nothing at rest, the field hugs its digits, and nothing
-     shifts when the arrows arrive because they were never in the layout.
-     They land where the suffix is, and the suffix yields as they come: one slot,
-     two occupants, never empty. On a coarse pointer they are permanent (below), and
-     a permanent thing IS part of the object, so there they go back in flow and are
-     measured with it. */
-  position: absolute;
-  left: 100%;
-  top: 0;
-  bottom: 0;
-  justify-content: center;
-}
-.slider-value { position: relative; }
-.slider-row:hover .slider-step,
-.slider-row:focus-within .slider-step { opacity: 1; }
-/* One trigger for both halves of the swap, and the same duration, or for 120ms there
-   are two things in one place. --hidden stays for the focus case the component sets
-   in JS; this adds the hover case it could not see. */
-.slider-row:hover .slider-suffix,
-.slider-row:focus-within .slider-suffix { opacity: 0; }
-.slider-suffix { transition: opacity var(--dur-fast, .12s); }
+  /* value = optional ◆ marker + the editable number/auto field */
+  .slider-value { display: flex; align-items: baseline; gap: var(--spacing-01, 4px); flex-shrink: 0; }
+  .slider-marker {
+    font-size: var(--type-micro-size); line-height: 1;
+    color: var(--marker-default, var(--accent, currentColor));
+    transform: translateY(-1px);
+  }
+  /* THE FIELD, and the primitive owns all of it. font-proofer used to dress this itself --
+     a box, a border, a 64px width and its own focus colour -- while ReCal styled none of
+     it, so the same component wore two different clothes and each app fought the other's
+     rules on specificity. The house treatment lives here now; an app that wants the box
+     asks for it (field="box") rather than reaching in.
 
-/* SVG chevrons, not ▲▼. A glyph arrow is measured by whatever face is loaded — its
-   width, its baseline and its optical weight all move with the font — so the column it
-   sits in cannot be sized, and everything to its left gets padded to accommodate it.
-   A 10x6 path is exactly 10x6 in every face, which is what lets the field beside it be
-   as narrow as its digits. */
-.slider-step-btn {
-  padding: 0;
-  border: 0;
-  background: none;
-  color: var(--text-muted, var(--text));
-  cursor: pointer;
-  /* square, so the press state is a circle rather than an oval */
-  width: 16px;
-  height: 12px;
-  display: grid;
-  place-items: center;
-  position: relative;
-  border-radius: 999px;
-  corner-shape: superellipse(var(--corner-k, 1.2));
-}
-.slider-step-btn svg { display: block; }
-.slider-step-btn:hover { color: var(--text); }
-.slider-step-btn:focus-visible { outline: 1px solid var(--accent, currentColor); }
+     Underline, not a border-bottom: a border is drawn on the padding box, so it runs the
+     full width of the field and sits below the descender. text-decoration is drawn on the
+     TEXT -- exactly as wide as the digits, and text-underline-offset places it against the
+     baseline rather than the box.
 
-/* The press lands as a filled circle behind the chevron. A background on the button
-   itself would be a 16x12 pill; this is a true circle sized to the button's short side,
-   so it reads the same whatever the hit area grows to on touch. */
-.slider-step-btn::before {
-  content: '';
-  position: absolute;
-  width: 100%;
-  aspect-ratio: 1;
-  border-radius: 50%;
-  background: currentColor;
-  opacity: 0;
-  transform: scale(.6);
-  transition: opacity var(--dur-fast, .12s), transform var(--dur-fast, .12s);
-  pointer-events: none;
-}
-.slider-step-btn:active::before { opacity: .16; transform: scale(1); }
+     field-sizing lets it be as narrow as what it holds, which is the point of an underline:
+     the rule is the value's own width, so it has to be. */
+  .slider-number {
+    font-family: var(--ui-font, system-ui, sans-serif);
+    font-size: var(--type-ui-size);
+    color: var(--text);
+    background: transparent;
+    border: none;
+    border-radius: 0;
+    text-align: right;
+    width: auto;
+    field-sizing: content;
+    min-width: 2ch;
+    max-width: 14ch;
+    padding: var(--nudge, 2px) 0;
+    font-feature-settings: "tnum";
+    color-scheme: inherit;
+    text-decoration: underline;
+    text-decoration-thickness: 1px;
+    text-underline-offset: 2px;
+    text-decoration-color: var(--text-muted, currentColor);
+  }
+  /* Focus has to SHOW. font-proofer signalled it with a border colour on its own box; with
+     the box gone the underline carries it, or focus becomes invisible -- which would be an
+     accessibility regression hidden inside a visual change. */
+  /* Active state colours the NUMBER as well as its rule. The underline alone is a 1px
+     signal at the bottom of a small field -- easy to miss, and invisible to anyone who is
+     not looking straight at it. Colouring the digits makes the active row obvious from
+     anywhere in the rail, and the two move together because they are one object.
+     :focus-within, not :focus: dragging the track puts focus on the range input, not on
+     the field, and a drag is activity too. */
+  .slider-number:focus,
+  .slider-row:focus-within .slider-number {
+    outline: none;
+    color: var(--accent, currentColor);
+    text-decoration-color: var(--accent, currentColor);
+    text-decoration-thickness: 2px;
+  }
 
-@media (pointer: coarse) {
-  /* Permanent here, so back into the layout and measured with the row -- and the
-     suffix stops yielding, because nothing is being anticipated. */
-  .slider-step { opacity: 1; position: static; }
+  /* field="box" -- the boxed treatment, kept because font-proofer's rail was designed
+     around it and a dial value in a box is a legitimate house option, not a legacy. */
+  .slider-row--boxed .slider-number {
+    background: var(--bg-elevated, var(--surface));
+    border: 1px solid var(--border);
+    border-radius: var(--radius, 6px);
+    corner-shape: superellipse(var(--corner-k, 1.2));
+    padding: 4px 6px;
+    text-decoration: none;
+  }
+  .slider-row--boxed .slider-number:focus { border-color: var(--text-muted); }
+
+  /* auto: an outlined pill beside the NAME, inside the label column -- so the tag next to
+     it starts at the same x on every row. Hanging it off the tag instead pushed that row's
+     abbreviation out of line with the rest of the rail; the control belongs to the axis,
+     not to its shorthand. "Optical Size" is 66px in a 105px column, so the pill rides in
+     the slack and costs the row nothing.
+
+     Outline, not a fill. The first version was a solid pill, and a filled shape with a
+     word in it and no icon reads as a badge REPORTING state rather than something you can
+     press -- which is why the feature stayed secret long enough to need this comment. An
+     outline that lights up is a control: the ring says pressable, the colour says on.
+
+     Both halves fade together when off -- ring and word on the same grey -- so the whole
+     chip recedes as one object instead of leaving a grey box around dim text. */
+  /* auto: a dot and a word. It was an outlined pill, and a ring has to be balanced
+     against the word inside it -- at 11px the pill was wide enough to shove the value
+     field into the tag, and every step down crowded the ring onto the letters until it
+     stopped reading as a control and was too small to touch. The ring caused all of it.
+
+     What is left says the same two things with less: the dot carries the STATE, the word
+     carries the NAME, and the whole thing is the hit target. Colour carries it too, but
+     never alone -- the mark changes shape as well, so the state survives a greyscale
+     screenshot and a colourblind reader.
+
+     Sizes are from the study in docs/system/pages/controls.html: word 10.5px because caps
+     read larger than lowercase at equal size and 11px let AUTO outweigh the 11px lowercase
+     tag it belongs to; dot 0.7em raised 1px, which is arithmetic -- AUTO's cap centre is
+     3.78px above the baseline, the glyph centres 2.70px up, and 0.7em is the size whose
+     correction lands nearest a whole pixel. Tracking off, deliberately against the house
+     caps rule, because .12em pulled the two-part mark apart. */
+  .slider-auto {
+    font: inherit;
+    /* Caps read larger than lowercase at equal size, so AUTO at the 11px tag size
+       outweighs the tag it belongs to. Half a pixel is the whole correction, and half a
+       pixel has no honest rem or role spelling. */
+    font-size: 10.5px;   /* token-lint: allow -- deliberate, see above */
+    line-height: 1;
+    letter-spacing: 0;
+    margin-left: var(--spacing-02, 6px);
+    padding: 2px 0;
+    border: 0;
+    background: none;
+    color: var(--text-dim, var(--text-muted));
+    cursor: pointer;
+    display: inline-flex;
+    align-items: baseline;
+    gap: .28em;
+    vertical-align: baseline;
+    flex-shrink: 0;
+    transition: color var(--dur-fast, .12s) ease;
+  }
+  .slider-auto:hover { color: var(--text-muted, var(--text)); }
+  /* ONE declaration with the fallback inside the var(), not two declarations.
+     The sRGB-then-OKLCH pattern in color.css works because an unsupported SYNTAX is
+     dropped at parse time, leaving the earlier declaration standing. A var() is not that:
+     `var(--ok)` parses fine and fails at COMPUTED-VALUE time, and a property that is
+     invalid at computed-value time does not fall back to the previous declaration -- it
+     INHERITS. Written as two declarations, the second one won the cascade and then
+     poisoned it, and the green became whatever grey the label happened to be.
+     That is the same trap color.css is written to document. The fallback belongs inside
+     the var(), where it covers the undefined case without ever being a declaration. */
+  .slider-auto--on { color: var(--ok, #00a01e); }
+  .slider-auto:focus-visible { outline: 2px solid var(--accent, currentColor); outline-offset: 2px; }
+  .slider-auto-dot { font-size: .7em; position: relative; top: -1px; }
+  .slider-auto-word { text-transform: uppercase; letter-spacing: normal; }
+  @media (pointer: coarse) { .slider-auto { padding: 6px 0; } }
+
+  /* ── the stepper ─────────────────────────────────────────────────────────────
+     Ours, because a text field has no native one — and because the native one could
+     never be styled the same way twice: font-proofer forced WebKit's visible with an
+     opacity hack that did nothing in Firefox, and ReCal left it hidden until hover, so
+     one primitive drew two different controls. This draws one.
+
+     Revealed on approach, not always on. A rail of eight dials with sixteen permanent
+     arrowheads is noise, and the field and the track are already two ways in before the
+     arrows are a third. */
+  .slider-step {
+    display: inline-flex;
+    flex-direction: column;
+    margin-left: var(--nudge, 2px);
+    opacity: 0;
+    transition: opacity var(--dur-fast, .12s);
+    /* HUNG, not reserved. A hidden stepper still owned its column, so every row paid
+       ~16px -- a quarter of the field -- for something most people never see appear.
+       Out of flow it costs nothing at rest, the field hugs its digits, and nothing
+       shifts when the arrows arrive because they were never in the layout.
+       They land where the suffix is, and the suffix yields as they come: one slot,
+       two occupants, never empty. On a coarse pointer they are permanent (below), and
+       a permanent thing IS part of the object, so there they go back in flow and are
+       measured with it. */
+    /* In the slot, not hung past the field. Hanging cost nothing at rest but left the
+       unit in flow, so a row with `px` pushed its number left of a row without one and
+       the values stopped sharing a right edge -- R1 in DIAL.md, and the whole reason a
+       value is right-aligned. */
+    position: absolute;
+    justify-content: center;
+  }
+  /* THE SLOT, on every row. Wide enough for the WIDEST unit plus one word space --
+     measured in Cal Sans at the label size: `em` 18.36px, `px` 14.21, `%` 9.41, a space
+     2.52. 1.75x the label size clears the widest and leaves a space outside it.
+     Multiplied against --type-ui-size, NOT written as `em`: em resolves against this
+     element's own font-size, which is the page's inherited 16px rather than the 12px the
+     label is set at -- that made the slot 28px instead of 21px, a third too wide.
+     One slot, two occupants: the unit sits in it at rest, the stepper takes it on hover,
+     and the field never moves because the slot was always there. */
+  .slider-value { position: relative; padding-right: calc(1.75 * var(--type-ui-size, 0.75rem)); }
+  /* Inset by one word space, so the space sits OUTSIDE the unit -- between it and the
+     row's right edge -- rather than collapsing to the left of it. A space is 2.52px at
+     the 12px label size, hence .21 of it. */
+  .slider-suffix,
+  .slider-step {
+    position: absolute;
+    right: calc(0.21 * var(--type-ui-size, 0.75rem));
+    top: 50%;
+    transform: translateY(-50%);
+  }
+  .slider-row:hover .slider-step,
+  .slider-row:focus-within .slider-step { opacity: 1; }
+  /* One trigger for both halves of the swap, and the same duration, or for 120ms there
+     are two things in one place. --hidden stays for the focus case the component sets
+     in JS; this adds the hover case it could not see. */
   .slider-row:hover .slider-suffix,
-  .slider-row:focus-within .slider-suffix { opacity: 1; }
-  .slider-step-btn { width: 32px; height: 22px; }
-}
-@media (prefers-reduced-motion: reduce) {
-  .slider-step-btn::before { transition: none; }
-}
-.slider-number:disabled { cursor: default; }
+  .slider-row:focus-within .slider-suffix { opacity: 0; }
+  .slider-suffix { transition: opacity var(--dur-fast, .12s); }
 
-.slider-track-wrap { position: relative; }
-.slider-track-wrap input[type="range"] {
-  -webkit-appearance: none; appearance: none;
-  width: 100%; height: 24px;
-  background: transparent; cursor: pointer; margin: 0; display: block;
-}
-.slider-track-wrap input[type="range"]::-webkit-slider-runnable-track {
-  height: 2px;
-  background: linear-gradient(
-    to right,
-    var(--border) 0%,
-    var(--border) var(--locked-pct, 100%),
-    var(--track-empty, var(--surface-hi, #2b2b2b)) var(--locked-pct, 100%),
-    var(--track-empty, var(--surface-hi, #2b2b2b)) 100%
-  );
-  border-radius: 1px;
-}
-.slider-track-wrap input[type="range"]::-webkit-slider-thumb {
-  -webkit-appearance: none;
-  width: 14px; height: 14px; border-radius: 50%;
-  background: var(--text); margin-top: -6px; cursor: pointer;
-}
-.slider-track-wrap input[type="range"]::-moz-range-track {
-  height: 2px;
-  background: linear-gradient(
-    to right,
-    var(--border) 0%,
-    var(--border) var(--locked-pct, 100%),
-    var(--track-empty, var(--surface-hi, #2b2b2b)) var(--locked-pct, 100%),
-    var(--track-empty, var(--surface-hi, #2b2b2b)) 100%
-  );
-  border-radius: 1px;
-}
-.slider-track-wrap input[type="range"]::-moz-range-thumb {
-  width: 14px; height: 14px; border-radius: 50%;
-  background: var(--text); border: none; cursor: pointer;
-}
+  /* SVG chevrons, not ▲▼. A glyph arrow is measured by whatever face is loaded — its
+     width, its baseline and its optical weight all move with the font — so the column it
+     sits in cannot be sized, and everything to its left gets padded to accommodate it.
+     A 10x6 path is exactly 10x6 in every face, which is what lets the field beside it be
+     as narrow as its digits. */
+  .slider-step-btn {
+    padding: 0;
+    border: 0;
+    background: none;
+    color: var(--text-muted);
+    cursor: pointer;
+    /* square, so the press state is a circle rather than an oval */
+    width: 16px;
+    height: 12px;
+    display: grid;
+    place-items: center;
+    position: relative;
+    border-radius: 999px;
+    corner-shape: superellipse(var(--corner-k, 1.2));
+  }
+  .slider-step-btn svg { display: block; }
+  .slider-step-btn:hover { color: var(--text); }
+  .slider-step-btn:focus-visible { outline: 1px solid var(--accent, currentColor); }
 
-.slider-auto-hint {
-  position: fixed;
-  font-size: var(--type-ui-size);
-  color: var(--text);
-  background: var(--bg-elevated, var(--surface, #2e2e2e));
-  border: 1px solid var(--border);
-  border-radius: var(--radius, 6px);
-  padding: var(--spacing-01, 4px) var(--spacing-03, 8px);
-  pointer-events: none;
-  z-index: 1000;
-  white-space: nowrap;
-  animation: hint-fade var(--dur-hint, 3s) forwards;
-}
-@keyframes hint-fade { 0% { opacity: 1; } 60% { opacity: 1; } 100% { opacity: 0; } }
+  /* The press lands as a filled circle behind the chevron. A background on the button
+     itself would be a 16x12 pill; this is a true circle sized to the button's short side,
+     so it reads the same whatever the hit area grows to on touch. */
+  .slider-step-btn::before {
+    content: '';
+    position: absolute;
+    width: 100%;
+    aspect-ratio: 1;
+    border-radius: 50%;
+    background: currentColor;
+    opacity: 0;
+    transform: scale(.6);
+    transition: opacity var(--dur-fast, .12s), transform var(--dur-fast, .12s);
+    pointer-events: none;
+  }
+  .slider-step-btn:active::before { opacity: .16; transform: scale(1); }
 
-/* ── variant: diamond — rotate-45 marker-default thumb (Type-Matrix style), for
-   default-editing rails. Pairs with `reference` to burn the stock value behind it. */
-.slider-row--diamond input[type="range"]::-webkit-slider-thumb {
-  width: 12px; height: 12px; border-radius: 2px;
-  background: var(--marker-default, var(--accent, var(--text)));
-  transform: rotate(45deg);
-  box-shadow: 0 0 0 1px var(--bg, #0f0f0f);
-  margin-top: -5px;
-}
-.slider-row--diamond input[type="range"]::-moz-range-thumb {
-  width: 12px; height: 12px; border-radius: 2px;
-  background: var(--marker-default, var(--accent, var(--text)));
-  transform: rotate(45deg);
-  box-shadow: 0 0 0 1px var(--bg, #0f0f0f);
-}
+  @media (pointer: coarse) {
+    /* Permanent here, so back into the layout and measured with the row -- and the
+       suffix stops yielding, because nothing is being anticipated. */
+    .slider-step { opacity: 1; position: static; }
+    .slider-row:hover .slider-suffix,
+    .slider-row:focus-within .slider-suffix { opacity: 1; }
+    .slider-step-btn { width: 32px; height: 22px; }
+  }
+  @media (prefers-reduced-motion: reduce) {
+    .slider-step-btn::before { transition: none; }
+  }
+  .slider-number:disabled { cursor: default; }
 
-/* Burned stock reference — a faint ghost dot at the shipped value, behind the thumb. */
-.slider-ref {
-  position: absolute; top: 12px; width: 8px; height: 8px; margin-left: -4px;
-  border-radius: 1px; background: var(--text-muted); opacity: 0.28;
-  transform: translateY(-50%) rotate(45deg); /* rhombus, mirrors the thumb */
-  pointer-events: none; z-index: 0;
-}
+  .slider-track-wrap { position: relative; }
+  .slider-track-wrap input[type="range"] {
+    -webkit-appearance: none; appearance: none;
+    width: 100%; height: 24px;
+    background: transparent; cursor: pointer; margin: 0; display: block;
+  }
+  .slider-track-wrap input[type="range"]::-webkit-slider-runnable-track {
+    height: 2px;
+    background: linear-gradient(
+      to right,
+      var(--border) 0%,
+      var(--border) var(--locked-pct, 100%),
+      var(--track-empty, var(--surface-hi)) var(--locked-pct, 100%),
+      var(--track-empty, var(--surface-hi)) 100%
+    );
+    border-radius: 1px;
+  }
+  .slider-track-wrap input[type="range"]::-webkit-slider-thumb {
+    -webkit-appearance: none;
+    width: 14px; height: 14px; border-radius: 50%;
+    background: var(--text); margin-top: -6px; cursor: pointer;
+  }
+  .slider-track-wrap input[type="range"]::-moz-range-track {
+    height: 2px;
+    background: linear-gradient(
+      to right,
+      var(--border) 0%,
+      var(--border) var(--locked-pct, 100%),
+      var(--track-empty, var(--surface-hi)) var(--locked-pct, 100%),
+      var(--track-empty, var(--surface-hi)) 100%
+    );
+    border-radius: 1px;
+  }
+  .slider-track-wrap input[type="range"]::-moz-range-thumb {
+    width: 14px; height: 14px; border-radius: 50%;
+    background: var(--text); border: none; cursor: pointer;
+  }
 
-/* ── variant: skeletal — thin/minimal, for ephemeral preview/demo sliders. */
-.slider-row--skeletal input[type="range"]::-webkit-slider-thumb { width: 10px; height: 10px; margin-top: -4px; }
-.slider-row--skeletal input[type="range"]::-moz-range-thumb { width: 10px; height: 10px; }
+  .slider-auto-hint {
+    position: fixed;
+    font-size: var(--type-ui-size);
+    color: var(--text);
+    background: var(--bg-elevated, var(--surface));
+    border: 1px solid var(--border);
+    border-radius: var(--radius, 6px);
+    padding: var(--spacing-01, 4px) var(--spacing-03, 8px);
+    pointer-events: none;
+    z-index: 1000;
+    white-space: nowrap;
+    animation: hint-fade var(--dur-hint, 3s) forwards;
+  }
+  @keyframes hint-fade { 0% { opacity: 1; } 60% { opacity: 1; } 100% { opacity: 0; } }
 
-/* Static unit label after the editable field (px/%/em) — hides while the field is
-   focused so you edit just the raw number, reappears on blur. No layout shift. */
-.slider-suffix {
-  font-size: var(--type-ui-size); color: var(--text-muted);
-  font-feature-settings: "tnum"; margin-left: -3px; pointer-events: none;
+  /* ── variant: diamond — rotate-45 marker-default thumb (Type-Matrix style), for
+     default-editing rails. Pairs with `reference` to burn the stock value behind it. */
+  .slider-row--diamond input[type="range"]::-webkit-slider-thumb {
+    width: 12px; height: 12px; border-radius: 2px;
+    background: var(--marker-default, var(--accent, var(--text)));
+    transform: rotate(45deg);
+    box-shadow: 0 0 0 1px var(--bg);
+    margin-top: -5px;
+  }
+  .slider-row--diamond input[type="range"]::-moz-range-thumb {
+    width: 12px; height: 12px; border-radius: 2px;
+    background: var(--marker-default, var(--accent, var(--text)));
+    transform: rotate(45deg);
+    box-shadow: 0 0 0 1px var(--bg);
+  }
+
+  /* Burned stock reference — a faint ghost dot at the shipped value, behind the thumb. */
+  .slider-ref {
+    position: absolute; top: 12px; width: 8px; height: 8px; margin-left: -4px;
+    border-radius: 1px; background: var(--text-muted); opacity: 0.28;
+    transform: translateY(-50%) rotate(45deg); /* rhombus, mirrors the thumb */
+    pointer-events: none; z-index: 0;
+  }
+
+  /* ── variant: skeletal — thin/minimal, for ephemeral preview/demo sliders. */
+  .slider-row--skeletal input[type="range"]::-webkit-slider-thumb { width: 10px; height: 10px; margin-top: -4px; }
+  .slider-row--skeletal input[type="range"]::-moz-range-thumb { width: 10px; height: 10px; }
+
+  /* Static unit label after the editable field (px/%/em) — hides while the field is
+     focused so you edit just the raw number, reappears on blur. No layout shift. */
+  .slider-suffix {
+    font-size: var(--type-ui-size); color: var(--text-muted);
+    font-feature-settings: "tnum"; margin-left: -3px; pointer-events: none;
+  }
+  .slider-suffix--hidden { visibility: hidden; }
+
+  /* ── variant="track": the row IS the track ───────────────────────────────────
+     The bar carries the label, the tag and the value, and its fill IS the value. Ported
+     from the "row is the track" study in the docs page, which is where the five ways of
+     drawing a dial are compared side by side.
+
+     Built from the SAME DOM as every other variant rather than a second render path: the
+     native range input is stretched over the bar at zero opacity, so press-anywhere-to-jump,
+     drag, and the full keyboard contract (arrows, Home/End, page keys) are the platform's
+     and not ours to reimplement or to get subtly wrong. The label layer sits above it and
+     is pointer-transparent, except the number, which has to stay clickable to type into.
+
+     The fill is a gradient stop at --pct, not an element -- one paint, nothing to keep in
+     sync, and it cannot drift from the thumb because there is no thumb. */
+  .slider-row--track { position: relative; gap: 0; }
+
+  .slider-row--track .slider-track-wrap { position: absolute; inset: 0; margin: 0; }
+  .slider-row--track .slider-track-wrap input[type="range"] {
+    width: 100%; height: 100%; margin: 0; opacity: 0; cursor: ew-resize;
+    /* Claim the horizontal gesture only. `none` would take the page's vertical scroll with
+       it wherever the pointer crossed a rail, which is most of a rail. */
+    touch-action: pan-y;
+  }
+  .slider-row--track .slider-track-wrap input[type="range"]:disabled { cursor: default; }
+
+  .slider-row--track .slider-label {
+    position: relative; z-index: 1;
+    pointer-events: none;                     /* the bar underneath owns the press */
+    min-height: 32px; padding: 0 var(--spacing-04, 12px);
+    border-radius: var(--radius, 6px);
+    corner-shape: superellipse(var(--corner-k, 1.2));
+    background:
+      linear-gradient(to right, var(--surface-hi) 0 var(--pct, 0%), transparent var(--pct, 0%) 100%),
+      var(--surface);
+    border: 1px solid var(--border);
+  }
+  /* The number stays typeable: click it and the drag stands down. */
+  .slider-row--track .slider-number,
+  .slider-row--track .slider-step,
+  .slider-row--track .slider-auto { pointer-events: auto; }
+  /* The focus ring belongs to the BAR, and the input IS the bar: it is stretched over it
+     at inset 0, so ringing the input rings exactly the shape the eye reads as the control.
+
+     This was `:has(input:focus-visible)` on the row, styling .slider-label. It never
+     fired -- measured: with the range focused and document.activeElement equal to it,
+     `row:focus-within` matches and `row:has(input:focus)` does not. Whatever the cause,
+     a rule that cannot match is worse than a simpler one that can, and this needs no
+     :has() support to work. */
+  .slider-row--track .slider-track-wrap input[type="range"]:focus-visible {
+    outline: 2px solid var(--accent, currentColor);
+    outline-offset: 2px;
+    border-radius: var(--radius, 6px);
+  }
+
+  /* The selection highlight is the browser's, not ours -- it arrives in the OS accent,
+     which is the one colour on the row nobody chose. Naming it keeps a selected value
+     inside the system. */
+  .slider-number::selection { background: var(--accent, currentColor); color: var(--bg, var(--surface)); }
+
+  /* The bar is a drag surface, so a drag across it must not select the label text -- the
+     study sets this on .v2 .bar for the same reason. The number opts back in, or you could
+     not select what you are about to retype. */
+  .slider-row--track .slider-label { user-select: none; }
+  .slider-row--track .slider-number { user-select: text; }
+  @media (pointer: coarse) { .slider-row--track .slider-label { min-height: 44px; } }
+
+  /* ── track: the field hugs its digits, and one slot holds unit-or-arrows ──────
+     Two things the default variant gets away with and this one cannot.
+
+     WIDTH. .slider-number is a fixed 66px so that a COLUMN of rows lines its numbers up on
+     one right edge. Here there is no column -- every value is already flush to its own
+     bar's right edge -- so the 66px is just dead space to the left of the digits, and the
+     host paints the field, so that emptiness is visible as an over-wide box. field-sizing
+     lets it be as narrow as what it holds, which is what the stepper comment upstream
+     already claims the field does.
+
+     THE SLOT. The stepper hangs at left:100% so it costs nothing at rest and lands on the
+     suffix. Against a bar with padding that lands it OUTSIDE the bar. Here the value group
+     reserves one trailing slot and both occupants are placed in it, absolutely: the unit
+     sits there at rest, the arrows take it on focus, and the field never moves because the
+     slot was always there. */
+  /* Plain class selectors, because the layer settles it. This used to read
+     `input[type="text"].slider-number`, escalated to out-specify a host rule -- the kind of
+     thing that has to be rediscovered every time someone edits either file. */
+  .slider-row--track .slider-number {
+    padding: 0;
+    width: auto;
+    field-sizing: content;
+    min-width: 2ch;
+    max-width: 14ch;   /* "620 · 64n" is the longest value in either app */
+  }
+  /* ONE SLOT ON EVERY ROW, and it IS the bar's right padding rather than something extra
+     inside it.
+
+     Conditional was worse, and the numbers said so: reserving only where a unit exists
+     pushed that row's value 16px left of the rest, so the values stopped forming a column.
+     A rail of dials is read down the right edge -- that column is the reason the value is
+     right-aligned in the first place -- and no per-row saving is worth breaking it.
+
+     So the slot is uniform, and it is not additional space: the bar gives up its right
+     padding to it, so the total is 16px on the right against 12px of padding on the left,
+     not 28px. The unit sits in it at rest; the arrows take it on hover. On a row with no
+     unit it holds the arrows alone and is otherwise the right margin -- which is what the
+     row needed anyway.
+
+     Step buttons are 12px here so a pair fits the slot with air, rather than filling it. */
+  /* The bar gives up its right padding to the slot, so the total is the slot alone
+     rather than the slot plus 12px. The slot itself is the base's now. */
+  .slider-row--track .slider-label { padding-right: 0; }
+  .slider-row--track .slider-step-btn { width: 12px; }
+
+  .slider-row--track .slider-suffix { color: var(--text-muted); }
+
+  /* ── what the swap left behind ───────────────────────────────────────────────
+     Two features live on the range input's own track, which this variant renders at zero
+     opacity -- so they vanished silently rather than breaking. Both are painted back onto
+     the bar here.
+
+     lockedAbove (font-proofer's opsz rail) marks the part of the range that is out of
+     bounds. On the default variant it is a stop in the runnable-track gradient; here it is
+     a layer over the bar, up to --locked-pct.
+
+     reference (ReCal's burned stock value) is a real element in the track wrap, and the
+     label sits above the wrap so the marker was covered. Lifting the marker rather than the
+     whole wrap keeps the transparent input BELOW the label, which is what leaves the number
+     clickable. */
+  .slider-row--track .slider-label::before {
+    content: '';
+    position: absolute; inset: 0;
+    border-radius: inherit;
+    background: linear-gradient(to right,
+      var(--border) 0 var(--locked-pct, 0%),
+      transparent var(--locked-pct, 0%) 100%);
+    opacity: .55;
+    pointer-events: none;
+  }
+  .slider-row--track .slider-ref {
+    z-index: 2;
+    top: 0; bottom: 0; height: auto;
+  }
+  /* The bar is the coarse control, so say so on the way in. */
+  .slider-row--track .slider-label { cursor: ew-resize; }
+  .slider-row--track.slider-row--off .slider-label { cursor: default; }
 }
-.slider-suffix--hidden { visibility: hidden; }
 
 /* ============================================================================
    opsz-proofer
