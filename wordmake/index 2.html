@@ -1,0 +1,111 @@
+<!doctype html>
+<meta charset="utf-8">
+<title>WORDMAKE spike</title>
+<style>
+  :root {
+    --bg: #0b0b0b; --surface: #141414; --border: #262626;
+    --text: #f2f2f2; --text-dim: #8a8a8a; --accent: #7aa7ff;
+    --ui: ui-sans-serif, -apple-system, system-ui, sans-serif;
+  }
+  * { box-sizing: border-box; }
+  body { margin: 0; background: var(--bg); color: var(--text); font: 13px/1.5 var(--ui); padding: 32px 40px 80px; }
+  h1 { font-size: 15px; letter-spacing: .14em; text-transform: uppercase; margin: 0 0 4px; }
+  .sub { color: var(--text-dim); margin: 0 0 32px; max-width: 64ch; }
+  h2 { font-size: 12px; letter-spacing: .12em; text-transform: uppercase; color: var(--text-dim);
+       margin: 40px 0 14px; padding-bottom: 8px; border-bottom: 1px solid var(--border); }
+  .row { display: flex; gap: 18px; align-items: flex-start; flex-wrap: wrap; }
+  .cell { background: var(--surface); border: 1px solid var(--border); border-radius: 8px; padding: 10px; }
+  .cap { display: flex; justify-content: space-between; gap: 16px; color: var(--text-dim);
+         font-size: 11px; margin-top: 8px; letter-spacing: .04em; }
+  /* The SVGs are transparent. The checkerboard is the point: it is what a designer sees
+     before export, and it is what catches an animator using the background as ink. */
+  .checker {
+    background-image:
+      linear-gradient(45deg, #1e1e1e 25%, transparent 25%, transparent 75%, #1e1e1e 75%),
+      linear-gradient(45deg, #1e1e1e 25%, transparent 25%, transparent 75%, #1e1e1e 75%);
+    background-size: 16px 16px; background-position: 0 0, 8px 8px; background-color: #101010;
+    display: block;
+  }
+  .checker img { display: block; }
+  table { border-collapse: collapse; font-size: 12px; margin-top: 6px; }
+  td, th { text-align: left; padding: 5px 24px 5px 0; border-bottom: 1px solid var(--border); }
+  th { color: var(--text-dim); font-weight: 500; letter-spacing: .06em; text-transform: uppercase; font-size: 10px; }
+  code { font-family: ui-monospace, SFMono-Regular, Menlo, monospace; font-size: 11px; color: #cfcfcf; }
+  .note { color: var(--text-dim); max-width: 72ch; margin: 10px 0 0; }
+  .dl { display: flex; gap: 10px; flex-wrap: wrap; margin-top: 10px; }
+  .dl a { display: inline-block; padding: 8px 14px; border: 1px solid var(--border); border-radius: 6px;
+          background: var(--surface); color: var(--accent); text-decoration: none; font-size: 12px; }
+  .dl a:hover { border-color: var(--accent); }
+  .dl a span { color: var(--text-dim); }
+  video { display: block; border-radius: 4px; }
+</style>
+
+<h1>WORDMAKE &mdash; spike</h1>
+<p class="sub">
+  Two animators, one <code>stateAt(t)</code> each, through both emitters. Everything on the
+  checkerboard is an animated SVG: no fonts, no scripts, no external references, transparent,
+  glyphs as outlines. The same <code>stateAt</code> feeds resvg for the video. Copy is the
+  Cal.com set; there is no interface yet, so this page is the spike's output, not the tool.
+</p>
+
+<h2>Scroll Stack &mdash; four aspects, one clock</h2>
+<div class="row">
+  <div class="cell"><span class="checker"><img src="scroll-stack--4x5.svg" width="260"></span>
+    <div class="cap"><span>4:5</span><span>1080&times;1350</span></div></div>
+  <div class="cell"><span class="checker"><img src="scroll-stack--1x1.svg" width="300"></span>
+    <div class="cap"><span>1:1</span><span>1080&times;1080</span></div></div>
+  <div class="cell"><span class="checker"><img src="scroll-stack--16x9.svg" width="430"></span>
+    <div class="cap"><span>16:9</span><span>1920&times;1080</span></div></div>
+  <div class="cell"><span class="checker"><img src="scroll-stack--1.91x1.svg" width="430"></span>
+    <div class="cap"><span>1.91:1</span><span>1200&times;628</span></div></div>
+</div>
+<p class="note">
+  Aspect is an input to the animator, not a crop &mdash; each is a real layout. The stack clips
+  beneath the locked logo with a <code>clipPath</code> rather than a background-coloured cover,
+  which would look right in the video and let the type show straight through in the SVG.
+</p>
+
+<h2>The mp4 &mdash; H.264, opaque, 60fps</h2>
+<div class="row">
+  <div class="cell"><video src="scroll-stack.mp4" width="300" autoplay loop muted playsinline></video>
+    <div class="cap"><span>Post to X</span><span>3.3 MB</span></div></div>
+  <div class="cell"><video src="weight-pulse.mp4" width="300" autoplay loop muted playsinline></video>
+    <div class="cap"><span>Post to X</span><span>0.2 MB</span></div></div>
+</div>
+<div class="dl">
+  <a href="scroll-stack.mp4" download>Scroll Stack &middot; mp4 <span>3.3 MB</span></a>
+  <a href="scroll-stack--1x1.svg" download>Scroll Stack &middot; SVG <span>139 KB</span></a>
+  <a href="weight-pulse.mp4" download>Weight Pulse &middot; mp4 <span>0.2 MB</span></a>
+</div>
+<p class="note">
+  These are real files off the pipeline, not a UI. The export modal with its three intents is
+  not built &mdash; <code>npm run spike</code> writes all of this from the command line, including
+  the PNG-in-MOV masters, which are 34&nbsp;MB and 3.2&nbsp;MB and so are not hosted here.
+</p>
+
+<h2>Weight Pulse &mdash; the path morph</h2>
+<div class="row">
+  <div class="cell"><span class="checker"><img src="weight-pulse--1x1.svg" width="300"></span>
+    <div class="cap"><span>1:1</span><span>wght 400&ndash;700</span></div></div>
+  <div class="cell"><span class="checker"><img src="weight-pulse--16x9.svg" width="430"></span>
+    <div class="cap"><span>16:9</span><span>13 keyframes</span></div></div>
+</div>
+<p class="note">
+  The one that proves the hard half: SMIL interpolates the path <code>d</code> itself, which only
+  works because every instance serialises to the same command token count. Weak as a demo &mdash;
+  fit-to-width holds the word at constant width, so it thickens in place.
+</p>
+
+<h2>Measured</h2>
+<table>
+  <tr><th>output</th><th>scroll stack &middot; 7.1s</th><th>weight pulse &middot; 3s</th></tr>
+  <tr><td>animated SVG</td><td>139 KB</td><td>58 KB</td></tr>
+  <tr><td>PNG-in-MOV &mdash; After Effects</td><td>33.9 MB</td><td>3.2 MB</td></tr>
+  <tr><td>QuickTime Animation (qtrle)</td><td>66.9 MB</td><td>4.6 MB</td></tr>
+  <tr><td>H.264 mp4 CRF 17 &mdash; X</td><td>3.3 MB</td><td>0.2 MB</td></tr>
+  <tr><td>resvg render, 1080&times;1080</td><td>37.0 ms/frame</td><td>14.1 ms/frame</td></tr>
+</table>
+<p class="note">
+  PNG-in-MOV beats qtrle by roughly half on this content, so the plan's open question is
+  answered: PNG. ProRes 422&nbsp;HQ would have been about 200&nbsp;MB for the same seven seconds.
+</p>
