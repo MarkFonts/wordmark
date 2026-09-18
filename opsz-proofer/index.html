@@ -368,747 +368,8 @@ input[type="range"]::-moz-range-thumb { corner-shape: round; }
 }
 ::-webkit-scrollbar-corner { background: transparent; }
 
-/* ==== shared/src/AxisSlider.css ==== */
-/* AxisSlider — moved from the font-proofer slider CSS, with token fallbacks so it
-   themes in both apps (font-proofer --bg-* / --track-empty and ReCal --surface-*).
-   The number field stays essentially native: color-scheme drives its light/dark
-   up/down steppers, so each app just needs color-scheme on its root.
-
-   EVERYTHING HERE IS LAYERED, and that is the interface.
-
-   An unlayered rule beats any layered one at any specificity, so an app can always
-   override a primitive without knowing or matching how this file writes its selectors.
-   Before the layer, it could not: font-proofer dressed the value field with
-   `input[type="text"].slider-number` and the only way past it was to out-specify it,
-   which took three attempts -- `.slider-row--track .slider-number` lost, then
-   `input.slider-number` tied and lost on source order, and only
-   `input[type="text"].slider-number` with a row class won. Each fix made the next
-   collision worse, and none of it was visible until something silently did nothing.
-
-   So: theme through TOKENS (--border, --radius, --accent, --bg-elevated), choose
-   behaviour through PROPS (variant, field), and reach in with a selector only as a last
-   resort -- where the layer now guarantees you win on the first try.
-
-   Same decision as color.css and type.css, applied to the control layer. */
-@layer wm.controls {
-  .slider-row { display: flex; flex-direction: column; gap: 3px; }
-  .slider-row--off { opacity: 0.4; }
-
-  .slider-label { display: flex; align-items: center; justify-content: space-between; gap: 6px; }
-  .slider-label-left {
-    display: flex; align-items: baseline; gap: var(--spacing-01, 4px);
-    /* Takes the row's leftover rather than collapsing to its own content. On flex:0 1 auto
-       it sized to content, which starved the label of its 105px column and let the tag
-       land wherever the label happened to end -- a ragged tag edge down the rail. */
-    flex: 1 1 auto;
-    min-width: 0; overflow: visible; padding-bottom: var(--nudge, 2px);
-  }
-  .slider-label-text {
-    font-size: var(--type-ui-size);
-    color: var(--text-muted);
-    font-family: var(--ui-font, system-ui, sans-serif);
-    white-space: nowrap; overflow: visible; text-overflow: clip;
-  }
-  /* The name is never clipped. It shared a fixed column with the auto pill, and the pill
-     pushed "Optical Size" into "Optical Si..." -- trading a whole word for five pixels of
-     alignment, which is the wrong way round. A truncated name is a worse defect than a
-     tag that sits five pixels right of its neighbours. */
-  .slider-label-name { white-space: nowrap; }
-  /* One column, so the tags line up down the rail -- but shrinkable, and the NAME is what
-     gives way, never the tag. At font-proofer's sidebar width the row has 227px: a RIGID
-     105px plus the tag plus the value group wants 240, and with nothing allowed to yield
-     the tag spilled 13px past its own container. The value field, which the host paints
-     with a background, then covered the last letter: "opsz" read as "ops". Ellipsis rather
-     than clip, because the tag already names the axis -- the long name is the half that
-     can afford to lose a character. */
-  .slider-label-text--tagged {
-    /* ONE column width for the whole rail, so every tag lands on the same x -- a rail
-       whose abbreviations do not line up looks broken even when each row is fine on its
-       own. A component cannot measure its siblings, so the width is a property the rail
-       sets once: raise --axis-label-w wherever a row carries the auto pill (or a long
-       name), and every row moves together. The 105px default is the widest bare name in
-       the house rails ("Ascender Height", 96px) plus air.
-       Never clip to hold the column -- see .slider-label-name. */
-    min-width: var(--axis-label-w, 105px);
-    flex: 0 0 auto;
-    display: inline-flex;
-    align-items: baseline;
-    gap: var(--spacing-01, 4px);
-  }
-  .slider-tag {
-    font-size: var(--type-micro-size);
-    color: var(--text-muted);
-    font-family: var(--ui-font, system-ui, sans-serif);
-    letter-spacing: 0;              /* the tag is lowercase: the caps token does not apply */
-    flex-shrink: 0;
-    font-feature-settings: "tnum";
-  }
-  /* min–max readout: quieter than the tag, tabular so it doesn't jitter while dragging */
-  .slider-range {
-    color: var(--text-dim);
-    font-variant-numeric: tabular-nums;
-    white-space: nowrap;
-  }
-
-  /* value = optional ◆ marker + the editable number/auto field */
-  .slider-value { display: flex; align-items: baseline; gap: var(--spacing-01, 4px); flex-shrink: 0; }
-  .slider-marker {
-    font-size: var(--type-micro-size); line-height: 1;
-    color: var(--marker-default, var(--accent, currentColor));
-    transform: translateY(-1px);
-  }
-  /* THE FIELD, and the primitive owns all of it. font-proofer used to dress this itself --
-     a box, a border, a 64px width and its own focus colour -- while ReCal styled none of
-     it, so the same component wore two different clothes and each app fought the other's
-     rules on specificity. The house treatment lives here now; an app that wants the box
-     asks for it (field="box") rather than reaching in.
-
-     Underline, not a border-bottom: a border is drawn on the padding box, so it runs the
-     full width of the field and sits below the descender. text-decoration is drawn on the
-     TEXT -- exactly as wide as the digits, and text-underline-offset places it against the
-     baseline rather than the box.
-
-     field-sizing lets it be as narrow as what it holds, which is the point of an underline:
-     the rule is the value's own width, so it has to be. */
-  .slider-number {
-    font-family: var(--ui-font, system-ui, sans-serif);
-    font-size: var(--type-ui-size);
-    color: var(--text);
-    background: transparent;
-    border: none;
-    border-radius: 0;
-    text-align: right;
-    width: auto;
-    field-sizing: content;
-    min-width: 2ch;
-    max-width: 14ch;
-    padding: var(--nudge, 2px) 0;
-    font-feature-settings: "tnum";
-    color-scheme: inherit;
-    text-decoration: underline;
-    text-decoration-thickness: 1px;
-    text-underline-offset: 2px;
-    text-decoration-color: var(--text-muted, currentColor);
-  }
-  /* Focus has to SHOW. font-proofer signalled it with a border colour on its own box; with
-     the box gone the underline carries it, or focus becomes invisible -- which would be an
-     accessibility regression hidden inside a visual change. */
-  /* Active state colours the NUMBER as well as its rule. The underline alone is a 1px
-     signal at the bottom of a small field -- easy to miss, and invisible to anyone who is
-     not looking straight at it. Colouring the digits makes the active row obvious from
-     anywhere in the rail, and the two move together because they are one object.
-     :focus-within, not :focus: dragging the track puts focus on the range input, not on
-     the field, and a drag is activity too. */
-  .slider-number:focus,
-  .slider-row:focus-within .slider-number {
-    outline: none;
-    color: var(--accent, currentColor);
-    text-decoration-color: var(--accent, currentColor);
-    text-decoration-thickness: 2px;
-  }
-
-  /* field="box" -- the boxed treatment, kept because font-proofer's rail was designed
-     around it and a dial value in a box is a legitimate house option, not a legacy. */
-  .slider-row--boxed .slider-number {
-    background: var(--bg-elevated, var(--surface));
-    border: 1px solid var(--border);
-    border-radius: var(--radius, 6px);
-    corner-shape: superellipse(var(--corner-k, 1.2));
-    padding: 4px 6px;
-    text-decoration: none;
-  }
-  .slider-row--boxed .slider-number:focus { border-color: var(--text-muted); }
-
-  /* auto: an outlined pill beside the NAME, inside the label column -- so the tag next to
-     it starts at the same x on every row. Hanging it off the tag instead pushed that row's
-     abbreviation out of line with the rest of the rail; the control belongs to the axis,
-     not to its shorthand. "Optical Size" is 66px in a 105px column, so the pill rides in
-     the slack and costs the row nothing.
-
-     Outline, not a fill. The first version was a solid pill, and a filled shape with a
-     word in it and no icon reads as a badge REPORTING state rather than something you can
-     press -- which is why the feature stayed secret long enough to need this comment. An
-     outline that lights up is a control: the ring says pressable, the colour says on.
-
-     Both halves fade together when off -- ring and word on the same grey -- so the whole
-     chip recedes as one object instead of leaving a grey box around dim text. */
-  /* auto: a dot and a word. It was an outlined pill, and a ring has to be balanced
-     against the word inside it -- at 11px the pill was wide enough to shove the value
-     field into the tag, and every step down crowded the ring onto the letters until it
-     stopped reading as a control and was too small to touch. The ring caused all of it.
-
-     What is left says the same two things with less: the dot carries the STATE, the word
-     carries the NAME, and the whole thing is the hit target. Colour carries it too, but
-     never alone -- the mark changes shape as well, so the state survives a greyscale
-     screenshot and a colourblind reader.
-
-     Sizes are from the study in docs/system/pages/controls.html: word 10.5px because caps
-     read larger than lowercase at equal size and 11px let AUTO outweigh the 11px lowercase
-     tag it belongs to; dot 0.7em raised 1px, which is arithmetic -- AUTO's cap centre is
-     3.78px above the baseline, the glyph centres 2.70px up, and 0.7em is the size whose
-     correction lands nearest a whole pixel. Tracking off, deliberately against the house
-     caps rule, because .12em pulled the two-part mark apart. */
-  .slider-auto {
-    font: inherit;
-    /* Caps read larger than lowercase at equal size, so AUTO at the 11px tag size
-       outweighs the tag it belongs to. Half a pixel is the whole correction, and half a
-       pixel has no honest rem or role spelling. */
-    font-size: 10.5px;   /* token-lint: allow -- deliberate, see above */
-    line-height: 1;
-    letter-spacing: 0;
-    margin-left: var(--spacing-02, 6px);
-    padding: 2px 0;
-    border: 0;
-    background: none;
-    color: var(--text-dim, var(--text-muted));
-    cursor: pointer;
-    display: inline-flex;
-    align-items: baseline;
-    gap: .28em;
-    vertical-align: baseline;
-    flex-shrink: 0;
-    transition: color var(--dur-fast, .12s) ease;
-  }
-  .slider-auto:hover { color: var(--text-muted, var(--text)); }
-  /* ONE declaration with the fallback inside the var(), not two declarations.
-     The sRGB-then-OKLCH pattern in color.css works because an unsupported SYNTAX is
-     dropped at parse time, leaving the earlier declaration standing. A var() is not that:
-     `var(--ok)` parses fine and fails at COMPUTED-VALUE time, and a property that is
-     invalid at computed-value time does not fall back to the previous declaration -- it
-     INHERITS. Written as two declarations, the second one won the cascade and then
-     poisoned it, and the green became whatever grey the label happened to be.
-     That is the same trap color.css is written to document. The fallback belongs inside
-     the var(), where it covers the undefined case without ever being a declaration. */
-  .slider-auto--on { color: var(--ok, #00a01e); }
-  .slider-auto:focus-visible { outline: 2px solid var(--accent, currentColor); outline-offset: 2px; }
-  .slider-auto-dot { font-size: .7em; position: relative; top: -1px; }
-  .slider-auto-word { text-transform: uppercase; letter-spacing: normal; }
-  @media (pointer: coarse) { .slider-auto { padding: 6px 0; } }
-
-  /* ── the stepper ─────────────────────────────────────────────────────────────
-     Ours, because a text field has no native one — and because the native one could
-     never be styled the same way twice: font-proofer forced WebKit's visible with an
-     opacity hack that did nothing in Firefox, and ReCal left it hidden until hover, so
-     one primitive drew two different controls. This draws one.
-
-     Revealed on approach, not always on. A rail of eight dials with sixteen permanent
-     arrowheads is noise, and the field and the track are already two ways in before the
-     arrows are a third. */
-  .slider-step {
-    display: inline-flex;
-    flex-direction: column;
-    margin-left: var(--nudge, 2px);
-    opacity: 0;
-    transition: opacity var(--dur-fast, .12s);
-    /* HUNG, not reserved. A hidden stepper still owned its column, so every row paid
-       ~16px -- a quarter of the field -- for something most people never see appear.
-       Out of flow it costs nothing at rest, the field hugs its digits, and nothing
-       shifts when the arrows arrive because they were never in the layout.
-       They land where the suffix is, and the suffix yields as they come: one slot,
-       two occupants, never empty. On a coarse pointer they are permanent (below), and
-       a permanent thing IS part of the object, so there they go back in flow and are
-       measured with it. */
-    /* In the slot, not hung past the field. Hanging cost nothing at rest but left the
-       unit in flow, so a row with `px` pushed its number left of a row without one and
-       the values stopped sharing a right edge -- R1 in DIAL.md, and the whole reason a
-       value is right-aligned. */
-    position: absolute;
-    justify-content: center;
-  }
-  /* THE SLOT, on every row. Wide enough for the WIDEST unit plus one word space --
-     measured in Cal Sans at the label size: `em` 18.36px, `px` 14.21, `%` 9.41, a space
-     2.52. 1.75x the label size clears the widest and leaves a space outside it.
-     Multiplied against --type-ui-size, NOT written as `em`: em resolves against this
-     element's own font-size, which is the page's inherited 16px rather than the 12px the
-     label is set at -- that made the slot 28px instead of 21px, a third too wide.
-     One slot, two occupants: the unit sits in it at rest, the stepper takes it on hover,
-     and the field never moves because the slot was always there. */
-  .slider-value { position: relative; padding-right: calc(1.75 * var(--type-ui-size, 0.75rem)); }
-  /* Inset by one word space, so the space sits OUTSIDE the unit -- between it and the
-     row's right edge -- rather than collapsing to the left of it. A space is 2.52px at
-     the 12px label size, hence .21 of it. */
-  .slider-suffix,
-  .slider-step {
-    position: absolute;
-    right: calc(0.21 * var(--type-ui-size, 0.75rem));
-    top: 50%;
-    transform: translateY(-50%);
-  }
-  .slider-row:hover .slider-step,
-  .slider-row:focus-within .slider-step { opacity: 1; }
-  /* One trigger for both halves of the swap, and the same duration, or for 120ms there
-     are two things in one place. --hidden stays for the focus case the component sets
-     in JS; this adds the hover case it could not see. */
-  .slider-row:hover .slider-suffix,
-  .slider-row:focus-within .slider-suffix { opacity: 0; }
-  .slider-suffix { transition: opacity var(--dur-fast, .12s); }
-
-  /* SVG chevrons, not ▲▼. A glyph arrow is measured by whatever face is loaded — its
-     width, its baseline and its optical weight all move with the font — so the column it
-     sits in cannot be sized, and everything to its left gets padded to accommodate it.
-     A 10x6 path is exactly 10x6 in every face, which is what lets the field beside it be
-     as narrow as its digits. */
-  .slider-step-btn {
-    padding: 0;
-    border: 0;
-    background: none;
-    color: var(--text-muted);
-    cursor: pointer;
-    /* square, so the press state is a circle rather than an oval */
-    width: 16px;
-    height: 12px;
-    display: grid;
-    place-items: center;
-    position: relative;
-    border-radius: 999px;
-    corner-shape: superellipse(var(--corner-k, 1.2));
-  }
-  .slider-step-btn svg { display: block; }
-  .slider-step-btn:hover { color: var(--text); }
-  .slider-step-btn:focus-visible { outline: 1px solid var(--accent, currentColor); }
-
-  /* The press lands as a filled circle behind the chevron. A background on the button
-     itself would be a 16x12 pill; this is a true circle sized to the button's short side,
-     so it reads the same whatever the hit area grows to on touch. */
-  .slider-step-btn::before {
-    content: '';
-    position: absolute;
-    inset: 0;
-    background-image: url('data:image/avif;base64,AAAAIGZ0eXBhdmlmAAAAAE1pUHJhdmlmbWlhZm1pZjEAAAFebWV0YQAAAAAAAAAhaGRscgAAAAAAAAAAcGljdAAAAAAAAAAAAAAAAAAAAAAkZGluZgAAABxkcmVmAAAAAAAAAAEAAAAMdXJsIAAAAAEAAAAOcGl0bQAAAAAAAQAAADhpaW5mAAAAAAACAAAAFWluZmUCAAAAAAEAAGF2MDEAAAAAFWluZmUCAAABAAIAAEV4aWYAAAAAGmlyZWYAAAAAAAAADmNkc2MAAgABAAEAAACBaXBycAAAAGBpcGNvAAAAE2NvbHJuY2x4AAkAEAABgAAAAAxjbGxpA+gAQAAAABRpc3BlAAAAAAAAAGQAAABkAAAACWlyb3QAAAAAEHBpeGkAAAAAAwoKCgAAAAxhdjFDgQBMAAAAABlpcG1hAAAAAAAAAAEAAQaBAgMFhoQAAAAsaWxvYwAAAABEAAACAAEAAAABAAAB0AAAADcAAgAAAAEAAAGOAAAAQgAAAAFtZGF0AAAAAAAAAIkAAAAGRXhpZgAATU0AKgAAAAgAAYdpAAQAAAABAAAAGgAAAAAAAqACAAQAAAABAAAAZKADAAQAAAABAAAAZAAAAAASAAoNAAAAAzY8Z//ChIgAwjIkEAGEgAYYYYi0VMregO56Wg+x6xnwsfoJWaYWX85G+ibLVJ6A');
-    background-size: 100% 100%;
-    background-repeat: no-repeat;
-    dynamic-range-limit: no-limit;
-    mask-repeat: no-repeat; mask-position: center; mask-size: 10px 6px;
-    -webkit-mask-repeat: no-repeat; -webkit-mask-position: center; -webkit-mask-size: 10px 6px;
-    opacity: 0;
-    transition: opacity calc(var(--dur-fast, .12s) * 2) ease-out;
-    pointer-events: none;
-  }
-  .slider-step-btn:first-child::before { mask-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 10 6'%3E%3Cpath d='M1 4.38 5 1.62 9 4.38' fill='none' stroke='%23fff' stroke-width='1.35' stroke-linecap='round' stroke-linejoin='miter' stroke-miterlimit='4'/%3E%3C/svg%3E"); -webkit-mask-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 10 6'%3E%3Cpath d='M1 4.38 5 1.62 9 4.38' fill='none' stroke='%23fff' stroke-width='1.35' stroke-linecap='round' stroke-linejoin='miter' stroke-miterlimit='4'/%3E%3C/svg%3E"); }
-  .slider-step-btn + .slider-step-btn::before { mask-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 10 6'%3E%3Cpath d='M1 1.62 5 4.38 9 1.62' fill='none' stroke='%23fff' stroke-width='1.35' stroke-linecap='round' stroke-linejoin='miter' stroke-miterlimit='4'/%3E%3C/svg%3E"); -webkit-mask-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 10 6'%3E%3Cpath d='M1 1.62 5 4.38 9 1.62' fill='none' stroke='%23fff' stroke-width='1.35' stroke-linecap='round' stroke-linejoin='miter' stroke-miterlimit='4'/%3E%3C/svg%3E"); }
-  .slider-step-btn:active::before { opacity: 1; transition: none; }
-
-  @media (pointer: coarse) {
-    /* A FINGER-SIZED TARGET FOR THE VALUE, without moving it. The field measured 23x14 on
-       a phone -- it is sized to its digits, which is right for the eye and hopeless for a
-       thumb, so tapping the number to type simply missed. Padding grows the hit box and an
-       equal negative margin gives the space straight back, so nothing shifts: the digits
-       stay exactly where they were and the target now fills the row's height.
-       It does take that area from the bar's drag, deliberately -- over the digits, the
-       likelier intent is to type. */
-    /* `input.` on both, and that is the third specificity fight this file has had -- the
-       header documents the other two. `.slider-row--track .slider-number` sets padding: 0
-       in this same layer at (0,2,0), and it sits LATER in the file, so matching its weight
-       was not enough: at equal specificity source order decides. Adding the element makes
-       these (0,1,1) and (0,2,1), which wins from anywhere in the file rather than only
-       from below it. */
-    input.slider-number,
-    .slider-row--track input.slider-number {
-      padding: 12px 8px;
-      margin: -12px -8px;
-      position: relative;
-      z-index: 2;
-    }
-    /* Permanent here, so back into the layout and measured with the row -- and the
-       suffix stops yielding, because nothing is being anticipated.
-
-       transform: none IS THE POINT, and its absence was a real bug on phones. These two
-       share the absolute rule above, which carries `translateY(-50%)` to centre them in
-       their slot. Setting only `position: static` left the transform behind, so an
-       in-flow stepper -- 44px, two 22px targets stacked -- was still pulled up 22px: it
-       began 21px ABOVE a 46px row, overhung the rows either side, and, being painted on
-       top, swallowed the touches meant for the track. The control could not be dragged
-       on a phone at all, and the value and unit were shoved out of line by the same
-       overflow. A position change without the matching transform reset is the trap.
-
-       The suffix comes in flow with it. Left absolute against a slot that now has a real
-       occupant, it centred itself on a 44px box while the number sat at the top -- which
-       is how `620` and `px` came to be on two different lines. */
-    .slider-step { opacity: 1; position: static; transform: none; }
-    .slider-suffix { position: static; transform: none; }
-    /* The reserved slot is not reserved any more -- the stepper is IN it -- so the
-       padding that held it open is now just a gap at the right edge. */
-    /* Not flush to the edge. Zeroing this was right for the hung stepper -- the slot it
-       held open no longer existed -- but with the arrows now IN flow it put them hard
-       against the row's edge, which on a track-variant row is also the edge of the bar. */
-    .slider-value { padding-right: var(--spacing-02, 8px); align-items: center; }
-    /* DOM order is number, stepper, unit -- right while they share one slot and only one
-       of them is ever visible. In flow they are all three on screen at once, and that
-       order reads "620 ^v px": the unit is separated from its number by the control.
-       `order` puts it back without touching the markup, which the swap still depends on. */
-    .slider-suffix { order: 1; }
-    .slider-step { order: 2; }
-    .slider-row:hover .slider-suffix,
-    .slider-row:focus-within .slider-suffix { opacity: 1; }
-    /* BIG TARGETS, MARKS CLOSE TOGETHER -- and those pull in opposite directions, so the
-       box grows and the mark moves to the box's inner edge rather than its centre. Two
-       centred marks in 22px boxes sit ~22px apart, which on a 46px row reads as two
-       unrelated arrows at opposite ends of the value; pushing each to the edge it points
-       away from closes that to a pair while the 46x40 of touchable area stays. Same
-       arrangement the triplet's stepper uses. */
-    /* SHORT BOX, BIG TARGET. At 23px each the pair stood 46px tall and propped the bar
-       open to the full row, so the resting shelf could not exist -- the bar cannot be
-       shorter than its tallest content. It also threw the two marks to the extremes of
-       the row, which is why they read as too high and too low against the buttons beside
-       them.
-       16px each lets the bar sit at 32 and brings the marks within 8px of each other. The
-       touch area is given back with padding and taken out of layout with an equal negative
-       margin -- 3px, not more, because the two buttons are stacked and any larger would
-       have them overlapping, which makes up and down ambiguous at the seam. */
-    .slider-step-btn {
-      width: 40px; height: 16px;
-      padding-block: 3px; margin-block: -3px;
-    }
-    .slider-step-btn:first-child { align-items: end; }
-    .slider-step-btn + .slider-step-btn { align-items: start; }
-  }
-  @media (prefers-reduced-motion: reduce) {
-    .slider-step-btn::before { transition: none; }
-  }
-  .slider-number:disabled { cursor: default; }
-
-  /* THE TARGET IS THE ROW'S HEIGHT, and it has to be, because it cannot overlap.
-     The range input is the pointer target -- press-anywhere-on-the-track is the whole
-     reason the native control is here -- and the visible track is only 2px of it.
-     Two wrong ways to buy the rest of that height back, both tried:
-       • ReCal set `height: 1px` in host CSS. That does not compact the row, it DELETES
-         the target: a 1px-tall box to press.
-       • Taking the input out of flow and centring it over a short wrap. The row gets
-         short and the target stays 24px -- but the target then overhangs the rows above
-         and below and swallows THEIR clicks, so a dense rail stops responding entirely.
-     So the target stays in flow and the row pays for it. --dial-track-h is how a dense
-     rail asks for less, and 14px is the floor: below the thumb there is nothing left to
-     hit. Compactness is bought from the number, not from the hit area. */
-  .slider-track-wrap { position: relative; }
-  .slider-track-wrap input[type="range"] {
-    -webkit-appearance: none; appearance: none;
-    width: 100%;
-    height: max(14px, var(--dial-track-h, 24px));
-    background: transparent; cursor: pointer; margin: 0; display: block;
-  }
-  .slider-track-wrap input[type="range"]::-webkit-slider-runnable-track {
-    height: 2px;
-    background: linear-gradient(
-      to right,
-      var(--border) 0%,
-      var(--border) var(--locked-pct, 100%),
-      var(--track-empty, var(--surface-hi)) var(--locked-pct, 100%),
-      var(--track-empty, var(--surface-hi)) 100%
-    );
-    border-radius: 1px;
-  }
-  /* THE THUMB CENTRES ITSELF ON THE TRACK, whatever size it is. -webkit- puts the thumb's
-     top at the track's top, so centring is a margin -- and that margin is arithmetic on
-     the thumb's own height, not a number. It was -6px, correct for exactly 14px and wrong
-     for anything else: ReCal's play rail resizes the thumb to 9px and its scene bar to
-     12px, both by overriding this pseudo-element and neither restating the margin, so
-     both sat high of their rails (2.5px and 1px). Size it through --dial-thumb instead
-     and the arithmetic follows. */
-  .slider-track-wrap input[type="range"]::-webkit-slider-thumb {
-    -webkit-appearance: none;
-    width: var(--dial-thumb, 14px); height: var(--dial-thumb, 14px); border-radius: 50%;
-    background: var(--text); cursor: pointer;
-    margin-top: calc((2px - var(--dial-thumb, 14px)) / 2);
-  }
-  .slider-track-wrap input[type="range"]::-moz-range-track {
-    height: 2px;
-    background: linear-gradient(
-      to right,
-      var(--border) 0%,
-      var(--border) var(--locked-pct, 100%),
-      var(--track-empty, var(--surface-hi)) var(--locked-pct, 100%),
-      var(--track-empty, var(--surface-hi)) 100%
-    );
-    border-radius: 1px;
-  }
-  /* Firefox centres the thumb on the track for us -- no margin, and none wanted. */
-  .slider-track-wrap input[type="range"]::-moz-range-thumb {
-    width: var(--dial-thumb, 14px); height: var(--dial-thumb, 14px); border-radius: 50%;
-    background: var(--text); border: none; cursor: pointer;
-  }
-
-  .slider-auto-hint {
-    position: fixed;
-    font-size: var(--type-ui-size);
-    color: var(--text);
-    background: var(--bg-elevated, var(--surface));
-    border: 1px solid var(--border);
-    border-radius: var(--radius, 6px);
-    padding: var(--spacing-01, 4px) var(--spacing-03, 8px);
-    pointer-events: none;
-    z-index: 1000;
-    white-space: nowrap;
-    animation: hint-fade var(--dur-hint, 3s) forwards;
-  }
-  @keyframes hint-fade { 0% { opacity: 1; } 60% { opacity: 1; } 100% { opacity: 0; } }
-
-  /* ── variant: diamond — rotate-45 marker-default thumb (Type-Matrix style), for
-     default-editing rails. Pairs with `reference` to burn the stock value behind it. */
-  .slider-row--diamond input[type="range"]::-webkit-slider-thumb {
-    width: 12px; height: 12px; border-radius: 2px;
-    background: var(--marker-default, var(--accent, var(--text)));
-    transform: rotate(45deg);
-    box-shadow: 0 0 0 1px var(--bg);
-    margin-top: -5px;
-  }
-  .slider-row--diamond input[type="range"]::-moz-range-thumb {
-    width: 12px; height: 12px; border-radius: 2px;
-    background: var(--marker-default, var(--accent, var(--text)));
-    transform: rotate(45deg);
-    box-shadow: 0 0 0 1px var(--bg);
-  }
-
-  /* Burned stock reference — a faint ghost dot at the shipped value, behind the thumb. */
-  .slider-ref {
-    position: absolute; top: 12px; width: 8px; height: 8px; margin-left: -4px;
-    border-radius: 1px; background: var(--text-muted); opacity: 0.28;
-    transform: translateY(-50%) rotate(45deg); /* rhombus, mirrors the thumb */
-    pointer-events: none; z-index: 0;
-  }
-
-  /* ── variant: skeletal — thin/minimal, for ephemeral preview/demo sliders. */
-  .slider-row--skeletal input[type="range"]::-webkit-slider-thumb { width: 10px; height: 10px; margin-top: -4px; }
-  .slider-row--skeletal input[type="range"]::-moz-range-thumb { width: 10px; height: 10px; }
-
-  /* Static unit label after the editable field (px/%/em) — hides while the field is
-     focused so you edit just the raw number, reappears on blur. No layout shift. */
-  .slider-suffix {
-    font-size: var(--type-ui-size); color: var(--text-muted);
-    font-feature-settings: "tnum"; margin-left: -3px; pointer-events: none;
-  }
-  .slider-suffix--hidden { visibility: hidden; }
-
-  /* ── variant="track": the row IS the track ───────────────────────────────────
-     The bar carries the label, the tag and the value, and its fill IS the value. Ported
-     from the "row is the track" study in the docs page, which is where the five ways of
-     drawing a dial are compared side by side.
-
-     Built from the SAME DOM as every other variant rather than a second render path: the
-     native range input is stretched over the bar at zero opacity, so press-anywhere-to-jump,
-     drag, and the full keyboard contract (arrows, Home/End, page keys) are the platform's
-     and not ours to reimplement or to get subtly wrong. The label layer sits above it and
-     is pointer-transparent, except the number, which has to stay clickable to type into.
-
-     The fill is a gradient stop at --pct, not an element -- one paint, nothing to keep in
-     sync, and it cannot drift from the thumb because there is no thumb. */
-  .slider-row--track { position: relative; gap: 0; }
-
-  /* NO SIDE PADDING IN THIS VARIANT. The wrap carries `padding: 0 16px` so a visible thumb
-     has room to sit at either end without clipping. Here the input is opacity: 0 and the
-     fill is drawn by the label, so there is no thumb to protect -- and the padding instead
-     took 16px off each end of the bar and gave it to nothing. The rail stopped short of
-     the ends it is supposed to reach, so MIN and MAX were the two values you could not
-     press, the ew-resize cursor did not appear there, and a click simply did nothing. */
-  .slider-row--track .slider-track-wrap { position: absolute; inset: 0; margin: 0; padding: 0; }
-  .slider-row--track .slider-track-wrap input[type="range"] {
-    width: 100%; height: 100%; margin: 0; opacity: 0; cursor: ew-resize;
-    /* Claim the horizontal gesture only. `none` here would take the page's vertical scroll
-       with it wherever the pointer crossed a rail, which is most of a rail. */
-    touch-action: pan-y;
-    /* pan-y STAYS on touch. `none` was tried and was strictly worse: it took the page's
-       vertical scroll away from every row AND the drag still did not work, so a phone got
-       neither. The direction is judged in AxisSlider.tsx instead -- the first few pixels
-       decide, a horizontal move claims the pointer and drives the value, a vertical one is
-       released to the scroller untouched. Declaring the answer in CSS can only ever be
-       right for one of the two gestures; deciding it per gesture can be right for both. */
-  }
-  .slider-row--track .slider-track-wrap input[type="range"]:disabled { cursor: default; }
-
-  .slider-row--track .slider-label {
-    position: relative; z-index: 1;
-    pointer-events: none;                     /* the bar underneath owns the press */
-    min-height: 32px; padding: 0 var(--spacing-04, 12px);
-    border-radius: var(--radius, 6px);
-    corner-shape: superellipse(var(--corner-k, 1.2));
-    background:
-      linear-gradient(to right, var(--surface-hi) 0 var(--pct, 0%), transparent var(--pct, 0%) 100%),
-      var(--surface);
-    border: 1px solid var(--border);
-  }
-  /* The number stays typeable: click it and the drag stands down. */
-  .slider-row--track .slider-number,
-  .slider-row--track .slider-step,
-  .slider-row--track .slider-auto { pointer-events: auto; }
-  /* The focus ring belongs to the BAR, and the input IS the bar: it is stretched over it
-     at inset 0, so ringing the input rings exactly the shape the eye reads as the control.
-
-     This was `:has(input:focus-visible)` on the row, styling .slider-label. It never
-     fired -- measured: with the range focused and document.activeElement equal to it,
-     `row:focus-within` matches and `row:has(input:focus)` does not. Whatever the cause,
-     a rule that cannot match is worse than a simpler one that can, and this needs no
-     :has() support to work. */
-  .slider-row--track .slider-track-wrap input[type="range"]:focus-visible {
-    outline: 2px solid var(--accent, currentColor);
-    outline-offset: 2px;
-    border-radius: var(--radius, 6px);
-  }
-
-  /* The selection highlight is the browser's, not ours -- it arrives in the OS accent,
-     which is the one colour on the row nobody chose. Naming it keeps a selected value
-     inside the system. */
-  .slider-number::selection { background: var(--accent, currentColor); color: var(--bg, var(--surface)); }
-
-  /* The bar is a drag surface, so a drag across it must not select the label text -- the
-     study sets this on .v2 .bar for the same reason. The number opts back in, or you could
-     not select what you are about to retype. */
-  .slider-row--track .slider-label { user-select: none; }
-  .slider-row--track .slider-number { user-select: text; }
-  /* ── the resting shelf ────────────────────────────────────────────────────────
-     On a coarse pointer every one of these rows was 48px of live target sitting 6px from
-     the next one, so there was nowhere on the rail to put a thumb that was not a control.
-     Big rows, and unusable for exactly that reason -- the fix is subtraction, not growth.
-
-     The ROW stays 48px always. Only the BAR inside it changes, so nothing reflows and the
-     thing you were aiming at does not move. At rest the bar gives back a third of its
-     height as an inert shelf; touching it fills the row for three seconds, so a second
-     adjustment need not be aimed as carefully as the first.
-
-     The input is inset LESS than the bar, and asymmetrically: +5px above, +3px below. That
-     is occlusion forgiveness -- a finger hides what it is over, so people aim with its
-     visible top edge and miss high. What is left inert is ~3px above and ~5px below, plus
-     the 6px seam between rows: an 8-11px band you can rest on. */
-  @media (pointer: coarse) {
-    .slider-row--track { min-height: 48px; justify-content: center; }
-    .slider-row--track .slider-label {
-      min-height: 32px;
-      transition: min-height var(--dur-fast, .12s) ease;
-    }
-    .slider-row--track .slider-track-wrap { top: 3px; bottom: 5px; }
-
-    /* --nudge OFF in the bar. That 2px padding-bottom on .slider-label-left is an optical
-       baseline correction for the DESKTOP layout, where the label sits above the track and
-       wants pushing down onto it. Inside the bar the label is vertically CENTRED, so the
-       padding is counted as part of the box being centred: 14px of text in a 16px box put
-       the name 2px high of the number and stepper beside it. Right correction, wrong
-       context -- so it is removed here rather than retuned, and desktop keeps it. */
-    .slider-row--track .slider-label-left { padding-bottom: 0; }
-
-    .slider-row--track.slider-row--engaged .slider-label { min-height: 48px; }
-    .slider-row--track.slider-row--engaged .slider-track-wrap { top: 0; bottom: 0; }
-  }
-  @media (pointer: coarse) and (prefers-reduced-motion: reduce) {
-    .slider-row--track .slider-label { transition: none; }
-  }
-
-  /* ── track: the field hugs its digits, and one slot holds unit-or-arrows ──────
-     Two things the default variant gets away with and this one cannot.
-
-     WIDTH. .slider-number is a fixed 66px so that a COLUMN of rows lines its numbers up on
-     one right edge. Here there is no column -- every value is already flush to its own
-     bar's right edge -- so the 66px is just dead space to the left of the digits, and the
-     host paints the field, so that emptiness is visible as an over-wide box. field-sizing
-     lets it be as narrow as what it holds, which is what the stepper comment upstream
-     already claims the field does.
-
-     THE SLOT. The stepper hangs at left:100% so it costs nothing at rest and lands on the
-     suffix. Against a bar with padding that lands it OUTSIDE the bar. Here the value group
-     reserves one trailing slot and both occupants are placed in it, absolutely: the unit
-     sits there at rest, the arrows take it on focus, and the field never moves because the
-     slot was always there. */
-  /* Plain class selectors, because the layer settles it. This used to read
-     `input[type="text"].slider-number`, escalated to out-specify a host rule -- the kind of
-     thing that has to be rediscovered every time someone edits either file. */
-  .slider-row--track .slider-number {
-    padding: 0;
-    width: auto;
-    field-sizing: content;
-    min-width: 2ch;
-    max-width: 14ch;   /* "620 · 64n" is the longest value in either app */
-  }
-  /* ONE SLOT ON EVERY ROW, and it IS the bar's right padding rather than something extra
-     inside it.
-
-     Conditional was worse, and the numbers said so: reserving only where a unit exists
-     pushed that row's value 16px left of the rest, so the values stopped forming a column.
-     A rail of dials is read down the right edge -- that column is the reason the value is
-     right-aligned in the first place -- and no per-row saving is worth breaking it.
-
-     So the slot is uniform, and it is not additional space: the bar gives up its right
-     padding to it, so the total is 16px on the right against 12px of padding on the left,
-     not 28px. The unit sits in it at rest; the arrows take it on hover. On a row with no
-     unit it holds the arrows alone and is otherwise the right margin -- which is what the
-     row needed anyway.
-
-     Step buttons are 12px here so a pair fits the slot with air, rather than filling it. */
-  /* The bar gives up its right padding to the slot, so the total is the slot alone
-     rather than the slot plus 12px. The slot itself is the base's now. */
-  .slider-row--track .slider-label { padding-right: 0; }
-  .slider-row--track .slider-step-btn { width: 12px; }
-  /* ON TOUCH THE PAIR IS A TARGET, NOT AN ORNAMENT. 12px is a fine-pointer width, chosen
-     so a pair fits the slot with air; a finger needs the slot. Restated here because
-     `.slider-row--track .slider-step-btn` out-specifies the coarse block above -- which is
-     why widening it there did nothing, and why these arrows stayed 12px wide and hard
-     against the bar's edge on a phone. */
-  @media (pointer: coarse) {
-    .slider-row--track .slider-step-btn { width: 40px; }
-    .slider-row--track .slider-value { padding-right: var(--spacing-02, 8px); }
-  }
-
-  .slider-row--track .slider-suffix { color: var(--text-muted); }
-
-  /* ── what the swap left behind ───────────────────────────────────────────────
-     Two features live on the range input's own track, which this variant renders at zero
-     opacity -- so they vanished silently rather than breaking. Both are painted back onto
-     the bar here.
-
-     lockedAbove (font-proofer's opsz rail) marks the part of the range that is out of
-     bounds. On the default variant it is a stop in the runnable-track gradient; here it is
-     a layer over the bar, up to --locked-pct.
-
-     reference (ReCal's burned stock value) is a real element in the track wrap, and the
-     label sits above the wrap so the marker was covered. Lifting the marker rather than the
-     whole wrap keeps the transparent input BELOW the label, which is what leaves the number
-     clickable. */
-  .slider-row--track .slider-label::before {
-    content: '';
-    position: absolute; inset: 0;
-    border-radius: inherit;
-    background: linear-gradient(to right,
-      var(--border) 0 var(--locked-pct, 0%),
-      transparent var(--locked-pct, 0%) 100%);
-    opacity: .55;
-    pointer-events: none;
-  }
-  /* STOCK, AS A SHORT MARK ON THE BAR'S FOOT. The base rule draws a rhombus, which was
-     written to MIRROR the diamond thumb -- so on a bar with no thumb it was a 28px lozenge
-     rotated 45 degrees, lying across the row at an angle. A tick would have read as an
-     error underline; a triangle reads as a scale marker, which is what it is.
-     On the foot rather than through the bar, so it survives every fill state: below stock
-     the fill has not reached it, above stock it sits under the ink, and either way it is
-     out of the value's way. Sized off the border trick rather than a rotated box -- no
-     transform to fight, and the point lands exactly on the value it marks.
-
-     BITTEN OUT, not laid on. The triangle is the ground colour, so it reads as a notch in
-     the bar rather than a third object sitting on it -- the same logic as the fill break,
-     but it keeps a defined shape wherever the fill happens to end. An ink triangle at the
-     foot of a bar reads as an underline, and an underline reads as an error. */
-  .slider-row--track .slider-ref {
-    z-index: 2;
-    top: auto; bottom: 0;
-    width: 0; height: 0;
-    /* Clamped inward at the ends. At stock = axis floor the mark sat at left:0 with a
-       negative margin, hanging off the bar's rounded corner -- as a triangle it read as a
-       speech-bubble tail, and any shape reads as damage out there. Half its own width of
-       inset keeps the mark ON the bar at both extremes. */
-    margin-left: -5px;
-    border-radius: 0;
-    /* transform: none is LOAD-BEARING. The base rule carries translateY(-50%) rotate(45deg)
-       to mirror the diamond thumb; anything here that does not clear it inherits a mark
-       lying at 45 degrees, which is what made every placement read as a stray dash. */
-    transform: none;
-    background: none;
-    /* Points UP, into the bar. Built from borders rather than a rotated box so the apex is
-       real geometry -- there is no transform to fight and nothing to re-clear later. */
-    border-left: 5px solid transparent;
-    border-right: 5px solid transparent;
-    border-bottom: 5px solid rgba(var(--text-rgb, 232, 232, 232), .55);
-    border-top: 0;
-    opacity: 1;
-  }
-  /* The bar is the coarse control, so say so on the way in. */
-  .slider-row--track .slider-label { cursor: ew-resize; }
-  .slider-row--track.slider-row--off .slider-label { cursor: default; }
-}
+/* ==== shared/dist/dial.css ==== */
+@layer wm.controls{.wm-chevron,.slider-step-btn svg,.triplet-step-btn svg{stroke-width:var(--chevron-stroke, 1.15);transition:stroke-width var(--icon-dur, 90ms) ease}.slider-row:hover .slider-step-btn svg,.slider-row:focus-within .slider-step-btn svg,.triplet-f:hover .triplet-step-btn svg,.triplet-f:focus-within .triplet-step-btn svg,.triplet-row:hover .triplet-step-btn svg,.instance-select-wrap:hover .wm-chevron,button:hover>.wm-chevron{stroke-width:calc(var(--chevron-stroke, 1.15) * 1.17)}.wm-chevron.chev-left{transform:rotate(90deg)}.wm-chevron.chev-right{transform:rotate(-90deg)}@media(prefers-reduced-motion:reduce){.slider-step-btn svg,.triplet-step-btn svg{transition:none}}}@layer wm.controls{.slider-row{display:flex;flex-direction:column;gap:3px}.slider-row--off{opacity:.4}.slider-label{display:flex;align-items:center;justify-content:space-between;gap:6px}.slider-label-left{display:flex;align-items:baseline;gap:var(--spacing-01, 4px);flex:1 1 auto;min-width:0;overflow:visible;padding-bottom:var(--nudge, 2px)}.slider-label-text{font-size:var(--type-ui-size);color:var(--text-muted);font-family:var(--ui-font, system-ui, sans-serif);white-space:nowrap;overflow:visible;text-overflow:clip}.slider-label-name{white-space:nowrap}.slider-label-text--tagged{min-width:var(--axis-label-w, 105px);flex:0 0 auto;display:inline-flex;align-items:baseline;gap:var(--spacing-01, 4px)}.slider-tag{font-size:var(--type-micro-size);color:var(--text-muted);font-family:var(--ui-font, system-ui, sans-serif);letter-spacing:0;flex-shrink:0;font-feature-settings:"tnum"}.slider-range{color:var(--text-dim);font-variant-numeric:tabular-nums;white-space:nowrap}.slider-value{display:flex;align-items:baseline;gap:var(--spacing-01, 4px);flex-shrink:0}.slider-marker{font-size:var(--type-micro-size);line-height:1;color:var(--marker-default, var(--accent, currentColor));transform:translateY(-1px)}.slider-number{font-family:var(--ui-font, system-ui, sans-serif);font-size:var(--type-ui-size);color:var(--text);background:transparent;border:none;border-radius:0;text-align:right;width:auto;field-sizing:content;min-width:2ch;max-width:14ch;padding:var(--nudge, 2px) 0;font-feature-settings:"tnum";color-scheme:inherit;text-decoration:underline;text-decoration-thickness:1px;text-underline-offset:2px;text-decoration-color:var(--text-muted, currentColor)}.slider-number:focus,.slider-row:focus-within .slider-number{outline:none;color:var(--accent, currentColor);text-decoration-color:var(--accent, currentColor);text-decoration-thickness:2px}.slider-row--boxed .slider-number{background:var(--bg-elevated, var(--surface));border:1px solid var(--border);border-radius:var(--radius, 6px);corner-shape:superellipse(var(--corner-k, 1.2));padding:4px 6px;text-decoration:none}.slider-row--boxed .slider-number:focus{border-color:var(--text-muted)}.slider-auto{font:inherit;font-size:10.5px;line-height:1;letter-spacing:0;margin-left:var(--spacing-02, 6px);padding:2px 0;border:0;background:none;color:var(--text-dim, var(--text-muted));cursor:pointer;display:inline-flex;align-items:baseline;gap:.28em;vertical-align:baseline;flex-shrink:0;transition:color var(--dur-fast, .12s) ease}.slider-auto:hover{color:var(--text-muted, var(--text))}.slider-auto--on{color:var(--ok, #00a01e)}.slider-auto:focus-visible{outline:2px solid var(--accent, currentColor);outline-offset:2px}.slider-auto-dot{font-size:.7em;position:relative;top:-1px}.slider-auto-word{text-transform:uppercase;letter-spacing:normal}@media(pointer:coarse){.slider-auto{padding:6px 0}}.slider-step{display:inline-flex;flex-direction:column;margin-left:var(--nudge, 2px);opacity:0;transition:opacity var(--dur-fast, .12s);position:absolute;justify-content:center}.slider-value{position:relative;padding-right:calc(1.75 * var(--type-ui-size, .75rem))}.slider-suffix,.slider-step{position:absolute;right:calc(.21 * var(--type-ui-size, .75rem));top:50%;transform:translateY(-50%)}.slider-row:hover .slider-step,.slider-row:focus-within .slider-step{opacity:1}.slider-row:hover .slider-suffix,.slider-row:focus-within .slider-suffix{opacity:0}.slider-suffix{transition:opacity var(--dur-fast, .12s)}.slider-step-btn{padding:0;border:0;background:none;color:var(--text-muted);cursor:pointer;width:16px;height:12px;display:grid;place-items:center;position:relative;border-radius:999px;corner-shape:superellipse(var(--corner-k, 1.2))}.slider-step-btn svg{display:block}.slider-step-btn:hover{color:var(--text)}.slider-step-btn:focus-visible{outline:1px solid var(--accent, currentColor)}.slider-step-btn:before{content:"";position:absolute;inset:0;background-image:url(data:image/avif;base64,AAAAIGZ0eXBhdmlmAAAAAE1pUHJhdmlmbWlhZm1pZjEAAAFebWV0YQAAAAAAAAAhaGRscgAAAAAAAAAAcGljdAAAAAAAAAAAAAAAAAAAAAAkZGluZgAAABxkcmVmAAAAAAAAAAEAAAAMdXJsIAAAAAEAAAAOcGl0bQAAAAAAAQAAADhpaW5mAAAAAAACAAAAFWluZmUCAAAAAAEAAGF2MDEAAAAAFWluZmUCAAABAAIAAEV4aWYAAAAAGmlyZWYAAAAAAAAADmNkc2MAAgABAAEAAACBaXBycAAAAGBpcGNvAAAAE2NvbHJuY2x4AAkAEAABgAAAAAxjbGxpA+gAQAAAABRpc3BlAAAAAAAAAGQAAABkAAAACWlyb3QAAAAAEHBpeGkAAAAAAwoKCgAAAAxhdjFDgQBMAAAAABlpcG1hAAAAAAAAAAEAAQaBAgMFhoQAAAAsaWxvYwAAAABEAAACAAEAAAABAAAB0AAAADcAAgAAAAEAAAGOAAAAQgAAAAFtZGF0AAAAAAAAAIkAAAAGRXhpZgAATU0AKgAAAAgAAYdpAAQAAAABAAAAGgAAAAAAAqACAAQAAAABAAAAZKADAAQAAAABAAAAZAAAAAASAAoNAAAAAzY8Z//ChIgAwjIkEAGEgAYYYYi0VMregO56Wg+x6xnwsfoJWaYWX85G+ibLVJ6A);background-size:100% 100%;background-repeat:no-repeat;dynamic-range-limit:no-limit;mask-repeat:no-repeat;mask-position:center;mask-size:10px 6px;-webkit-mask-repeat:no-repeat;-webkit-mask-position:center;-webkit-mask-size:10px 6px;opacity:0;transition:opacity calc(var(--dur-fast, .12s) * 2) ease-out;pointer-events:none}.slider-step-btn:first-child:before{mask-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 10 6'%3E%3Cpath d='M1 4.38 5 1.62 9 4.38' fill='none' stroke='%23fff' stroke-width='1.35' stroke-linecap='round' stroke-linejoin='miter' stroke-miterlimit='4'/%3E%3C/svg%3E");-webkit-mask-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 10 6'%3E%3Cpath d='M1 4.38 5 1.62 9 4.38' fill='none' stroke='%23fff' stroke-width='1.35' stroke-linecap='round' stroke-linejoin='miter' stroke-miterlimit='4'/%3E%3C/svg%3E")}.slider-step-btn+.slider-step-btn:before{mask-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 10 6'%3E%3Cpath d='M1 1.62 5 4.38 9 1.62' fill='none' stroke='%23fff' stroke-width='1.35' stroke-linecap='round' stroke-linejoin='miter' stroke-miterlimit='4'/%3E%3C/svg%3E");-webkit-mask-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 10 6'%3E%3Cpath d='M1 1.62 5 4.38 9 1.62' fill='none' stroke='%23fff' stroke-width='1.35' stroke-linecap='round' stroke-linejoin='miter' stroke-miterlimit='4'/%3E%3C/svg%3E")}.slider-step-btn:active:before{opacity:1;transition:none}@media(pointer:coarse){input.slider-number,.slider-row--track input.slider-number{padding:12px 8px;margin:-12px -8px;position:relative;z-index:2}.slider-step{opacity:1;position:static;transform:none}.slider-suffix{position:static;transform:none}.slider-value{padding-right:var(--spacing-02, 8px);align-items:center}.slider-suffix{order:1}.slider-step{order:2}.slider-row:hover .slider-suffix,.slider-row:focus-within .slider-suffix{opacity:1}.slider-step-btn{width:40px;height:16px;padding-block:3px;margin-block:-3px}.slider-step-btn:first-child{align-items:end}.slider-step-btn+.slider-step-btn{align-items:start}}@media(prefers-reduced-motion:reduce){.slider-step-btn:before{transition:none}}.slider-number:disabled{cursor:default}.slider-track-wrap{position:relative}.slider-track-wrap input[type=range]{-webkit-appearance:none;appearance:none;width:100%;height:max(14px,var(--dial-track-h, 24px));background:transparent;cursor:pointer;margin:0;display:block}.slider-track-wrap input[type=range]::-webkit-slider-runnable-track{height:2px;background:linear-gradient(to right,var(--border) 0%,var(--border) var(--locked-pct, 100%),var(--track-empty, var(--surface-hi)) var(--locked-pct, 100%),var(--track-empty, var(--surface-hi)) 100%);border-radius:1px}.slider-track-wrap input[type=range]::-webkit-slider-thumb{-webkit-appearance:none;width:var(--dial-thumb, 14px);height:var(--dial-thumb, 14px);border-radius:50%;background:var(--text);cursor:pointer;margin-top:calc((2px - var(--dial-thumb, 14px)) / 2)}.slider-track-wrap input[type=range]::-moz-range-track{height:2px;background:linear-gradient(to right,var(--border) 0%,var(--border) var(--locked-pct, 100%),var(--track-empty, var(--surface-hi)) var(--locked-pct, 100%),var(--track-empty, var(--surface-hi)) 100%);border-radius:1px}.slider-track-wrap input[type=range]::-moz-range-thumb{width:var(--dial-thumb, 14px);height:var(--dial-thumb, 14px);border-radius:50%;background:var(--text);border:none;cursor:pointer}.slider-auto-hint{position:fixed;font-size:var(--type-ui-size);color:var(--text);background:var(--bg-elevated, var(--surface));border:1px solid var(--border);border-radius:var(--radius, 6px);padding:var(--spacing-01, 4px) var(--spacing-03, 8px);pointer-events:none;z-index:1000;white-space:nowrap;animation:hint-fade var(--dur-hint, 3s) forwards}@keyframes hint-fade{0%{opacity:1}60%{opacity:1}to{opacity:0}}.slider-row--diamond input[type=range]::-webkit-slider-thumb{width:12px;height:12px;border-radius:2px;background:var(--marker-default, var(--accent, var(--text)));transform:rotate(45deg);box-shadow:0 0 0 1px var(--bg);margin-top:-5px}.slider-row--diamond input[type=range]::-moz-range-thumb{width:12px;height:12px;border-radius:2px;background:var(--marker-default, var(--accent, var(--text)));transform:rotate(45deg);box-shadow:0 0 0 1px var(--bg)}.slider-ref{position:absolute;top:12px;width:8px;height:8px;margin-left:-4px;border-radius:1px;background:var(--text-muted);opacity:.28;transform:translateY(-50%) rotate(45deg);pointer-events:none;z-index:0}.slider-row--skeletal input[type=range]::-webkit-slider-thumb{width:10px;height:10px;margin-top:-4px}.slider-row--skeletal input[type=range]::-moz-range-thumb{width:10px;height:10px}.slider-suffix{font-size:var(--type-ui-size);color:var(--text-muted);font-feature-settings:"tnum";margin-left:-3px;pointer-events:none}.slider-suffix--hidden{visibility:hidden}.slider-row--track{position:relative;gap:0}.slider-row--track .slider-track-wrap{position:absolute;inset:0;margin:0;padding:0}.slider-row--track .slider-track-wrap input[type=range]{width:100%;height:100%;margin:0;opacity:0;cursor:ew-resize;touch-action:pan-y}.slider-row--track .slider-track-wrap input[type=range]:disabled{cursor:default}.slider-row--track .slider-label{position:relative;z-index:1;pointer-events:none;min-height:32px;padding:0 var(--spacing-04, 12px);border-radius:var(--radius, 6px);corner-shape:superellipse(var(--corner-k, 1.2));background:linear-gradient(to right,var(--surface-hi) 0 var(--pct, 0%),transparent var(--pct, 0%) 100%),var(--surface);border:1px solid var(--border)}.slider-row--track .slider-number,.slider-row--track .slider-step,.slider-row--track .slider-auto{pointer-events:auto}.slider-row--track .slider-track-wrap input[type=range]:focus-visible{outline:2px solid var(--accent, currentColor);outline-offset:2px;border-radius:var(--radius, 6px)}.slider-number::selection{background:var(--accent, currentColor);color:var(--bg, var(--surface))}.slider-row--track .slider-label{user-select:none}.slider-row--track .slider-number{user-select:text}@media(pointer:coarse){.slider-row--track{min-height:48px;justify-content:center}.slider-row--track .slider-label{min-height:32px;transition:min-height var(--dur-fast, .12s) ease}.slider-row--track .slider-track-wrap{top:3px;bottom:5px}.slider-row--track .slider-label-left{padding-bottom:0}.slider-row--track.slider-row--engaged .slider-label{min-height:48px}.slider-row--track.slider-row--engaged .slider-track-wrap{top:0;bottom:0}}@media(pointer:coarse)and (prefers-reduced-motion:reduce){.slider-row--track .slider-label{transition:none}}.slider-row--track .slider-number{padding:0;width:auto;field-sizing:content;min-width:2ch;max-width:14ch}.slider-row--track .slider-label{padding-right:0}.slider-row--track .slider-step-btn{width:12px}@media(pointer:coarse){.slider-row--track .slider-step-btn{width:40px}.slider-row--track .slider-value{padding-right:var(--spacing-02, 8px)}}.slider-row--track .slider-suffix{color:var(--text-muted)}.slider-row--track .slider-label:before{content:"";position:absolute;inset:0;border-radius:inherit;background:linear-gradient(to right,var(--border) 0 var(--locked-pct, 0%),transparent var(--locked-pct, 0%) 100%);opacity:.55;pointer-events:none}.slider-row--track .slider-ref{z-index:2;top:auto;bottom:0;width:0;height:0;margin-left:-5px;border-radius:0;transform:none;background:none;border-left:5px solid transparent;border-right:5px solid transparent;border-bottom:5px solid rgba(var(--text-rgb, 232, 232, 232),.55);border-top:0;opacity:1}.slider-row--track .slider-label{cursor:ew-resize}.slider-row--track.slider-row--off .slider-label{cursor:default}}@font-face{font-family:Material Symbols Outlined;font-style:normal;font-weight:100 700;font-display:block;src:url(fonts/MaterialSymbolsOutlined.woff2) format("woff2")}@property --icon-hdr{syntax: "<number>"; inherits: false; initial-value: 0;}@layer wm.icon{.wm-icon{font-family:Material Symbols Outlined;font-weight:400;font-style:normal;line-height:1;letter-spacing:normal;text-transform:none;white-space:nowrap;word-wrap:normal;direction:ltr;-webkit-font-feature-settings:"liga";font-feature-settings:"liga";-webkit-font-smoothing:antialiased;display:inline-flex;align-items:center;justify-content:center;flex:0 0 auto;vertical-align:middle;user-select:none;background:none;border:0;border-radius:0;padding:0;--icon-opsz: 20;--icon-fill: 0;--icon-wght: 300;--icon-grad: 50;font-variation-settings:"FILL" var(--icon-fill),"wght" var(--icon-wght),"GRAD" var(--icon-grad),"opsz" var(--icon-opsz);color:rgba(var(--text-rgb, 232, 232, 232),var(--ink-faint, .38));--icon-dur: 90ms;transition:font-variation-settings var(--icon-dur) ease,color var(--icon-dur) ease,--icon-hdr var(--icon-dur) ease}@media(prefers-color-scheme:light){:root:not([data-theme=dark]) .wm-icon{--icon-grad: 100}:root:not([data-theme=dark]) .wm-icon--off{--icon-grad: 100}:root:not([data-theme=dark]) .wm-icon--active,:root:not([data-theme=dark]) .active>.wm-icon,:root:not([data-theme=dark]) .active>*>.wm-icon{--icon-grad: 100}}:root[data-theme=light] .wm-icon{--icon-grad: 100}:root[data-theme=light] .wm-icon--off{--icon-grad: 100}:root[data-theme=light] .wm-icon--active,:root[data-theme=light] .active>.wm-icon,:root[data-theme=light] .active>*>.wm-icon{--icon-grad: 100}:root[data-theme=dark] .wm-icon{--icon-grad: 50}:root[data-theme=dark] .wm-icon--off{--icon-grad: 50}:root[data-theme=dark] .wm-icon--active,:root[data-theme=dark] .active>.wm-icon,:root[data-theme=dark] .active>*>.wm-icon{--icon-grad: 75}.wm-icon--off{--icon-wght: 300;color:rgba(var(--text-rgb, 232, 232, 232),var(--ink-faint, .38))}.wm-icon--active,.active>.wm-icon,.active>*>.wm-icon{--icon-grad: 75;--icon-hdr: 1;color:transparent;background-image:linear-gradient(rgba(var(--text-rgb, 232, 232, 232),calc(1 - var(--icon-hdr))),rgba(var(--text-rgb, 232, 232, 232),calc(1 - var(--icon-hdr)))),url(data:image/avif;base64,AAAAIGZ0eXBhdmlmAAAAAE1pUHJhdmlmbWlhZm1pZjEAAAFebWV0YQAAAAAAAAAhaGRscgAAAAAAAAAAcGljdAAAAAAAAAAAAAAAAAAAAAAkZGluZgAAABxkcmVmAAAAAAAAAAEAAAAMdXJsIAAAAAEAAAAOcGl0bQAAAAAAAQAAADhpaW5mAAAAAAACAAAAFWluZmUCAAAAAAEAAGF2MDEAAAAAFWluZmUCAAABAAIAAEV4aWYAAAAAGmlyZWYAAAAAAAAADmNkc2MAAgABAAEAAACBaXBycAAAAGBpcGNvAAAAE2NvbHJuY2x4AAkAEAABgAAAAAxjbGxpA+gAQAAAABRpc3BlAAAAAAAAAGQAAABkAAAACWlyb3QAAAAAEHBpeGkAAAAAAwoKCgAAAAxhdjFDgQBMAAAAABlpcG1hAAAAAAAAAAEAAQaBAgMFhoQAAAAsaWxvYwAAAABEAAACAAEAAAABAAAB0AAAADcAAgAAAAEAAAGOAAAAQgAAAAFtZGF0AAAAAAAAAIkAAAAGRXhpZgAATU0AKgAAAAgAAYdpAAQAAAABAAAAGgAAAAAAAqACAAQAAAABAAAAZKADAAQAAAABAAAAZAAAAAASAAoNAAAAAzY8Z//ChIgAwjIkEAGEgAYYYYi0VMregO56Wg+x6xnwsfoJWaYWX85G+ibLVJ6A);background-size:100% 100%;background-repeat:no-repeat;-webkit-background-clip:text;background-clip:text;dynamic-range-limit:no-limit}@media(prefers-color-scheme:light){:root:not([data-theme=dark]) .wm-icon--active,:root:not([data-theme=dark]) .active>.wm-icon,:root:not([data-theme=dark]) .active>*>.wm-icon{--icon-hdr: 0;color:rgba(var(--text-rgb, 232, 232, 232),var(--ink-full, 1));background-image:none;-webkit-background-clip:border-box;background-clip:border-box;dynamic-range-limit:standard}}:root[data-theme=light] .wm-icon--active,:root[data-theme=light] .active>.wm-icon,:root[data-theme=light] .active>*>.wm-icon{--icon-hdr: 0;color:rgba(var(--text-rgb, 232, 232, 232),var(--ink-full, 1));background-image:none;-webkit-background-clip:border-box;background-clip:border-box;dynamic-range-limit:standard}.wm-icon-btn:not(.active):hover .wm-icon:not(.wm-icon--off):not(.wm-icon--active),.wm-icon-btn:not(.active):focus-visible .wm-icon:not(.wm-icon--off):not(.wm-icon--active),.fit-align-btn:not(.active):hover .wm-icon:not(.wm-icon--off):not(.wm-icon--active),.fit-align-btn:not(.active):focus-visible .wm-icon:not(.wm-icon--off):not(.wm-icon--active),.align-btn:not(.active):hover .wm-icon:not(.wm-icon--off):not(.wm-icon--active),.align-btn:not(.active):focus-visible .wm-icon:not(.wm-icon--off):not(.wm-icon--active),.mobile-tab:not(.active):hover .wm-icon:not(.wm-icon--off):not(.wm-icon--active),.mobile-sub-btn:not(.active):hover .wm-icon:not(.wm-icon--off):not(.wm-icon--active),.mode-btn:not(.active):hover .wm-icon:not(.wm-icon--off):not(.wm-icon--active),.wm-icon:not(.wm-icon--off):not(.wm-icon--active):not(:where(.active) *):hover{--icon-grad: 100;color:rgba(var(--text-rgb, 232, 232, 232),var(--ink-quiet, .62))}@media(prefers-color-scheme:light){:root:not([data-theme=dark]) .wm-icon-btn:not(.active):hover .wm-icon:not(.wm-icon--off):not(.wm-icon--active),:root:not([data-theme=dark]) .fit-align-btn:not(.active):hover .wm-icon:not(.wm-icon--off):not(.wm-icon--active),:root:not([data-theme=dark]) .align-btn:not(.active):hover .wm-icon:not(.wm-icon--off):not(.wm-icon--active),:root:not([data-theme=dark]) .mobile-tab:not(.active):hover .wm-icon:not(.wm-icon--off):not(.wm-icon--active),:root:not([data-theme=dark]) .mode-btn:not(.active):hover .wm-icon:not(.wm-icon--off):not(.wm-icon--active),:root:not([data-theme=dark]) .wm-icon:not(.wm-icon--off):not(.wm-icon--active):not(:where(.active) *):hover{--icon-grad: 150}}:root[data-theme=light] .wm-icon-btn:not(.active):hover .wm-icon:not(.wm-icon--off):not(.wm-icon--active),:root[data-theme=light] .fit-align-btn:not(.active):hover .wm-icon:not(.wm-icon--off):not(.wm-icon--active),:root[data-theme=light] .align-btn:not(.active):hover .wm-icon:not(.wm-icon--off):not(.wm-icon--active),:root[data-theme=light] .mobile-tab:not(.active):hover .wm-icon:not(.wm-icon--off):not(.wm-icon--active),:root[data-theme=light] .mode-btn:not(.active):hover .wm-icon:not(.wm-icon--off):not(.wm-icon--active),:root[data-theme=light] .wm-icon:not(.wm-icon--off):not(.wm-icon--active):not(:where(.active) *):hover{--icon-grad: 150}:root[data-theme=dark] .wm-icon-btn:not(.active):hover .wm-icon:not(.wm-icon--off):not(.wm-icon--active),:root[data-theme=dark] .fit-align-btn:not(.active):hover .wm-icon:not(.wm-icon--off):not(.wm-icon--active),:root[data-theme=dark] .align-btn:not(.active):hover .wm-icon:not(.wm-icon--off):not(.wm-icon--active),:root[data-theme=dark] .mobile-tab:not(.active):hover .wm-icon:not(.wm-icon--off):not(.wm-icon--active),:root[data-theme=dark] .mode-btn:not(.active):hover .wm-icon:not(.wm-icon--off):not(.wm-icon--active),:root[data-theme=dark] .wm-icon:not(.wm-icon--off):not(.wm-icon--active):not(:where(.active) *):hover{--icon-grad: 100}.wm-icon-btn{display:inline-flex;align-items:center;justify-content:center;padding:var(--icon-btn-pad, var(--spacing-02, 6px));margin:0;background:none;border:0;border-radius:0;color:inherit;cursor:pointer;-webkit-tap-highlight-color:transparent}.wm-icon-btn:focus{outline:none}.wm-icon-btn:focus-visible{outline:2px solid var(--accent, currentColor);outline-offset:2px}@media(pointer:coarse){.wm-icon-btn{min-width:44px;min-height:44px}}@media(prefers-reduced-motion:reduce){.wm-icon{transition:none}}}
 
 /* ============================================================================
    opsz-proofer
@@ -1279,9 +540,9 @@ input[type="range"]::-moz-range-thumb { corner-shape: round; }
      injected by build.py. The primitive sets no width -- it takes the width of
      whatever rail holds it -- so the two rails here give it one. */
   .axis-rail { display: flex; gap: var(--spacing-06); align-items: flex-end; }
-  .axis-rail .slider-row,
-  .rail .slider-row,
-  .calib-body .slider-row { width: 184px; }
+  .axis-rail .slider-host,
+  .rail .slider-host,
+  .calib-body .slider-host { width: 184px; }
 
   /* -- panels -- */
 
@@ -1490,18 +751,7 @@ input[type="range"]::-moz-range-thumb { corner-shape: round; }
       <summary class="t-ui">True-size calibration</summary>
       <div class="calib-body">
         <div class="card-ref t-ui" id="cardRef">ID card &mdash; 85.6 mm</div>
-        <div class="slider-row" style="width:200px">
-          <div class="slider-label">
-            <span class="slider-label-left">
-              <span class="slider-label-text t-ui">screen</span>
-            </span>
-            <span class="slider-value">
-              <input class="slider-number t-ui readout" type="number" id="calibNum" min="120" max="700" step="1" />
-              <span class="slider-suffix t-micro">ppi</span>
-            </span>
-          </div>
-          <div class="slider-track-wrap"><input type="range" id="calib" min="180" max="620" step="1" value="323" /></div>
-        </div>
+        <div id="calib" class="slider-host" style="width:200px"></div>
         <span class="t-ui ink-quiet" style="max-width:34ch">Drag until the box matches a real card. Then <b>pt</b> rows are physically true on this screen.</span>
       </div>
     </details>
@@ -1527,18 +777,7 @@ input[type="range"]::-moz-range-thumb { corner-shape: round; }
             <button type="button" data-mode="stack" aria-pressed="false">Stack</button>
           </div>
         </div>
-        <div class="slider-row">
-          <div class="slider-label">
-            <span class="slider-label-left">
-              <span class="slider-label-text t-ui">display size</span>
-            </span>
-            <span class="slider-value">
-              <input class="slider-number t-ui readout" type="number" id="ladderNum" min="60" max="420" step="2" value="180" />
-              <span class="slider-suffix t-micro">px</span>
-            </span>
-          </div>
-          <div class="slider-track-wrap"><input type="range" id="ladderSize" min="60" max="420" step="2" value="180" /></div>
-        </div>
+        <div id="ladderSize" class="slider-host"></div>
         <div class="legend t-ui readout" id="legend"></div>
       </div>
     </div>
@@ -1550,6 +789,7 @@ input[type="range"]::-moz-range-thumb { corner-shape: round; }
 
 </div>
 
+<script src="dial.js"></script>
 <script>
 (function () {
   "use strict";
@@ -1701,18 +941,11 @@ input[type="range"]::-moz-range-thumb { corner-shape: round; }
 
   /* -- axis controls (wm-primitives AxisSlider) -- */
 
-  function sliderRow(tag, min, max, value) {
-    return '<div class="slider-row" data-row="' + tag + '">' +
-      '<div class="slider-label"><span class="slider-label-left">' +
-      '<span class="slider-label-text t-ui">' + tag + "</span>" +
-      '<span class="slider-range t-micro readout">' + min + "\u2013" + max + "</span></span>" +
-      '<span class="slider-value"><input class="slider-number t-ui readout" type="number" ' +
-      'data-num="' + tag + '" min="' + min + '" max="' + max + '" step="1" value="' + value + '" />' +
-      "</span></div>" +
-      '<div class="slider-track-wrap"><input type="range" data-axis="' + tag + '" min="' + min +
-      '" max="' + max + '" step="1" value="' + value + '" /></div></div>';
-  }
-
+  /* The axis rows are the house dial -- AxisSlider itself, from shared/dist/dial.js --
+     not markup wearing its class names (SLIDERS.md 57-59 records why that drifted).
+     Scroll-to-adjust went with the markup: the dial refuses a vertical wheel on
+     purpose, because a hover while scrolling the page must never edit a value. */
+  const axisDials = new Map();
   function renderAxisControls() {
     let seg = "";
     for (const a of state.axes) {
@@ -1721,40 +954,20 @@ input[type="range"]::-moz-range-thumb { corner-shape: round; }
     }
     $("gridAxisSeg").innerHTML = seg;
 
-    let html = "";
+    for (const d of axisDials.values()) d.destroy();
+    axisDials.clear();
+    $("axisCtls").innerHTML = "";
     for (const a of state.axes) {
       if (a.tag === state.gridAxis) continue;
       if (state.others[a.tag] === undefined) state.others[a.tag] = a.def;
-      html += sliderRow(a.tag, a.min, a.max, state.others[a.tag]);
+      const host = document.createElement("div");
+      host.className = "slider-host";
+      $("axisCtls").appendChild(host);
+      axisDials.set(a.tag, wmDial.mount(host, {
+        label: a.tag, value: state.others[a.tag], min: a.min, max: a.max, step: 1, showRange: true,
+        onChange: (v) => { state.others[a.tag] = v; renderGrid(); renderLadder(); },
+      }));
     }
-    $("axisCtls").innerHTML = html;
-
-    $("axisCtls").querySelectorAll("[data-axis], [data-num]").forEach((el) => {
-      el.addEventListener("input", () => {
-        const tag = el.dataset.axis || el.dataset.num;
-        const v = +el.value;
-        if (isNaN(v)) return;
-        state.others[tag] = v;
-        const row = $("axisCtls").querySelector('[data-row="' + tag + '"]');
-        row.querySelector("[data-axis]").value = v;
-        row.querySelector("[data-num]").value = v;
-        renderGrid(); renderLadder();
-      });
-    });
-
-    // Scroll-to-adjust, matching AxisSlider.
-    $("axisCtls").querySelectorAll(".slider-row").forEach((row) => {
-      row.addEventListener("wheel", (e) => {
-        e.preventDefault();
-        const tag = row.dataset.row;
-        const r = row.querySelector("[data-axis]");
-        const next = Math.min(+r.max, Math.max(+r.min, state.others[tag] + (e.deltaY < 0 ? 1 : -1)));
-        state.others[tag] = next;
-        r.value = next;
-        row.querySelector("[data-num]").value = next;
-        renderGrid(); renderLadder();
-      }, { passive: false });
-    });
   }
 
   function renderAll() { renderGrid(); renderLadder(); renderLegend(); }
@@ -1876,17 +1089,15 @@ input[type="range"]::-moz-range-thumb { corner-shape: round; }
     renderLadder();
   });
 
+  const ladderDial = wmDial.mount($("ladderSize"), {
+    label: "display size", value: state.ladderSize, min: 60, max: 420, step: 2, suffix: "px",
+    onChange: (v) => { state.ladderSize = v; renderLadder(); },
+  });
   function setLadderSize(v) {
     state.ladderSize = v;
-    $("ladderSize").value = v;
-    $("ladderNum").value = v;
+    ladderDial.set(v);
     renderLadder();
   }
-  $("ladderSize").addEventListener("input", (e) => setLadderSize(+e.target.value));
-  $("ladderNum").addEventListener("input", (e) => {
-    const v = +e.target.value;
-    if (!isNaN(v) && v >= 60 && v <= 420) setLadderSize(v);
-  });
 
   // Clicking cycles a value through: pointed at (A) -> compared (B) -> off.
   $("legend").addEventListener("click", (e) => {
@@ -1908,23 +1119,18 @@ input[type="range"]::-moz-range-thumb { corner-shape: round; }
     document.querySelectorAll("tr.hot").forEach((r) => r.classList.remove("hot"));
   });
 
+  /* One dial in ppi; the card width in px is derived (the old row carried both, and
+     the two halves could disagree). */
+  const calibDial = wmDial.mount($("calib"), {
+    label: "screen", value: Math.round(state.calibPx / 85.6 * 25.4), min: 120, max: 700, step: 1, suffix: "ppi",
+    onChange: (ppi) => { applyCalib(ppi * 85.6 / 25.4); if (state.unit === "pt") renderGrid(); },
+  });
   function applyCalib(px) {
     state.calibPx = px;
     $("cardRef").style.width = px + "px";
-    $("calib").value = px;
-    $("calibNum").value = Math.round(px / 85.6 * 25.4);
+    calibDial.set(Math.round(px / 85.6 * 25.4));
     try { localStorage.setItem("opszProofCalib", String(px)); } catch (err) {}
   }
-  $("calib").addEventListener("input", (e) => {
-    applyCalib(+e.target.value);
-    if (state.unit === "pt") renderGrid();
-  });
-  $("calibNum").addEventListener("input", (e) => {
-    const ppi = +e.target.value;
-    if (isNaN(ppi) || ppi < 120 || ppi > 700) return;
-    applyCalib(ppi * 85.6 / 25.4);
-    if (state.unit === "pt") renderGrid();
-  });
 
   $("loadBtn").addEventListener("click", () => $("fileIn").click());
   $("fileIn").addEventListener("change", (e) => {
