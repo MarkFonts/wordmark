@@ -59,55 +59,30 @@
 
 .ss19 { font-feature-settings: 'ss19' 1; }
 
-/* ── colour tokens, respects data-theme on <html> ────── */
-:root,
-[data-theme="auto"]  { color-scheme: light dark; }
-[data-theme="dark"]  { color-scheme: dark; }
-[data-theme="light"] { color-scheme: light; }
+/* Colour, corners and the theme switch come from shared/ (wm-primitives): color.css,
+   corners.css, toggleGroup.css. The page declares no ground or ink of its own. */
+:root { --r: 10px; }
 
-/* dark defaults */
-:root {
-  --bg:    #242424;
-  --ink:   #ffffff;
-  --muted: rgba(255,255,255,0.42);
-  --r:     10px;
-  --corner-k: 1.2;
-  --ui-font: 'CalSans', -apple-system, sans-serif;
-}
+/* corners.css puts every radius on the house superellipse. These two are true circles on
+   square boxes, where that reads as a rounded square, and its opt-out list names its own
+   classes (.ui-dot, .ui-avatar), not ours. */
+.hero-avatar, .work-shape { corner-shape: round; }
 
-/* G2 corners — the house superellipse, k=1.2 (the real exponent is 2^k).
- * Named rather than universal: .hero-avatar and .work-shape are true circles on square
- * boxes, where a superellipse reads as a rounded square, and the house file's opt-out list
- * names .ui-avatar / .ui-dot, not ours.
- * Safari has no corner-shape and fails it silently, keeping the plain radius these already
- * had — that is the intended degradation, not a gap to polyfill.
- * .hero-pill clears the cap rule (padding-x >= 0.6 x radius) at every size: its padding is
- * em-based and its radius is half a line-height, so the ratio does not move. */
-.hero-pill,
-.work-img,
-.work-img img.fill {
-  corner-shape: superellipse(var(--corner-k, 1.2));
-}
-
-/* light override */
+/* --text-rgb is the host's to set per theme (icon.css builds its inks from it). The same
+   two inks as shared/src/color.css: #e8e8e8 dark, #161616 light. Light --bg is font-proofer's
+   icy blue (#f5faff) instead of the ramp's neutral #f4f4f4; dark stays on the house ramp. */
+:root { --text-rgb: 232, 232, 232; }
 @media (prefers-color-scheme: light) {
-  [data-theme="auto"] {
-    --bg:    #f2f0eb;
-    --ink:   #111111;
-    --muted: rgba(17,17,17,0.45);
-  }
+  :root:not([data-theme="dark"]) { --text-rgb: 22, 22, 22; --bg: #f5faff; }
 }
-[data-theme="light"] {
-  --bg:    #f2f0eb;
-  --ink:   #111111;
-  --muted: rgba(17,17,17,0.45);
-}
+:root[data-theme="dark"]  { --text-rgb: 232, 232, 232; }
+:root[data-theme="light"] { --text-rgb: 22, 22, 22; --bg: #f5faff; }
 
 html { scroll-behavior: smooth; overflow-x: clip; }
 
 body {
   background: var(--bg);
-  color: var(--ink);
+  color: var(--text);
   font-family: 'CalSans', -apple-system, sans-serif;
   font-optical-sizing: auto;
   font-variation-settings: 'wght' 400;
@@ -159,7 +134,7 @@ body {
   justify-content: center;
   align-content: center;
   align-items: start;                /* lets the per-column stagger read */
-  color: var(--ink);
+  color: var(--text);
   font-family: 'CalSans', -apple-system, sans-serif;
   font-variation-settings: 'opsz' 45, 'wght' 640, 'GEOM' 25, 'SHRP' 0, 'YTAS' 760;
   font-kerning: normal;              /* kerning ON (inherited by word spans) */
@@ -170,6 +145,22 @@ body {
 #fj-headline[data-cols="2"] { grid-template-columns: repeat(2, auto); column-gap: 1.1em; font-size: clamp(30px, 5.2vw, 92px); }
 #fj-headline[data-cols="3"] { grid-template-columns: repeat(3, auto); column-gap: 0.9em; font-size: clamp(24px, 4.2vw, 72px); }
 #fj-headline[data-cols="4"] { grid-template-columns: repeat(4, auto); column-gap: 0.8em; font-size: clamp(22px, 3.4vw, 56px); }
+
+/* phone arrangements (headline.js ARR_M): sized in vw so each fills a 320-430px screen */
+#fj-headline { position: relative; }   /* headline.js centre() slides it with `top` */
+#fj-headline[data-fit="b"] { font-size: 11vw; }
+#fj-headline[data-fit="c"] { font-size: 13vw; }
+#fj-headline[data-fit="o"] { font-size: 10vw; }
+#fj-headline[data-fit="t"] { font-size: 10.5vw; }
+/* [data-wide]: span the screen (20px gutters, the page's own) so blocks can sit against
+   its left and right edges. The others shrink-wrap and centre. */
+#fj-headline[data-wide] { width: calc(100vw - 40px); }
+#fj-headline[data-wide][data-cols="2"] { grid-template-columns: 1fr 1fr; column-gap: 0; }
+/* [data-tall]: fill the hero's height and push the rows to its ends */
+#fj-headline[data-tall] { height: 100%; padding: 90px 0 60px; align-content: space-between; }
+#fj-headline[data-spread] .fj-line { justify-content: space-between; }
+/* "brand." scoots over, as in the 3-column cascade below */
+#fj-headline[data-fit="b"] .fj-block:last-child .fj-line:last-child { margin-left: 0.4em; }
 
 .fj-block {
   display: flex;
@@ -224,14 +215,14 @@ body {
   font-weight: 700;
   font-variation-settings: 'opsz' 45, 'wght' 700, 'GEOM' 50;
   font-size: clamp(22px, 3vw, 34px);
-  color: var(--ink);
+  color: var(--text);
   line-height: 1.1;
 }
 
 .hero-sub {
   font-variation-settings: 'wght' 400;
   font-size: 14px;
-  color: var(--muted);
+  color: var(--text-muted);
   line-height: 1.65;
   max-width: 520px;
   margin-top: 38px;
@@ -252,7 +243,7 @@ body {
   font-size: clamp(22px, 3vw, 34px);
   line-height: 1.1;
   color: var(--bg);
-  background: var(--ink);
+  background: var(--text);
   padding: 0.22em 0.65em 0.38em;
   border-radius: 999px;
   text-decoration: none;
@@ -282,7 +273,7 @@ body {
   font-variation-settings: 'wght' 700, 'GEOM' 100;
   letter-spacing: 0.1em;         /* = Illustrator tracking 100 (1/1000 em) */
   text-indent: 0.1em;            /* offset trailing track so it stays optically centred */
-  color: var(--ink);
+  color: var(--text);
   white-space: nowrap;
   pointer-events: none;          /* nameplate, not interactive */
 }
@@ -311,8 +302,8 @@ body {
 }
 
 /* ═══ DARK / LIGHT / AUTO TOGGLE ═══════════════════════ */
-/* The control itself is the house Toggle Group (css/toggle-group.css). What stays here is
-   placement: a fixed affordance that recedes until you reach for it. */
+/* The control itself is the house ThemeSwitch, `marks` look (shared/src/themeSwitch.css,
+   wired by theme.js). What stays here is placement: a fixed affordance that recedes. */
 #theme-toggle {
   position: fixed;
   top: 20px;
@@ -322,7 +313,6 @@ body {
   transition: opacity 0.15s;
 }
 #theme-toggle:hover { opacity: 1; }
-#theme-toggle button { font-variation-settings: 'wght' 400; }
 
 /* ═══ WORK ══════════════════════════════════════════════ */
 #work { padding: 0; }
@@ -361,7 +351,7 @@ body {
   font-variation-settings: 'opsz' 45, 'wght' 700, 'GEOM' 50;
   font-size: clamp(22px, 2.8vw, 36px);
   line-height: 1.08;
-  color: var(--ink);
+  color: var(--text);
   margin-bottom: 28px;
   text-wrap: balance;
 }
@@ -370,7 +360,7 @@ body {
   font-variation-settings: 'wght' 400;
   font-size: 15px;
   line-height: 1.72;
-  color: var(--muted);
+  color: var(--text-muted);
   hyphens: auto;
   -webkit-hyphens: auto;
   hyphenate-limit-chars: 6 3 3;
@@ -381,17 +371,17 @@ body {
   font-variation-settings: 'wght' 400;
   font-size: 15px;
   line-height: 1.72;
-  color: var(--muted);
+  color: var(--text-muted);
   max-width: 38ch;
   margin-top: 20px;
 }
 .learn-more a {
-  color: var(--ink);
+  color: var(--text);
   text-decoration: underline;
   text-underline-offset: 3px;
   transition: color 0.12s;
 }
-.learn-more a:hover { color: var(--muted); }
+.learn-more a:hover { color: var(--text-muted); }
 
 /* figure wrapper — takes the right-column slot, handles sticky + slide-in */
 /* ── figcaption layout tokens ───────────────────────────────────── */
@@ -469,7 +459,7 @@ body {
   z-index: 2;
   width: var(--fig-shape-size);
   height: var(--fig-shape-size);
-  background: var(--ink);
+  background: var(--text);
   border-radius: 50%;
   /* single animation: morph + 90° rotation, quartic easing, pauses at each pole */
   animation: shape-cycle 5s linear infinite;
@@ -493,7 +483,7 @@ body {
 .fig-rule {
   position: absolute;
   z-index: 3;
-  background: var(--ink);
+  background: var(--text);
   /* mobile: top/height set by JS to match figcaption height exactly */
   left: calc(var(--fig-shape-inset) + var(--fig-shape-size) / 2 - 0.5px);
   top: 0;
@@ -528,7 +518,7 @@ body {
   font-variation-settings: 'wght' 400;
   font-size: 14px;
   line-height: 1.65;
-  color: var(--muted);
+  color: var(--text-muted);
   font-weight: 400;
   opacity: 0;
   transform: translateX(5px);
@@ -536,7 +526,7 @@ body {
               transform 0.7s cubic-bezier(0.22, 1, 0.36, 1) 1s;
 }
 .work-fig.visible .fig-text { opacity: 1; transform: translateX(0); }
-.fig-text a { color: var(--muted); text-decoration: underline; text-underline-offset: 3px; }
+.fig-text a { color: var(--text-muted); text-decoration: underline; text-underline-offset: 3px; }
 
 /* image container — 4/5 of figure (= 4/8 of work-item) */
 .work-img {
@@ -599,7 +589,7 @@ body {
   font-family: 'CalSans', sans-serif;
   font-variation-settings: 'wght' 400;
   line-height: 1.28;
-  color: var(--ink);
+  color: var(--text);
   box-sizing: border-box;
   text-wrap: balance;
   hyphens: auto;
@@ -626,7 +616,7 @@ body {
   font-weight: 700;
   font-variation-settings: 'opsz' 45, 'wght' 700, 'GEOM' 50;
   font-size: clamp(20px, 2.6vw, 32px);
-  color: var(--ink);
+  color: var(--text);
 }
 .track-wrap { overflow: hidden; width: 100%; cursor: grab; }
 .track-wrap:active { cursor: grabbing; }
@@ -699,14 +689,14 @@ body {
   font-weight: 700;
   font-variation-settings: 'opsz' 45, 'wght' 700, 'GEOM' 50;
   font-size: clamp(20px, 2.4vw, 28px);
-  color: var(--ink);
+  color: var(--text);
   margin-bottom: 6px;
 }
 
 .contact-role {
   font-variation-settings: 'wght' 400;
   font-size: 13px;
-  color: var(--muted);
+  color: var(--text-muted);
   margin-bottom: 20px;
 }
 
@@ -717,7 +707,7 @@ body {
   font-size: 14px;
   letter-spacing: 0;
   color: var(--bg);
-  background: var(--ink);
+  background: var(--text);
   padding: 6px 14px;
   border-radius: 999px;
   text-decoration: none;
@@ -736,12 +726,12 @@ body {
 .contact-links a {
   font-variation-settings: 'wght' 400;
   font-size: 14px;
-  color: var(--muted);
+  color: var(--text-muted);
   text-decoration: none;
   transition: color 0.12s;
   white-space: nowrap;
 }
-.contact-links a:hover { color: var(--ink); }
+.contact-links a:hover { color: var(--text); }
 
 /* ═══ FOOTER ════════════════════════════════════════════ */
 footer {
@@ -843,7 +833,7 @@ footer {
   font-weight: 700;
   font-variation-settings: 'opsz' 45, 'wght' 700, 'GEOM' 50;
   font-size: 14px;
-  color: var(--ink);
+  color: var(--text);
 }
 
 /* ig  tw · in  email — col 1 sized to the short labels, email defines col 2;
@@ -859,23 +849,23 @@ footer {
 .footer-links a {
   font-variation-settings: 'wght' 400;
   font-size: 14px;
-  color: var(--muted);
+  color: var(--text-muted);
   text-decoration: none;
   transition: color 0.12s;
   white-space: nowrap;
   justify-self: start;   /* click target = the text, not the whole grid cell */
 }
-.footer-links a:hover { color: var(--ink); }
+.footer-links a:hover { color: var(--text); }
 
 .footer-credit {
   font-variation-settings: 'wght' 400;
   font-size: 14px;
   line-height: 1.5;
-  color: var(--ink);
+  color: var(--text);
   opacity: 0.2;
 }
 .footer-credit a {
-  color: var(--ink);
+  color: var(--text);
   text-decoration: underline;
   text-underline-offset: 3px;
 }

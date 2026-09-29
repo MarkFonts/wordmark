@@ -71,7 +71,7 @@ var CONFIG_FOOTER = {
   function getThemeColours() {
     var style = getComputedStyle(document.documentElement);
     var bg  = style.getPropertyValue('--bg').trim()  || '#242424';
-    var ink = style.getPropertyValue('--ink').trim() || '#ffffff';
+    var ink = style.getPropertyValue('--text').trim() || '#ffffff';
     return { bg: bg, ink: ink };
   }
 

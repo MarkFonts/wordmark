@@ -202,7 +202,7 @@
   var cachedBg  = '#242424';
   function refreshTheme() {
     var s = getComputedStyle(document.documentElement);
-    cachedInk = s.getPropertyValue('--ink').trim() || '#ffffff';
+    cachedInk = s.getPropertyValue('--text').trim() || '#ffffff';
     cachedBg  = s.getPropertyValue('--bg').trim()  || '#242424';
   }
   new MutationObserver(refreshTheme).observe(

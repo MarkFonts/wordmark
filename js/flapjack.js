@@ -176,7 +176,7 @@
   function refreshClr() {
     var s = getComputedStyle(document.documentElement);
     cachedClr.bg  = s.getPropertyValue('--bg').trim()  || '#242424';
-    cachedClr.ink = s.getPropertyValue('--ink').trim() || '#ffffff';
+    cachedClr.ink = s.getPropertyValue('--text').trim() || '#ffffff';
   }
 
   /* ── layout ───────────────────────────────────────────── */

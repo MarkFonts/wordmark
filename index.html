@@ -14,6 +14,7 @@
 <meta name="twitter:image" content="https://wordmark.nyc/thumb.png">
 <link rel="icon" type="image/svg+xml" href="favicon.svg?v=2">
 <!-- Google tag (gtag.js) -->
+<script>try{var t=localStorage.getItem('wm-theme');if(t)document.documentElement.dataset.theme=t}catch(e){}</script>
 <script async src="https://www.googletagmanager.com/gtag/js?id=G-MZ4M1P8P1P"></script>
 <script>
   window.dataLayer = window.dataLayer || [];
@@ -21,8 +22,12 @@
   gtag('js', new Date());
   gtag('config', 'G-MZ4M1P8P1P');
 </script>
-<link rel="stylesheet" href="css/toggle-group.css?v=1">
-<link rel="stylesheet" href="css/main.css?v=24">
+<link rel="stylesheet" href="shared/src/color.css">
+<link rel="stylesheet" href="shared/src/corners.css">
+<link rel="stylesheet" href="shared/src/motion.css">
+<link rel="stylesheet" href="shared/src/icon.css">
+<link rel="stylesheet" href="shared/src/themeSwitch.css">
+<link rel="stylesheet" href="css/main.css?v=42">
 </head>
 <body>
 
@@ -66,10 +71,10 @@
 </script>
 
 <!-- theme toggle ───────────────────────────────────────── -->
-<div id="theme-toggle" class="ui-seg" role="group" aria-label="Colour scheme">
-  <button data-mode="auto"  class="active">Auto</button>
-  <button data-mode="light">Light</button>
-  <button data-mode="dark">Dark</button>
+<div id="theme-toggle" class="wm-theme" role="group" aria-label="Colour scheme">
+  <button type="button" class="wm-icon-btn" data-mode="auto" aria-label="Auto colour scheme" title="Follow the system setting"><span class="wm-icon material-symbols-outlined wm-icon--rest" style="font-size:20px;--icon-opsz:20;--icon-fill:0" aria-hidden="true" translate="no">brightness_auto</span></button>
+  <button type="button" class="wm-icon-btn" data-mode="light" aria-label="Light colour scheme" title="Force the light palette"><span class="wm-icon material-symbols-outlined wm-icon--rest" style="font-size:20px;--icon-opsz:20;--icon-fill:0" aria-hidden="true" translate="no">light_mode</span></button>
+  <button type="button" class="wm-icon-btn" data-mode="dark" aria-label="Dark colour scheme" title="Force the dark palette"><span class="wm-icon material-symbols-outlined wm-icon--rest" style="font-size:20px;--icon-opsz:20;--icon-fill:0" aria-hidden="true" translate="no">dark_mode</span></button>
 </div>
 
 
@@ -269,11 +274,15 @@
   <canvas id="lb-footer-front" aria-hidden="true"></canvas>
 </div>
 
-<script src="js/headline.js"></script>
+<script src="js/headline.js?v=17"></script>
 <script src="js/flapjack.js"></script>
 <script src="js/dek.js"></script>
 <script src="js/letterbox.js?v=7"></script>
-<script src="js/site.js?v=12"></script>
+<script src="js/site.js?v=13"></script>
+<script type="module">
+  import { mountThemeSwitch } from './shared/src/theme.js';
+  mountThemeSwitch(document.getElementById('theme-toggle'));
+</script>
 <script src="js/carousel.js"></script>
 <script src="js/stickers.js"></script>
 <script type="module" src="js/fitting.js?v=2"></script>
