@@ -79,7 +79,7 @@
       });
       host.appendChild(b);
     });
-    if (arr.tall) clearNameplate();
+    if (arr.tall) spreadTall(); else host.style.height = '';
     if (MQ.matches) centre();
   }
 
@@ -104,26 +104,20 @@
     host.style.top = ((zoneTop + zoneBot) / 2 - (top + bot) / 2) + 'px';
   }
 
-  /* The tall stack starts below the nameplate: its pinned bottom (top 60px + its height,
-     see index.html) plus enough air that the top row lands where ?arr=0 starts (112px), measured rather than guessed. */
-  function clearNameplate() {
+  /* The tall stack's height is a proportion of the screen's WIDTH -- 80.8vw, i.e. 303px on
+     a 375 screen, six lines of its own type -- because the type is sized in vw too. Tied to
+     the hero's height it collapsed on any phone shorter than the one it was tested on, and
+     the rows read down the columns. It gives way only when the zone between the nameplate
+     and the pill is shorter still. centre() then places it. */
+  function spreadTall() {
     var nm = document.getElementById('site-wordmark');
-    if (!nm) return;
-    host.style.paddingTop = '';
-    var hostTop = host.getBoundingClientRect().top + window.scrollY;
-    var nmBottom = 60 + nm.offsetHeight;
-    host.style.paddingTop = Math.max(parseFloat(getComputedStyle(host).paddingTop), nmBottom + 112 - hostTop) + 'px';
-  }
-
-  /* The tall stack starts below the nameplate: its pinned bottom (top 60px + its height,
-     see index.html) plus enough air that the top row lands where ?arr=0 starts (112px), measured rather than guessed. */
-  function clearNameplate() {
-    var nm = document.getElementById('site-wordmark');
-    if (!nm) return;
-    host.style.paddingTop = '';
-    var hostTop = host.getBoundingClientRect().top + window.scrollY;
-    var nmBottom = 60 + nm.offsetHeight;
-    host.style.paddingTop = Math.max(parseFloat(getComputedStyle(host).paddingTop), nmBottom + 112 - hostTop) + 'px';
+    var pill = document.querySelector('.hero-text');
+    var h = 0.808 * window.innerWidth;
+    if (nm && pill) {
+      var zone = pill.getBoundingClientRect().top - (60 + nm.offsetHeight - window.scrollY);
+      h = Math.min(h, zone - 32);
+    }
+    host.style.height = h + 'px';
   }
 
   // Debug: ?arr=N freezes a single arrangement (no cycling) for screenshots;

@@ -156,8 +156,8 @@ body {
    its left and right edges. The others shrink-wrap and centre. */
 #fj-headline[data-wide] { width: calc(100vw - 40px); }
 #fj-headline[data-wide][data-cols="2"] { grid-template-columns: 1fr 1fr; column-gap: 0; }
-/* [data-tall]: fill the hero's height and push the rows to its ends */
-#fj-headline[data-tall] { height: 100%; padding: 90px 0 60px; align-content: space-between; }
+/* [data-tall]: rows pushed to the ends of a height headline.js sets (spreadTall) */
+#fj-headline[data-tall] { align-content: space-between; }
 #fj-headline[data-spread] .fj-line { justify-content: space-between; }
 /* "brand." scoots over, as in the 3-column cascade below */
 #fj-headline[data-fit="b"] .fj-block:last-child .fj-line:last-child { margin-left: 0.4em; }
