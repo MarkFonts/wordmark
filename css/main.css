@@ -156,7 +156,7 @@ body {
    its left and right edges. The others shrink-wrap and centre. */
 #fj-headline[data-wide] { width: calc(100vw - 40px); }
 #fj-headline[data-wide][data-cols="2"] { grid-template-columns: 1fr 1fr; column-gap: 0; }
-/* [data-tall]: rows pushed to the ends of a height headline.js sets (spreadTall) */
+/* [data-tall]: rows pushed to the ends of a height headline.js sets (pause) */
 #fj-headline[data-tall] { align-content: space-between; }
 #fj-headline[data-spread] .fj-line { justify-content: space-between; }
 /* "brand." scoots over, as in the 3-column cascade below */

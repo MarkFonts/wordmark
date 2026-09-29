@@ -35,12 +35,14 @@
     // `wide`: span the screen; `at`: where each block sits (s left, e right, c centred, _ stretched).
     { cols: 1, step: 0, fit: 'o', wide: 1, at: 'sce',
       blocks: [ [[0, 1]], [[2, 3, 4]], [[5, 6]] ] },                // three rows, left / centre / right
-    // `rows`: px between the grid's rows. `va`: a block's vertical seat in its row (e = bottom,
-    // so "brand." shares a baseline with "your", not "like").
-    { cols: 2, step: 0, fit: 'c', wide: 1, rows: 200, at: 'sese', va: 'ssse',
+    // `pause`: the air the stack wants, in px (see pause()). These two share it, so both are
+    // the same height and "Your" and "brand." hold the same two corners from one to the next.
+    // `va`: a block's vertical seat in its row (e = bottom, so "brand." shares a baseline
+    // with "your", not "like").
+    { cols: 2, step: 0, fit: 'c', wide: 1, pause: 200, at: 'sese', va: 'ssse',
       blocks: [ [[0], [1]], [[2], [3]], [[4], [5]], [[6]] ] },      // four corners, each pair stacked
-    // `tall`: rows pushed apart over a set height. `spread`: a row's words pushed to the edges.
-    { cols: 1, step: 0, fit: 'c', wide: 1, tall: 1, spread: 1, at: '___e',
+    // `tall`: the pause is shared out between the rows. `spread`: a row's words pushed to the edges.
+    { cols: 1, step: 0, fit: 'c', wide: 1, tall: 1, pause: 200, spread: 1, at: '___e',
       blocks: [ [[0, 1]], [[2, 3]], [[4, 5]], [[6]] ] }             // Your ... words, each row edge to edge
   ];
   var MQ = window.matchMedia('(max-width: 680px)');
@@ -51,7 +53,7 @@
 
   function build(arr) {
     host.innerHTML = '';
-    host.style.fontSize = '';            // rowGap() may have shrunk the last one
+    host.style.fontSize = '';            // pause() may have shrunk the last one
     host.dataset.cols = arr.cols;
     if (arr.fit) host.dataset.fit = arr.fit; else delete host.dataset.fit;
     ['wide', 'tall', 'spread'].forEach(function (k) {
@@ -83,8 +85,11 @@
       });
       host.appendChild(b);
     });
-    if (arr.tall) spreadTall(); else host.style.height = '';
-    host.style.rowGap = arr.rows ? rowGap(arr.rows) + 'px' : '';
+    host.style.height = host.style.rowGap = '';
+    if (arr.pause) {
+      var p = pause(arr.pause);
+      if (arr.tall) host.style.height = p.height + 'px'; else host.style.rowGap = p.gap + 'px';
+    }
     if (MQ.matches) centre();
   }
 
@@ -109,31 +114,16 @@
     host.style.top = ((zoneTop + zoneBot) / 2 - (top + bot) / 2) + 'px';
   }
 
-  /* The tall stack's height is a proportion of the screen's WIDTH -- 80.8vw, i.e. 303px on
-     a 375 screen, six lines of its own type -- because the type is sized in vw too. Tied to
-     the hero's height it collapsed on any phone shorter than the one it was tested on, and
-     the rows read down the columns. It gives way only when the zone between the nameplate
-     and the pill is shorter still. centre() then places it. */
-  function spreadTall() {
-    var nm = document.getElementById('site-wordmark');
-    var pill = document.querySelector('.hero-text');
-    var h = 0.808 * window.innerWidth;
-    if (nm && pill) {
-      var zone = pill.getBoundingClientRect().top - (60 + nm.offsetHeight - window.scrollY);
-      h = Math.min(h, zone - 32);
-    }
-    host.style.height = h + 'px';
-  }
-
-  /* The gap between the rows. It wants `want` px and gives first: down to the height of one
-     row, below which it stops reading as a pause between two groups and starts reading as
-     loose leading. Only then does the type shrink, keeping the gap at one row of whatever
-     the type becomes. AIR is kept clear under the nameplate and above the pill. */
+  /* The air in a stack: between the two rows of four corners, or shared out between the
+     four rows of edge-to-edge. It wants `want` px and gives first: down to half the height
+     of the lines themselves (one pair), below which it stops reading as a pause and starts
+     reading as loose leading. Only then does the type shrink, keeping that proportion.
+     AIR is kept clear under the nameplate and above the pill. Returns the gap and the
+     stack's whole height, so two arrangements given the same `want` are the same height. */
   var AIR = 24;
-  function rowGap(want) {
+  function pause(want) {
     var nm = document.getElementById('site-wordmark');
     var pill = document.querySelector('.hero-text');
-    if (!nm || !pill) return want;
     host.style.rowGap = '0px';
     var lines = host.querySelectorAll('.fj-line'), top = Infinity, bot = -Infinity;
     for (var i = 0; i < lines.length; i++) {
@@ -141,16 +131,19 @@
       if (r.top < top) top = r.top;
       if (r.bottom > bot) bot = r.bottom;
     }
-    var rows = bot - top;                                  // both rows, no gap
-    var floor = host.firstChild.getBoundingClientRect().height;   // one row
+    var rows = bot - top, floor = rows / 2;
+    if (!nm || !pill) return { gap: want, height: rows + want };
     var room = pill.getBoundingClientRect().top - (60 + nm.offsetHeight - window.scrollY) - 2 * AIR;
-    if (room - rows >= floor) return Math.min(want, room - rows);
+    if (room - rows >= floor) {
+      var gap = Math.min(want, room - rows);
+      return { gap: gap, height: rows + gap };
+    }
     var k = room / (rows + floor);
     host.style.fontSize = (parseFloat(getComputedStyle(host).fontSize) * k) + 'px';
-    return floor * k;
+    return { gap: floor * k, height: room };
   }
 
-  /* centre(), rowGap() and spreadTall() measure the face and the hero, and both arrive
+  /* centre() and pause() measure the face and the hero, and both arrive
      late: the font loads, and flapjack.js sets the hero's height (--fj-ch) after this
      script has already built once. So rebuild when the fonts land, when the viewport
      changes, and whenever the hero's own box does -- that last one is what a timer or a
