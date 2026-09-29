@@ -35,9 +35,11 @@
     // `wide`: span the screen; `at`: where each block sits (s left, e right, c centred, _ stretched).
     { cols: 1, step: 0, fit: 'o', wide: 1, at: 'sce',
       blocks: [ [[0, 1]], [[2, 3, 4]], [[5, 6]] ] },                // three rows, left / centre / right
-    // `tall`: fill the hero's height, rows pushed apart. `spread`: a row's words pushed to the edges.
-    { cols: 2, step: 0, fit: 'c', wide: 1, tall: 1, at: 'sese',
+    // `rows`: px between the grid's rows. `va`: a block's vertical seat in its row (e = bottom,
+    // so "brand." shares a baseline with "your", not "like").
+    { cols: 2, step: 0, fit: 'c', wide: 1, rows: 200, at: 'sese', va: 'ssse',
       blocks: [ [[0], [1]], [[2], [3]], [[4], [5]], [[6]] ] },      // four corners, each pair stacked
+    // `tall`: rows pushed apart over a set height. `spread`: a row's words pushed to the edges.
     { cols: 1, step: 0, fit: 'c', wide: 1, tall: 1, spread: 1, at: '___e',
       blocks: [ [[0, 1]], [[2, 3]], [[4, 5]], [[6]] ] }             // Your ... words, each row edge to edge
   ];
@@ -49,6 +51,7 @@
 
   function build(arr) {
     host.innerHTML = '';
+    host.style.fontSize = '';            // rowGap() may have shrunk the last one
     host.dataset.cols = arr.cols;
     if (arr.fit) host.dataset.fit = arr.fit; else delete host.dataset.fit;
     ['wide', 'tall', 'spread'].forEach(function (k) {
@@ -62,6 +65,7 @@
       b.className = 'fj-block';
       b.style.setProperty('--bi', bi);     // column index → stagger depth
       if (arr.at) b.style.justifySelf = { s: 'start', e: 'end', c: 'center' }[arr.at[bi]] || '';
+      if (arr.va) b.style.alignSelf = { s: 'start', e: 'end' }[arr.va[bi]] || '';
       if (arr.gap && bi) b.style.marginTop = (arr.gap * 0.98) + 'em';   // pause, in lines (--lh)
 
       block.forEach(function (line) {
@@ -80,6 +84,7 @@
       host.appendChild(b);
     });
     if (arr.tall) spreadTall(); else host.style.height = '';
+    host.style.rowGap = arr.rows ? rowGap(arr.rows) + 'px' : '';
     if (MQ.matches) centre();
   }
 
@@ -120,25 +125,57 @@
     host.style.height = h + 'px';
   }
 
+  /* The gap between the rows. It wants `want` px and gives first: down to the height of one
+     row, below which it stops reading as a pause between two groups and starts reading as
+     loose leading. Only then does the type shrink, keeping the gap at one row of whatever
+     the type becomes. AIR is kept clear under the nameplate and above the pill. */
+  var AIR = 24;
+  function rowGap(want) {
+    var nm = document.getElementById('site-wordmark');
+    var pill = document.querySelector('.hero-text');
+    if (!nm || !pill) return want;
+    host.style.rowGap = '0px';
+    var lines = host.querySelectorAll('.fj-line'), top = Infinity, bot = -Infinity;
+    for (var i = 0; i < lines.length; i++) {
+      var r = lines[i].getBoundingClientRect();
+      if (r.top < top) top = r.top;
+      if (r.bottom > bot) bot = r.bottom;
+    }
+    var rows = bot - top;                                  // both rows, no gap
+    var floor = host.firstChild.getBoundingClientRect().height;   // one row
+    var room = pill.getBoundingClientRect().top - (60 + nm.offsetHeight - window.scrollY) - 2 * AIR;
+    if (room - rows >= floor) return Math.min(want, room - rows);
+    var k = room / (rows + floor);
+    host.style.fontSize = (parseFloat(getComputedStyle(host).fontSize) * k) + 'px';
+    return floor * k;
+  }
+
+  /* centre(), rowGap() and spreadTall() measure the face and the hero, and both arrive
+     late: the font loads, and flapjack.js sets the hero's height (--fj-ch) after this
+     script has already built once. So rebuild when the fonts land, when the viewport
+     changes, and whenever the hero's own box does -- that last one is what a timer or a
+     single fonts.ready cannot promise. */
+  function watch(rebuild) {
+    document.fonts.ready.then(rebuild);
+    window.addEventListener('resize', rebuild);
+    var box = document.getElementById('flapjack-text');
+    if (box && window.ResizeObserver) new ResizeObserver(rebuild).observe(box);
+  }
+
   // Debug: ?arr=N freezes a single arrangement (no cycling) for screenshots;
   // ?arr=3,7,0 cycles just those, in that order.
   var forced = new URLSearchParams(location.search).get('arr');
   var pick = forced === null ? null : forced.split(',').map(Number).filter(function (n) { return set()[n]; });
   if (pick && pick.length === 1) {
     build(set()[pick[0]]);
-    document.fonts.ready.then(function () { build(set()[pick[0]]); });
-    window.addEventListener('resize', function () { build(set()[pick[0]]); });
+    watch(function () { build(set()[pick[0]]); });
     return;
   }
   var list = function () { return pick && pick.length ? pick.map(function (n) { return set()[n]; }) : set(); };
 
   var idx = 0;
   build(list()[0]);
-  // centre() measures the face and the hero: redo once fonts and flapjack's --fj-ch have
-  // landed, and whenever the viewport changes.
-  var refit = function () { build(list()[idx]); };
-  document.fonts.ready.then(refit);
-  window.addEventListener('resize', refit);
+  watch(function () { build(list()[idx]); });
   // Crossing the breakpoint (rotating a phone, resizing): restart on the right list.
   var onMQ = function () { idx = 0; build(list()[0]); };
   if (MQ.addEventListener) MQ.addEventListener('change', onMQ); else MQ.addListener(onMQ);
