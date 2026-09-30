@@ -1,0 +1,94 @@
+/* Case-study pages: the hero word fit, the axis sliders, the closer-look tabs and the
+   feature switches. No dependencies; every demo is live text in the page's own face. */
+(function () {
+  /* hero word: size it to span the measure exactly */
+  var word = document.querySelector('.hero-word');
+  function fitWord() {
+    if (!word) return;
+    word.style.fontSize = '100px';
+    var w = word.getBoundingClientRect().width;
+    var box = word.parentElement.clientWidth;
+    if (w > 0) word.style.fontSize = (100 * box / w) + 'px';
+  }
+  fitWord();
+  window.addEventListener('resize', fitWord);
+  if (document.fonts && document.fonts.ready) document.fonts.ready.then(fitWord);
+
+  /* six sliders, one font-variation-settings string */
+  document.querySelectorAll('[data-axes]').forEach(function (group) {
+    var target = document.getElementById(group.dataset.axes);
+    var inputs = group.querySelectorAll('input[data-axis]');
+    function apply() {
+      var parts = [];
+      inputs.forEach(function (i) {
+        parts.push("'" + i.dataset.axis + "' " + i.value);
+        i.parentElement.querySelector('output').textContent = i.value;
+      });
+      target.style.fontVariationSettings = parts.join(', ');
+    }
+    inputs.forEach(function (i) { i.addEventListener('input', apply); });
+    apply();
+  });
+
+  /* a single axis moved through its custom property (the booking card's GEOM) */
+  document.querySelectorAll('input[data-var]').forEach(function (i) {
+    var target = document.getElementById(i.dataset.target);
+    function apply() {
+      target.style.setProperty(i.dataset.var, i.value);
+      i.parentElement.querySelector('output').textContent = i.value;
+    }
+    i.addEventListener('input', apply);
+    apply();
+  });
+
+  /* closer look: tabs on desktop; on phones every feature is simply open */
+  var items = document.querySelectorAll('.look-item');
+  items.forEach(function (item) {
+    var tab = item.querySelector('.look-tab');
+    tab.addEventListener('click', function () {
+      items.forEach(function (o) {
+        var on = o === item;
+        o.classList.toggle('is-active', on);
+        o.querySelector('.look-tab').setAttribute('aria-expanded', on);
+      });
+    });
+  });
+
+  /* size waterfall: each row says as much as its width allows */
+  var FALL = ['A billion meetings by 2030', 'Shall meet', 'Cal'];
+  function fitFall() {
+    document.querySelectorAll('.d-fall div:not(.mon)').forEach(function (row) {
+      var span = row.querySelector('span');
+      if (!row.clientWidth) return;
+      for (var k = 0; k < FALL.length; k++) {
+        span.textContent = FALL[k];
+        if (span.getBoundingClientRect().right <= row.getBoundingClientRect().right + 0.5) break;
+      }
+    });
+    /* the monster: as big as the leftover height allows, capped by the row's width */
+    var mon = document.querySelector('.d-fall .mon');
+    if (!mon || !mon.clientWidth) return;
+    var fall = mon.parentElement, used = 0;
+    mon.style.fontSize = '100px';
+    fall.querySelectorAll('div:not(.mon)').forEach(function (r) { if (r.offsetHeight) used += r.offsetHeight + 6; });
+    var span = mon.querySelector('span'), label = mon.querySelector('i');
+    var byHeight = fall.clientHeight - used;
+    var byWidth = 100 * (mon.clientWidth - span.offsetLeft + mon.offsetLeft) / span.offsetWidth;
+    var size = Math.max(96, Math.floor(Math.min(byHeight, byWidth)));
+    mon.style.fontSize = size + 'px';
+    label.textContent = size;
+  }
+  fitFall();
+  window.addEventListener('resize', fitFall);
+  if (document.fonts && document.fonts.ready) document.fonts.ready.then(fitFall);
+
+  /* feature switches */
+  document.querySelectorAll('.switch').forEach(function (sw) {
+    var target = document.getElementById(sw.dataset.target);
+    sw.addEventListener('click', function () {
+      var on = sw.getAttribute('aria-checked') !== 'true';
+      sw.setAttribute('aria-checked', on);
+      target.classList.toggle('is-on', on);
+    });
+  });
+})();

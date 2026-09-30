@@ -5,5 +5,6 @@
      links and may be confidential. Add specific ones here only when public. -->
 <urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
   <url><loc>https://wordmark.nyc/</loc><changefreq>monthly</changefreq><priority>1.0</priority></url>
+  <url><loc>https://wordmark.nyc/calsans/</loc><changefreq>monthly</changefreq></url>
   <url><loc>https://wordmark.nyc/font-proofer/</loc><changefreq>monthly</changefreq></url>
 </urlset>
