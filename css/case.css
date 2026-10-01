@@ -669,7 +669,7 @@ a.code:hover .where { color: var(--signal); }
 .cube .v b { display: block; padding: 6px 0; font-size: 40px; line-height: 1; white-space: nowrap; font-family: 'CalSans', sans-serif; font-optical-sizing: none; color: var(--text); transition: transform 700ms cubic-bezier(0.2, 0.7, 0.2, 1) var(--d, 0ms); }
 .vlab { display: grid; grid-template-columns: repeat(3, auto); gap: 2px 10px; justify-content: center; text-align: center; font-size: 9px; line-height: 1.15; color: var(--text-dim); white-space: nowrap; }
 .vlab > span { display: grid; }
-.cube .v .vlab, .vm .vlab { font-size: 6px; gap: 1px 6px; }
+.cube .v .vlab, .vm .vlab { font-size: 6px; gap: 1px 4px; }
 .vm .vlab .hot, .vm .vlab .hot i { color: var(--text); }   /* the axis a virtual master moves, lit */
 .vlab i { font-style: normal; --wght: 640; color: var(--text-muted); }
 .vlab-v { font-size: 7px; letter-spacing: 0.08em; text-transform: uppercase; color: var(--text-dim); }
