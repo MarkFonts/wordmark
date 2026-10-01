@@ -688,7 +688,7 @@ a.code:hover .where { color: var(--signal); }
 .cube-axes { display: flex; flex-wrap: wrap; gap: 6px 18px; margin-top: 10px; font-size: 13px; color: var(--text-dim); }
 /* the virtual axes hold still at the corners and tether to the nearest glyph, pulling it along their axis */
 /* dotted, one on one off, marching from the virtual master out to the corner it ties to (the line is drawn from the virtual end, so +x is outward) */
-.tie { --p: 2px; --dot: 1px; --dur: 0.083s; position: absolute; left: 0; top: 0; height: var(--dot); background: linear-gradient(90deg, var(--text-dim) 50%, transparent 50%) 0 0 / var(--p) 100% repeat-x; transform-origin: 0 50%; pointer-events: none; opacity: 0.2; animation: tie-march var(--dur) linear infinite; }
+.tie { --p: 2px; --dot: 1px; --dur: 0.083s; position: absolute; left: 0; top: 0; height: var(--dot); background: linear-gradient(90deg, rgba(var(--text-rgb), var(--tie-a, 0.38)) 50%, transparent 50%) 0 0 / var(--p) 100% repeat-x; transform-origin: 0 50%; pointer-events: none; opacity: 0.2; animation: tie-march var(--dur) linear infinite; }
 @keyframes tie-march { to { background-position-x: var(--p); } }
 /* on 2x displays the dots and gaps double, so they stay legible rather than dissolving into the pixel grid */
 @media (min-resolution: 2dppx), (-webkit-min-device-pixel-ratio: 2) { .tie { --p: 4px; --dot: 2px; --dur: 0.167s; } }
@@ -702,11 +702,9 @@ a.code:hover .where { color: var(--signal); }
 .cube-stage.no-pull .tie { opacity: 0 !important; }
 .cube-stage.no-pull .vm { opacity: 0.45; }
 .cube-stage .vm { transition: opacity 400ms; }
-/* the ring: a virtual master's influence, grey at nothing and white at full (case.js writes --inf) */
-.vm b { position: relative; }
-/* the virtual masters sit far enough in (inline left/top) that the ring clears the stage's clip */
-.vm b::before { content: ''; position: absolute; left: 50%; top: 50%; width: var(--ring, 130px); height: var(--ring, 130px); transform: translate(-50%, -50%); border-radius: 50%; corner-shape: round; border: 1px solid rgba(var(--text-rgb), calc(0.12 + 0.88 * var(--inf, 0))); pointer-events: none; }
-@media (max-width: 560px) { .vm b::before { --ring: 90px; } .vm[style*="top"] { top: 38px !important; } .vm[style*="bottom"] { bottom: 38px !important; } .vm[style*="left"] { left: 12px !important; } .vm[style*="right"] { right: 12px !important; } }
+/* a virtual master's influence (case.js writes --inf): the master itself comes up from quiet to full ink,
+   and its ties' dots do the same, so the pull reads in the lines that carry it; no extra shape */
+.vm b { color: rgba(var(--text-rgb), calc(0.45 + 0.55 * var(--inf, 0))); }
 /* the same cube in Cal Sans Flex: GEOM blends the letterforms instead of swapping them */
 .cube-stage.is-flex .cube .v b, .cube-stage.is-flex .vm b { font-family: 'CalSansFlex', 'CalSans', sans-serif; }
 /* levels the tilt, roll and zoom once any of them has moved; the turn is left where it is */

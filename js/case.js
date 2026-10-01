@@ -267,6 +267,7 @@
             t.style.width = d + 'px';
             t.style.transform = 'translate(' + ax + 'px,' + ay + 'px) rotate(' + Math.atan2(p.y - ay, p.x - ax) + 'rad)';
             t.style.opacity = (0.08 + 0.5 * Math.max(0, 1 - d / reach)) * (0.3 + 0.7 * inf[i]);
+            t.style.setProperty('--tie-a', (0.38 + 0.62 * inf[i]).toFixed(3));
             if (d < bd) { bd = d; best = p; }
           });
           if (inf[i] <= 0) return;
