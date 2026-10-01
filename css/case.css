@@ -388,7 +388,7 @@ a.code:hover .where { color: var(--signal); }
     position: sticky;
     top: calc(var(--nav-h) + 24px);
     align-self: start;
-    height: min(680px, calc(100vh - var(--nav-h) - 48px));
+    height: min(620px, calc(100vh - var(--nav-h) - 80px));
     min-height: 440px;
     opacity: 0;
     visibility: hidden;
@@ -453,6 +453,25 @@ a.code:hover .where { color: var(--signal); }
 }
 .d-names b { display: inline-block; white-space: nowrap; }
 .d-names b:not(:last-child)::after { content: '\00a0\00b7'; color: var(--text-dim); }
+
+/* the UI-kit board from wm-primitives, as static tiles: the proofer's component gallery in the page's own
+   face. GEOM rides the card's slider; the switch pins optical size to the display drawing (45) when off. */
+.ukit {
+  display: grid; grid-template-columns: 1fr 1fr; grid-auto-rows: max-content; gap: 12px; align-items: start; align-content: start;
+  --geom: 25; --wght: 400;
+  --type-ui-size: 12.5px; --type-lede-size: 15px; --type-body-size: 14px; --vm-lh: 1.45;
+  font-size: 13px; line-height: 1.4;
+}
+.ukit .coss-b { --wght: 640; }
+/* the board scrolls inside the demo box, like the proofer's board pans; the bottom edge fades so the next row shows */
+.ukit { flex: 1 1 auto; min-height: 0; overflow-y: auto; scrollbar-width: thin; padding-bottom: 24px;
+  mask-image: linear-gradient(#000 calc(100% - 48px), transparent); -webkit-mask-image: linear-gradient(#000 calc(100% - 48px), transparent); }
+@media (max-width: 860px) { .ukit { max-height: 70vh; } }
+.ukit .coss-card { background: var(--bg); }
+.ukit:not(.is-on) { font-optical-sizing: none; }
+.ukit:not(.is-on) * { font-variation-settings: 'wght' var(--wght, 400), 'GEOM' var(--geom, 25), 'SHRP' var(--shrp, 0), 'ital' var(--ital, 0), 'opsz' 45; }
+@media (max-width: 560px) { .ukit { grid-template-columns: 1fr; } }
+@media (min-width: 1180px) { .ukit { grid-template-columns: 1fr 1fr 1fr; } }
 
 .switch { display: inline-flex; align-items: center; gap: 10px; font-size: 13px; color: var(--text-muted); }
 .switch-track {

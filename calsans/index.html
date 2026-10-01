@@ -12,7 +12,8 @@
 <link rel="stylesheet" href="../shared/src/motion.css">
 <link rel="stylesheet" href="../shared/src/icon.css">
 <link rel="stylesheet" href="../shared/src/themeSwitch.css">
-<link rel="stylesheet" href="../css/case.css?v=5">
+<link rel="stylesheet" href="../shared/src/UiKitBoard.css">
+<link rel="stylesheet" href="../css/case.css?v=6">
 </head>
 <body>
 
@@ -274,19 +275,18 @@
         <div class="look-body"><p>At interface sizes, optical size redraws the proportions for product screens. GEOM swaps the geometric alternates in or out, glyph by glyph.</p></div>
       </div>
       <div class="look-demo">
-        <div class="bk" id="bk" aria-hidden="true">
-          <div class="bk-head">
-            <span class="bk-avatar"><img src="../mark-davis.png" alt=""></span>
-            <div>
-              <div class="bk-title">30 min meeting</div>
-              <div class="bk-meta">Mark Davis &middot; Cal Video &middot; Europe/Lisbon</div>
-            </div>
-          </div>
-          <div class="bk-date">Thursday, October 1</div>
-          <div class="bk-slots"><span>9:00am</span><span>9:30am</span><span class="on">10:00am</span><span>11:30am</span><span>1:00pm</span><span>2:30pm</span></div>
-          <div class="bk-confirm">Confirm booking</div>
+        <div class="ukit is-on" id="ukit" aria-hidden="true">
+          <div class="coss-card"><div class="coss-card-head"><div class="coss-card-name">Button</div><div class="ukit-card-desc">A button or a component that looks like a button.</div></div><div class="coss-card-body"><div class="ui-row ui-wrap"><span class="ui-btn ui-btn--primary">Save changes</span><span class="ui-btn">Cancel</span><span class="ui-btn ui-btn--ghost ui-muted">Learn more</span></div></div></div>
+          <div class="coss-card"><div class="coss-card-head"><div class="coss-card-name">Input</div><div class="ukit-card-desc">A field with a label, placeholder and helper text.</div></div><div class="coss-card-body"><div><label class="ui-label coss-b">Work email</label><div class="ui-field">jordan@acme.co</div><div class="ui-help">We&rsquo;ll only use this to send booking receipts.</div></div></div></div>
+          <div class="coss-card"><div class="coss-card-head"><div class="coss-card-name">Select</div><div class="ukit-card-desc">Displays a list of options for the user to pick from.</div></div><div class="coss-card-body"><div class="ui-col"><label class="ui-label coss-b">Role</label><div class="ui-field ui-between">Editor <span class="ui-dim">&#9662;</span></div><div class="ui-list"><div class="ui-item">Owner</div><div class="ui-item on">Editor</div><div class="ui-item">Viewer</div></div></div></div></div>
+          <div class="coss-card"><div class="coss-card-head"><div class="coss-card-name">Tabs</div><div class="ukit-card-desc">Toggles between related panels on the same page.</div></div><div class="coss-card-body"><div><div class="ui-tabs"><span class="ui-tab on coss-b">Overview</span><span class="ui-tab">Analytics</span><span class="ui-tab">Settings</span></div><p class="ui-muted" style="font-size:12.5px;line-height:1.45;margin:0">Your workspace booked 214 meetings this month across 6 event types.</p></div></div></div>
+          <div class="coss-card"><div class="coss-card-head"><div class="coss-card-name">Badge</div><div class="ukit-card-desc">A badge or a component that looks like a badge.</div></div><div class="coss-card-body"><div class="ui-row ui-wrap"><span class="ui-chip"><span class="ui-dot dot-ok"></span>Active</span><span class="ui-chip"><span class="ui-dot dot-warn"></span>Pending</span><span class="ui-chip"><span class="ui-dot dot-err"></span>Failed</span></div></div></div>
+          <div class="coss-card"><div class="coss-card-head"><div class="coss-card-name">Switch</div><div class="ukit-card-desc">A control that indicates whether a setting is on or off.</div></div><div class="coss-card-body"><div class="ui-col"><div class="ui-between"><span style="font-size:13px">Email notifications</span><span class="ui-switch"></span></div><div class="ui-between"><span class="ui-muted" style="font-size:13px">SMS reminders</span><span class="ui-switch ui-switch--off"></span></div></div></div></div>
+          <div class="coss-card"><div class="coss-card-head"><div class="coss-card-name">Stat</div><div class="ukit-card-desc">A metric card with a value and a change indicator.</div></div><div class="coss-card-body"><div><div class="ui-stat-label">Monthly revenue</div><div class="ui-stat-num coss-b">$48,200</div><div class="ui-delta">&#9650; 12.4% vs last month</div></div></div></div>
+          <div class="coss-card"><div class="coss-card-head"><div class="coss-card-name">Dialog</div><div class="ukit-card-desc">A modal that interrupts the user to confirm an action.</div></div><div class="coss-card-body"><div class="ui-dialog"><div class="ui-dialog-title coss-b">Delete event type?</div><div class="ui-dialog-sub">This can&rsquo;t be undone. Existing bookings stay on your calendar.</div><div class="ui-dialog-actions"><span class="ui-btn ui-btn--sm">Cancel</span><span class="ui-btn ui-btn--sm ui-btn--primary">Delete</span></div></div></div></div>
+          <div class="coss-card"><div class="coss-card-head"><div class="coss-card-name">Calendar</div><div class="ukit-card-desc">A date grid for picking a day.</div></div><div class="coss-card-body"><div><div class="ui-cal-head"><span class="coss-b">January 2026</span><span class="ui-dim">&#8249; &#8250;</span></div><div class="ui-cal"><span class="ui-cal-w">S</span><span class="ui-cal-w">M</span><span class="ui-cal-w">T</span><span class="ui-cal-w">W</span><span class="ui-cal-w">T</span><span class="ui-cal-w">F</span><span class="ui-cal-w">S</span><span class="ui-cal-d dim">28</span><span class="ui-cal-d dim">29</span><span class="ui-cal-d dim">30</span><span class="ui-cal-d">1</span><span class="ui-cal-d">2</span><span class="ui-cal-d">3</span><span class="ui-cal-d">4</span><span class="ui-cal-d">5</span><span class="ui-cal-d">6</span><span class="ui-cal-d">7</span><span class="ui-cal-d">8</span><span class="ui-cal-d">9</span><span class="ui-cal-d">10</span><span class="ui-cal-d">11</span><span class="ui-cal-d on">12</span><span class="ui-cal-d">13</span><span class="ui-cal-d">14</span><span class="ui-cal-d">15</span><span class="ui-cal-d">16</span><span class="ui-cal-d">17</span><span class="ui-cal-d">18</span><span class="ui-cal-d">19</span><span class="ui-cal-d">20</span><span class="ui-cal-d">21</span><span class="ui-cal-d">22</span><span class="ui-cal-d">23</span><span class="ui-cal-d">24</span><span class="ui-cal-d">25</span><span class="ui-cal-d">26</span><span class="ui-cal-d">27</span><span class="ui-cal-d">28</span></div></div></div></div>
         </div>
-        <div class="demo-foot"><label class="ax"><span>GEOM</span><input type="range" data-var="--geom" data-target="bk" min="0" max="100" step="1" value="25"><output></output></label><span>Alternates in, alternates out</span></div>
+        <div class="demo-foot"><label class="ax"><span>GEOM</span><input type="range" data-var="--geom" data-target="ukit" min="0" max="100" step="1" value="25"><output></output></label><button type="button" class="switch" role="switch" aria-checked="true" data-target="ukit"><span class="switch-track"></span>Optical size: auto</button></div>
       </div>
     </article>
 
