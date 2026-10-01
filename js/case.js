@@ -181,7 +181,7 @@
   var ds = document.getElementById('ds-block');
   if (ds && 'IntersectionObserver' in window) {
     var dsIO = new IntersectionObserver(function (entries) {
-      entries.forEach(function (e) { if (e.isIntersecting) { ds.classList.add('is-in'); setTimeout(function () { ds.classList.add('is-live'); }, 2600); dsIO.disconnect(); } });
+      entries.forEach(function (e) { if (e.isIntersecting) { ds.classList.add('is-in'); setTimeout(function () { ds.classList.add('is-live'); }, 2600); setTimeout(function () { ds.classList.add('is-settled'); }, 3700); dsIO.disconnect(); } });
     }, { threshold: 0.5 });
     dsIO.observe(ds.querySelector('.ds-panel--now'));
     /* the cube turns on its own, and by hand: drag turns it, pinch or ctrl-wheel zooms; a two-finger twist
@@ -216,6 +216,20 @@
         return { idx: idx, ties: idx.map(function () { var t = document.createElement('i'); t.className = 'tie'; stage.insertBefore(t, cube); return t; }) };
       });
       var AX = { GEOM: 25, YTAS: 1440, SHRP: 0, opsz: 10 };
+      /* the two switches under the stage: the virtual masters' pull, and the Flex cut */
+      var pull = true;
+      /* with a mouse, a virtual master's influence is how near the pointer is to it, shown by the ring
+         around it; the pull it exerts and its ties follow. Fingers can't hover, so touch keeps the
+         geometric pull. */
+      var fine = !(window.matchMedia && window.matchMedia('(pointer: coarse)').matches), mouse = null, inf = vms.map(function () { return 0; });
+      var RING = 150;
+      Array.prototype.forEach.call(ds.querySelectorAll('.switch[data-cube]'), function (sw) {
+        sw.addEventListener('click', function () {
+          var on = sw.getAttribute('aria-checked') !== 'true'; sw.setAttribute('aria-checked', on);
+          if (sw.dataset.cube === 'pull') { pull = on; stage.classList.toggle('no-pull', !on); }
+          else stage.classList.toggle('is-flex', on);
+        });
+      });
       function place() {
         cube.style.transform = 'scale(' + rot.z + ') rotateZ(' + rot.r + 'deg) rotateX(' + rot.x + 'deg) rotateY(' + rot.y + 'deg)';
         var un = 'rotateY(' + (-rot.y) + 'deg) rotateX(' + (-rot.x) + 'deg) rotateZ(' + (-rot.r) + 'deg)';
@@ -243,17 +257,22 @@
         var reach = Math.min(sr.width, sr.height) * 0.7;
         vms.forEach(function (a, i) {
           var ar = a.querySelector('b').getBoundingClientRect(), ax = ar.left + ar.width / 2 - sr.left, ay = ar.top + ar.height / 2 - sr.top;
+          /* influence: on a mouse, how close the pointer has come; eased so it breathes rather than snaps */
+          var want = !pull ? 0 : !fine ? 1 : mouse ? Math.max(0, Math.min(1, 1 - Math.hypot(mouse.x - ax, mouse.y - ay) / RING)) : 0;
+          inf[i] += (want - inf[i]) * 0.15; if (Math.abs(want - inf[i]) < 0.002) inf[i] = want;
+          a.style.setProperty('--inf', inf[i].toFixed(3));
           var best = null, bd = Infinity;
           links[i].idx.forEach(function (j, n) {
             var p = pts[j], d = Math.hypot(p.x - ax, p.y - ay), t = links[i].ties[n];
             t.style.width = d + 'px';
             t.style.transform = 'translate(' + ax + 'px,' + ay + 'px) rotate(' + Math.atan2(p.y - ay, p.x - ax) + 'rad)';
-            t.style.opacity = 0.08 + 0.5 * Math.max(0, 1 - d / reach);
+            t.style.opacity = (0.08 + 0.5 * Math.max(0, 1 - d / reach)) * (0.3 + 0.7 * inf[i]);
             if (d < bd) { bd = d; best = p; }
           });
+          if (inf[i] <= 0) return;
           /* full pull inside the near 40% of reach, so each axis gets to show its whole travel, not a quarter of it */
           var k = Math.max(0, Math.min(1, (reach - bd) / (reach * 0.6)));
-          best.add[a.dataset.axis] = AX[a.dataset.axis] + (parseFloat(a.dataset.to) - AX[a.dataset.axis]) * k * k;
+          best.add[a.dataset.axis] = AX[a.dataset.axis] + (parseFloat(a.dataset.to) - AX[a.dataset.axis]) * k * k * inf[i];
         });
         pts.forEach(function (p, i) {
           var extra = Object.keys(p.add).map(function (k) { return "'" + k + "' " + p.add[k].toFixed(1); }).join(', ');
@@ -301,6 +320,7 @@
       function angle(ids) { return Math.atan2(ptrs[ids[1]].y - ptrs[ids[0]].y, ptrs[ids[1]].x - ptrs[ids[0]].x) * 180 / Math.PI; }
       function turn(dx, dy) { rot.y += dx * 0.45; rot.x -= dy * 0.35; idle = 0; }   /* no tilt clamp: it can go right over */
       stage.addEventListener('pointermove', function (e) {
+        if (e.pointerType === 'mouse' && !drag) { var r = stage.getBoundingClientRect(); mouse = { x: e.clientX - r.left, y: e.clientY - r.top }; }
         if (!ptrs[e.pointerId]) return;
         ptrs[e.pointerId] = { x: e.clientX, y: e.clientY };
         var ids = Object.keys(ptrs);
@@ -314,6 +334,7 @@
           turn(e.clientX - drag.x, e.clientY - drag.y); drag = { x: e.clientX, y: e.clientY };
         }
       });
+      stage.addEventListener('pointerleave', function () { mouse = null; });
       function up(e) { delete ptrs[e.pointerId]; if (!Object.keys(ptrs).length) { drag = null; pinch = null; twist = null; stage.classList.remove('is-grabbing'); } }
       stage.addEventListener('pointerup', up); stage.addEventListener('pointercancel', up);
       stage.addEventListener('wheel', function (e) {
@@ -367,6 +388,7 @@
   /* feature switches */
   document.querySelectorAll('.switch').forEach(function (sw) {
     var target = document.getElementById(sw.dataset.target);
+    if (!target) return;                                   /* the cube's switches wire themselves */
     sw.addEventListener('click', function () {
       var on = sw.getAttribute('aria-checked') !== 'true';
       sw.setAttribute('aria-checked', on);
