@@ -1,14 +1,21 @@
 /* Case-study pages: the hero word fit, the axis sliders, the closer-look tabs and the
    feature switches. No dependencies; every demo is live text in the page's own face. */
 (function () {
-  /* hero word: size it to span the measure exactly */
-  var word = document.querySelector('.hero-word');
+  /* the highlight samples: Cal.com fitted to its card at 700, the heaviest it gets, and the
+     Geometry sample pinned to that size, so side by side the two share a baseline */
+  var grid = document.querySelector('.hl-grid');
+  var word = document.querySelector('.cal-word');
   function fitWord() {
-    if (!word) return;
+    if (!grid || !word) return;
+    var save = { fs: word.style.fontSize, fv: word.style.fontVariationSettings, an: word.style.animation };
     word.style.fontSize = '100px';
-    var w = word.getBoundingClientRect().width;
-    var box = word.parentElement.clientWidth;
-    if (w > 0) word.style.fontSize = (100 * box / w) + 'px';
+    word.style.animation = 'none';
+    word.style.fontVariationSettings = "'opsz' 45, 'GEOM' 50, 'wght' 700";
+    var range = document.createRange(); range.selectNodeContents(word);
+    var w = range.getBoundingClientRect().width;          /* the text run, not the block */
+    var box = word.getBoundingClientRect().width;          /* the block spans the card's content width */
+    word.style.fontSize = save.fs; word.style.animation = save.an; word.style.fontVariationSettings = save.fv;
+    if (w > 0 && box > 0) grid.style.setProperty('--hl-size', Math.max(40, Math.floor(100 * box / w)) + 'px');
   }
   fitWord();
   window.addEventListener('resize', fitWord);

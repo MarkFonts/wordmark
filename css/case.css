@@ -221,8 +221,8 @@ section[id] { scroll-margin-top: var(--nav-h); }
 
 .cal-word {
   margin: 0;
-  font-size: clamp(64px, 8vw, 112px);
-  line-height: 1;
+  font-size: var(--hl-size, clamp(64px, 8vw, 112px));
+  line-height: 1.05;
   white-space: nowrap;
   color: var(--text);
   font-variation-settings: 'opsz' 45, 'GEOM' 50, 'wght' 400;
@@ -242,9 +242,10 @@ section[id] { scroll-margin-top: var(--nav-h); }
   white-space: nowrap;
   overflow-x: clip;
   overflow-y: visible;
-  padding-bottom: 0.12em;
   font-variation-settings: 'opsz' 45, 'GEOM' 50, 'wght' 600, 'YTAS' 1440, 'SHRP' 0, 'ital' 0;
 }
+/* side by side, the sample is pinned to the size Cal.com reaches at 700, so the two share a baseline */
+@media (min-width: 861px) { .axes-sample { font-size: var(--hl-size, clamp(56px, 9vw, 132px)); } }
 .axes { display: grid; gap: 10px 28px; margin-top: 18px; }
 .ax {
   display: grid;
