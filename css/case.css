@@ -685,7 +685,12 @@ a.code:hover .where { color: var(--signal); }
 .ds-block:not(.is-in) .cube .e { opacity: 0 !important; }
 .cube-axes { display: flex; flex-wrap: wrap; gap: 6px 18px; margin-top: 10px; font-size: 13px; color: var(--text-dim); }
 /* the virtual axes hold still at the corners and tether to the nearest glyph, pulling it along their axis */
-.tie { position: absolute; left: 0; top: 0; height: 1px; background: repeating-linear-gradient(90deg, var(--text-dim) 0 1px, transparent 1px 2px); transform-origin: 0 0; pointer-events: none; opacity: 0.2; }   /* dotted, one on one off */
+/* dotted, one on one off, marching from the virtual master out to the corner it ties to (the line is drawn from the virtual end, so +x is outward) */
+.tie { --p: 2px; --dot: 1px; --dur: 0.083s; position: absolute; left: 0; top: 0; height: var(--dot); background: linear-gradient(90deg, var(--text-dim) 50%, transparent 50%) 0 0 / var(--p) 100% repeat-x; transform-origin: 0 50%; pointer-events: none; opacity: 0.2; animation: tie-march var(--dur) linear infinite; }
+@keyframes tie-march { to { background-position-x: var(--p); } }
+/* on 2x displays the dots and gaps double, so they stay legible rather than dissolving into the pixel grid */
+@media (min-resolution: 2dppx), (-webkit-min-device-pixel-ratio: 2) { .tie { --p: 4px; --dot: 2px; --dur: 0.167s; } }
+@media (prefers-reduced-motion: reduce) { .tie { animation: none; } }
 .vm { position: absolute; display: grid; justify-items: center; gap: 2px; z-index: 2; pointer-events: none; }
 .vm b { font-size: 28px; line-height: 1; white-space: nowrap; font-family: 'CalSans', sans-serif; font-optical-sizing: none; color: var(--text); }
 @media (max-width: 560px) { .vm b { font-size: 18px; } .vlab-v { font-size: 7px; } }
