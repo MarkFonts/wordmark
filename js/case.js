@@ -118,6 +118,60 @@
     })(true);
   }
 
+  /* the type tester: every control writes one custom property on the card; the two
+     segmented controls unlock into their slider; reset shows once anything has moved */
+  var tester = document.getElementById('tester');
+  if (tester) {
+    var ttText = document.getElementById('tt-text'), ttReset = document.getElementById('tt-reset');
+    var ttDefaultText = ttText.value, ttClamp = tester.querySelector('.tt-clamp');
+    var PROP = { size: '--tt-size', wght: '--tt-wght', opsz: '--tt-opsz', track: '--tt-track', YTAS: '--tt-ytas', SHRP: '--tt-shrp', ital: '--tt-ital', GEOM: '--tt-geom' };
+    var UNIT = { size: 'px', opsz: 'pt', track: '%', ital: '%', GEOM: '%' };
+    var rows = tester.querySelectorAll('.tt-row');
+    function ttOut(row, key, v) {
+      var shown = key === 'ital' ? Math.round(v * 100) : Math.round(v * 2) / 2;
+      row.querySelector('output').textContent = shown + (UNIT[key] || '');
+    }
+    function ttApply(row) {
+      var key = row.dataset.key || row.querySelector('input').dataset.key, input = row.querySelector('input'), v = parseFloat(input.value);
+      tester.style.setProperty(PROP[key], key === 'size' ? v + 'px' : key === 'track' ? (v / 100) + 'em' : v);
+      ttOut(row, key, v);
+      row.querySelectorAll('.tt-seg button').forEach(function (b) { b.setAttribute('aria-pressed', parseFloat(b.dataset.v) === v); });
+      ttDirty();
+    }
+    function ttFit() {
+      ttText.style.height = 'auto';
+      ttText.style.height = Math.min(ttText.scrollHeight, ttClamp.clientHeight) + 'px';
+    }
+    function ttDirty() {
+      var dirty = ttText.value !== ttDefaultText;
+      rows.forEach(function (row) { var i = row.querySelector('input'); if (i.value !== i.defaultValue) dirty = true; });
+      ttReset.hidden = !dirty;
+      ttFit();
+    }
+    /* a phone starts smaller; the slider's default follows so reset returns there */
+    var sizeInput = tester.querySelector('input[data-key="size"]');
+    if (tester.clientWidth < 600) { sizeInput.value = 56; sizeInput.defaultValue = 56; }
+    rows.forEach(function (row) {
+      var input = row.querySelector('input');
+      input.addEventListener('input', function () { ttApply(row); });
+      row.querySelectorAll('.tt-seg button').forEach(function (b) {
+        b.addEventListener('click', function () { input.value = b.dataset.v; ttApply(row); });
+      });
+      var unlock = row.querySelector('.tt-unlock');
+      if (unlock) unlock.addEventListener('click', function () { row.classList.add('is-open'); input.tabIndex = 0; input.focus(); });
+      ttApply(row);
+    });
+    ttText.addEventListener('input', ttDirty);
+    ttReset.addEventListener('click', function () {
+      ttReset.classList.add('is-spun');
+      setTimeout(function () { ttReset.classList.remove('is-spun'); }, 500);
+      ttText.value = ttDefaultText;
+      rows.forEach(function (row) { var i = row.querySelector('input'); i.value = i.defaultValue; row.classList.remove('is-open'); i.tabIndex = -1; ttApply(row); });
+    });
+    window.addEventListener('resize', ttFit);
+    if (document.fonts && document.fonts.ready) document.fonts.ready.then(ttFit);
+  }
+
   /* feature switches */
   document.querySelectorAll('.switch').forEach(function (sw) {
     var target = document.getElementById(sw.dataset.target);

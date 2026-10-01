@@ -30,7 +30,7 @@
 <link rel="stylesheet" href="../shared/src/icon.css">
 <link rel="stylesheet" href="../shared/src/themeSwitch.css">
 <link rel="stylesheet" href="../shared/src/UiKitBoard.css">
-<link rel="stylesheet" href="../css/case.css?v=12">
+<link rel="stylesheet" href="../css/case.css?v=15">
 </head>
 <body>
 
@@ -328,9 +328,9 @@
 
 <!-- studio ─────────────────────────────────────────────── -->
 <section id="studio" class="sec wrap">
+  <figure class="studio-photo"><img src="../links/pngs/DSC07752.jpeg" width="1358" height="908" loading="lazy" alt="Mark Davis at a desk with Cal Sans proofs in hand and the UI cut on the laptop; the words Cal Sans on the glass behind"></figure>
   <div class="studio">
     <div class="studio-side">
-      <img src="../mark-davis.png" alt="Mark Davis">
       <h2 class="sec-title">From the studio</h2>
     </div>
     <div class="prose">
@@ -375,6 +375,42 @@
   </div>
 </section>
 
+<!-- try it ─────────────────────────────────────────────── -->
+<section id="try" class="sec wrap">
+  <h2 class="sec-title">Try it</h2>
+  <div class="card tester" id="tester">
+    <button type="button" class="tt-reset" id="tt-reset" aria-label="Reset the tester" hidden>
+      <svg width="16" height="16" viewBox="0 0 16 16" aria-hidden="true"><path fill="currentColor" fill-rule="evenodd" d="M13.5 8c0-3.034-2.474-5.5-5.535-5.5a5.53 5.53 0 0 0-5.328 4H6V8H.75A.75.75 0 0 1 0 7.25V2h1.5v3.233A7.04 7.04 0 0 1 7.965 1C11.846 1 15 4.13 15 8s-3.154 7-7.035 7a7.04 7.04 0 0 1-5.695-2.888l-.442-.605 1.211-.885.443.605A5.54 5.54 0 0 0 7.965 13.5c3.06 0 5.535-2.466 5.535-5.5" clip-rule="evenodd"/></svg>
+    </button>
+    <div class="tt-clamp"><textarea class="tt-preview" id="tt-text" spellcheck="false" rows="1" aria-label="Type tester">Type away&hellip;</textarea></div>
+    <div class="tt-controls">
+      <label class="tt-row" style="--o2:3"><span class="tt-head"><span>Size</span><output>100px</output></span><input type="range" data-key="size" min="12" max="350" step="1" value="100"></label>
+      <label class="tt-row" style="--o2:1"><span class="tt-head"><span>Weight</span><output>400</output></span><input type="range" data-key="wght" min="400" max="700" step="1" value="400"></label>
+      <label class="tt-row" style="--o2:2"><span class="tt-head"><span>Optical</span><output>45pt</output></span><input type="range" data-key="opsz" min="8" max="45" step="1" value="45"></label>
+      <div class="tt-row tt-morph" style="--o2:7" data-key="ital">
+        <span class="tt-head"><span>Italic</span><output>0%</output></span>
+        <div class="tt-area">
+          <div class="tt-seg" role="group" aria-label="Italic"><button type="button" data-v="0" aria-pressed="true">Roman</button><button type="button" data-v="1" aria-pressed="false">Italic</button></div>
+          <input type="range" min="0" max="1" step="0.01" value="0" aria-label="Italic, 0 to 100 percent" tabindex="-1">
+          <button type="button" class="tt-unlock" aria-label="Unlock the slider"></button>
+        </div>
+      </div>
+      <label class="tt-row" style="--o2:4"><span class="tt-head"><span>Tracking</span><output>0%</output></span><input type="range" data-key="track" min="-10" max="10" step="0.5" value="0"></label>
+      <label class="tt-row" style="--o2:5"><span class="tt-head"><span>Ascender</span><output>1440</output></span><input type="range" data-key="YTAS" min="1440" max="1600" step="1" value="1440"></label>
+      <label class="tt-row" style="--o2:6"><span class="tt-head"><span>Sharpness</span><output>0</output></span><input type="range" data-key="SHRP" min="0" max="100" step="1" value="0"></label>
+      <div class="tt-row tt-morph" style="--o2:8" data-key="GEOM">
+        <span class="tt-head"><span>Geometric form</span><output>25%</output></span>
+        <div class="tt-area">
+          <div class="tt-seg" role="group" aria-label="Geometric form"><button type="button" data-v="25" aria-pressed="true">Circular</button><button type="button" data-v="50" aria-pressed="false">Display</button><button type="button" data-v="100" aria-pressed="false">Futura</button></div>
+          <input type="range" min="0" max="100" step="1" value="25" aria-label="Geometric form, 0 to 100" tabindex="-1">
+          <button type="button" class="tt-unlock" aria-label="Unlock the slider"></button>
+        </div>
+      </div>
+    </div>
+    <p class="tt-more"><a class="pill pill--ghost" href="../font-proofer/calcom/calsans/">Open the full proofer <span class="arrow">&#x2197;</span></a></p>
+  </div>
+</section>
+
 <!-- close ──────────────────────────────────────────────── -->
 <section class="close wrap">
   <h2 class="sec-title">One weight earned the trust</h2>
@@ -409,7 +445,7 @@
 </footer>
 
 <script src="../js/thermal-hero.js?v=3"></script>
-<script src="../js/case.js?v=8"></script>
+<script src="../js/case.js?v=10"></script>
 <script type="module">
   import { mountThemeSwitch } from '../shared/src/theme.js';
   mountThemeSwitch(document.getElementById('theme-toggle'));
