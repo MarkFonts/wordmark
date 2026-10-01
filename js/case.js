@@ -89,6 +89,16 @@
   window.addEventListener('resize', fitFall);
   if (document.fonts && document.fonts.ready) document.fonts.ready.then(fitFall);
 
+  /* default spacing: the headline sits at 0 for a while, tracks out to +55 and comes back in */
+  var head = document.getElementById('d-headline'), headOut = document.getElementById('d-headline-out');
+  if (head) {
+    (function step(out) {
+      head.classList.toggle('is-out', out);
+      headOut.textContent = out ? 'letter-spacing: 0.055em' : 'letter-spacing: 0';
+      setTimeout(function () { step(!out); }, out ? 1800 : 2800);
+    })(false);
+  }
+
   /* feature switches */
   document.querySelectorAll('.switch').forEach(function (sw) {
     var target = document.getElementById(sw.dataset.target);

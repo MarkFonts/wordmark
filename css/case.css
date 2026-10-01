@@ -26,7 +26,6 @@
   font-style: normal;
   font-display: swap;
 }
-
 *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
 
 /* Axes ride custom properties so a parent can move one without restating the rest.
@@ -407,15 +406,21 @@ a.code:hover .where { color: var(--signal); }
 @media (prefers-reduced-motion: reduce) { .look-item.is-active .look-dot { animation: none; } }
 
 /* demos */
+/* default spacing: the headline tracks out to +55, where Lexend and Poppins start, and settles back
+   in to 0. case.js runs the loop and the readout in the foot. */
 .d-headline {
-  --wght: 640; --geom: 50;
+  --wght: 600; --geom: 50;
+  font-variation-settings: 'opsz' 45, 'wght' var(--wght), 'GEOM' var(--geom), 'SHRP' var(--shrp, 0), 'ital' var(--ital, 0);
   font-size: clamp(38px, 5.6vw, 84px);
   line-height: 0.98;
   letter-spacing: 0;
   text-wrap: balance;
   outline: none;
   caret-color: var(--signal);
+  transition: letter-spacing 700ms cubic-bezier(0.4, 0, 0.2, 1);
 }
+.d-headline.is-out { letter-spacing: 0.055em; }
+@media (prefers-reduced-motion: reduce) { .d-headline { transition: none; } }
 /* the Tailwind scale up to 9xl; case.js shortens each row's words to what fits */
 .d-fall { display: grid; grid-template-columns: minmax(0, 1fr); gap: 6px; align-content: start; flex: 1; min-height: 0; overflow: hidden; }
 .d-fall div { display: flex; align-items: baseline; gap: 16px; white-space: nowrap; line-height: 1.05; }
@@ -455,7 +460,7 @@ a.code:hover .where { color: var(--signal); }
 .d-names b:not(:last-child)::after { content: '\00a0\00b7'; color: var(--text-dim); }
 
 /* the UI-kit board from wm-primitives, as static tiles: the proofer's component gallery in the page's own
-   face. GEOM rides the card's slider; the switch pins optical size to the display drawing (45) when off. */
+   face. GEOM rides the card's slider; the switch pins optical size to the axis default (14) when off, so the 11px helper text and the headings both drift. */
 .ukit {
   display: grid; grid-template-columns: 1fr 1fr; grid-auto-rows: max-content; gap: 12px; align-items: start; align-content: start;
   --geom: 25; --wght: 400;
@@ -469,7 +474,7 @@ a.code:hover .where { color: var(--signal); }
 @media (max-width: 860px) { .ukit { max-height: 70vh; } }
 .ukit .coss-card { background: var(--bg); }
 .ukit:not(.is-on) { font-optical-sizing: none; }
-.ukit:not(.is-on) * { font-variation-settings: 'wght' var(--wght, 400), 'GEOM' var(--geom, 25), 'SHRP' var(--shrp, 0), 'ital' var(--ital, 0), 'opsz' 45; }
+.ukit:not(.is-on) * { font-variation-settings: 'wght' var(--wght, 400), 'GEOM' var(--geom, 25), 'SHRP' var(--shrp, 0), 'ital' var(--ital, 0), 'opsz' 14; }
 @media (max-width: 560px) { .ukit { grid-template-columns: 1fr; } }
 @media (min-width: 1180px) { .ukit { grid-template-columns: 1fr 1fr 1fr; } }
 
