@@ -249,7 +249,8 @@
             t.style.opacity = 0.08 + 0.5 * Math.max(0, 1 - d / reach);
             if (d < bd) { bd = d; best = p; }
           });
-          var k = Math.max(0, Math.min(1, 1 - bd / reach));
+          /* full pull inside the near 40% of reach, so each axis gets to show its whole travel, not a quarter of it */
+          var k = Math.max(0, Math.min(1, (reach - bd) / (reach * 0.6)));
           best.add[a.dataset.axis] = AX[a.dataset.axis] + (parseFloat(a.dataset.to) - AX[a.dataset.axis]) * k * k;
         });
         pts.forEach(function (p, i) {
