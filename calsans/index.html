@@ -33,7 +33,7 @@
 <link rel="stylesheet" href="../shared/src/icon.css">
 <link rel="stylesheet" href="../shared/src/themeSwitch.css">
 <link rel="stylesheet" href="../shared/src/UiKitBoard.css">
-<link rel="stylesheet" href="../css/case.css?v=58">
+<link rel="stylesheet" href="../css/case.css?v=59">
 </head>
 <body>
 
@@ -198,7 +198,8 @@
     </article>
 
     <article class="card hl">
-      <div>
+      <div class="axes-wrap">
+        <button type="button" class="ax-reset" aria-label="Reset the axes" hidden><svg width="16" height="16" viewBox="0 0 16 16" aria-hidden="true"><path fill="currentColor" fill-rule="evenodd" d="M13.5 8c0-3.034-2.474-5.5-5.535-5.5a5.53 5.53 0 0 0-5.328 4H6V8H.75A.75.75 0 0 1 0 7.25V2h1.5v3.233A7.04 7.04 0 0 1 7.965 1C11.846 1 15 4.13 15 8s-3.154 7-7.035 7a7.04 7.04 0 0 1-5.695-2.888l-.442-.605 1.211-.885.443.605A5.54 5.54 0 0 0 7.965 13.5c3.06 0 5.535-2.466 5.535-5.5" clip-rule="evenodd"/></svg></button>
         <div class="axes-sample" id="axes-sample" aria-hidden="true">Geometry</div>
         <div class="axes" data-axes="axes-sample">
           <label class="ax"><span>Optical size</span><input type="range" data-axis="opsz" min="8" max="45" step="1" value="45"><output></output></label>
@@ -571,7 +572,7 @@
 </footer>
 
 <script src="../js/thermal-hero.js?v=7"></script>
-<script src="../js/case.js?v=35"></script>
+<script src="../js/case.js?v=36"></script>
 <script type="module">
   import { mountThemeSwitch } from '../shared/src/theme.js';
   mountThemeSwitch(document.getElementById('theme-toggle'));
