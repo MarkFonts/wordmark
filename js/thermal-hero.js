@@ -37,8 +37,13 @@ let armed=false;window.__thermal={get armed(){return armed}};
 const io=('IntersectionObserver' in window)?new IntersectionObserver(es=>{for(const e of es){if(e.isIntersecting&&!armed){armed=true;t0=performance.now();requestAnimationFrame(frame);io.disconnect();}}},{threshold:0.6}):null;
 if(io)io.observe(stage);else armed=true;
 const coarse=window.matchMedia&&window.matchMedia('(pointer: coarse)').matches;let skip=0;
+if(coarse){                                                            // phones: a lighter chain, one octave of grain, half the halo
+  stage.querySelectorAll('feTurbulence').forEach(n=>n.setAttribute('numOctaves','1'));
+  stage.querySelectorAll('feGaussianBlur[result="halo0"]').forEach(n=>n.setAttribute('stdDeviation','13'));
+  stage.querySelectorAll('#material feGaussianBlur').forEach(n=>n.setAttribute('stdDeviation','18'));
+}
 function frame(now){
-  if(coarse&&window.__t==null&&(skip=(skip+1)%2)){requestAnimationFrame(frame);return;}   // phones: the filters at half rate
+  if(coarse&&window.__t==null&&(skip=(skip+1)%3)){requestAnimationFrame(frame);return;}   // phones: the filters at a third of the rate
   let t=armed?(now-t0)/1000:0;if(!playing)t=(LEAD+total)/SPEED;if(window.__t!=null)t=window.__t;
   t=t*SPEED-LEAD;                                                    // the whole piece, lead-in included, runs at the chosen speed
   const b=ease(lin(t,e1,e2));
