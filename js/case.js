@@ -197,9 +197,13 @@
       });
       glyphs.forEach(function (g) { g.dataset.base = g.style.fontVariationSettings; });
       /* the virtual masters tie to every cube master; the lines fade with distance and the nearest corner is pulled */
-      var vms = Array.prototype.slice.call(stage.querySelectorAll('.vm')), ties = [], running = false;
-      vms.forEach(function () { glyphs.forEach(function () { var t = document.createElement('i'); t.className = 'tie'; stage.insertBefore(t, cube); ties.push(t); }); });
-      var AX = { GEOM: 25, YTAS: 1440, SHRP: 0 };
+      var vms = Array.prototype.slice.call(stage.querySelectorAll('.vm')), running = false;
+      /* which cube masters each virtual master ties to: all of them, or only the opsz 10 row */
+      var links = vms.map(function (a) {
+        var idx = []; verts.forEach(function (v, i) { if (a.dataset.only !== 'opsz10' || v.style.getPropertyValue('--y') === '1') idx.push(i); });
+        return { idx: idx, ties: idx.map(function () { var t = document.createElement('i'); t.className = 'tie'; stage.insertBefore(t, cube); return t; }) };
+      });
+      var AX = { GEOM: 25, YTAS: 1440, SHRP: 0, opsz: 10 };
       function place() {
         cube.style.transform = 'scale(' + rot.z + ') rotateX(' + rot.x + 'deg) rotateY(' + rot.y + 'deg)';
         var un = 'rotateY(' + (-rot.y) + 'deg) rotateX(' + (-rot.x) + 'deg)';
@@ -226,8 +230,8 @@
         vms.forEach(function (a, i) {
           var ar = a.querySelector('b').getBoundingClientRect(), ax = ar.left + ar.width / 2 - sr.left, ay = ar.top + ar.height / 2 - sr.top;
           var best = null, bd = Infinity;
-          pts.forEach(function (p, j) {
-            var d = Math.hypot(p.x - ax, p.y - ay), t = ties[i * pts.length + j];
+          links[i].idx.forEach(function (j, n) {
+            var p = pts[j], d = Math.hypot(p.x - ax, p.y - ay), t = links[i].ties[n];
             t.style.width = d + 'px';
             t.style.transform = 'translate(' + ax + 'px,' + ay + 'px) rotate(' + Math.atan2(p.y - ay, p.x - ax) + 'rad)';
             t.style.opacity = 0.08 + 0.5 * Math.max(0, 1 - d / reach);
