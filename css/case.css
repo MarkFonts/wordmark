@@ -18,6 +18,13 @@
   font-style: normal;
   font-display: swap;
 }
+/* the 2021 release, for the master it was in the 2022 estimate */
+@font-face {
+  font-family: 'CalSans1';
+  src: url('../shared/fonts/CalSans-Bold.woff2') format('woff2');
+  font-weight: 600;
+  font-display: swap;
+}
 /* the 2025 release, for its own title in the releases row: wght + GEOM only */
 @font-face {
   font-family: 'CalSansUI';
@@ -607,6 +614,11 @@ a.code:hover .where { color: var(--signal); }
 .ds-i rect { fill: var(--surface-hi, var(--bg)); }
 .ds-ghost rect { fill: none; stroke: var(--border); stroke-width: 1.5; stroke-dasharray: 5 6; }
 .ds-cur rect { fill: var(--bg); }
+/* the 2022 panel: the proposed masters are the slide's own outlines, dotted; the current master is Cal Sans 1 */
+.ds-o path { fill: none; stroke: var(--text-muted); stroke-width: 0.42; stroke-dasharray: 0.9 1.1; stroke-linecap: round; }
+.ds-faint { opacity: 0.45; }
+.ds-mvp { fill: var(--signal); }
+.ds-v1 { font-family: 'CalSans1', 'CalSans', sans-serif; font-size: 64px; fill: var(--text); font-variation-settings: normal; }
 .ds-ax line { stroke: var(--text-dim); stroke-width: 1.2; }
 .ds-ax text { fill: var(--text-dim); font-size: 16px; font-family: 'CalSans', sans-serif; }
 /* the 2026 panel: a real cube, weight, optical size and italic as its edges, the eight masters live at
