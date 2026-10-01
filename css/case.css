@@ -693,15 +693,14 @@ a.code:hover .where { color: var(--signal); }
 /* on 2x displays the dots and gaps double, so they stay legible rather than dissolving into the pixel grid */
 @media (min-resolution: 2dppx), (-webkit-min-device-pixel-ratio: 2) { .tie { --p: 4px; --dot: 2px; --dur: 0.167s; } }
 @media (prefers-reduced-motion: reduce) { .tie { animation: none; } }
-.vm { --ring-in: 26px; --ring-out: 42px; position: absolute; display: grid; justify-items: center; gap: 2px; z-index: 2; pointer-events: none; }
-/* the rings fade in as the mouse nears (case.js writes --inf). Every virtual master has the inner ring, its
-   full-influence radius; the GEOM master also has the outer one, which is where GEOM 0 sits: cross it and the
-   family goes A11y, reach the inner ring and it is Geo. Sized to stay inside the stage, never to its edges. */
+.vm { position: absolute; display: grid; justify-items: center; gap: 2px; z-index: 2; pointer-events: none; }
+/* the rings fade in as the mouse nears (case.js writes --inf and sizes them). Every virtual master has a ring,
+   as large as the stage allows it; the GEOM master also has the arc: the reach of its influence, faint, which
+   the stage crops. Strokes only, no fill. */
 .vm::before, .vm::after { content: ''; position: absolute; left: 50%; top: 50%; transform: translate(-50%, -50%); border-radius: 50%; corner-shape: round; border: 1px solid rgba(var(--text-rgb), 0.7); opacity: var(--inf, 0); pointer-events: none; }
-.vm::before { width: calc(var(--ring-in) * 2); height: calc(var(--ring-in) * 2); }
-.vm::after { display: none; width: calc(var(--ring-out) * 2); height: calc(var(--ring-out) * 2); border-color: rgba(var(--text-rgb), 0.4); }
-.vm[data-from]::after { display: block; }
-@media (max-width: 560px) { .vm { --ring-in: 20px; --ring-out: 34px; } }
+.vm::before { width: calc(var(--ring-in, 50px) * 2); height: calc(var(--ring-in, 50px) * 2); }
+.vm::after { display: none; width: calc(var(--ring-out, 260px) * 2); height: calc(var(--ring-out, 260px) * 2); border-color: rgba(var(--text-rgb), 0.3); }
+.vm[data-arc]::after { display: block; }
 .vm b { font-size: 28px; line-height: 1; white-space: nowrap; font-family: 'CalSans', sans-serif; font-optical-sizing: none; color: var(--text); }
 @media (max-width: 560px) { .vm b { font-size: 18px; } .vlab-v { font-size: 7px; } }
 .cube-hint { flex-basis: 100%; }

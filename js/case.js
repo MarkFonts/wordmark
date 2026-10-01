@@ -231,8 +231,18 @@
          geometric pull. */
       var fine = !(window.matchMedia && window.matchMedia('(pointer: coarse)').matches), mouse = null, inf = vms.map(function () { return 0; });
       var RING = 150;
-      /* the drawn rings' radii, from the stylesheet so the two agree; GEOM 0 sits on the outer one, 100 on the inner */
-      var ringIn = parseFloat(getComputedStyle(vms[0]).getPropertyValue('--ring-in')) || 28, ringOut = parseFloat(getComputedStyle(vms[0]).getPropertyValue('--ring-out')) || 48;
+      /* each master's ring: as large as the stage lets it be without touching an edge; the GEOM master's arc
+         is the reach of its influence, 60% of the stage's width, and the stage crops it */
+      var reachOf = vms.map(function () { return RING; });
+      function sizeRings() {
+        var sr = stage.getBoundingClientRect();
+        vms.forEach(function (a, i) {
+          var r = a.getBoundingClientRect(), cx = r.left + r.width / 2 - sr.left, cy = r.top + r.height / 2 - sr.top;
+          a.style.setProperty('--ring-in', Math.max(24, Math.floor(Math.min(cx, cy, sr.width - cx, sr.height - cy)) - 4) + 'px');
+          if (a.hasAttribute('data-arc')) { var arc = Math.round(sr.width * 0.6); a.style.setProperty('--ring-out', arc + 'px'); reachOf[i] = arc; }
+        });
+      }
+      sizeRings(); window.addEventListener('resize', sizeRings);
       Array.prototype.forEach.call(ds.querySelectorAll('.switch[data-cube]'), function (sw) {
         sw.addEventListener('click', function () {
           var on = sw.getAttribute('aria-checked') !== 'true'; sw.setAttribute('aria-checked', on);
@@ -269,7 +279,7 @@
           var ar = a.getBoundingClientRect(), ax = ar.left + ar.width / 2 - sr.left, ay = ar.top + ar.height / 2 - sr.top;   /* the rings' centre: the whole master */
           /* influence: on a mouse, how close the pointer has come; eased so it breathes rather than snaps */
           var md = mouse ? Math.hypot(mouse.x - ax, mouse.y - ay) : Infinity;
-          var want = !pull ? 0 : !fine ? 1 : mouse ? Math.max(0, Math.min(1, 1 - md / RING)) : 0;
+          var want = !pull ? 0 : !fine ? 1 : mouse ? Math.max(0, Math.min(1, 1 - md / reachOf[i])) : 0;
           inf[i] += (want - inf[i]) * 0.15; if (Math.abs(want - inf[i]) < 0.002) inf[i] = want;
           a.style.setProperty('--inf', inf[i].toFixed(3));
           var best = null, bd = Infinity;
@@ -282,16 +292,11 @@
             if (d < bd) { bd = d; best = p; }
           });
           if (inf[i] <= 0) return;
-          var axis = a.dataset.axis, to = parseFloat(a.dataset.to), from = a.dataset.from;
+          var axis = a.dataset.axis, to = parseFloat(a.dataset.to);
           if (fine) {
             /* a virtual master moves the whole family it ties to, as it does in the file: every tied corner
                takes the influence, the near ones a little ahead of the far ones */
             var target = AX[axis] + (to - AX[axis]) * inf[i];
-            if (from != null) {
-              /* two landings on one master: outside the outer ring the default; on it, GEOM 0; on the inner, 100 */
-              var lo = parseFloat(from), band = 24;
-              target = md >= ringOut + band ? AX[axis] : md >= ringOut ? AX[axis] + (lo - AX[axis]) * (1 - (md - ringOut) / band) : md <= ringIn ? to : lo + (to - lo) * (1 - (md - ringIn) / (ringOut - ringIn));
-            }
             links[i].idx.forEach(function (j) { var p = pts[j], d = Math.hypot(p.x - ax, p.y - ay), w = 0.85 + 0.15 * Math.max(0, 1 - d / reach); p.add[axis] = AX[axis] + (target - AX[axis]) * w; if (axis === 'opsz') { p.micro = inf[i] * w; p.microOn = inf[i] >= 0.85; } });
           } else {
             /* touch has no hover, so the geometry pulls: the nearest corner, full inside the near 40% of reach */
@@ -318,12 +323,14 @@
       }
       /* the level button: shows once tilt, roll or zoom has left home, and eases those three back
          while the turn (rot.y) keeps whatever spot it has reached */
-      var HOME = { x: -16, z: 0.82, r: 0 }, reset = ds.querySelector('.cube-reset'), leveling = null;
-      function offHome() { return Math.abs(rot.x - HOME.x) > 0.5 || Math.abs(rot.z - HOME.z) > 0.01 || Math.abs(rot.r) > 0.5; }
+      var HOME = { x: -16, z: 0.82, r: 0 }, reset = ds.querySelector('.cube-reset'), leveling = null, touched = false;
+      /* dirty once a hand has moved it at all, a plain turn included: levelling then also hands the turn
+         back to the auto-spin at once, so the button always does something visible */
+      function offHome() { return touched || Math.abs(rot.x - HOME.x) > 0.5 || Math.abs(rot.z - HOME.z) > 0.01 || Math.abs(rot.r) > 0.5; }
       if (reset) {
         reset.addEventListener('pointerdown', function (e) { e.stopPropagation(); });
         reset.addEventListener('click', function () {
-          leveling = { t0: performance.now(), x: rot.x, z: rot.z, r: rot.r };
+          leveling = { t0: performance.now(), x: rot.x, z: rot.z, r: rot.r }; touched = false; idle = 91;
           reset.classList.add('is-spun'); setTimeout(function () { reset.classList.remove('is-spun'); }, 500);
         });
       }
@@ -348,7 +355,7 @@
       });
       function span(ids) { return Math.hypot(ptrs[ids[0]].x - ptrs[ids[1]].x, ptrs[ids[0]].y - ptrs[ids[1]].y); }
       function angle(ids) { return Math.atan2(ptrs[ids[1]].y - ptrs[ids[0]].y, ptrs[ids[1]].x - ptrs[ids[0]].x) * 180 / Math.PI; }
-      function turn(dx, dy) { rot.y += dx * 0.45; rot.x -= dy * 0.35; idle = 0; }   /* no tilt clamp: it can go right over */
+      function turn(dx, dy) { rot.y += dx * 0.45; rot.x -= dy * 0.35; idle = 0; touched = true; }   /* no tilt clamp: it can go right over */
       stage.addEventListener('pointermove', function (e) {
         if (e.pointerType === 'mouse' && !drag) { var r = stage.getBoundingClientRect(); mouse = { x: e.clientX - r.left, y: e.clientY - r.top }; }
         if (!ptrs[e.pointerId]) return;
@@ -357,7 +364,7 @@
         if (ids.length === 2 && pinch) {
           var d = span(ids), a = angle(ids), da = a - twist;
           if (da > 180) da -= 360; else if (da < -180) da += 360;   /* the pair swinging through the seam at ±180 */
-          rot.z = Math.max(0.5, Math.min(2.2, rot.z * d / pinch)); pinch = d; twist = a; idle = 0;
+          rot.z = Math.max(0.5, Math.min(2.2, rot.z * d / pinch)); pinch = d; twist = a; idle = 0; touched = true;
           /* the roll waits for a deliberate twist, so a pinch with a little wobble in it stays a pinch */
           if (twistAcc === null) rot.r += da; else { twistAcc += da; if (Math.abs(twistAcc) >= TWIST_AT) twistAcc = null; }
         } else if (drag) {
@@ -370,7 +377,7 @@
       stage.addEventListener('wheel', function (e) {
         if (!e.ctrlKey && Math.abs(e.deltaY) < 1) return;
         e.preventDefault();
-        rot.z = Math.max(0.5, Math.min(2.2, rot.z * (1 - e.deltaY * (e.ctrlKey ? 0.01 : 0.0015)))); idle = 0;
+        rot.z = Math.max(0.5, Math.min(2.2, rot.z * (1 - e.deltaY * (e.ctrlKey ? 0.01 : 0.0015)))); idle = 0; touched = true;
       }, { passive: false });
     }
   } else if (ds) { ds.classList.add('is-in'); ds.classList.add('is-live'); }
