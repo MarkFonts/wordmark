@@ -695,6 +695,11 @@ a.code:hover .where { color: var(--signal); }
 .vm b { font-size: 28px; line-height: 1; white-space: nowrap; font-family: 'CalSans', sans-serif; font-optical-sizing: none; color: var(--text); }
 @media (max-width: 560px) { .vm b { font-size: 18px; } .vlab-v { font-size: 7px; } }
 .cube-hint { flex-basis: 100%; }
+/* levels the tilt, roll and zoom once any of them has moved; the turn is left where it is */
+.cube-reset { position: absolute; top: 12px; right: 12px; z-index: 3; color: var(--text-muted); opacity: 0.6; cursor: pointer; transition: opacity 0.15s, transform 0.5s; }
+.cube-reset[hidden] { display: none; }
+.cube-reset:hover { opacity: 1; }
+.cube-reset.is-spun { transform: rotate(-360deg); }
 @media (prefers-reduced-motion: reduce) {
   .cube .v > span, .cube .v b, .cube .e { transition: none; }
   .ds-block:not(.is-in) .cube .v > span { opacity: 1; } .ds-block:not(.is-in) .cube .v b { transform: none; } .ds-block:not(.is-in) .cube .e { opacity: 0.55; }

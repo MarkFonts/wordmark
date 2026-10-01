@@ -224,6 +224,8 @@
       function tick() {
         if (!running) return;
         if (!drag && !still) { idle++; if (idle > 90) { rot.y += vel; rot.r *= 0.97; if (Math.abs(rot.r) < 0.05) rot.r = 0; } }
+        level(performance.now());
+        if (reset) reset.hidden = !offHome() && !leveling;
         place();
         var sr = stage.getBoundingClientRect();
         var pts = glyphs.map(function (g) { var r = g.getBoundingClientRect(); return { x: r.left + r.width / 2 - sr.left, y: r.top + r.height / 2 - sr.top, w: r.width, g: g, add: {} }; });
@@ -265,6 +267,23 @@
         });
         requestAnimationFrame(tick);
       }
+      /* the level button: shows once tilt, roll or zoom has left home, and eases those three back
+         while the turn (rot.y) keeps whatever spot it has reached */
+      var HOME = { x: -16, z: 0.82, r: 0 }, reset = stage.querySelector('.cube-reset'), leveling = null;
+      function offHome() { return Math.abs(rot.x - HOME.x) > 0.5 || Math.abs(rot.z - HOME.z) > 0.01 || Math.abs(rot.r) > 0.5; }
+      if (reset) {
+        reset.addEventListener('pointerdown', function (e) { e.stopPropagation(); });
+        reset.addEventListener('click', function () {
+          leveling = { t0: performance.now(), x: rot.x, z: rot.z, r: rot.r };
+          reset.classList.add('is-spun'); setTimeout(function () { reset.classList.remove('is-spun'); }, 500);
+        });
+      }
+      function level(now) {
+        if (!leveling) return;
+        var p = still ? 1 : Math.min(1, (now - leveling.t0) / 500), e = 1 - Math.pow(1 - p, 3);
+        rot.x = leveling.x + (HOME.x - leveling.x) * e; rot.z = leveling.z + (HOME.z - leveling.z) * e; rot.r = leveling.r + (0 - leveling.r) * e;
+        if (p >= 1) { leveling = null; rot.r = 0; }
+      }
       place();
       new IntersectionObserver(function (entries) {
         entries.forEach(function (e) { var was = running; running = e.isIntersecting; if (running && !was) requestAnimationFrame(tick); });
@@ -280,7 +299,7 @@
       });
       function span(ids) { return Math.hypot(ptrs[ids[0]].x - ptrs[ids[1]].x, ptrs[ids[0]].y - ptrs[ids[1]].y); }
       function angle(ids) { return Math.atan2(ptrs[ids[1]].y - ptrs[ids[0]].y, ptrs[ids[1]].x - ptrs[ids[0]].x) * 180 / Math.PI; }
-      function turn(dx, dy) { rot.y += dx * 0.45; rot.x = Math.max(-80, Math.min(80, rot.x - dy * 0.35)); idle = 0; }
+      function turn(dx, dy) { rot.y += dx * 0.45; rot.x -= dy * 0.35; idle = 0; }   /* no tilt clamp: it can go right over */
       stage.addEventListener('pointermove', function (e) {
         if (!ptrs[e.pointerId]) return;
         ptrs[e.pointerId] = { x: e.clientX, y: e.clientY };
