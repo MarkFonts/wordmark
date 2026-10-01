@@ -318,7 +318,7 @@
       }
       /* the level button: shows once tilt, roll or zoom has left home, and eases those three back
          while the turn (rot.y) keeps whatever spot it has reached */
-      var HOME = { x: -16, z: 0.82, r: 0 }, reset = stage.querySelector('.cube-reset'), leveling = null;
+      var HOME = { x: -16, z: 0.82, r: 0 }, reset = ds.querySelector('.cube-reset'), leveling = null;
       function offHome() { return Math.abs(rot.x - HOME.x) > 0.5 || Math.abs(rot.z - HOME.z) > 0.01 || Math.abs(rot.r) > 0.5; }
       if (reset) {
         reset.addEventListener('pointerdown', function (e) { e.stopPropagation(); });
