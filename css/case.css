@@ -490,6 +490,7 @@ a.code:hover .where { color: var(--signal); }
   font-size: 13px; line-height: 1.4;
 }
 .ukit .coss-b { --wght: 640; }
+.ukit .coss-card-name { font-size: 30px; --wght: 640; }
 /* the board scrolls inside the demo box, like the proofer's board pans; the bottom edge fades so the next row shows */
 .ukit { flex: 1 1 auto; min-height: 0; overflow-y: auto; scrollbar-width: thin; padding-bottom: 24px;
   mask-image: linear-gradient(#000 calc(100% - 48px), transparent); -webkit-mask-image: linear-gradient(#000 calc(100% - 48px), transparent); }
