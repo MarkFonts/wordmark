@@ -184,12 +184,13 @@
       entries.forEach(function (e) { if (e.isIntersecting) { ds.classList.add('is-in'); setTimeout(function () { ds.classList.add('is-live'); }, 2600); dsIO.disconnect(); } });
     }, { threshold: 0.5 });
     dsIO.observe(ds.querySelector('.ds-panel--now'));
-    /* the cube turns on its own, and by hand: drag turns it, pinch or ctrl-wheel zooms. Each frame the
+    /* the cube turns on its own, and by hand: drag turns it, pinch or ctrl-wheel zooms, a two-finger twist
+       rolls it about the line of sight (it rights itself once left alone). Each frame the
        three fixed axes tether to their nearest corner glyph and pull it along their own axis. */
     var stage = ds.querySelector('.cube-stage'), cube = ds.querySelector('.cube');
     if (stage && cube) {
       var still = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
-      var rot = { x: -16, y: -32, z: 0.82 }, vel = still ? 0 : 0.09, idle = 0, drag = null, pinch = null;
+      var rot = { x: -16, y: -32, z: 0.82, r: 0 }, vel = still ? 0 : 0.09, idle = 0, drag = null, pinch = null, twist = null;
       var spans = Array.prototype.slice.call(cube.querySelectorAll('.v > span'));
       var glyphs = Array.prototype.slice.call(cube.querySelectorAll('.v b'));
       /* depth: the nearer a corner, the larger perspective draws it; far corners and edges fade */
@@ -210,13 +211,13 @@
       });
       var AX = { GEOM: 25, YTAS: 1440, SHRP: 0, opsz: 10 };
       function place() {
-        cube.style.transform = 'scale(' + rot.z + ') rotateX(' + rot.x + 'deg) rotateY(' + rot.y + 'deg)';
-        var un = 'rotateY(' + (-rot.y) + 'deg) rotateX(' + (-rot.x) + 'deg)';
+        cube.style.transform = 'scale(' + rot.z + ') rotateZ(' + rot.r + 'deg) rotateX(' + rot.x + 'deg) rotateY(' + rot.y + 'deg)';
+        var un = 'rotateY(' + (-rot.y) + 'deg) rotateX(' + (-rot.x) + 'deg) rotateZ(' + (-rot.r) + 'deg)';
         spans.forEach(function (sp) { sp.style.transform = un; });
       }
       function tick() {
         if (!running) return;
-        if (!drag && !still) { idle++; if (idle > 90) rot.y += vel; }
+        if (!drag && !still) { idle++; if (idle > 90) { rot.y += vel; rot.r *= 0.97; if (Math.abs(rot.r) < 0.05) rot.r = 0; } }
         place();
         var sr = stage.getBoundingClientRect();
         var pts = glyphs.map(function (g) { var r = g.getBoundingClientRect(); return { x: r.left + r.width / 2 - sr.left, y: r.top + r.height / 2 - sr.top, w: r.width, g: g, add: {} }; });
@@ -261,22 +262,25 @@
         ptrs[e.pointerId] = { x: e.clientX, y: e.clientY };
         var ids = Object.keys(ptrs);
         if (ids.length === 1) { drag = { x: e.clientX, y: e.clientY }; stage.classList.add('is-grabbing'); stage.setPointerCapture(e.pointerId); }
-        if (ids.length === 2) { drag = null; pinch = Math.hypot(ptrs[ids[0]].x - ptrs[ids[1]].x, ptrs[ids[0]].y - ptrs[ids[1]].y); }
+        if (ids.length === 2) { drag = null; pinch = span(ids); twist = angle(ids); }
         e.preventDefault();
       });
+      function span(ids) { return Math.hypot(ptrs[ids[0]].x - ptrs[ids[1]].x, ptrs[ids[0]].y - ptrs[ids[1]].y); }
+      function angle(ids) { return Math.atan2(ptrs[ids[1]].y - ptrs[ids[0]].y, ptrs[ids[1]].x - ptrs[ids[0]].x) * 180 / Math.PI; }
       stage.addEventListener('pointermove', function (e) {
         if (!ptrs[e.pointerId]) return;
         ptrs[e.pointerId] = { x: e.clientX, y: e.clientY };
         var ids = Object.keys(ptrs);
         if (ids.length === 2 && pinch) {
-          var d = Math.hypot(ptrs[ids[0]].x - ptrs[ids[1]].x, ptrs[ids[0]].y - ptrs[ids[1]].y);
-          rot.z = Math.max(0.5, Math.min(2.2, rot.z * d / pinch)); pinch = d; idle = 0;
+          var d = span(ids), a = angle(ids), da = a - twist;
+          if (da > 180) da -= 360; else if (da < -180) da += 360;   /* the pair swinging through the seam at ±180 */
+          rot.z = Math.max(0.5, Math.min(2.2, rot.z * d / pinch)); rot.r += da; pinch = d; twist = a; idle = 0;
         } else if (drag) {
           rot.y += (e.clientX - drag.x) * 0.45; rot.x = Math.max(-80, Math.min(80, rot.x - (e.clientY - drag.y) * 0.35));
           drag = { x: e.clientX, y: e.clientY }; idle = 0;
         }
       });
-      function up(e) { delete ptrs[e.pointerId]; if (!Object.keys(ptrs).length) { drag = null; pinch = null; stage.classList.remove('is-grabbing'); } }
+      function up(e) { delete ptrs[e.pointerId]; if (!Object.keys(ptrs).length) { drag = null; pinch = null; twist = null; stage.classList.remove('is-grabbing'); } }
       stage.addEventListener('pointerup', up); stage.addEventListener('pointercancel', up);
       stage.addEventListener('wheel', function (e) {
         if (!e.ctrlKey && Math.abs(e.deltaY) < 1) return;
