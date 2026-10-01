@@ -418,14 +418,11 @@ a.code:hover .where { color: var(--signal); }
   text-wrap: balance;
   outline: none;
   caret-color: var(--signal);
-  transition: letter-spacing 700ms cubic-bezier(0.4, 0, 0.2, 1);
 }
-.d-headline.is-out { letter-spacing: 0.055em; }
 /* the readout, big enough to catch: the figure in the headline's face, the reason beside it */
 .d-track { flex: 1; display: flex; align-items: baseline; flex-wrap: wrap; gap: 0 14px; margin-top: 8px; }
 .d-track b { --wght: 600; font-size: clamp(32px, 4vw, 56px); line-height: 1; font-feature-settings: 'tnum' 1; min-width: 2.6ch; }
 .d-track span { font-size: clamp(14px, 1.3vw, 17px); color: var(--text-muted); }
-@media (prefers-reduced-motion: reduce) { .d-headline { transition: none; } }
 /* the Tailwind scale up to 9xl; case.js shortens each row's words to what fits */
 .d-fall { display: grid; grid-template-columns: minmax(0, 1fr); gap: 6px; align-content: start; flex: 1; min-height: 0; overflow: hidden; }
 .d-fall div { display: flex; align-items: baseline; gap: 16px; white-space: nowrap; line-height: 1.05; }

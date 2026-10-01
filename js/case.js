@@ -92,12 +92,25 @@
   /* default spacing: the headline sits at 0 for a while, tracks out to +55 and comes back in */
   var head = document.getElementById('d-headline'), track = document.getElementById('d-track');
   if (head) {
+    var num = track.querySelector('b'), why = track.querySelector('span');
+    var still = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+    /* one eased value drives both the tracking and the figure, so they can't drift apart */
+    function run(from, to, done) {
+      var t0 = performance.now(), dur = still ? 0 : 700;
+      (function frame(now) {
+        var p = dur ? Math.min(1, (now - t0) / dur) : 1, e = p < 0.5 ? 2 * p * p : 1 - Math.pow(-2 * p + 2, 2) / 2;
+        var v = Math.round(from + (to - from) * e);
+        head.style.letterSpacing = (v / 1000) + 'em';
+        num.textContent = (v > 0 ? '+' : '') + v;
+        if (p < 1) requestAnimationFrame(frame); else done();
+      })(t0);
+    }
     (function step(out) {
-      head.classList.toggle('is-out', out);
-      track.querySelector('b').textContent = out ? '+55' : '0';
-      track.querySelector('span').textContent = out ? 'tracking. Where comparable fonts start.' : 'tracking. Out of the box.';
-      setTimeout(function () { step(!out); }, out ? 2200 : 3000);
-    })(false);
+      why.textContent = out ? 'tracking. Where comparable fonts start.' : 'tracking. Out of the box.';
+      run(out ? 0 : 55, out ? 55 : 0, function () {
+        setTimeout(function () { step(!out); }, out ? 2200 : 3000);
+      });
+    })(true);
   }
 
   /* feature switches */
