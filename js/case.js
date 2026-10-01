@@ -290,8 +290,9 @@
   document.querySelectorAll('.deck').forEach(function (deck) {
     var imgs = deck.querySelectorAll('img'), n = deck.querySelector('.deck-n'), i = 0, timer = null, every = +deck.dataset.every || 3600;
     function show(k) {
-      i = (k + imgs.length) % imgs.length;
+      var prev = i; i = (k + imgs.length) % imgs.length;
       imgs.forEach(function (im, j) { im.classList.toggle('is-on', j === i); });
+      if (prev !== i) { imgs[prev].classList.add('was-on'); setTimeout(function () { imgs[prev].classList.remove('was-on'); }, 520); }
       if (n) n.textContent = (i + 1) + ' / ' + imgs.length;
     }
     function start() { stop(); timer = setInterval(function () { show(i + 1); }, every); }

@@ -603,8 +603,9 @@ a.code:hover .where { color: var(--signal); }
 .mb--photo .mb-media img { object-fit: cover; filter: grayscale(1); }
 /* a few deck pages in one box: each arrives on an ease-in-out fade, scaling up from a little smaller */
 .deck { position: relative; cursor: pointer; }
-.deck img { position: absolute; inset: 0; width: 100%; height: 100%; opacity: 0; transform: scale(0.9); transition: opacity 900ms cubic-bezier(0.45, 0, 0.2, 1), transform 900ms cubic-bezier(0.45, 0, 0.2, 1); }
+.deck img { position: absolute; inset: 0; width: 100%; height: 100%; opacity: 0; transform: scale(0.9); transition: opacity 480ms cubic-bezier(0.45, 0, 0.2, 1), transform 480ms cubic-bezier(0.45, 0, 0.2, 1); }
 .deck img.is-on { opacity: 1; transform: none; }
+.deck img.was-on { transform: none; }   /* the page leaving only fades; it never shrinks */
 .deck-n { position: absolute; right: 14px; bottom: 12px; font-size: 11px; color: var(--text-dim); font-feature-settings: 'tnum' 1; }
 @media (prefers-reduced-motion: reduce) { .deck img { transition: opacity 400ms; transform: none; } }
 /* the statics sheet: the whole catalogue in the same box, scrolling, fading out at the bottom */
