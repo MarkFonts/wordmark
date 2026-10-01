@@ -158,7 +158,12 @@
         b.addEventListener('click', function () { input.value = b.dataset.v; ttApply(row); });
       });
       var unlock = row.querySelector('.tt-unlock');
-      if (unlock) unlock.addEventListener('click', function () { row.classList.add('is-open'); input.tabIndex = 0; input.focus(); });
+      if (unlock) unlock.addEventListener('click', function () {
+        var pct = 100 * (input.value - input.min) / (input.max - input.min);
+        row.style.setProperty('--at', pct + '%');
+        row.classList.add('is-opening');                                   /* the handle becomes the thumb and the track draws in */
+        setTimeout(function () { row.classList.add('is-open'); input.tabIndex = 0; input.focus({ preventScroll: true }); }, 400);
+      });
       ttApply(row);
     });
     ttText.addEventListener('input', ttDirty);
@@ -166,7 +171,7 @@
       ttReset.classList.add('is-spun');
       setTimeout(function () { ttReset.classList.remove('is-spun'); }, 500);
       ttText.value = ttDefaultText;
-      rows.forEach(function (row) { var i = row.querySelector('input'); i.value = i.defaultValue; row.classList.remove('is-open'); i.tabIndex = -1; ttApply(row); });
+      rows.forEach(function (row) { var i = row.querySelector('input'); i.value = i.defaultValue; row.classList.remove('is-open', 'is-opening'); i.tabIndex = -1; ttApply(row); });
     });
     window.addEventListener('resize', ttFit);
     if (document.fonts && document.fonts.ready) document.fonts.ready.then(ttFit);

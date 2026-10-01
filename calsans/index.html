@@ -30,7 +30,7 @@
 <link rel="stylesheet" href="../shared/src/icon.css">
 <link rel="stylesheet" href="../shared/src/themeSwitch.css">
 <link rel="stylesheet" href="../shared/src/UiKitBoard.css">
-<link rel="stylesheet" href="../css/case.css?v=38">
+<link rel="stylesheet" href="../css/case.css?v=39">
 </head>
 <body>
 
@@ -520,7 +520,7 @@
         <span class="tt-head"><span>Italic</span><output>0%</output></span>
         <div class="tt-area">
           <div class="tt-seg" role="group" aria-label="Italic"><button type="button" data-v="0" aria-pressed="true">Roman</button><button type="button" data-v="1" aria-pressed="false">Italic</button></div>
-          <input type="range" min="0" max="1" step="0.01" value="0" aria-label="Italic, 0 to 100 percent" tabindex="-1">
+          <i class="tt-track" aria-hidden="true"></i><input type="range" min="0" max="1" step="0.01" value="0" aria-label="Italic, 0 to 100 percent" tabindex="-1">
           <button type="button" class="tt-unlock" aria-label="Unlock the slider"></button>
         </div>
       </div>
@@ -528,10 +528,10 @@
       <label class="tt-row" style="--o2:5"><span class="tt-head"><span>Ascender</span><output>1440</output></span><input type="range" data-key="YTAS" min="1440" max="1600" step="1" value="1440"></label>
       <label class="tt-row" style="--o2:6"><span class="tt-head"><span>Sharpness</span><output>0</output></span><input type="range" data-key="SHRP" min="0" max="100" step="1" value="0"></label>
       <div class="tt-row tt-morph" style="--o2:8" data-key="GEOM">
-        <span class="tt-head"><span>Geometric form</span><output>25%</output></span>
+        <span class="tt-head"><span>Geometric Form</span><output>25%</output></span>
         <div class="tt-area">
-          <div class="tt-seg" role="group" aria-label="Geometric form"><button type="button" data-v="25" aria-pressed="true">Circular</button><button type="button" data-v="50" aria-pressed="false">Display</button><button type="button" data-v="100" aria-pressed="false">Futura</button></div>
-          <input type="range" min="0" max="100" step="1" value="25" aria-label="Geometric form, 0 to 100" tabindex="-1">
+          <div class="tt-seg" role="group" aria-label="Geometric Form"><button type="button" data-v="0" aria-pressed="false">A11y</button><button type="button" data-v="25" aria-pressed="true">UI</button><button type="button" data-v="50" aria-pressed="false">Base</button><button type="button" data-v="100" aria-pressed="false">Geo</button></div>
+          <i class="tt-track" aria-hidden="true"></i><input type="range" min="0" max="100" step="1" value="25" aria-label="Geometric Form, 0 to 100" tabindex="-1">
           <button type="button" class="tt-unlock" aria-label="Unlock the slider"></button>
         </div>
       </div>
@@ -574,7 +574,7 @@
 </footer>
 
 <script src="../js/thermal-hero.js?v=5"></script>
-<script src="../js/case.js?v=23"></script>
+<script src="../js/case.js?v=24"></script>
 <script type="module">
   import { mountThemeSwitch } from '../shared/src/theme.js';
   mountThemeSwitch(document.getElementById('theme-toggle'));

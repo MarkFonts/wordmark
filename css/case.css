@@ -770,13 +770,24 @@ a.tool:hover .tool-name { text-decoration: underline; text-decoration-thickness:
   background: transparent; color: var(--text-muted); cursor: pointer;
 }
 .tt-seg button[aria-pressed="true"] { background: var(--bg); color: var(--text); box-shadow: 0 1px 3px rgba(0,0,0,0.1); }
-.tt-area input[type="range"] { position: absolute; inset: 0; margin: auto; opacity: 0; pointer-events: none; transition: opacity 0.2s; }
+.tt-area input[type="range"] { position: absolute; inset: 0; margin: auto; opacity: 0; pointer-events: none; }
+.tt-track { position: absolute; left: 0; top: 50%; height: 2px; width: 0; margin-top: -1px; background: var(--border); border-radius: 1px; transition: width 380ms cubic-bezier(0.2, 0.7, 0.2, 1); }
+/* the handle: a small grey pill with a tick either side; on unlock it grows into the thumb and slides to the value */
 .tt-unlock {
-  position: absolute; right: -12px; top: 50%; width: 6px; height: 16px; margin-top: -8px;
-  border: 0; border-radius: 3px; background: var(--text-dim); cursor: pointer; transition: opacity 0.2s;
+  position: absolute; left: 100%; top: 50%; width: 6px; height: 16px; margin: -8px 0 0 9px;
+  border: 0; border-radius: 3px; background: var(--text-dim); cursor: pointer;
+  transition: left 380ms cubic-bezier(0.2, 0.7, 0.2, 1), margin 380ms cubic-bezier(0.2, 0.7, 0.2, 1), width 380ms, height 380ms, border-radius 380ms, background 380ms, opacity 200ms 380ms;
 }
+.tt-unlock::before, .tt-unlock::after { content: ''; position: absolute; top: 50%; width: 4.5px; height: 1.5px; margin-top: -0.75px; background: var(--text-dim); border-radius: 1px; transition: width 200ms, opacity 200ms; }
+.tt-unlock::before { right: 100%; margin-right: 2px; }
+.tt-unlock::after { left: 100%; margin-left: 2px; }
 .tt-unlock:hover { background: var(--text-muted); }
-.tt-morph.is-open .tt-seg, .tt-morph.is-open .tt-unlock { opacity: 0; pointer-events: none; }
+.tt-morph.is-opening .tt-seg { opacity: 0; pointer-events: none; }
+.tt-morph.is-opening .tt-track { width: 100%; }
+.tt-morph.is-opening .tt-unlock { left: var(--at, 0%); margin: -7px 0 0 -7px; width: 14px; height: 14px; border-radius: 50%; background: var(--text); }
+.tt-morph.is-opening .tt-unlock::before, .tt-morph.is-opening .tt-unlock::after { width: 0; opacity: 0; }
+.tt-morph.is-open .tt-unlock { opacity: 0; pointer-events: none; }
+.tt-morph.is-open .tt-track { opacity: 0; }
 .tt-morph.is-open input[type="range"] { opacity: 1; pointer-events: auto; }
 .tt-more { display: flex; justify-content: center; }
 
