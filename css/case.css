@@ -681,7 +681,7 @@ a.code:hover .where { color: var(--signal); }
 .ds-block:not(.is-in) .cube .e { opacity: 0 !important; }
 .cube-axes { display: flex; flex-wrap: wrap; gap: 6px 18px; margin-top: 10px; font-size: 13px; color: var(--text-dim); }
 /* the virtual axes hold still at the corners and tether to the nearest glyph, pulling it along their axis */
-.tie { position: absolute; left: 0; top: 0; height: 0; border-top: 1px solid var(--text-dim); transform-origin: 0 0; pointer-events: none; opacity: 0.2; }
+.tie { position: absolute; left: 0; top: 0; height: 1px; background: repeating-linear-gradient(90deg, var(--text-dim) 0 1px, transparent 1px 2px); transform-origin: 0 0; pointer-events: none; opacity: 0.2; }   /* dotted, one on one off */
 .vm { position: absolute; display: grid; justify-items: center; gap: 2px; z-index: 2; pointer-events: none; }
 .vm b { font-size: 28px; line-height: 1; white-space: nowrap; font-family: 'CalSans', sans-serif; font-optical-sizing: none; color: var(--text); }
 @media (max-width: 560px) { .vm b { font-size: 18px; } .vlab-v { font-size: 7px; } }
