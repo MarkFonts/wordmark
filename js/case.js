@@ -184,13 +184,14 @@
       entries.forEach(function (e) { if (e.isIntersecting) { ds.classList.add('is-in'); setTimeout(function () { ds.classList.add('is-live'); }, 2600); dsIO.disconnect(); } });
     }, { threshold: 0.5 });
     dsIO.observe(ds.querySelector('.ds-panel--now'));
-    /* the cube turns on its own, and by hand: drag turns it, pinch or ctrl-wheel zooms, a two-finger twist
-       rolls it about the line of sight (it rights itself once left alone). Each frame the
+    /* the cube turns on its own, and by hand: drag turns it, pinch or ctrl-wheel zooms; a two-finger twist
+       past a small threshold rolls it about the line of sight (it rights itself once left alone). Each frame the
        three fixed axes tether to their nearest corner glyph and pull it along their own axis. */
     var stage = ds.querySelector('.cube-stage'), cube = ds.querySelector('.cube');
     if (stage && cube) {
       var still = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
-      var rot = { x: -16, y: -32, z: 0.82, r: 0 }, vel = still ? 0 : 0.09, idle = 0, drag = null, pinch = null, twist = null;
+      var rot = { x: -16, y: -32, z: 0.82, r: 0 }, vel = still ? 0 : 0.09, idle = 0, drag = null, pinch = null, twist = null, twistAcc = 0;
+      var TWIST_AT = 10;                                       /* degrees of two-finger rotation before the roll engages */
       var spans = Array.prototype.slice.call(cube.querySelectorAll('.v > span'));
       var glyphs = Array.prototype.slice.call(cube.querySelectorAll('.v b'));
       /* depth: the nearer a corner, the larger perspective draws it; far corners and edges fade */
@@ -262,11 +263,12 @@
         ptrs[e.pointerId] = { x: e.clientX, y: e.clientY };
         var ids = Object.keys(ptrs);
         if (ids.length === 1) { drag = { x: e.clientX, y: e.clientY }; stage.classList.add('is-grabbing'); stage.setPointerCapture(e.pointerId); }
-        if (ids.length === 2) { drag = null; pinch = span(ids); twist = angle(ids); }
+        if (ids.length === 2) { drag = null; pinch = span(ids); twist = angle(ids); twistAcc = 0; }
         e.preventDefault();
       });
       function span(ids) { return Math.hypot(ptrs[ids[0]].x - ptrs[ids[1]].x, ptrs[ids[0]].y - ptrs[ids[1]].y); }
       function angle(ids) { return Math.atan2(ptrs[ids[1]].y - ptrs[ids[0]].y, ptrs[ids[1]].x - ptrs[ids[0]].x) * 180 / Math.PI; }
+      function turn(dx, dy) { rot.y += dx * 0.45; rot.x = Math.max(-80, Math.min(80, rot.x - dy * 0.35)); idle = 0; }
       stage.addEventListener('pointermove', function (e) {
         if (!ptrs[e.pointerId]) return;
         ptrs[e.pointerId] = { x: e.clientX, y: e.clientY };
@@ -274,10 +276,11 @@
         if (ids.length === 2 && pinch) {
           var d = span(ids), a = angle(ids), da = a - twist;
           if (da > 180) da -= 360; else if (da < -180) da += 360;   /* the pair swinging through the seam at ±180 */
-          rot.z = Math.max(0.5, Math.min(2.2, rot.z * d / pinch)); rot.r += da; pinch = d; twist = a; idle = 0;
+          rot.z = Math.max(0.5, Math.min(2.2, rot.z * d / pinch)); pinch = d; twist = a; idle = 0;
+          /* the roll waits for a deliberate twist, so a pinch with a little wobble in it stays a pinch */
+          if (twistAcc === null) rot.r += da; else { twistAcc += da; if (Math.abs(twistAcc) >= TWIST_AT) twistAcc = null; }
         } else if (drag) {
-          rot.y += (e.clientX - drag.x) * 0.45; rot.x = Math.max(-80, Math.min(80, rot.x - (e.clientY - drag.y) * 0.35));
-          drag = { x: e.clientX, y: e.clientY }; idle = 0;
+          turn(e.clientX - drag.x, e.clientY - drag.y); drag = { x: e.clientX, y: e.clientY };
         }
       });
       function up(e) { delete ptrs[e.pointerId]; if (!Object.keys(ptrs).length) { drag = null; pinch = null; twist = null; stage.classList.remove('is-grabbing'); } }
