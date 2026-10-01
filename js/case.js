@@ -172,11 +172,11 @@
     if (document.fonts && document.fonts.ready) document.fonts.ready.then(ttFit);
   }
 
-  /* the designspace materializes once it is in view; the nodes get staggered delays, and a click replays */
+  /* the designspace materializes once it is in view; the nodes get staggered delays */
   var ds = document.getElementById('ds-block');
   if (ds && 'IntersectionObserver' in window) {
     var dsIO = new IntersectionObserver(function (entries) {
-      entries.forEach(function (e) { if (e.isIntersecting) { ds.classList.add('is-in'); dsIO.disconnect(); } });
+      entries.forEach(function (e) { if (e.isIntersecting) { ds.classList.add('is-in'); setTimeout(function () { ds.classList.add('is-live'); }, 2600); dsIO.disconnect(); } });
     }, { threshold: 0.5 });
     dsIO.observe(ds.querySelector('.ds-panel--now'));
     /* the cube turns on its own, and by hand: drag turns it, pinch or ctrl-wheel zooms. Each frame the
@@ -187,6 +187,14 @@
       var rot = { x: -16, y: -32, z: 1 }, vel = still ? 0 : 0.09, idle = 0, drag = null, pinch = null;
       var spans = Array.prototype.slice.call(cube.querySelectorAll('.v > span'));
       var glyphs = Array.prototype.slice.call(cube.querySelectorAll('.v b'));
+      /* depth: the nearer a corner, the larger perspective draws it; far corners and edges fade */
+      var verts = Array.prototype.slice.call(cube.querySelectorAll('.v'));
+      var vkey = verts.map(function (v) { return v.style.getPropertyValue('--x') + ',' + v.style.getPropertyValue('--y') + ',' + v.style.getPropertyValue('--z'); });
+      var edges = Array.prototype.slice.call(cube.querySelectorAll('.e')).map(function (e) {
+        var st = e.style, x = st.getPropertyValue('--x'), y = st.getPropertyValue('--y'), z = st.getPropertyValue('--z');
+        var a = e.classList.contains('ex') ? ['-1,' + y + ',' + z, '1,' + y + ',' + z] : e.classList.contains('ey') ? [x + ',-1,' + z, x + ',1,' + z] : [x + ',' + y + ',-1', x + ',' + y + ',1'];
+        return { el: e, a: vkey.indexOf(a[0]), b: vkey.indexOf(a[1]) };
+      });
       glyphs.forEach(function (g) { g.dataset.base = g.style.fontVariationSettings; });
       /* the virtual masters tie to every cube master; the lines fade with distance and the nearest corner is pulled */
       var vms = Array.prototype.slice.call(stage.querySelectorAll('.vm')), ties = [], running = false;
@@ -202,7 +210,18 @@
         if (!drag && !still) { idle++; if (idle > 90) rot.y += vel; }
         place();
         var sr = stage.getBoundingClientRect();
-        var pts = glyphs.map(function (g) { var r = g.getBoundingClientRect(); return { x: r.left + r.width / 2 - sr.left, y: r.top + r.height / 2 - sr.top, g: g, add: {} }; });
+        var pts = glyphs.map(function (g) { var r = g.getBoundingClientRect(); return { x: r.left + r.width / 2 - sr.left, y: r.top + r.height / 2 - sr.top, w: r.width, g: g, add: {} }; });
+        var ry = rot.y * Math.PI / 180, rx = rot.x * Math.PI / 180;
+        var near = verts.map(function (v) {
+          var x = +v.style.getPropertyValue('--x'), y = +v.style.getPropertyValue('--y'), z = +v.style.getPropertyValue('--z');
+          var z1 = -x * Math.sin(ry) + z * Math.cos(ry);               /* rotateY, then rotateX, as the transform lists them */
+          var z2 = y * Math.sin(rx) + z1 * Math.cos(rx);
+          return (z2 / 1.74 + 1) / 2;
+        });
+        if (ds.classList.contains('is-live')) {
+          spans.forEach(function (sp, i) { sp.style.opacity = 0.38 + 0.62 * near[i]; });
+          edges.forEach(function (e) { e.el.style.opacity = 0.14 + 0.5 * (near[e.a] + near[e.b]) / 2; });
+        }
         var reach = Math.min(sr.width, sr.height) * 0.7;
         vms.forEach(function (a, i) {
           var ar = a.querySelector('b').getBoundingClientRect(), ax = ar.left + ar.width / 2 - sr.left, ay = ar.top + ar.height / 2 - sr.top;
@@ -256,7 +275,7 @@
         rot.z = Math.max(0.5, Math.min(2.2, rot.z * (1 - e.deltaY * (e.ctrlKey ? 0.01 : 0.0015)))); idle = 0;
       }, { passive: false });
     }
-  } else if (ds) { ds.classList.add('is-in'); }
+  } else if (ds) { ds.classList.add('is-in'); ds.classList.add('is-live'); }
 
   /* feature switches */
   document.querySelectorAll('.switch').forEach(function (sw) {

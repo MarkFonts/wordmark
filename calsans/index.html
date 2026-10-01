@@ -30,7 +30,7 @@
 <link rel="stylesheet" href="../shared/src/icon.css">
 <link rel="stylesheet" href="../shared/src/themeSwitch.css">
 <link rel="stylesheet" href="../shared/src/UiKitBoard.css">
-<link rel="stylesheet" href="../css/case.css?v=29">
+<link rel="stylesheet" href="../css/case.css?v=32">
 </head>
 <body>
 
@@ -75,12 +75,12 @@
     </linearGradient>
     
     <!-- material: inner shadow from the alpha, overlaid on the striped fill -->
-    <filter id="material" filterUnits="userSpaceOnUse" x="-300" y="-300" width="2600" height="1200" color-interpolation-filters="sRGB">
+    <filter id="material" filterUnits="userSpaceOnUse" x="-120" y="-230" width="2200" height="880" color-interpolation-filters="sRGB">
       <feGaussianBlur in="SourceAlpha" stdDeviation="30"/>
       <feComposite in2="SourceAlpha" operator="arithmetic" k2="-1" k3="1"/>
       <feBlend in="SourceGraphic" mode="overlay"/>
     </filter>
-    <filter id="colorA" filterUnits="userSpaceOnUse" x="-300" y="-300" width="2600" height="1200" color-interpolation-filters="sRGB">
+    <filter id="colorA" filterUnits="userSpaceOnUse" x="-120" y="-230" width="2200" height="880" color-interpolation-filters="sRGB">
       <feGaussianBlur stdDeviation="5" id="colorABlur" result="soft"/>
       <feGaussianBlur in="SourceGraphic" stdDeviation="26" result="halo0"/>
       <feColorMatrix in="halo0" type="matrix" values="0.5 0 0 0 0  0 0.5 0 0 0  0 0 0.5 0 0  0 0 0 0.9 0" result="halo" id="colorAHalo"/>
@@ -97,7 +97,7 @@
       </feComponentTransfer>
       <feComposite in2="body" operator="in"/>
     </filter>
-    <filter id="colorB" filterUnits="userSpaceOnUse" x="-300" y="-300" width="2600" height="1200" color-interpolation-filters="sRGB">
+    <filter id="colorB" filterUnits="userSpaceOnUse" x="-120" y="-230" width="2200" height="880" color-interpolation-filters="sRGB">
       <feGaussianBlur stdDeviation="5" id="colorBBlur" result="soft"/>
       <feGaussianBlur in="SourceGraphic" stdDeviation="26" result="halo0"/>
       <feColorMatrix in="halo0" type="matrix" values="0.5 0 0 0 0  0 0.5 0 0 0  0 0 0.5 0 0  0 0 0 0.9 0" result="halo" id="colorBHalo"/>
@@ -114,7 +114,7 @@
       </feComponentTransfer>
       <feComposite in2="body" operator="in"/>
     </filter>
-    <filter id="colorF" filterUnits="userSpaceOnUse" x="-300" y="-300" width="2600" height="1200" color-interpolation-filters="sRGB">
+    <filter id="colorF" filterUnits="userSpaceOnUse" x="-120" y="-230" width="2200" height="880" color-interpolation-filters="sRGB">
       <feGaussianBlur stdDeviation="5" id="colorFBlur" result="soft"/>
       <feGaussianBlur in="SourceGraphic" stdDeviation="26" result="halo0"/>
       <feColorMatrix in="halo0" type="matrix" values="0.5 0 0 0 0  0 0.5 0 0 0  0 0 0.5 0 0  0 0 0 0.9 0" result="halo" id="colorFHalo"/>
@@ -339,7 +339,7 @@
       <div class="mb-media"><img src="img/deck-v1-p42.webp" width="2000" height="1214" loading="lazy" alt="Five directions for Cal.com set as Cal.com Ragfonts: 1927, 1927 edge, grotesk, human, serious"></div>
     </div>
 
-    <div class="made-block mb mb--flip">
+    <div class="made-block mb">
       <div class="mb-text">
         <h3>Futura, minus 1927.</h3>
         <p>The brief kept the geometry and fixed what made it fragile on screen: the small x-height, the severed c, the size-specific detailing.</p>
@@ -355,7 +355,7 @@
       <div class="mb-media"><img src="img/deck-v1-p34.webp" width="2000" height="1214" loading="lazy" alt="Deck page: the human logotype draft, Cal.com in two widths"></div>
     </div>
 
-    <div class="made-block mb mb--flip mb--photo">
+    <div class="made-block mb mb--photo">
       <div class="mb-text">
         <h3>The plan was always the family.</h3>
         <p>Expand this display-only, single-style typeface to an entire family. One slide, and the sentence that ran the next four years.</p>
@@ -400,7 +400,7 @@
       </div>
     </div>
 
-    <div class="made-block mb mb--flip mb--shot">
+    <div class="made-block mb mb--shot">
       <div class="mb-text">
         <h3>384 statics from one source.</h3>
         <p>calbuild runs the sources through fontmake, shifts the axis defaults, merges the feature variations and instances every static style, 384 of them, from the one variable file.</p>
@@ -557,8 +557,8 @@
   <p>&copy; 2026 Mark Davis and WORDMARK.</p>
 </footer>
 
-<script src="../js/thermal-hero.js?v=3"></script>
-<script src="../js/case.js?v=16"></script>
+<script src="../js/thermal-hero.js?v=4"></script>
+<script src="../js/case.js?v=19"></script>
 <script type="module">
   import { mountThemeSwitch } from '../shared/src/theme.js';
   mountThemeSwitch(document.getElementById('theme-toggle'));
