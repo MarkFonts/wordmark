@@ -626,17 +626,20 @@ a.code:hover .where { color: var(--signal); }
   transform: rotateY(32deg) rotateX(16deg);
   transition: opacity 700ms ease var(--d, 0ms);
 }
-.cube .v b { display: grid; place-items: center; width: 156px; height: 84px; border-radius: 20px; background: var(--bg); box-shadow: 0 0 0 1px var(--border); font-size: 40px; line-height: 1; white-space: nowrap; font-family: 'CalSans', sans-serif; font-optical-sizing: none; color: var(--text); transition: transform 700ms cubic-bezier(0.2, 0.7, 0.2, 1) var(--d, 0ms); }
+.cube .v b { display: block; padding: 6px 0; font-size: 40px; line-height: 1; white-space: nowrap; font-family: 'CalSans', sans-serif; font-optical-sizing: none; color: var(--text); transition: transform 700ms cubic-bezier(0.2, 0.7, 0.2, 1) var(--d, 0ms); }
 .cube .v small { font-size: 13px; color: var(--text-dim); white-space: nowrap; }
-@media (max-width: 560px) { .cube .v > span { width: 100px; margin: -27px 0 0 -50px; } .cube .v b { width: 100px; height: 54px; border-radius: 14px; font-size: 25px; } .cube .v small { font-size: 11px; } }
+@media (max-width: 560px) { .cube .v > span { width: 100px; margin: -27px 0 0 -50px; } .cube .v b { font-size: 25px; } .cube .v small { font-size: 11px; } }
 .ds-block:not(.is-in) .cube .v > span { opacity: 0; }
 .ds-block:not(.is-in) .cube .v b { transform: scale(0.5); }
+.ds-block:not(.is-in) .tie { opacity: 0 !important; }
 .ds-block:not(.is-in) .cube .e { opacity: 0; }
 .cube-axes { display: flex; flex-wrap: wrap; justify-content: center; gap: 6px 18px; margin-top: 10px; font-size: 13px; color: var(--text-dim); }
 /* the virtual axes hold still at the corners and tether to the nearest glyph, pulling it along their axis */
-.cube-tether { position: absolute; left: 0; top: 0; height: 0; border-top: 1.5px dotted var(--signal); transform-origin: 0 0; pointer-events: none; opacity: 0; }
-.cube-anchor { position: absolute; font-size: 13px; color: var(--text-muted); font-feature-settings: 'tnum' 1; }
-.cube-anchor b { --wght: 640; color: var(--text); }
+.tie { position: absolute; left: 0; top: 0; height: 0; border-top: 1px solid var(--text-dim); transform-origin: 0 0; pointer-events: none; opacity: 0.2; }
+.vm { position: absolute; display: grid; justify-items: center; gap: 2px; z-index: 2; pointer-events: none; }
+.vm b { font-size: 28px; line-height: 1; white-space: nowrap; font-family: 'CalSans', sans-serif; font-optical-sizing: none; color: var(--text); }
+.vm small { font-size: 12px; color: var(--text-dim); white-space: nowrap; }
+@media (max-width: 560px) { .vm b { font-size: 18px; } .vm small { font-size: 10px; } }
 .cube-hint { flex-basis: 100%; text-align: center; }
 @media (prefers-reduced-motion: reduce) {
   .cube .v > span, .cube .v b, .cube .e { transition: none; }

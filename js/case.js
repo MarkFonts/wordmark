@@ -188,8 +188,9 @@
       var spans = Array.prototype.slice.call(cube.querySelectorAll('.v > span'));
       var glyphs = Array.prototype.slice.call(cube.querySelectorAll('.v b'));
       glyphs.forEach(function (g) { g.dataset.base = g.style.fontVariationSettings; });
-      var anchors = Array.prototype.slice.call(stage.querySelectorAll('.cube-anchor'));
-      var tethers = stage.querySelectorAll('.cube-tether'), running = false;
+      /* the virtual masters tie to every cube master; the lines fade with distance and the nearest corner is pulled */
+      var vms = Array.prototype.slice.call(stage.querySelectorAll('.vm')), ties = [], running = false;
+      vms.forEach(function () { glyphs.forEach(function () { var t = document.createElement('i'); t.className = 'tie'; stage.insertBefore(t, cube); ties.push(t); }); });
       var AX = { GEOM: 25, YTAS: 1440, SHRP: 0 };
       function place() {
         cube.style.transform = 'scale(' + rot.z + ') rotateX(' + rot.x + 'deg) rotateY(' + rot.y + 'deg)';
@@ -202,17 +203,19 @@
         place();
         var sr = stage.getBoundingClientRect();
         var pts = glyphs.map(function (g) { var r = g.getBoundingClientRect(); return { x: r.left + r.width / 2 - sr.left, y: r.top + r.height / 2 - sr.top, g: g, add: {} }; });
-        var reach = Math.min(sr.width, sr.height) * 0.6;
-        anchors.forEach(function (a, i) {
-          var ar = a.getBoundingClientRect(), ax = ar.left + ar.width / 2 - sr.left, ay = ar.top + ar.height / 2 - sr.top;
+        var reach = Math.min(sr.width, sr.height) * 0.7;
+        vms.forEach(function (a, i) {
+          var ar = a.querySelector('b').getBoundingClientRect(), ax = ar.left + ar.width / 2 - sr.left, ay = ar.top + ar.height / 2 - sr.top;
           var best = null, bd = Infinity;
-          pts.forEach(function (p) { var d = Math.hypot(p.x - ax, p.y - ay); if (d < bd) { bd = d; best = p; } });
+          pts.forEach(function (p, j) {
+            var d = Math.hypot(p.x - ax, p.y - ay), t = ties[i * pts.length + j];
+            t.style.width = d + 'px';
+            t.style.transform = 'translate(' + ax + 'px,' + ay + 'px) rotate(' + Math.atan2(p.y - ay, p.x - ax) + 'rad)';
+            t.style.opacity = 0.08 + 0.5 * Math.max(0, 1 - d / reach);
+            if (d < bd) { bd = d; best = p; }
+          });
           var k = Math.max(0, Math.min(1, 1 - bd / reach));
           best.add[a.dataset.axis] = AX[a.dataset.axis] + (parseFloat(a.dataset.to) - AX[a.dataset.axis]) * k * k;
-          var t = tethers[i];
-          t.style.width = bd + 'px';
-          t.style.transform = 'translate(' + ax + 'px,' + ay + 'px) rotate(' + Math.atan2(best.y - ay, best.x - ax) + 'rad)';
-          t.style.opacity = 0.25 + 0.75 * k;
         });
         pts.forEach(function (p) {
           var extra = Object.keys(p.add).map(function (k) { return "'" + k + "' " + p.add[k].toFixed(1); }).join(', ');

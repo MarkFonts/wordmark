@@ -30,7 +30,7 @@
 <link rel="stylesheet" href="../shared/src/icon.css">
 <link rel="stylesheet" href="../shared/src/themeSwitch.css">
 <link rel="stylesheet" href="../shared/src/UiKitBoard.css">
-<link rel="stylesheet" href="../css/case.css?v=22">
+<link rel="stylesheet" href="../css/case.css?v=23">
 </head>
 <body>
 
@@ -367,10 +367,9 @@
             <i class="e ex" style="--y:-1;--z:-1"></i><i class="e ex" style="--y:-1;--z:1"></i><i class="e ex" style="--y:1;--z:-1"></i><i class="e ex" style="--y:1;--z:1"></i><i class="e ey" style="--x:-1;--z:-1"></i><i class="e ey" style="--x:-1;--z:1"></i><i class="e ey" style="--x:1;--z:-1"></i><i class="e ey" style="--x:1;--z:1"></i><i class="e ez" style="--x:-1;--y:-1"></i><i class="e ez" style="--x:-1;--y:1"></i><i class="e ez" style="--x:1;--y:-1"></i><i class="e ez" style="--x:1;--y:1"></i>
             <div class="v" style="--x:-1;--y:1;--z:1;--d:200ms"><span><b style="font-variation-settings:'opsz' 10,'wght' 400,'ital' 0,'GEOM' 25">Cal v2</b><small>10 · 400</small></span></div><div class="v" style="--x:-1;--y:1;--z:-1;--d:380ms"><span><b style="font-variation-settings:'opsz' 10,'wght' 400,'ital' 1,'GEOM' 25">Cal v2</b><small>10 · 400 · italic</small></span></div><div class="v" style="--x:1;--y:1;--z:1;--d:560ms"><span><b style="font-variation-settings:'opsz' 10,'wght' 700,'ital' 0,'GEOM' 25">Cal v2</b><small>10 · 700</small></span></div><div class="v" style="--x:1;--y:1;--z:-1;--d:740ms"><span><b style="font-variation-settings:'opsz' 10,'wght' 700,'ital' 1,'GEOM' 25">Cal v2</b><small>10 · 700 · italic</small></span></div><div class="v" style="--x:-1;--y:-1;--z:1;--d:920ms"><span><b style="font-variation-settings:'opsz' 45,'wght' 400,'ital' 0,'GEOM' 25">Cal v2</b><small>45 · 400</small></span></div><div class="v" style="--x:-1;--y:-1;--z:-1;--d:1100ms"><span><b style="font-variation-settings:'opsz' 45,'wght' 400,'ital' 1,'GEOM' 25">Cal v2</b><small>45 · 400 · italic</small></span></div><div class="v" style="--x:1;--y:-1;--z:1;--d:1280ms"><span><b style="font-variation-settings:'opsz' 45,'wght' 700,'ital' 0,'GEOM' 25">Cal v2</b><small>45 · 700</small></span></div><div class="v" style="--x:1;--y:-1;--z:-1;--d:1460ms"><span><b style="font-variation-settings:'opsz' 45,'wght' 700,'ital' 1,'GEOM' 25">Cal v2</b><small>45 · 700 · italic</small></span></div>
           </div>
-          <i class="cube-tether" aria-hidden="true"></i><i class="cube-tether" aria-hidden="true"></i><i class="cube-tether" aria-hidden="true"></i>
-          <span class="cube-anchor" data-axis="GEOM" data-to="100" style="left:12px;top:8px"><b>GEOM</b> 100</span>
-          <span class="cube-anchor" data-axis="YTAS" data-to="1600" style="right:12px;top:8px"><b>YTAS</b> 1600</span>
-          <span class="cube-anchor" data-axis="SHRP" data-to="100" style="right:12px;bottom:8px"><b>SHRP</b> 100</span>
+          <div class="vm" data-axis="GEOM" data-to="100" style="left:12px;top:10px"><b style="font-variation-settings:'opsz' 45,'wght' 400,'ital' 0,'GEOM' 100">Cal v2</b><small>GEOM 100 · virtual</small></div>
+          <div class="vm" data-axis="YTAS" data-to="1600" style="right:12px;top:10px"><b style="font-variation-settings:'opsz' 45,'wght' 400,'ital' 0,'GEOM' 25,'YTAS' 1600">Cal v2</b><small>YTAS 1600 · virtual</small></div>
+          <div class="vm" data-axis="SHRP" data-to="100" style="right:12px;bottom:10px"><b style="font-variation-settings:'opsz' 45,'wght' 400,'ital' 0,'GEOM' 25,'SHRP' 100">Cal v2</b><small>SHRP 100 · virtual</small></div>
         </div>
         <p class="cube-axes"><span>Weight 400 to 700</span><span>Optical size 10 to 45</span><span>Roman to Italic</span><span class="cube-hint">Drag to turn, pinch or scroll to zoom</span></p></div>
       </div>
@@ -537,7 +536,7 @@
 </footer>
 
 <script src="../js/thermal-hero.js?v=3"></script>
-<script src="../js/case.js?v=14"></script>
+<script src="../js/case.js?v=16"></script>
 <script type="module">
   import { mountThemeSwitch } from '../shared/src/theme.js';
   mountThemeSwitch(document.getElementById('theme-toggle'));
