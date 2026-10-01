@@ -337,9 +337,10 @@ a.code:hover .where { color: var(--signal); }
   text-wrap: pretty;
 }
 .look-demo {
+  --pad: clamp(22px, 3.4vw, 48px);
   background: var(--surface);
   border-radius: var(--r-card);
-  padding: clamp(22px, 3.4vw, 48px);
+  padding: var(--pad);
   min-height: 260px;
   display: flex;
   flex-direction: column;
@@ -420,6 +421,10 @@ a.code:hover .where { color: var(--signal); }
   transition: letter-spacing 700ms cubic-bezier(0.4, 0, 0.2, 1);
 }
 .d-headline.is-out { letter-spacing: 0.055em; }
+/* the readout, big enough to catch: the figure in the headline's face, the reason beside it */
+.d-track { flex: 1; display: flex; align-items: baseline; flex-wrap: wrap; gap: 0 14px; margin-top: 8px; }
+.d-track b { --wght: 600; font-size: clamp(32px, 4vw, 56px); line-height: 1; font-feature-settings: 'tnum' 1; min-width: 2.6ch; }
+.d-track span { font-size: clamp(14px, 1.3vw, 17px); color: var(--text-muted); }
 @media (prefers-reduced-motion: reduce) { .d-headline { transition: none; } }
 /* the Tailwind scale up to 9xl; case.js shortens each row's words to what fits */
 .d-fall { display: grid; grid-template-columns: minmax(0, 1fr); gap: 6px; align-content: start; flex: 1; min-height: 0; overflow: hidden; }
@@ -450,14 +455,34 @@ a.code:hover .where { color: var(--signal); }
 }
 .d-futura.is-on { font-variation-settings: 'wght' 600, 'GEOM' 100; }
 @media (prefers-reduced-motion: reduce) { .d-futura { transition: none; } }
-.d-names {
-  --wght: 500;
-  font-size: clamp(24px, 3.1vw, 44px);
-  line-height: 1.22;
-  text-wrap: balance;
+/* hello in 103 languages: three rows running at their own pace, the middle one the other way, with
+   each row's list doubled so the loop is seamless; hover holds a row. Rows run to the box edges and
+   fade out before them. */
+.d-hello {
+  flex: 1; min-height: 0; min-width: 0;
+  display: grid; align-content: center; gap: clamp(14px, 2vw, 26px);
+  margin-inline: calc(-1 * var(--pad));
 }
-.d-names b { display: inline-block; white-space: nowrap; }
-.d-names b:not(:last-child)::after { content: '\00a0\00b7'; color: var(--text-dim); }
+.hello-row {
+  overflow: hidden;
+  mask-image: linear-gradient(90deg, transparent, #000 12%, #000 88%, transparent);
+}
+.hello-track { display: flex; width: max-content; animation: hello-run var(--dur, 150s) linear infinite; }
+.hello-row:nth-child(1) { --dur: 150s; }
+.hello-row:nth-child(2) { --dur: 190s; }
+.hello-row:nth-child(2) .hello-track { animation-direction: reverse; }
+.hello-row:nth-child(3) { --dur: 130s; }
+.hello-row:hover .hello-track { animation-play-state: paused; }
+.hello-track ul { display: flex; gap: clamp(28px, 4vw, 48px); padding-right: clamp(28px, 4vw, 48px); list-style: none; }
+.hello-track li { display: grid; gap: 4px; white-space: nowrap; }
+.hello-track b {
+  --wght: 500;
+  font-size: clamp(26px, 3.4vw, 50px);
+  line-height: 1.05;
+}
+.hello-track i { font-style: normal; font-size: 11px; color: var(--text-dim); }
+@keyframes hello-run { to { transform: translateX(-50%); } }
+@media (prefers-reduced-motion: reduce) { .hello-track { animation: none; } }
 
 /* the UI-kit board from wm-primitives, as static tiles: the proofer's component gallery in the page's own
    face. GEOM rides the card's slider; the switch pins optical size to the axis default (14) when off, so the 11px helper text and the headings both drift. */
