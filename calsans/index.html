@@ -33,7 +33,8 @@
 <link rel="stylesheet" href="../shared/src/icon.css">
 <link rel="stylesheet" href="../shared/src/themeSwitch.css">
 <link rel="stylesheet" href="../shared/src/UiKitBoard.css">
-<link rel="stylesheet" href="../css/case.css?v=61">
+<link rel="stylesheet" href="../shared/src/grid.css">
+<link rel="stylesheet" href="../css/case.css?v=62">
 </head>
 <body>
 
@@ -56,20 +57,20 @@
   </div>
 </nav>
 
-<main>
+<main class="wm-lines">
 
 <!-- hero ───────────────────────────────────────────────── -->
 <header class="cs-hero wrap">
   <p class="label">Cal Sans for Cal.com</p>
   <h1>The family Cal.com keeps</h1>
-  <div class="hero-cols">
+  <div class="hero-cols wm-baselines">
     <p class="hero-lede">Over five years WORDMARK has sharpened Cal.com&rsquo;s typography, from one headline weight to the whole family. In the same span Cal.com raised $32M.</p>
     <div>
       <p class="hero-sub">In 2021 Cal.com had no typographic DNA of its own, from logo to website to marketing. One weight proved a custom face could supplant a standard; the brand grew the rest.</p>
       <p class="byline"><time datetime="2026-09-29">Sep 29, 2026</time> &middot; Mark Davis</p>
     </div>
   </div>
-  <div class="hero-word-box" id="hero-thermal" role="img" aria-label="The Calendso logo heats into Cal.com" title="Tap to replay">
+  <div class="hero-word-box" data-nosnap id="hero-thermal" role="img" aria-label="The Calendso logo heats into Cal.com" title="Tap to replay">
 <svg class="hero-thermal" viewBox="0 -110 1954 640" aria-label="Calendso becomes Cal.com" focusable="false">
   <defs>
     <!-- a stripe that never stops: white, black, white, repeating, slid by script -->
@@ -191,7 +192,7 @@
 <!-- highlights ─────────────────────────────────────────── -->
 <section id="highlights" class="sec wrap">
   <h2 class="sec-title">Get the highlights</h2>
-  <div class="hl-grid">
+  <div class="hl-grid wm-baselines">
     <article class="card hl">
       <p class="cal-word" role="img" aria-label="Cal.com logo">Cal.com</p>
       <p class="hl-text"><strong>Type &ldquo;cal.com&rdquo; and it reads as rings.</strong> The geometry Peer Richelsen, co-founder, requested for the redesigned logo from Calendso in 2021 is the geometry every weight keeps.</p>
@@ -234,7 +235,7 @@
         <h3><button type="button" class="look-tab" aria-expanded="true"><span class="look-dot" aria-hidden="true"></span>Headlines set themselves</button></h3>
         <div class="look-body"><p>Spaced tight but never touching, so a headline composes straight out of the box. No kerning pass on the page, at 2.6&times; tighter than comparable fonts.</p></div>
       </div>
-      <div class="look-demo">
+      <div class="look-demo" data-nosnap>
         <div class="d-headline" id="d-headline" contenteditable="true" spellcheck="false" role="textbox" aria-label="Editable headline specimen">Scheduling infrastructure for everyone.</div>
         <div class="d-track" id="d-track" aria-live="off"><b>0</b><span>tracking. Out of the box.</span></div>
         <div class="demo-foot"><span>Type over it.</span></div>
@@ -246,7 +247,7 @@
         <h3><button type="button" class="look-tab" aria-expanded="false"><span class="look-dot" aria-hidden="true"></span>One file, every size</button></h3>
         <div class="look-body"><p>An optical size axis from 8 to 45 hands each size its own drawing. Text opens up, headlines tighten, nobody switches fonts.</p></div>
       </div>
-      <div class="look-demo">
+      <div class="look-demo" data-nosnap>
         <div class="d-fall" aria-hidden="true">
           <div style="font-size:8px"><i>8</i><span>A billion meetings by 2030</span></div>
           <div style="font-size:12px"><i>12</i><span>A billion meetings by 2030</span></div>
@@ -266,7 +267,7 @@
         <h3><button type="button" class="look-tab" aria-expanded="false"><span class="look-dot" aria-hidden="true"></span>Legible your way</button></h3>
         <div class="look-body"><p>Default reads like SF Pro, Inter, or Helvetica. Tailed I, l, and 1 are one switch away when a link must read right.</p></div>
       </div>
-      <div class="look-demo">
+      <div class="look-demo" data-nosnap>
         <div class="d-big" id="d-legible" data-feat="ss18" aria-hidden="true">Illia Hill<br>11:10, Il1</div>
         <div class="demo-foot"><button type="button" class="switch" role="switch" aria-checked="false" data-target="d-legible"><span class="switch-track"></span>Tailed I, l, and 1</button><span>ss18</span></div>
       </div>
@@ -277,7 +278,7 @@
         <h3><button type="button" class="look-tab" aria-expanded="false"><span class="look-dot" aria-hidden="true"></span>Futura on demand</button></h3>
         <div class="look-body"><p>Twenty stylistic sets and 42 character variants, with Futura alternates and historical ligatures one setting away. Room to pivot later.</p></div>
       </div>
-      <div class="look-demo">
+      <div class="look-demo" data-nosnap>
         <div class="d-big d-futura" id="d-futura" data-feat="geom" aria-hidden="true">First contact,<br>circa 1927</div>
         <div class="demo-foot"><button type="button" class="switch" role="switch" aria-checked="false" data-target="d-futura"><span class="switch-track"></span>Futura alternates and ligatures</button><span>Cal Sans Flex &middot; GEOM 25&ndash;100</span></div>
       </div>
@@ -288,7 +289,7 @@
         <h3><button type="button" class="look-tab" aria-expanded="false"><span class="look-dot" aria-hidden="true"></span>Past 120 languages</button></h3>
         <div class="look-body"><p>A billion meetings by 2030 means hellos from everywhere. Latin coverage beyond 120 languages sets each one as evenly as the brand&rsquo;s own.</p></div>
       </div>
-      <div class="look-demo">
+      <div class="look-demo" data-nosnap>
         <div class="d-hello" aria-label="Hello, in 103 of the languages the font covers">
           <div class="hello-row"><div class="hello-track"><ul><li><b>Hallo</b><i>Afrikaans</i></li><li><b>Salam</b><i>Azerbaijani</i></li><li><b>Zdravo</b><i>Bosnian</i></li><li><b>Kumusta</b><i>Cebuano</i></li><li><b>Bok</b><i>Croatian</i></li><li><b>Hello</b><i>English</i></li><li><b>Góðan dag</b><i>Faroese</i></li><li><b>Bonjour</b><i>French</i></li><li><b>Oli otya</b><i>Ganda</i></li><li><b>Aloha</b><i>Hawaiian</i></li><li><b>Saluto</b><i>Ido</i></li><li><b>Salute</b><i>Interlingua</i></li><li><b>Kasumay</b><i>Jola-Fonyi</i></li><li><b>Chamgei</b><i>Kalenjin</i></li><li><b>Labas</b><i>Lithuanian</i></li><li><b>Misawa</b><i>Luo</i></li><li><b>Helo</b><i>Malay</i></li><li><b>Kia ora</b><i>Māori</i></li><li><b>Shé:kon</b><i>Mohawk</i></li><li><b>Salibonani</b><i>North Ndebele</i></li><li><b>Hei</b><i>Norwegian Bokmål</i></li><li><b>Agandi</b><i>Nyankole</i></li><li><b>Cześć</b><i>Polish</i></li><li><b>Bună</b><i>Romanian</i></li><li><b>Tālofa</b><i>Samoan</i></li><li><b>Zdravo</b><i>Serbian</i></li><li><b>Ahoj</b><i>Slovak</i></li><li><b>Lotjhani</b><i>South Ndebele</i></li><li><b>Sampurasun</b><i>Sundanese</i></li><li><b>Hej</b><i>Swedish</i></li><li><b>Avuxeni</b><i>Tsonga</i></li><li><b>Salam</b><i>Turkmen</i></li><li><b>Xin chào</b><i>Vietnamese</i></li><li><b>Qey</b><i>Wolastoqey</i></li><li><b>Sawubona</b><i>Zulu</i></li></ul><ul aria-hidden="true"><li><b>Hallo</b><i>Afrikaans</i></li><li><b>Salam</b><i>Azerbaijani</i></li><li><b>Zdravo</b><i>Bosnian</i></li><li><b>Kumusta</b><i>Cebuano</i></li><li><b>Bok</b><i>Croatian</i></li><li><b>Hello</b><i>English</i></li><li><b>Góðan dag</b><i>Faroese</i></li><li><b>Bonjour</b><i>French</i></li><li><b>Oli otya</b><i>Ganda</i></li><li><b>Aloha</b><i>Hawaiian</i></li><li><b>Saluto</b><i>Ido</i></li><li><b>Salute</b><i>Interlingua</i></li><li><b>Kasumay</b><i>Jola-Fonyi</i></li><li><b>Chamgei</b><i>Kalenjin</i></li><li><b>Labas</b><i>Lithuanian</i></li><li><b>Misawa</b><i>Luo</i></li><li><b>Helo</b><i>Malay</i></li><li><b>Kia ora</b><i>Māori</i></li><li><b>Shé:kon</b><i>Mohawk</i></li><li><b>Salibonani</b><i>North Ndebele</i></li><li><b>Hei</b><i>Norwegian Bokmål</i></li><li><b>Agandi</b><i>Nyankole</i></li><li><b>Cześć</b><i>Polish</i></li><li><b>Bună</b><i>Romanian</i></li><li><b>Tālofa</b><i>Samoan</i></li><li><b>Zdravo</b><i>Serbian</i></li><li><b>Ahoj</b><i>Slovak</i></li><li><b>Lotjhani</b><i>South Ndebele</i></li><li><b>Sampurasun</b><i>Sundanese</i></li><li><b>Hej</b><i>Swedish</i></li><li><b>Avuxeni</b><i>Tsonga</i></li><li><b>Salam</b><i>Turkmen</i></li><li><b>Xin chào</b><i>Vietnamese</i></li><li><b>Qey</b><i>Wolastoqey</i></li><li><b>Sawubona</b><i>Zulu</i></li></ul></div></div>
           <div class="hello-row"><div class="hello-track"><ul><li><b>Përshëndetje</b><i>Albanian</i></li><li><b>Kaixo</b><i>Basque</i></li><li><b>Demat</b><i>Breton</i></li><li><b>Dydh da</b><i>Cornish</i></li><li><b>Ahoj</b><i>Czech</i></li><li><b>Saluton</b><i>Esperanto</i></li><li><b>Kumusta</b><i>Filipino</i></li><li><b>Mandi</b><i>Friulian</i></li><li><b>Hallo</b><i>German</i></li><li><b>Szia</b><i>Hungarian</i></li><li><b>Ndewo</b><i>Igbo</i></li><li><b>Dia duit</b><i>Irish</i></li><li><b>Olá</b><i>Kabuverdianu</i></li><li><b>Muraho</b><i>Kinyarwanda</i></li><li><b>coi</b><i>Lojban</i></li><li><b>Moien</b><i>Luxembourgish</i></li><li><b>Bonġu</b><i>Maltese</i></li><li><b>Mari mari</b><i>Mapuche</i></li><li><b>Bonzour</b><i>Morisyen</i></li><li><b>Bures</b><i>North Sámi</i></li><li><b>God dag</b><i>Norwegian Nynorsk</i></li><li><b>Bonjorn</b><i>Occitan</i></li><li><b>Olá</b><i>Portuguese</i></li><li><b>Allegra</b><i>Romansh</i></li><li><b>Saludi</b><i>Sardinian</i></li><li><b>Mhoro</b><i>Shona</i></li><li><b>Živjo</b><i>Slovenian</i></li><li><b>Dumela</b><i>Southern Sotho</i></li><li><b>Jambo</b><i>Swahili</i></li><li><b>Grüezi</b><i>Swiss German</i></li><li><b>Dumela</b><i>Tswana</i></li><li><b>Dobry dźeń</b><i>Upper Sorbian</i></li><li><b>Bondjoû</b><i>Walloon</i></li><li><b>Nanga def</b><i>Wolof</i></li></ul><ul aria-hidden="true"><li><b>Përshëndetje</b><i>Albanian</i></li><li><b>Kaixo</b><i>Basque</i></li><li><b>Demat</b><i>Breton</i></li><li><b>Dydh da</b><i>Cornish</i></li><li><b>Ahoj</b><i>Czech</i></li><li><b>Saluton</b><i>Esperanto</i></li><li><b>Kumusta</b><i>Filipino</i></li><li><b>Mandi</b><i>Friulian</i></li><li><b>Hallo</b><i>German</i></li><li><b>Szia</b><i>Hungarian</i></li><li><b>Ndewo</b><i>Igbo</i></li><li><b>Dia duit</b><i>Irish</i></li><li><b>Olá</b><i>Kabuverdianu</i></li><li><b>Muraho</b><i>Kinyarwanda</i></li><li><b>coi</b><i>Lojban</i></li><li><b>Moien</b><i>Luxembourgish</i></li><li><b>Bonġu</b><i>Maltese</i></li><li><b>Mari mari</b><i>Mapuche</i></li><li><b>Bonzour</b><i>Morisyen</i></li><li><b>Bures</b><i>North Sámi</i></li><li><b>God dag</b><i>Norwegian Nynorsk</i></li><li><b>Bonjorn</b><i>Occitan</i></li><li><b>Olá</b><i>Portuguese</i></li><li><b>Allegra</b><i>Romansh</i></li><li><b>Saludi</b><i>Sardinian</i></li><li><b>Mhoro</b><i>Shona</i></li><li><b>Živjo</b><i>Slovenian</i></li><li><b>Dumela</b><i>Southern Sotho</i></li><li><b>Jambo</b><i>Swahili</i></li><li><b>Grüezi</b><i>Swiss German</i></li><li><b>Dumela</b><i>Tswana</i></li><li><b>Dobry dźeń</b><i>Upper Sorbian</i></li><li><b>Bondjoû</b><i>Walloon</i></li><li><b>Nanga def</b><i>Wolof</i></li></ul></div></div>
@@ -303,7 +304,7 @@
         <h3><button type="button" class="look-tab" aria-expanded="false"><span class="look-dot" aria-hidden="true"></span>Made for the interface</button></h3>
         <div class="look-body"><p>At interface sizes, optical size redraws the proportions for product screens. GEOM swaps the geometric alternates in or out, glyph by glyph.</p></div>
       </div>
-      <div class="look-demo">
+      <div class="look-demo" data-nosnap>
         <div class="ukit is-on" id="ukit" aria-hidden="true">
           <div class="coss-card"><div class="coss-card-head"><div class="coss-card-name">Button</div><div class="ukit-card-desc">A button or a component<br>that looks like a button.</div></div><div class="coss-card-body"><div class="ui-row ui-wrap"><span class="ui-btn ui-btn--primary">Save changes</span><span class="ui-btn">Cancel</span><span class="ui-btn ui-btn--ghost ui-muted">Learn more</span></div></div></div>
           <div class="coss-card"><div class="coss-card-head"><div class="coss-card-name">Input</div><div class="ukit-card-desc">A field with a label,<br>placeholder and helper text.</div></div><div class="coss-card-body"><div><label class="ui-label coss-b">Work email</label><div class="ui-field">jordan@acme.co</div><div class="ui-help">We&rsquo;ll only use this to send booking receipts.</div></div></div></div>
@@ -325,7 +326,7 @@
 <!-- numbers ────────────────────────────────────────────── -->
 <section id="numbers" class="sec wrap">
   <h2 class="sec-title">By the numbers</h2>
-  <div class="nums">
+  <div class="nums wm-baselines">
     <div class="num"><b>6</b><span>variable axes</span></div>
     <div class="num"><b>1,550</b><span>glyphs</span></div>
     <div class="num"><b>3,000</b><span>kern pairs</span></div>
@@ -374,7 +375,7 @@
 
     <div class="made-block ds-block" id="ds-block">
       <div class="ds-panels">
-        <div class="ds-panel"><p class="ds-title">May 2022, the proposal for expansion</p><svg class="ds ds-then" viewBox="0 0 800 680" role="img" aria-label="The 2022 estimate: Cal Sans as drawn in 2021, with two display masters and two text masters proposed as outlines">
+        <div class="ds-panel" data-nosnap><p class="ds-title">May 2022, the proposal for expansion</p><svg class="ds ds-then" viewBox="0 0 800 680" role="img" aria-label="The 2022 estimate: Cal Sans as drawn in 2021, with two display masters and two text masters proposed as outlines">
 <line class="ds-l" x1="230" y1="205" x2="330" y2="205"/><line class="ds-l" x1="470" y1="205" x2="570" y2="205"/><line class="ds-l" x1="160" y1="300" x2="160" y2="440"/><line class="ds-l ds-dash" x1="400" y1="300" x2="400" y2="440"/><line class="ds-l ds-dash" x1="640" y1="300" x2="640" y2="440"/><line class="ds-l" x1="230" y1="485" x2="330" y2="485"/><line class="ds-l ds-dash" x1="470" y1="485" x2="570" y2="485"/>
 <g class="ds-o"><path transform="translate(161.5,244.6) scale(5.2,-5.2)" d="M0 0C-5.034 0-8.306 4.135-8.306 8.378-8.306 12.693-5.034 16.756 0 16.756 5.178 16.756 7.911 12.656 7.911 8.342 7.911 3.632 5.178 0 0 0M7.695 17.403V13.137C6.482 15.715 3.997 17.798-.108 17.798-5.25 17.798-9.492 13.376-9.492 8.342-9.492 3.308-5.25-1.043-.108-1.043 4.123-1.043 6.633 1.142 7.803 3.798V-.576H8.917V17.403Z"/><g class="ds-grid"><text class="ds-tag" x="138.8" y="284" text-anchor="middle">opsz</text><text class="ds-val" x="138.8" y="301" text-anchor="middle">120</text><text class="ds-tag" x="179.7" y="284" text-anchor="middle">wght</text><text class="ds-val" x="179.7" y="301" text-anchor="middle">100</text></g></g>
 <g class="ds-cur"><text class="ds-v1" x="400" y="188" text-anchor="middle">Cal</text><text class="ds-v1" x="400" y="246" text-anchor="middle">Sans</text><g class="ds-grid"><text class="ds-tag" x="400" y="284" text-anchor="middle">v1 Release</text><text class="ds-val" x="400" y="301" text-anchor="middle">2021</text></g></g>
@@ -383,7 +384,7 @@
 <g class="ds-o"><path transform="translate(400.0,517.2) scale(5.2,-5.2)" d="M0 0C-1.872 0-3.114 1.557-3.114 3.261-3.114 5.007-1.872 6.522 0 6.522 1.935 6.522 3.219 4.986 3.219 3.24 3.219 1.494 1.914 0 0 0M3.135 8.752 3.219 5.512H3.156C3.009 7.552 1.935 8.983-.463 8.983-3.471 8.983-5.87 6.396-5.87 3.24-5.87 .084-3.471-2.462-.463-2.462 1.935-2.462 3.009-1.052 3.156 .968H3.282L3.198-2.188H5.87V8.752Z"/><g class="ds-grid"><text class="ds-tag" x="378.8" y="564" text-anchor="middle">opsz</text><text class="ds-val" x="378.8" y="581" text-anchor="middle">10</text><text class="ds-tag" x="419.7" y="564" text-anchor="middle">wght</text><text class="ds-val" x="419.7" y="581" text-anchor="middle">700</text></g><text class="ds-lab ds-mvp" x="400" y="604" text-anchor="middle">MVP</text></g>
 <g class="ds-o ds-faint"><path transform="translate(639.9,510.7) scale(5.2,-5.2)" d="M0 0C-1.241 0-2.083 1.094-2.083 2.23-2.083 3.577-1.241 4.46 0 4.46 1.263 4.46 2.188 3.555 2.188 2.209 2.188 1.094 1.263 0 0 0M2.062 7.931 2.188 5.112H2.167C1.872 6.9 .863 8.163-1.283 8.163-4.292 8.163-6.48 5.575-6.48 2.209-6.48-.947-4.292-3.703-1.283-3.703 .905-3.703 1.936-2.462 2.23-.694H2.251L2.125-3.429H6.501V7.931Z"/><g class="ds-grid"><text class="ds-tag" x="618.8" y="564" text-anchor="middle">opsz</text><text class="ds-val" x="618.8" y="581" text-anchor="middle">10</text><text class="ds-tag" x="659.7" y="564" text-anchor="middle">wght</text><text class="ds-val" x="659.7" y="581" text-anchor="middle">999</text></g></g>
 <g class="ds-ax"><text x="60" y="112">Display masters</text><text x="60" y="656">Text masters</text></g></svg></div>
-        <div class="ds-panel ds-panel--now"><p class="ds-title">2026, the file</p><div class="cube-stage" role="img" aria-label="Eight masters at the corners of a cube: Regular and Bold, optical size 10 and 45, Roman and Italic">
+        <div class="ds-panel ds-panel--now" data-nosnap><p class="ds-title">2026, the file</p><div class="cube-stage" data-nosnap role="img" aria-label="Eight masters at the corners of a cube: Regular and Bold, optical size 10 and 45, Roman and Italic">
           <div class="cube">
             <i class="e ex" style="--y:-1;--z:-1"></i><i class="e ex" style="--y:-1;--z:1"></i><i class="e ex" style="--y:1;--z:-1"></i><i class="e ex" style="--y:1;--z:1"></i><i class="e ey" style="--x:-1;--z:-1"></i><i class="e ey" style="--x:-1;--z:1"></i><i class="e ey" style="--x:1;--z:-1"></i><i class="e ey" style="--x:1;--z:1"></i><i class="e ez" style="--x:-1;--y:-1"></i><i class="e ez" style="--x:-1;--y:1"></i><i class="e ez" style="--x:1;--y:-1"></i><i class="e ez" style="--x:1;--y:1"></i>
             <div class="v" style="--x:-1;--y:1;--z:1;--d:200ms"><span><b style="font-variation-settings:'opsz' 10,'wght' 400,'ital' 0,'GEOM' 25">Cal v2</b><span class="vlab"><span><i>GEOM</i>25</span><span><i>ital</i>0</span><span><i>opsz</i>10</span><span><i>SHRP</i>0</span><span><i>wght</i>400</span><span><i>YTAS</i>1440</span></span></span></div><div class="v" style="--x:-1;--y:1;--z:-1;--d:380ms"><span><b style="font-variation-settings:'opsz' 10,'wght' 400,'ital' 1,'GEOM' 25">Cal v2</b><span class="vlab"><span><i>GEOM</i>25</span><span><i>ital</i>1</span><span><i>opsz</i>10</span><span><i>SHRP</i>0</span><span><i>wght</i>400</span><span><i>YTAS</i>1440</span></span></span></div><div class="v" style="--x:1;--y:1;--z:1;--d:560ms"><span><b style="font-variation-settings:'opsz' 10,'wght' 700,'ital' 0,'GEOM' 25">Cal v2</b><span class="vlab"><span><i>GEOM</i>25</span><span><i>ital</i>0</span><span><i>opsz</i>10</span><span><i>SHRP</i>0</span><span><i>wght</i>700</span><span><i>YTAS</i>1440</span></span></span></div><div class="v" style="--x:1;--y:1;--z:-1;--d:740ms"><span><b style="font-variation-settings:'opsz' 10,'wght' 700,'ital' 1,'GEOM' 25">Cal v2</b><span class="vlab"><span><i>GEOM</i>25</span><span><i>ital</i>1</span><span><i>opsz</i>10</span><span><i>SHRP</i>0</span><span><i>wght</i>700</span><span><i>YTAS</i>1440</span></span></span></div><div class="v" style="--x:-1;--y:-1;--z:1;--d:920ms"><span><b style="font-variation-settings:'opsz' 45,'wght' 400,'ital' 0,'GEOM' 25">Cal v2</b><span class="vlab"><span><i>GEOM</i>25</span><span><i>ital</i>0</span><span><i>opsz</i>45</span><span><i>SHRP</i>0</span><span><i>wght</i>400</span><span><i>YTAS</i>1440</span></span></span></div><div class="v" style="--x:-1;--y:-1;--z:-1;--d:1100ms"><span><b style="font-variation-settings:'opsz' 45,'wght' 400,'ital' 1,'GEOM' 25">Cal v2</b><span class="vlab"><span><i>GEOM</i>25</span><span><i>ital</i>1</span><span><i>opsz</i>45</span><span><i>SHRP</i>0</span><span><i>wght</i>400</span><span><i>YTAS</i>1440</span></span></span></div><div class="v" style="--x:1;--y:-1;--z:1;--d:1280ms"><span><b style="font-variation-settings:'opsz' 45,'wght' 700,'ital' 0,'GEOM' 25">Cal v2</b><span class="vlab"><span><i>GEOM</i>25</span><span><i>ital</i>0</span><span><i>opsz</i>45</span><span><i>SHRP</i>0</span><span><i>wght</i>700</span><span><i>YTAS</i>1440</span></span></span></div><div class="v" style="--x:1;--y:-1;--z:-1;--d:1460ms"><span><b style="font-variation-settings:'opsz' 45,'wght' 700,'ital' 1,'GEOM' 25">Cal v2</b><span class="vlab"><span><i>GEOM</i>25</span><span><i>ital</i>1</span><span><i>opsz</i>45</span><span><i>SHRP</i>0</span><span><i>wght</i>700</span><span><i>YTAS</i>1440</span></span></span></div>
@@ -482,7 +483,7 @@
 <!-- releases ───────────────────────────────────────────── -->
 <section id="releases" class="sec wrap">
   <h2 class="sec-title">One family. Three releases.</h2>
-  <div class="rel-grid">
+  <div class="rel-grid wm-baselines">
     <article class="rel rel--2021">
       <p class="label">2021 &middot; v1.000</p>
       <h3>Cal Sans</h3>
@@ -508,7 +509,7 @@
     <button type="button" class="tt-reset" id="tt-reset" aria-label="Reset the tester" hidden>
       <svg width="16" height="16" viewBox="0 0 16 16" aria-hidden="true"><path fill="currentColor" fill-rule="evenodd" d="M13.5 8c0-3.034-2.474-5.5-5.535-5.5a5.53 5.53 0 0 0-5.328 4H6V8H.75A.75.75 0 0 1 0 7.25V2h1.5v3.233A7.04 7.04 0 0 1 7.965 1C11.846 1 15 4.13 15 8s-3.154 7-7.035 7a7.04 7.04 0 0 1-5.695-2.888l-.442-.605 1.211-.885.443.605A5.54 5.54 0 0 0 7.965 13.5c3.06 0 5.535-2.466 5.535-5.5" clip-rule="evenodd"/></svg>
     </button>
-    <div class="tt-clamp"><textarea class="tt-preview" id="tt-text" spellcheck="false" rows="1" aria-label="Type tester">Type away&hellip;</textarea></div>
+    <div class="tt-clamp" data-nosnap><textarea class="tt-preview" id="tt-text" spellcheck="false" rows="1" aria-label="Type tester">Type away&hellip;</textarea></div>
     <div class="tt-controls">
       <label class="tt-row" style="--o2:3"><span class="tt-head"><span>Size</span><output>100px</output></span><input type="range" data-key="size" min="12" max="350" step="1" value="100"></label>
       <label class="tt-row" style="--o2:1"><span class="tt-head"><span>Weight</span><output>400</output></span><input type="range" data-key="wght" min="400" max="700" step="1" value="400"></label>
@@ -571,6 +572,7 @@
 </footer>
 
 <script src="../js/thermal-hero.js?v=7"></script>
+<script src="../shared/src/gridSnap.js" defer></script>
 <script src="../js/case.js?v=40"></script>
 <script type="module">
   import { mountThemeSwitch } from '../shared/src/theme.js';
