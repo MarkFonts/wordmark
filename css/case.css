@@ -44,9 +44,9 @@
 :root {
   --r: 10px;
   --r-card: 20px;
-  --gut: clamp(20px, 5vw, 40px);
-  --sec: clamp(72px, 12vw, 168px);
-  --nav-h: 56px;
+  --gut: var(--grid-margin);   /* the house margin (shared/src/grid.css), which is this page's own */
+  --sec: round(nearest, clamp(72px, 12vw, 168px), 24px);   /* whole body lines */
+  --nav-h: 57px;   /* 19 units, so everything under the sticky nav starts on a line */
   --text-rgb: 232, 232, 232;
   --signal: #eeff41;
   --signal: color(display-p3 0.9333 1 0.2549);
@@ -56,7 +56,6 @@
 }
 :root[data-theme="dark"]  { --text-rgb: 232, 232, 232; }
 :root[data-theme="light"] { --text-rgb: 22, 22, 22; --bg: #f5faff; --signal: #5c6b00; }
-@media (min-width: 681px) { :root { --gut: clamp(32px, 7vw, 112px); } }
 
 html { scroll-behavior: smooth; overflow-x: clip; }
 @media (prefers-reduced-motion: reduce) { html { scroll-behavior: auto; } }
@@ -66,7 +65,7 @@ body {
   color: var(--text);
   font-family: 'CalSans', -apple-system, sans-serif;
   font-size: 16px;
-  line-height: 1.55;
+  --lh: 24px; line-height: var(--lh);   /* 16/24: eight 3px units -- was 1.55, which no unit divides */
   font-optical-sizing: auto;
   font-synthesis: none;
   font-feature-settings: 'liga' 0, 'dlig' 0, 'calt' 0;
@@ -87,7 +86,7 @@ section[id] { scroll-margin-top: var(--nav-h); }
 .label {
   --geom: 100; --wght: 600;
   font-size: 12px;
-  line-height: 1.3;
+  --lh: round(nearest, 1.3em, var(--bl)); line-height: var(--lh);
   letter-spacing: 0.12em;
   text-transform: uppercase;
   color: var(--text-muted);
@@ -139,55 +138,58 @@ section[id] { scroll-margin-top: var(--nav-h); }
   align-items: center;
   gap: 0.25em;
   font-size: 14px;
-  line-height: 1.1;
+  --lh: round(nearest, 1.1em, var(--bl)); line-height: var(--lh);
   color: var(--bg);
   background: var(--text);
-  padding: 0.5em 0.95em 0.62em;
+  /* a lozenge in the flow is a line of type: its HEIGHT is in units (2.2em, rounded) and the
+     label is centred in it, so nothing below a row of pills is knocked off the grid */
+  height: round(nearest, 2.2em, var(--bl));
+  padding: 0 0.95em;
   border-radius: 999px;
   text-decoration: none;
   white-space: nowrap;
   transition: opacity 0.15s;
 }
 .pill:hover { opacity: 0.78; }
-.pill--lg { font-size: clamp(20px, 2.4vw, 30px); padding: 0.3em 0.7em 0.44em; }
+.pill--lg { font-size: clamp(20px, 2.4vw, 30px); height: round(nearest, 1.9em, var(--bl)); padding: 0 0.7em; }
 .pill--ghost { color: var(--text); background: transparent; box-shadow: inset 0 0 0 1.5px var(--text); }
 .pill .arrow { position: relative; top: 0.06em; }
 
 /* ═══ HERO ══════════════════════════════════════════════ */
-.cs-hero { padding-top: clamp(48px, 9vw, 120px); }
+.cs-hero { padding-top: round(nearest, clamp(48px, 9vw, 120px), var(--bl)); }
 .cs-hero h1 {
   --wght: 640; --geom: 50;
   font-size: clamp(44px, 9.4vw, 148px);
-  line-height: 0.98;
+  --lh: round(nearest, 0.98em, var(--bl)); line-height: var(--lh);
   text-wrap: balance;
-  margin-top: clamp(16px, 2vw, 28px);
+  margin-top: round(nearest, clamp(16px, 2vw, 28px), var(--bl));
 }
 .hero-cols {
   display: grid;
-  gap: 20px;
-  margin-top: clamp(28px, 4vw, 56px);
+  gap: 21px;
+  margin-top: round(nearest, clamp(28px, 4vw, 56px), var(--bl));
 }
 .hero-lede {
   font-size: clamp(20px, 2.3vw, 30px);
-  line-height: 1.28;
+  --lh: round(nearest, 1.28em, var(--bl)); line-height: var(--lh);
   text-wrap: pretty;
 }
 .hero-sub {
   font-size: 16px;
-  line-height: 1.6;
+  --lh: round(nearest, 1.6em, var(--bl)); line-height: var(--lh);
   color: var(--text-muted);
   max-width: 44ch;
   text-wrap: pretty;
 }
-.byline { margin-top: 20px; font-size: 13px; color: var(--text-dim); }
+.byline { margin-top: 21px; font-size: 13px; color: var(--text-dim); }
 @media (min-width: 861px) {
-  .hero-cols { grid-template-columns: 7fr 5fr; gap: clamp(32px, 5vw, 80px); align-items: start; }
-  .hero-sub { padding-top: 0.5em; }
+  .hero-cols { grid-template-columns: 7fr 5fr; gap: round(nearest, clamp(32px, 5vw, 80px), var(--bl)); align-items: start; }
+  .hero-sub { padding-top: round(nearest, 0.5em, var(--bl)); }
 }
 
 /* the hero moment: the Calendso logo heats, four passes of a thermal stripe, the second one
    swaps in Cal.com, the word cools and the effect drains to the plain logo. One SVG filter chain. */
-.hero-word-box { margin-top: clamp(40px, 7vw, 96px); cursor: pointer; }
+.hero-word-box { margin-top: round(nearest, clamp(40px, 7vw, 96px), var(--bl)); cursor: pointer; }
 .hero-thermal { display: block; width: 100%; height: auto; overflow: visible; }
 .hero-video { display: none; width: 100%; height: auto; }
 /* thermal-hero.js flips to the video on coarse pointers once it knows a source will play */
@@ -199,30 +201,30 @@ section[id] { scroll-margin-top: var(--nav-h); }
 .sec-title {
   --wght: 640; --geom: 50;
   font-size: clamp(30px, 4.6vw, 64px);
-  line-height: 1.04;
+  --lh: round(nearest, 1.04em, var(--bl)); line-height: var(--lh);
   text-wrap: balance;
-  margin-bottom: clamp(28px, 4vw, 56px);
+  margin-bottom: round(nearest, clamp(28px, 4vw, 56px), var(--bl));
 }
 
 .card {
   background: var(--surface);
   border-radius: var(--r-card);
-  padding: clamp(22px, 3vw, 40px);
+  padding: round(nearest, clamp(22px, 3vw, 40px), var(--bl));
   min-width: 0;
 }
 
 /* ═══ HIGHLIGHTS ════════════════════════════════════════ */
-.hl-grid { display: grid; gap: 16px; }
+.hl-grid { display: grid; gap: 15px; }
 .hl {
   display: flex;
   flex-direction: column;
   justify-content: space-between;
-  gap: clamp(28px, 4vw, 56px);
+  gap: round(nearest, clamp(28px, 4vw, 56px), var(--bl));
 }
 .hl-text {
   --wght: 500;
   font-size: clamp(19px, 1.9vw, 26px);
-  line-height: 1.25;
+  --lh: round(nearest, 1.25em, var(--bl)); line-height: var(--lh);
   color: var(--text-muted);
   max-width: 30ch;
   text-wrap: pretty;
@@ -232,7 +234,7 @@ section[id] { scroll-margin-top: var(--nav-h); }
 .cal-word {
   margin: 0;
   font-size: var(--hl-size, clamp(64px, 8vw, 112px));
-  line-height: 1.05;
+  --lh: round(nearest, 1.05em, var(--bl)); line-height: var(--lh);
   white-space: nowrap;
   color: var(--text);
   font-variation-settings: 'opsz' 45, 'GEOM' 50, 'wght' 400;
@@ -248,7 +250,7 @@ section[id] { scroll-margin-top: var(--nav-h); }
 
 .axes-sample {
   font-size: clamp(56px, 9vw, 132px);
-  line-height: 1.05;
+  --lh: round(nearest, 1.05em, var(--bl)); line-height: var(--lh);
   white-space: nowrap;
   overflow-x: clip;
   overflow-y: visible;
@@ -256,8 +258,10 @@ section[id] { scroll-margin-top: var(--nav-h); }
 }
 /* side by side, the sample is pinned to the size Cal.com reaches at 700, so the two share a baseline */
 @media (min-width: 861px) { .axes-sample { font-size: var(--hl-size, clamp(56px, 9vw, 132px)); } }
-.axes { display: grid; gap: 10px 28px; margin-top: 18px; }
+.axes { display: grid; gap: 9px 28px; margin-top: 18px; }
 .ax {
+  --snap-unit: 1;   /* a slider row moves as one: words, track and thumb (gridSnap.js) */
+  min-height: 24px;   /* one body line, so the rows below stay on it */
   display: grid;
   grid-template-columns: 9.5em 1fr 3.2em;
   align-items: center;
@@ -292,7 +296,7 @@ input[type="range"]:active::-webkit-slider-thumb { background: var(--signal); tr
 input[type="range"]:hover::-moz-range-thumb { background: var(--signal); }
 input[type="range"]:focus-visible { outline: 1.5px solid var(--signal); outline-offset: 4px; border-radius: 4px; }
 
-.get-list { display: grid; gap: 10px; }
+.get-list { display: grid; gap: 9px; }
 .code {
   --geom: 0;
   display: flex;
@@ -321,7 +325,7 @@ a.code:hover .where { color: var(--signal); }
 /* ═══ CLOSER LOOK ═══════════════════════════════════════
    Phone: six stacked features, each with its demo. Desktop: the titles become tabs on
    the left and the demos share one pinned stage on the right. */
-.look { display: grid; gap: clamp(40px, 8vw, 64px); }
+.look { display: grid; gap: round(nearest, clamp(40px, 8vw, 64px), var(--bl)); }
 .look-item { display: grid; gap: 18px; }
 .look-tab {
   --wght: 640; --geom: 50;
@@ -331,7 +335,7 @@ a.code:hover .where { color: var(--signal); }
   width: 100%;
   text-align: left;
   font-size: clamp(22px, 2.4vw, 32px);
-  line-height: 1.12;
+  --lh: round(nearest, 1.12em, var(--bl)); line-height: var(--lh);
   cursor: default;
 }
 .look-dot {
@@ -351,12 +355,12 @@ a.code:hover .where { color: var(--signal); }
   --pad: clamp(22px, 3.4vw, 48px);
   background: var(--surface);
   border-radius: var(--r-card);
-  padding: var(--pad);
+  padding: round(nearest, var(--pad), var(--bl));
   min-height: 260px;
   display: flex;
   flex-direction: column;
   justify-content: space-between;
-  gap: 28px;
+  gap: 27px;
   min-width: 0;
   overflow: hidden;
 }
@@ -364,7 +368,7 @@ a.code:hover .where { color: var(--signal); }
   display: flex;
   align-items: center;
   justify-content: space-between;
-  gap: 16px;
+  gap: 15px;
   font-size: 12px;
   color: var(--text-dim);
 }
@@ -392,7 +396,7 @@ a.code:hover .where { color: var(--signal); }
   .look-item.is-active .look-tab { color: var(--text); }
   .look-item.is-active .look-dot { background: var(--signal); animation: shape-cycle 5s linear infinite; }
   .look-item.is-active .look-body { grid-template-rows: 1fr; }
-  .look-item.is-active .look-body p { padding-top: 10px; }
+  .look-item.is-active .look-body p { padding-top: 9px; }
   .look-demo {
     grid-column: 2;
     grid-row: 1 / -1;
@@ -424,15 +428,15 @@ a.code:hover .where { color: var(--signal); }
   --wght: 600; --geom: 50;
   font-variation-settings: 'opsz' 45, 'wght' var(--wght), 'GEOM' var(--geom), 'SHRP' var(--shrp, 0), 'ital' var(--ital, 0);
   font-size: clamp(38px, 5.6vw, 84px);
-  line-height: 0.98;
+  --lh: round(nearest, 0.98em, var(--bl)); line-height: var(--lh);
   letter-spacing: 0;
   text-wrap: balance;
   outline: none;
   caret-color: var(--signal);
 }
 /* the readout, big enough to catch: the figure in the headline's face, the reason beside it */
-.d-track { flex: 1; display: flex; align-items: baseline; flex-wrap: wrap; gap: 0 14px; margin-top: 8px; }
-.d-track b { --wght: 600; font-size: clamp(32px, 4vw, 56px); line-height: 1; font-feature-settings: 'tnum' 1; }
+.d-track { flex: 1; display: flex; align-items: baseline; flex-wrap: wrap; gap: 0 14px; margin-top: 9px; }
+.d-track b { --wght: 600; font-size: clamp(32px, 4vw, 56px); --lh: round(nearest, 1em, var(--bl)); line-height: var(--lh); font-feature-settings: 'tnum' 1; }
 .d-track span { font-size: clamp(14px, 1.3vw, 17px); color: var(--text-muted); }
 /* the Tailwind scale up to 9xl; case.js shortens each row's words to what fits */
 .d-fall { display: grid; grid-template-columns: minmax(0, 1fr); gap: 6px; align-content: start; flex: 1; min-height: 0; overflow: hidden; }
@@ -451,7 +455,7 @@ a.code:hover .where { color: var(--signal); }
 .d-big {
   --wght: 600;
   font-size: clamp(40px, 6.2vw, 96px);
-  line-height: 1.05;
+  --lh: round(nearest, 1.05em, var(--bl)); line-height: var(--lh);
   overflow-wrap: anywhere;
 }
 .d-big.is-on[data-feat="ss18"] { font-feature-settings: 'ss18' 1; }
@@ -468,7 +472,7 @@ a.code:hover .where { color: var(--signal); }
    fade out before them. */
 .d-hello {
   flex: 1; min-height: 0; min-width: 0;
-  display: grid; align-content: center; gap: clamp(14px, 2vw, 26px);
+  display: grid; align-content: center; gap: round(nearest, clamp(14px, 2vw, 26px), var(--bl));
   margin-inline: calc(-1 * var(--pad));
 }
 .hello-row {
@@ -547,8 +551,8 @@ a.code:hover .where { color: var(--signal); }
 .bk-head { display: flex; gap: 12px; align-items: center; }
 .bk-avatar { width: 36px; height: 36px; border-radius: 50%; corner-shape: round; overflow: hidden; flex: none; }
 .bk-avatar img { width: 100%; height: 100%; object-fit: cover; display: block; }
-.bk-title { --wght: 600; font-size: 16px; line-height: 1.25; }
-.bk-meta { font-size: 12px; line-height: 1.4; color: var(--text-muted); }
+.bk-title { --wght: 600; font-size: 16px; --lh: round(nearest, 1.25em, var(--bl)); line-height: var(--lh); }
+.bk-meta { font-size: 12px; --lh: round(nearest, 1.4em, var(--bl)); line-height: var(--lh); color: var(--text-muted); }
 .bk-date { --wght: 600; font-size: 13px; }
 .bk-slots { display: grid; grid-template-columns: repeat(3, 1fr); gap: 8px; }
 .bk-slots span {
@@ -571,34 +575,34 @@ a.code:hover .where { color: var(--signal); }
 .demo-foot .ax { flex: 1; max-width: 360px; grid-template-columns: auto 1fr 2.4em; }
 
 /* ═══ NUMBERS ═══════════════════════════════════════════ */
-.nums { display: grid; grid-template-columns: repeat(2, 1fr); gap: 32px 16px; }
+.nums { display: grid; grid-template-columns: repeat(2, 1fr); gap: 33px 16px; }
 .num { border-top: 1px solid var(--text); padding-top: 12px; }
 .num b {
   --wght: 640; --geom: 50;
   display: block;
   font-size: clamp(40px, 6.2vw, 96px);
-  line-height: 1;
+  --lh: round(nearest, 1em, var(--bl)); line-height: var(--lh);
 }
-.num span { display: block; margin-top: 8px; font-size: 14px; color: var(--text-muted); }
-@media (min-width: 681px) { .nums { grid-template-columns: repeat(4, 1fr); gap: clamp(20px, 3vw, 40px); } }
+.num span { display: block; margin-top: 9px; font-size: 14px; color: var(--text-muted); }
+@media (min-width: 681px) { .nums { grid-template-columns: repeat(4, 1fr); gap: round(nearest, clamp(20px, 3vw, 40px), var(--bl)); } }
 
 /* ═══ HOW IT CAME TO BE ═════════════════════════════════
    picture, then caption with a bold lead; theme pairs swap with the site's switch */
-.made { display: grid; gap: clamp(48px, 7vw, 112px); }
+.made { display: grid; gap: round(nearest, clamp(48px, 7vw, 112px), var(--bl)); }
 .made-block { margin: 0; min-width: 0; }
 .made-block > img, .tool > img { display: block; width: 100%; height: auto; border-radius: var(--r-card); background: var(--surface); }
 .made-block .made-tall { max-width: 720px; margin-inline: auto; }
 .made-block figcaption, .made-cap {
-  max-width: 56ch; margin: clamp(20px, 2.6vw, 32px) 0 0;
-  font-size: clamp(16px, 1.5vw, 21px); line-height: 1.45; color: var(--text-muted); text-wrap: pretty;
+  max-width: 56ch; margin: round(nearest, clamp(20px, 2.6vw, 32px), var(--bl)) 0 0;
+  font-size: clamp(16px, 1.5vw, 21px); --lh: round(nearest, 1.45em, var(--bl)); line-height: var(--lh); color: var(--text-muted); text-wrap: pretty;
 }
 .made-block figcaption strong, .made-cap strong { --wght: 640; color: var(--text); }
-.made-cap--lead { margin-top: 0; margin-bottom: clamp(20px, 2.6vw, 32px); }
+.made-cap--lead { margin-top: 0; margin-bottom: round(nearest, clamp(20px, 2.6vw, 32px), var(--bl)); }
 /* text column and picture, side by side; alternate sides down the chapter */
 .mb { display: grid; gap: 24px; }
-.mb-text h3 { --wght: 400; --geom: 50; font-size: clamp(28px, 3.6vw, 48px); line-height: 1.06; text-wrap: balance; }
-.mb-text p { margin-top: 20px; max-width: 40ch; font-size: clamp(16px, 1.4vw, 19px); line-height: 1.5; color: var(--text-muted); text-wrap: pretty; }
-.mb-link { display: inline-flex; align-items: center; gap: 18px; margin-top: 32px; text-decoration: none; color: var(--text); font-size: 13px; letter-spacing: 0.08em; text-transform: uppercase; --wght: 600; }
+.mb-text h3 { --wght: 400; --geom: 50; font-size: clamp(28px, 3.6vw, 48px); --lh: round(nearest, 1.06em, var(--bl)); line-height: var(--lh); text-wrap: balance; }
+.mb-text p { margin-top: 21px; max-width: 40ch; font-size: clamp(16px, 1.4vw, 19px); --lh: round(nearest, 1.5em, var(--bl)); line-height: var(--lh); color: var(--text-muted); text-wrap: pretty; }
+.mb-link { display: inline-flex; align-items: center; gap: 18px; margin-top: 33px; text-decoration: none; color: var(--text); font-size: 13px; letter-spacing: 0.08em; text-transform: uppercase; --wght: 600; }
 .mb-link .ring { width: 56px; height: 56px; border-radius: 50%; box-shadow: inset 0 0 0 1px var(--border); display: grid; place-items: center; font-size: 18px; transition: background 0.2s, color 0.2s; }
 .mb-link:hover .ring { background: var(--text); color: var(--bg); }
 .mb-media { min-width: 0; aspect-ratio: 4 / 3; display: grid; align-items: center; }
@@ -726,12 +730,12 @@ a.code:hover .where { color: var(--signal); }
   .ds-block:not(.is-in) .cube .v > span { opacity: 1; } .ds-block:not(.is-in) .cube .v b { transform: none; } .ds-block:not(.is-in) .cube .e { opacity: 0.55; }
 }
 
-.tools { display: grid; gap: clamp(16px, 2vw, 24px); }
+.tools { display: grid; gap: round(nearest, clamp(16px, 2vw, 24px), var(--bl)); }
 @media (min-width: 681px) { .tools { grid-template-columns: 1fr 1fr; } }
-.tool { display: grid; gap: 10px; align-content: start; color: inherit; text-decoration: none; min-width: 0; }
-.tool--text { background: var(--surface); border-radius: var(--r-card); padding: clamp(22px, 3vw, 40px); }
-.tool-name { --wght: 400; --geom: 50; font-size: clamp(20px, 2.2vw, 28px); line-height: 1.1; margin-top: 6px; }
-.tool-text { font-size: 15px; line-height: 1.45; color: var(--text-muted); max-width: 44ch; }
+.tool { display: grid; gap: 9px; align-content: start; color: inherit; text-decoration: none; min-width: 0; }
+.tool--text { background: var(--surface); border-radius: var(--r-card); padding: round(nearest, clamp(22px, 3vw, 40px), var(--bl)); }
+.tool-name { --wght: 400; --geom: 50; font-size: clamp(20px, 2.2vw, 28px); --lh: round(nearest, 1.1em, var(--bl)); line-height: var(--lh); margin-top: 6px; }
+.tool-text { font-size: 15px; --lh: round(nearest, 1.45em, var(--bl)); line-height: var(--lh); color: var(--text-muted); max-width: 44ch; }
 a.tool:hover .tool-name, a.tool-name:hover { text-decoration: underline; text-decoration-thickness: 1.5px; text-underline-offset: 4px; }
 a.tool-name { color: inherit; text-decoration: none; }
 .tool-text a { color: inherit; text-decoration: underline; text-decoration-thickness: 1px; text-underline-offset: 3px; }
@@ -739,47 +743,47 @@ a.tool-name { color: inherit; text-decoration: none; }
 .tool > a > img, .tool--shot > a > img { display: block; width: 100%; height: auto; aspect-ratio: 4 / 3; object-fit: contain; }
 
 /* ═══ STUDIO ════════════════════════════════════════════ */
-.studio-photo { margin: 0 0 clamp(28px, 4vw, 56px); }
+.studio-photo { margin: 0 0 round(nearest, clamp(28px, 4vw, 56px), var(--bl)); }
 .studio-photo img { display: block; width: 100%; height: auto; border-radius: var(--r-card); }
-.studio { display: grid; gap: 28px; }
-.studio-side { display: flex; align-items: center; gap: 14px; }
+.studio { display: grid; gap: 27px; }
+.studio-side { display: flex; align-items: center; gap: 15px; }
 .studio-side .sec-title { margin: 0; font-size: clamp(22px, 2.4vw, 32px); }
-.prose { display: grid; gap: 1.1em; max-width: 36em; }
+.prose { display: grid; gap: round(nearest, 1.1em, var(--bl)); max-width: 36em; }
 .prose > p {
   font-size: clamp(18px, 1.7vw, 22px);
-  line-height: 1.5;
+  --lh: round(nearest, 1.5em, var(--bl)); line-height: var(--lh);
   color: var(--text-muted);
   text-wrap: pretty;
 }
 .prose > p:first-child { color: var(--text); }
-.quote { margin-block: clamp(16px, 2.4vw, 32px); padding-left: 20px; border-left: 1px solid var(--text); }
+.quote { margin-block: round(nearest, clamp(16px, 2.4vw, 32px), var(--bl)); padding-left: 20px; border-left: 1px solid var(--text); }
 .quote p {
   --ital: 1;
   font-size: clamp(22px, 2.5vw, 34px);
-  line-height: 1.25;
+  --lh: round(nearest, 1.25em, var(--bl)); line-height: var(--lh);
   text-wrap: pretty;
 }
-.quote p + p { margin-top: 0.1em; }
+.quote p + p { margin-top: round(nearest, 0.1em, var(--bl)); }
 .quote--stack p { --ital: 0; --wght: 600; }
-.quote footer { margin-top: 14px; font-size: 13px; color: var(--text-dim); }
+.quote footer { margin-top: 15px; font-size: 13px; color: var(--text-dim); }
 .quote footer a { color: inherit; text-decoration: underline; text-decoration-thickness: 1px; text-underline-offset: 3px; }
 .quote footer a:hover { color: var(--text); }
 @media (min-width: 861px) {
-  .studio { grid-template-columns: 5fr 7fr; gap: clamp(32px, 5vw, 80px); align-items: start; }
+  .studio { grid-template-columns: 5fr 7fr; gap: round(nearest, clamp(32px, 5vw, 80px), var(--bl)); align-items: start; }
   .studio-side { position: sticky; top: calc(var(--nav-h) + 24px); }
 }
 .maxim {
   --wght: 640; --geom: 50;
   margin-top: var(--sec);
   font-size: clamp(38px, 8vw, 128px);
-  line-height: 0.98;
+  --lh: round(nearest, 0.98em, var(--bl)); line-height: var(--lh);
   text-wrap: balance;
 }
 
 /* ═══ TRY IT ════════════════════════════════════════════
    the Framer type tester, in plain HTML: a centred field under a fixed clamp, eight controls
    four-up or two-up, two of them segmented presets that unlock into a slider. */
-.tester { position: relative; container-type: inline-size; display: flex; flex-direction: column; gap: 28px; }
+.tester { position: relative; container-type: inline-size; display: flex; flex-direction: column; gap: 27px; }
 .tt-reset, .ax-reset {
   position: absolute; top: 16px; right: 16px; z-index: 2;
   width: 32px; height: 32px; display: flex; align-items: center; justify-content: center;
@@ -796,7 +800,7 @@ a.tool-name { color: inherit; text-decoration: none; }
 .tt-preview {
   display: block; width: 100%; margin: auto 0;
   font: inherit; font-family: 'CalSans', sans-serif;
-  font-size: var(--tt-size, 100px); line-height: 1.3; letter-spacing: var(--tt-track, 0);
+  font-size: var(--tt-size, 100px); --lh: round(nearest, 1.3em, var(--bl)); line-height: var(--lh); letter-spacing: var(--tt-track, 0);
   font-optical-sizing: none;
   font-variation-settings: 'wght' var(--tt-wght, 400), 'GEOM' var(--tt-geom, 25), 'opsz' var(--tt-opsz, 45), 'YTAS' var(--tt-ytas, 1440), 'SHRP' var(--tt-shrp, 0), 'ital' var(--tt-ital, 0);
   color: var(--text); text-align: center; background: transparent; border: 0; outline: none; resize: none; overflow: auto;
@@ -838,8 +842,8 @@ a.tool-name { color: inherit; text-decoration: none; }
 .tt-more { display: flex; justify-content: center; }
 
 /* ═══ RELEASES ══════════════════════════════════════════ */
-.rel-grid { display: grid; gap: 40px; }
-.rel { position: relative; border-top: 1px solid var(--text); padding-top: 22px; }
+.rel-grid { display: grid; gap: 39px; }
+.rel { position: relative; border-top: 1px solid var(--text); padding-top: 21px; }
 .rel::before {
   content: "";
   position: absolute;
@@ -849,35 +853,112 @@ a.tool-name { color: inherit; text-decoration: none; }
   corner-shape: round;
   background: var(--text);
 }
-.rel h3 { font-size: clamp(34px, 4vw, 60px); line-height: 1; margin: 14px 0 16px; white-space: nowrap; }
+.rel h3 { font-size: clamp(34px, 4vw, 60px); --lh: round(nearest, 1em, var(--bl)); line-height: var(--lh); margin: 15px 0 15px; white-space: nowrap; }
 .rel--2021 h3 { --wght: 600; --geom: 50; }
 .rel--2025 h3 { font-family: 'CalSansUI', 'CalSans', sans-serif; font-variation-settings: 'wght' 500, 'GEOM' 0; }
 .rel--2026 h3 { --wght: 700; --geom: 50; }
 .rel p { color: var(--text-muted); max-width: 34ch; text-wrap: pretty; }
-@media (min-width: 861px) { .rel-grid { grid-template-columns: repeat(3, 1fr); gap: clamp(24px, 4vw, 64px); } }
+@media (min-width: 861px) { .rel-grid { grid-template-columns: repeat(3, 1fr); gap: round(nearest, clamp(24px, 4vw, 64px), var(--bl)); } }
 
 /* ═══ CLOSE + FOOTER ════════════════════════════════════ */
 .close { padding-block: var(--sec); }
-.close .sec-title { margin-bottom: 20px; }
+.close .sec-title { margin-bottom: 21px; }
 .close-para {
   font-size: clamp(18px, 1.7vw, 22px);
-  line-height: 1.5;
+  --lh: round(nearest, 1.5em, var(--bl)); line-height: var(--lh);
   color: var(--text-muted);
   max-width: 34em;
   text-wrap: pretty;
 }
-.close-cta { display: flex; flex-wrap: wrap; gap: 12px; margin-top: clamp(28px, 4vw, 48px); }
+.close-cta { display: flex; flex-wrap: wrap; gap: 12px; margin-top: round(nearest, clamp(28px, 4vw, 48px), var(--bl)); }
 
 .cs-footer {
   display: flex;
   flex-wrap: wrap;
   justify-content: space-between;
-  gap: 16px 40px;
-  padding: 28px var(--gut) 40px;
+  gap: 15px 40px;
+  padding: 27px var(--gut) 39px;
   border-top: 1px solid var(--border);
   font-size: 14px;
 }
-.cs-footer nav { display: flex; flex-wrap: wrap; gap: 8px 24px; }
+.cs-footer nav { display: flex; flex-wrap: wrap; gap: 9px 24px; }
 .cs-footer a { color: var(--text-muted); text-decoration: none; transition: color 0.12s; }
 .cs-footer a:hover { color: var(--text); }
 .cs-footer p { color: var(--text-dim); }
+
+/* ═══ THE GRID ══════════════════════════════════════════
+   shared/src/grid.css: 24 columns from 1024px, 12 below, a 24px gutter (12 on a phone), the
+   page margin as before. Every section grid that used to split by fr runs on those columns
+   now, so every edge on the page is a column line and every gap is the gutter (or a gutter,
+   a skipped column and a gutter -- the 72px the page had chosen by eye). Each section keeps
+   the width it used to stack at. Cards step their contents in one column + one gutter
+   (rule A). Leadings and vertical space above are in 3px units; gridSnap.js puts what follows
+   an image or a demo back on the line. */
+.hero-cols, .hl-grid, .look, .mb, .studio, .rel-grid, .nums, .tools, .ds-panels {
+  display: grid;
+  grid-template-columns: repeat(var(--grid-cols), minmax(0, 1fr));
+  column-gap: var(--grid-gutter);
+  container-type: inline-size;
+  --col: calc((100cqw - (var(--grid-cols) - 1) * var(--grid-gutter)) / var(--grid-cols));
+}
+.hero-cols > *, .hl-grid > *, .mb > *, .studio > *, .rel-grid > *, .nums > *, .tools > *, .ds-panels > * { grid-column: 1 / -1; }
+.look-item > * { grid-column: 1 / -1; }
+
+/* cards: one gutter top and bottom, one column + one gutter each side */
+.hl-grid > .card { padding: var(--grid-gutter) calc(var(--col) + var(--grid-gutter)); }
+/* the cube's panel is a stage, and the cube is short of room as it is: its masters sit at
+   12/10px insets and its rings are sized from the edge distance. It keeps the padding it had,
+   on the unit, so the stage keeps its width (543px at 1440). */
+.ds-panels > .ds-panel { padding: round(nearest, clamp(18px, 2.4vw, 32px), var(--bl)) clamp(18px, 2.4vw, 32px); }   /* top/bottom on the unit; the sides exactly as they were */
+.look-demo { --pad: calc(var(--col) + var(--grid-gutter)); padding: var(--grid-gutter) var(--pad); }
+/* a demo is a stage for specimens, not a text card: on 12 columns a column is wide enough that
+   the card inset pushed the big words past the box (+38px at 900), so below 1024 a stage
+   insets by the gutter alone */
+@media (max-width: 1023px) { .look-demo { --pad: var(--grid-gutter); } }
+/* the tester spans the page: its column is the page's */
+.tester { padding: var(--grid-gutter) calc((100vw - 2 * var(--grid-margin) - (var(--grid-cols) - 1) * var(--grid-gutter)) / var(--grid-cols) + var(--grid-gutter)); }
+
+@media (min-width: 681px) {
+  .nums > * { grid-column: span 3; }
+  .tools > * { grid-column: span 6; }
+}
+@media (min-width: 681px) and (max-width: 1023px) { .nums { row-gap: 33px; } }
+@media (max-width: 680px) { .nums > * { grid-column: span 6; } }
+
+@media (min-width: 861px) {
+  /* 12 columns: 7 | 5 and 5 | 7, the old 7fr/5fr exactly */
+  .hero-cols > :first-child { grid-column: 1 / span 7; }
+  .hero-cols > :last-child  { grid-column: 8 / span 5; }
+  .hl-grid > :nth-child(1) { grid-column: 1 / span 5; }
+  .hl-grid > :nth-child(2) { grid-column: 6 / span 7; }
+  .hl-grid > .hl--wide { grid-column: 1 / -1; }
+  .mb > .mb-text { grid-column: 1 / span 5; }
+  .mb > .mb-media { grid-column: 6 / span 7; }
+  .studio > .studio-side { grid-column: 1 / span 5; }
+  .studio > .prose { grid-column: 6 / span 7; }
+  .rel-grid > * { grid-column: span 4; }
+  .ds-panels > * { grid-column: span 6; }
+  .hero-cols, .mb, .studio { column-gap: var(--grid-gutter); }
+}
+@media (min-width: 961px) and (max-width: 1023px) {
+  .look-head { grid-column: 1 / span 5; }
+  .look-demo { grid-column: 6 / span 7; }
+}
+@media (min-width: 1024px) {
+  /* 24 columns: the hero is 13 | skip | 10; text beside a picture is 9 | skip | 14, keeping
+     the wide gap those sections had; side-by-side cards are 10 | 14 on the gutter */
+  .hero-cols > :first-child { grid-column: 1 / span 13; }
+  .hero-cols > :last-child  { grid-column: 15 / span 10; }
+  .hl-grid > :nth-child(1) { grid-column: 1 / span 10; }
+  .hl-grid > :nth-child(2) { grid-column: 11 / span 14; }
+  .mb > .mb-text { grid-column: 1 / span 9; }
+  .mb > .mb-media { grid-column: 11 / span 14; }
+  .studio > .studio-side { grid-column: 1 / span 9; }
+  .studio > .prose { grid-column: 11 / span 14; }
+  .look-head { grid-column: 1 / span 9; }
+  .look-demo { grid-column: 11 / span 14; }
+  .rel-grid > * { grid-column: span 8; }
+  .nums > * { grid-column: span 6; }
+  .tools > * { grid-column: span 12; }
+  .ds-panels > * { grid-column: span 12; }
+}
