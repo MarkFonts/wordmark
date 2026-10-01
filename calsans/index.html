@@ -30,7 +30,7 @@
 <link rel="stylesheet" href="../shared/src/icon.css">
 <link rel="stylesheet" href="../shared/src/themeSwitch.css">
 <link rel="stylesheet" href="../shared/src/UiKitBoard.css">
-<link rel="stylesheet" href="../css/case.css?v=35">
+<link rel="stylesheet" href="../css/case.css?v=36">
 </head>
 <body>
 
@@ -407,7 +407,10 @@
         <p>calbuild runs the sources through fontmake, shifts the axis defaults, merges the feature variations and instances every static style, 384 of them, from the one variable file.</p>
         <a class="mb-link" href="https://github.com/calcom/sans" target="_blank" rel="noopener"><span class="ring" aria-hidden="true">&rarr;</span>Get the fonts</a>
       </div>
-      <div class="mb-media"><img src="img/calbuild.webp" width="1666" height="1790" loading="lazy" alt="Terminal: calbuild validating 8 masters, compiling the variable font and instancing 384 static styles"></div>
+      <div class="mb-media mb-scroll made-theme" tabindex="0" aria-label="Every static instance of Cal Sans, scrollable">
+        <img class="for-light" src="img/statics-light.svg" width="1520" height="4138" loading="lazy" alt="All 384 static instances of Cal Sans, roman and italic, grouped by geometry, sharpness, ascender height and optical size">
+        <img class="for-dark" src="img/statics-dark.svg" width="1520" height="4138" loading="lazy" alt="All 384 static instances of Cal Sans, roman and italic, grouped by geometry, sharpness, ascender height and optical size, dark">
+      </div>
     </div>
 
     <div class="made-block">
@@ -430,7 +433,8 @@
           <span class="tool-name">kernpare</span>
           <span class="tool-text">Every kerning pair across all eight masters at once, roman and italic linked, with the curve a value takes from text to display.</span>
         </div>
-        <a class="tool tool--text" href="https://github.com/calcom/sans/tree/main/scripts" target="_blank" rel="noopener">
+        <a class="tool tool--shot" href="https://github.com/calcom/sans/tree/main/scripts" target="_blank" rel="noopener">
+          <img src="img/calbuild.webp" width="1666" height="1790" loading="lazy" alt="Terminal: calbuild validating 8 masters, compiling the variable font and instancing 384 static styles">
           <span class="tool-name">calbuild <span class="arrow">&#x2197;</span></span>
           <span class="tool-text">The build, start to finish: metrics, validation, the variable font, the statics, the packages for Google Fonts, npm and jsDelivr. In the Cal Sans repo, under scripts.</span>
         </a>
