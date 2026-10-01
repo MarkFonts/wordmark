@@ -203,6 +203,11 @@
         return { el: e, a: vkey.indexOf(a[0]), b: vkey.indexOf(a[1]) };
       });
       glyphs.forEach(function (g) { g.dataset.base = g.style.fontVariationSettings; });
+      /* each corner's label, by axis tag, so a pulled axis can show its live value lit */
+      var labels = glyphs.map(function (g) {
+        var m = {}; Array.prototype.forEach.call(g.parentElement.querySelectorAll('.vlab > span'), function (sp) { var tag = sp.querySelector('i').textContent; m[tag] = { el: sp, text: sp.lastChild, base: sp.lastChild.textContent }; });
+        return m;
+      });
       /* the virtual masters tie to every cube master; the lines fade with distance and the nearest corner is pulled */
       var vms = Array.prototype.slice.call(stage.querySelectorAll('.vm')), running = false;
       /* which cube masters each virtual master ties to: all of them, or only the opsz 10 row */
@@ -247,9 +252,15 @@
           var k = Math.max(0, Math.min(1, 1 - bd / reach));
           best.add[a.dataset.axis] = AX[a.dataset.axis] + (parseFloat(a.dataset.to) - AX[a.dataset.axis]) * k * k;
         });
-        pts.forEach(function (p) {
+        pts.forEach(function (p, i) {
           var extra = Object.keys(p.add).map(function (k) { return "'" + k + "' " + p.add[k].toFixed(1); }).join(', ');
           p.g.style.fontVariationSettings = p.g.dataset.base + (extra ? ', ' + extra : '');
+          /* the label says what the glyph is doing, since YTAS and SHRP move far less than GEOM at this size */
+          Object.keys(labels[i]).forEach(function (tag) {
+            var l = labels[i][tag], on = tag in p.add, v = on ? (tag === 'opsz' ? p.add[tag].toFixed(1) : Math.round(p.add[tag]) + '') : l.base;
+            if (l.text.textContent !== v) l.text.textContent = v;
+            l.el.classList.toggle('hot', on);
+          });
         });
         requestAnimationFrame(tick);
       }
