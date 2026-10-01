@@ -367,6 +367,29 @@ body {
   max-width: 38ch;
 }
 
+/* the case-study button: the page's one pill, in the logo's weight */
+.work-cta { margin-top: 24px; }
+.pill {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.3em;
+  font-family: 'CalSans', sans-serif;
+  font-optical-sizing: auto;
+  font-variation-settings: 'wght' 700, 'GEOM' 50;
+  font-size: 15px;
+  line-height: 1.1;
+  color: var(--bg);
+  background: var(--text);
+  padding: 0.55em 1em 0.68em;
+  border-radius: 999px;
+  text-decoration: none;
+  white-space: nowrap;
+  transition: opacity 0.15s;
+}
+.pill:hover { opacity: 0.78; }
+.pill .arrow { position: relative; top: 0.02em; transition: transform 0.2s; }
+.pill:hover .arrow { transform: translateX(0.15em); }
+
 .learn-more {
   font-variation-settings: 'wght' 400;
   font-size: 15px;
