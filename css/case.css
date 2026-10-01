@@ -10,6 +10,14 @@
   font-display: swap;
   /* v2: opsz 8–45 (14) | GEOM 0–100 (25) | wght 400–700 | YTAS 1440–1600 | SHRP 0–100 | ital 0–1 */
 }
+/* Cal Sans Flex, from wm-primitives: the geometric alternates interpolate along GEOM, for the Futura demo */
+@font-face {
+  font-family: 'CalSansFlex';
+  src: url('../shared/fonts/CalSansFlexVF.woff2') format('woff2');
+  font-weight: 400 700;
+  font-style: normal;
+  font-display: swap;
+}
 /* the 2025 release, for its own title in the releases row: wght + GEOM only */
 @font-face {
   font-family: 'CalSansUI';
@@ -171,16 +179,10 @@ section[id] { scroll-margin-top: var(--nav-h); }
   .hero-sub { padding-top: 0.5em; }
 }
 
-/* the brand's own word in the logo's weight, fitted to the measure by case.js */
-.hero-word-box { margin-top: clamp(40px, 7vw, 96px); overflow: hidden; }
-.hero-word {
-  --geom: 50; --wght: 700;
-  display: inline-block;
-  font-size: 24vw;
-  line-height: 0.92;
-  white-space: nowrap;
-  padding-bottom: 0.06em;
-}
+/* the hero moment: the Calendso logo heats, four passes of a thermal stripe, the second one
+   swaps in Cal.com, the word cools and the effect drains to the plain logo. One SVG filter chain. */
+.hero-word-box { margin-top: clamp(40px, 7vw, 96px); cursor: pointer; }
+.hero-thermal { display: block; width: 100%; height: auto; overflow: visible; }
 
 /* ═══ SECTIONS ══════════════════════════════════════════ */
 .sec { padding-top: var(--sec); }
@@ -217,13 +219,30 @@ section[id] { scroll-margin-top: var(--nav-h); }
 }
 .hl-text strong { color: var(--text); }
 
-.cal-logo { display: block; width: min(100%, 420px); height: auto; }
+.cal-word {
+  margin: 0;
+  font-size: clamp(64px, 8vw, 112px);
+  line-height: 1;
+  white-space: nowrap;
+  color: var(--text);
+  font-variation-settings: 'opsz' 45, 'GEOM' 50, 'wght' 400;
+  animation: cal-word-wght 3.2s ease-in-out infinite alternate;
+}
+@keyframes cal-word-wght {
+  from { font-variation-settings: 'opsz' 45, 'GEOM' 50, 'wght' 400; }
+  to   { font-variation-settings: 'opsz' 45, 'GEOM' 50, 'wght' 700; }
+}
+@media (prefers-reduced-motion: reduce) {
+  .cal-word { animation: none; font-variation-settings: 'opsz' 45, 'GEOM' 50, 'wght' 600; }
+}
 
 .axes-sample {
   font-size: clamp(56px, 9vw, 132px);
   line-height: 1.05;
   white-space: nowrap;
-  overflow: hidden;
+  overflow-x: clip;
+  overflow-y: visible;
+  padding-bottom: 0.12em;
   font-variation-settings: 'opsz' 45, 'GEOM' 50, 'wght' 600, 'YTAS' 1440, 'SHRP' 0, 'ital' 0;
 }
 .axes { display: grid; gap: 10px 28px; margin-top: 18px; }
@@ -417,7 +436,14 @@ a.code:hover .where { color: var(--signal); }
   overflow-wrap: anywhere;
 }
 .d-big.is-on[data-feat="ss18"] { font-feature-settings: 'ss18' 1; }
-.d-big.is-on[data-feat="ss11"] { font-feature-settings: 'ss11' 1, 'liga' 1, 'dlig' 1; }
+/* Cal Sans Flex: the switch slides GEOM 25 to 100 linearly; Flex interpolates the alternates */
+.d-futura {
+  font-family: 'CalSansFlex', 'CalSans', sans-serif;
+  font-variation-settings: 'wght' 600, 'GEOM' 25;
+  transition: font-variation-settings 1.2s linear;
+}
+.d-futura.is-on { font-variation-settings: 'wght' 600, 'GEOM' 100; }
+@media (prefers-reduced-motion: reduce) { .d-futura { transition: none; } }
 .d-names {
   --wght: 500;
   font-size: clamp(24px, 3.1vw, 44px);
@@ -520,6 +546,8 @@ a.code:hover .where { color: var(--signal); }
 .quote p + p { margin-top: 0.1em; }
 .quote--stack p { --ital: 0; --wght: 600; }
 .quote footer { margin-top: 14px; font-size: 13px; color: var(--text-dim); }
+.quote footer a { color: inherit; text-decoration: underline; text-decoration-thickness: 1px; text-underline-offset: 3px; }
+.quote footer a:hover { color: var(--text); }
 @media (min-width: 861px) {
   .studio { grid-template-columns: 5fr 7fr; gap: clamp(32px, 5vw, 80px); align-items: start; }
   .studio-side { position: sticky; top: calc(var(--nav-h) + 24px); }

@@ -1,0 +1,58 @@
+/* The case-study hero: the Calendso logo heats under a stripe of four notches, the second notch
+   swaps in Cal.com, the word cools in the stripe's tail, then blur, grain and colour go to zero. */
+(()=>{
+
+(()=>{
+const $=id=>document.getElementById(id);
+const stage=document.getElementById('hero-thermal');if(!stage)return;
+const rgb=el=>{const m=(getComputedStyle(el).color||'').match(/\d+(\.\d+)?/g);return m&&m.length>=3?[+m[0]/255,+m[1]/255,+m[2]/255]:[0.9,0.9,0.9]};
+// the table: dark blue, blue, cyan, white, orange, red, magenta
+const HOT=[[0.02,0.05,0.1,1,1,0.95,0.9],[0.02,0.2,0.85,1,0.55,0.1,0.1],[0.25,0.75,0.95,1,0.1,0.1,0.6],[0,0.05,0.45,1,1,1,1]];
+const BLUE=[Array(7).fill(0.14),Array(7).fill(0.57),Array(7).fill(0.92),Array(7).fill(1)];
+const ink=()=>{const c=rgb(stage);return [Array(7).fill(c[0]),Array(7).fill(c[1]),Array(7).fill(c[2]),Array(7).fill(1)]};
+const lerpT=(a,b,u)=>a.map((row,i)=>row.map((x,j)=>x+(b[i][j]-x)*u));
+function setLut(id,T){const f=$(id).children;for(let i=0;i<4;i++)f[i].setAttribute('tableValues',T[i].map(v=>v.toFixed(3)).join(' '))}
+function setColor(side,blur,grain,T,w,h){if(h==null)h=1;$('color'+side+'Halo').setAttribute('values','0.5 0 0 0 0  0 0.5 0 0 0  0 0 0.5 0 0  0 0 0 '+(0.9*h).toFixed(3)+' 0');$('color'+side+'Blur').setAttribute('stdDeviation',blur.toFixed(2));$('color'+side+'Grain').setAttribute('k1',(grain*2).toFixed(3));$('color'+side+'Grain').setAttribute('k3',(1-grain).toFixed(3));
+  $('color'+side+'Alpha').setAttribute('values','1 0 0 0 0  0 1 0 0 0  0 0 1 0 0  '+(0.3*w).toFixed(3)+' '+(0.59*w).toFixed(3)+' '+(0.11*w).toFixed(3)+' '+(1-w).toFixed(3)+' 0');   // w=1: alpha from luminance, black is nothing. w=0: alpha from the shape, for ink
+  setLut('color'+side+'Lut',T);}
+const ease=t=>{t=Math.max(0,Math.min(1,t));return t<0.5?4*t*t*t:1-Math.pow(-2*t+2,3)/2};
+const lin=(t,a,b)=>Math.max(0,Math.min(1,(t-a)/(b-a)));
+function seam(x){for(const id of ['seamL','seamR'])$(id).setAttribute('gradientTransform','translate('+x.toFixed(1)+' 0)')}
+const SPEED=1;
+const LEAD=1.2;                                                     // dead space before anything moves on Calendso; it scales with the speed like everything else
+const T={holdA:0.8,bloom:1.6,settle:0.9,drain:2.4,hold:2.2};
+// the stripe: one period per word, a notch of nothing in each. One speed from the first frame, never stopping.
+// notch 1 crosses Calendso. Notch 2 carries the swap. Notches 3 and 4 cross Cal.com. Then no fifth notch: a white fill enters from the left at the same speed and takes the blues with it.
+const span=2000,start=-1300,end=3300,v=1320;
+const e1=T.holdA,e2=e1+T.bloom;
+const FREEZE=end+3*span-640;                                      // the fourth notch has cleared the type and the whole word sits in the stripe's white: the stripe stops here
+const e3=e2+(FREEZE-start)/v;
+const e4=e3+T.settle;                                             // it holds, uniformly hot
+const e5=e4+T.drain;                                              // then every parameter goes to zero in place
+const total=e5+T.hold;window.__total=(LEAD+total)/SPEED;
+let t0=performance.now(),playing=!matchMedia('(prefers-reduced-motion: reduce)').matches;
+function frame(now){
+  let t=(now-t0)/1000;if(!playing)t=(LEAD+total)/SPEED;if(window.__t!=null)t=window.__t;
+  t=t*SPEED-LEAD;                                                    // the whole piece, lead-in included, runs at the chosen speed
+  const b=ease(lin(t,e1,e2));
+  const lead=Math.min(start+(t-e2)*v,FREEZE);
+  const mid=lead-span;                               // the notch one period behind the lead carries the seam
+  const kx=-600;
+  $('stripe').setAttribute('gradientTransform','translate('+(lead-7000).toFixed(1)+' 0)');   // notch 1 sits at gradient x 7000
+  seam(mid);
+  for(const id of ['seamK','seamKb'])$(id).setAttribute('gradientTransform','translate('+kx.toFixed(1)+' 0)');
+  const inkT=ink();
+  setColor('A',1+7*b,0.5*b,lerpT(BLUE,HOT,b),b);
+  const z=ease(lin(t,e4,e5));                        // the parameters, to zero, in place
+  setColor('B',8*(1-z),0.5*(1-z),lerpT(HOT,inkT,z),1-z,1-z);
+  const cross=lin(t,e1,e1+0.4);
+  $('A').setAttribute('opacity',cross.toFixed(3));$('A0').style.display=t<e3?'':'none';$('A0').setAttribute('opacity',(1-cross).toFixed(3));
+  $('B').setAttribute('opacity',(t<e2?0:(t<e5?1:1-lin(t,e5,e5+0.3))).toFixed(3));
+  $('F').setAttribute('opacity',0);
+  $('B0').style.display=t>=e5-0.3?'':'none';
+  if(t<total+0.1*SPEED||!playing||window.__t!=null)requestAnimationFrame(frame);
+}
+requestAnimationFrame(frame);
+document.getElementById('hero-thermal').addEventListener('click',()=>{t0=performance.now();playing=true;requestAnimationFrame(frame)});
+})();
+})();
