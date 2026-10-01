@@ -184,7 +184,7 @@
     var stage = ds.querySelector('.cube-stage'), cube = ds.querySelector('.cube');
     if (stage && cube) {
       var still = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
-      var rot = { x: -16, y: -32, z: 1 }, vel = still ? 0 : 0.09, idle = 0, drag = null, pinch = null;
+      var rot = { x: -16, y: -32, z: 0.82 }, vel = still ? 0 : 0.09, idle = 0, drag = null, pinch = null;
       var spans = Array.prototype.slice.call(cube.querySelectorAll('.v > span'));
       var glyphs = Array.prototype.slice.call(cube.querySelectorAll('.v b'));
       /* depth: the nearer a corner, the larger perspective draws it; far corners and edges fade */
