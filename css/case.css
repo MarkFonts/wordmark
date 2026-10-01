@@ -667,9 +667,10 @@ a.code:hover .where { color: var(--signal); }
 .cube .v b { display: block; padding: 6px 0; font-size: 40px; line-height: 1; white-space: nowrap; font-family: 'CalSans', sans-serif; font-optical-sizing: none; color: var(--text); transition: transform 700ms cubic-bezier(0.2, 0.7, 0.2, 1) var(--d, 0ms); }
 .vlab { display: grid; grid-template-columns: repeat(3, auto); gap: 2px 10px; justify-content: center; text-align: center; font-size: 9px; line-height: 1.15; color: var(--text-dim); white-space: nowrap; }
 .vlab > span { display: grid; }
-.cube .v .vlab { font-size: 6px; gap: 1px 6px; }   /* the corners: smaller than the virtual masters */
+.cube .v .vlab, .vm .vlab { font-size: 6px; gap: 1px 6px; }
+.vm .vlab .hot, .vm .vlab .hot i { color: var(--text); }   /* the axis a virtual master moves, lit */
 .vlab i { font-style: normal; --wght: 640; color: var(--text-muted); }
-.vlab-v { font-size: 9px; letter-spacing: 0.08em; text-transform: uppercase; color: var(--text-dim); }
+.vlab-v { font-size: 7px; letter-spacing: 0.08em; text-transform: uppercase; color: var(--text-dim); }
 @media (max-width: 560px) { .cube .v > span { width: 100px; margin: -27px 0 0 -50px; } .cube .v b { font-size: 25px; } }
 .ds-block:not(.is-in) .cube .v > span { opacity: 0 !important; }
 .ds-block.is-live .cube .v > span, .ds-block.is-live .cube .e { transition: none; }
@@ -681,7 +682,7 @@ a.code:hover .where { color: var(--signal); }
 .tie { position: absolute; left: 0; top: 0; height: 0; border-top: 1px solid var(--text-dim); transform-origin: 0 0; pointer-events: none; opacity: 0.2; }
 .vm { position: absolute; display: grid; justify-items: center; gap: 2px; z-index: 2; pointer-events: none; }
 .vm b { font-size: 28px; line-height: 1; white-space: nowrap; font-family: 'CalSans', sans-serif; font-optical-sizing: none; color: var(--text); }
-@media (max-width: 560px) { .vm b { font-size: 18px; } .vlab { gap: 1px 7px; } .vlab-v { font-size: 8px; } }
+@media (max-width: 560px) { .vm b { font-size: 18px; } .vlab-v { font-size: 7px; } }
 .cube-hint { flex-basis: 100%; }
 @media (prefers-reduced-motion: reduce) {
   .cube .v > span, .cube .v b, .cube .e { transition: none; }
