@@ -33,7 +33,15 @@
       });
       target.style.fontVariationSettings = parts.join(', ');
     }
-    inputs.forEach(function (i) { i.addEventListener('input', apply); });
+    var reset = group.parentElement.querySelector('.ax-reset');
+    function dirty() { if (reset) reset.hidden = !Array.prototype.some.call(inputs, function (i) { return i.value !== i.defaultValue; }); }
+    inputs.forEach(function (i) { i.addEventListener('input', function () { apply(); dirty(); }); });
+    if (reset) reset.addEventListener('click', function () {
+      reset.classList.add('is-spun');
+      setTimeout(function () { reset.classList.remove('is-spun'); }, 500);
+      inputs.forEach(function (i) { i.value = i.defaultValue; });
+      apply(); dirty();
+    });
     apply();
   });
 
