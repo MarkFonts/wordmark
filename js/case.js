@@ -94,6 +94,11 @@
   if (head) {
     var num = track.querySelector('b'), why = track.querySelector('span');
     var still = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+    /* the figure's slot is as wide as its widest value, so the caption holds still */
+    function slot() { num.textContent = '+55'; num.style.minWidth = Math.ceil(num.getBoundingClientRect().width) + 'px'; }
+    slot();
+    if (document.fonts && document.fonts.ready) document.fonts.ready.then(slot);
+    window.addEventListener('resize', slot);
     /* one eased value drives both the tracking and the figure, so they can't drift apart */
     function run(from, to, done) {
       var t0 = performance.now(), dur = still ? 0 : 700;

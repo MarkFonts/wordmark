@@ -421,7 +421,7 @@ a.code:hover .where { color: var(--signal); }
 }
 /* the readout, big enough to catch: the figure in the headline's face, the reason beside it */
 .d-track { flex: 1; display: flex; align-items: baseline; flex-wrap: wrap; gap: 0 14px; margin-top: 8px; }
-.d-track b { --wght: 600; font-size: clamp(32px, 4vw, 56px); line-height: 1; font-feature-settings: 'tnum' 1; min-width: 2.6ch; }
+.d-track b { --wght: 600; font-size: clamp(32px, 4vw, 56px); line-height: 1; font-feature-settings: 'tnum' 1; }
 .d-track span { font-size: clamp(14px, 1.3vw, 17px); color: var(--text-muted); }
 /* the Tailwind scale up to 9xl; case.js shortens each row's words to what fits */
 .d-fall { display: grid; grid-template-columns: minmax(0, 1fr); gap: 6px; align-content: start; flex: 1; min-height: 0; overflow: hidden; }
