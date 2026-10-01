@@ -5,7 +5,8 @@
 (()=>{
 const $=id=>document.getElementById(id);
 const stage=document.getElementById('hero-thermal');if(!stage)return;
-const rgb=el=>{const m=(getComputedStyle(el).color||'').match(/\d+(\.\d+)?/g);return m&&m.length>=3?[+m[0]/255,+m[1]/255,+m[2]/255]:[0.9,0.9,0.9]};
+// the page's text colour, whatever notation the stylesheet uses (the site's is oklch): resolved through a canvas pixel
+const rgb=el=>{try{const cv=document.createElement('canvas');cv.width=cv.height=1;const x=cv.getContext('2d',{willReadFrequently:true});x.fillStyle='#000';x.fillStyle=getComputedStyle(el).color;x.fillRect(0,0,1,1);const d=x.getImageData(0,0,1,1).data;return [d[0]/255,d[1]/255,d[2]/255]}catch(e){return [0.9,0.9,0.9]}};
 // the table: dark blue, blue, cyan, white, orange, red, magenta
 const HOT=[[0.02,0.05,0.1,1,1,0.95,0.9],[0.02,0.2,0.85,1,0.55,0.1,0.1],[0.25,0.75,0.95,1,0.1,0.1,0.6],[0,0.05,0.45,1,1,1,1]];
 const BLUE=[Array(7).fill(0.14),Array(7).fill(0.57),Array(7).fill(0.92),Array(7).fill(1)];
@@ -31,8 +32,12 @@ const e4=e3+T.settle;                                             // it holds, u
 const e5=e4+T.drain;                                              // then every parameter goes to zero in place
 const total=e5+T.hold;window.__total=(LEAD+total)/SPEED;
 let t0=performance.now(),playing=!matchMedia('(prefers-reduced-motion: reduce)').matches;
+// it holds on the plain Calendso until the hero is in view, then plays once
+let armed=false;window.__thermal={get armed(){return armed}};
+const io=('IntersectionObserver' in window)?new IntersectionObserver(es=>{for(const e of es){if(e.isIntersecting&&!armed){armed=true;t0=performance.now();requestAnimationFrame(frame);io.disconnect();}}},{threshold:0.6}):null;
+if(io)io.observe(stage);else armed=true;
 function frame(now){
-  let t=(now-t0)/1000;if(!playing)t=(LEAD+total)/SPEED;if(window.__t!=null)t=window.__t;
+  let t=armed?(now-t0)/1000:0;if(!playing)t=(LEAD+total)/SPEED;if(window.__t!=null)t=window.__t;
   t=t*SPEED-LEAD;                                                    // the whole piece, lead-in included, runs at the chosen speed
   const b=ease(lin(t,e1,e2));
   const lead=Math.min(start+(t-e2)*v,FREEZE);
@@ -50,9 +55,9 @@ function frame(now){
   $('B').setAttribute('opacity',(t<e2?0:(t<e5?1:1-lin(t,e5,e5+0.3))).toFixed(3));
   $('F').setAttribute('opacity',0);
   $('B0').style.display=t>=e5-0.3?'':'none';
-  if(t<total+0.1*SPEED||!playing||window.__t!=null)requestAnimationFrame(frame);
+  if(armed&&(t<total+0.1*SPEED||!playing)||window.__t!=null)requestAnimationFrame(frame);
 }
 requestAnimationFrame(frame);
-document.getElementById('hero-thermal').addEventListener('click',()=>{t0=performance.now();playing=true;requestAnimationFrame(frame)});
+stage.addEventListener('click',()=>{armed=true;t0=performance.now();playing=true;requestAnimationFrame(frame)});
 })();
 })();
