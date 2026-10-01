@@ -223,6 +223,8 @@
          geometric pull. */
       var fine = !(window.matchMedia && window.matchMedia('(pointer: coarse)').matches), mouse = null, inf = vms.map(function () { return 0; });
       var RING = 150;
+      /* the drawn rings' radii, from the stylesheet so the two agree; GEOM 0 sits on the outer one, 100 on the inner */
+      var ringIn = parseFloat(getComputedStyle(vms[0]).getPropertyValue('--ring-in')) || 28, ringOut = parseFloat(getComputedStyle(vms[0]).getPropertyValue('--ring-out')) || 48;
       Array.prototype.forEach.call(ds.querySelectorAll('.switch[data-cube]'), function (sw) {
         sw.addEventListener('click', function () {
           var on = sw.getAttribute('aria-checked') !== 'true'; sw.setAttribute('aria-checked', on);
@@ -242,7 +244,7 @@
         if (reset) reset.hidden = !offHome() && !leveling;
         place();
         var sr = stage.getBoundingClientRect();
-        var pts = glyphs.map(function (g) { var r = g.getBoundingClientRect(); return { x: r.left + r.width / 2 - sr.left, y: r.top + r.height / 2 - sr.top, w: r.width, g: g, add: {} }; });
+        var pts = glyphs.map(function (g) { var r = g.getBoundingClientRect(); return { x: r.left + r.width / 2 - sr.left, y: r.top + r.height / 2 - sr.top, w: r.width, g: g, add: {}, micro: 0, microOn: false }; });
         var ry = rot.y * Math.PI / 180, rx = rot.x * Math.PI / 180;
         var near = verts.map(function (v) {
           var x = +v.style.getPropertyValue('--x'), y = +v.style.getPropertyValue('--y'), z = +v.style.getPropertyValue('--z');
@@ -256,9 +258,10 @@
         }
         var reach = Math.min(sr.width, sr.height) * 0.7;
         vms.forEach(function (a, i) {
-          var ar = a.querySelector('b').getBoundingClientRect(), ax = ar.left + ar.width / 2 - sr.left, ay = ar.top + ar.height / 2 - sr.top;
+          var ar = a.getBoundingClientRect(), ax = ar.left + ar.width / 2 - sr.left, ay = ar.top + ar.height / 2 - sr.top;   /* the rings' centre: the whole master */
           /* influence: on a mouse, how close the pointer has come; eased so it breathes rather than snaps */
-          var want = !pull ? 0 : !fine ? 1 : mouse ? Math.max(0, Math.min(1, 1 - Math.hypot(mouse.x - ax, mouse.y - ay) / RING)) : 0;
+          var md = mouse ? Math.hypot(mouse.x - ax, mouse.y - ay) : Infinity;
+          var want = !pull ? 0 : !fine ? 1 : mouse ? Math.max(0, Math.min(1, 1 - md / RING)) : 0;
           inf[i] += (want - inf[i]) * 0.15; if (Math.abs(want - inf[i]) < 0.002) inf[i] = want;
           a.style.setProperty('--inf', inf[i].toFixed(3));
           var best = null, bd = Infinity;
@@ -271,20 +274,31 @@
             if (d < bd) { bd = d; best = p; }
           });
           if (inf[i] <= 0) return;
-          var axis = a.dataset.axis, to = parseFloat(a.dataset.to);
+          var axis = a.dataset.axis, to = parseFloat(a.dataset.to), from = a.dataset.from;
           if (fine) {
             /* a virtual master moves the whole family it ties to, as it does in the file: every tied corner
                takes the influence, the near ones a little ahead of the far ones */
-            links[i].idx.forEach(function (j) { var p = pts[j], d = Math.hypot(p.x - ax, p.y - ay); p.add[axis] = AX[axis] + (to - AX[axis]) * inf[i] * (0.7 + 0.3 * Math.max(0, 1 - d / reach)); });
+            var target = AX[axis] + (to - AX[axis]) * inf[i];
+            if (from != null) {
+              /* two landings on one master: outside the outer ring the default; on it, GEOM 0; on the inner, 100 */
+              var lo = parseFloat(from), band = 24;
+              target = md >= ringOut + band ? AX[axis] : md >= ringOut ? AX[axis] + (lo - AX[axis]) * (1 - (md - ringOut) / band) : md <= ringIn ? to : lo + (to - lo) * (1 - (md - ringIn) / (ringOut - ringIn));
+            }
+            links[i].idx.forEach(function (j) { var p = pts[j], d = Math.hypot(p.x - ax, p.y - ay), w = 0.85 + 0.15 * Math.max(0, 1 - d / reach); p.add[axis] = AX[axis] + (target - AX[axis]) * w; if (axis === 'opsz') { p.micro = inf[i] * w; p.microOn = inf[i] >= 0.85; } });
           } else {
             /* touch has no hover, so the geometry pulls: the nearest corner, full inside the near 40% of reach */
             var k = Math.max(0, Math.min(1, (reach - bd) / (reach * 0.6)));
-            best.add[axis] = AX[axis] + (to - AX[axis]) * k * k;
+            best.add[axis] = AX[axis] + (to - AX[axis]) * k * k; if (axis === 'opsz') { best.micro = k * k; best.microOn = k * k >= 0.85; }
           }
         });
         pts.forEach(function (p, i) {
           var extra = Object.keys(p.add).map(function (k) { return "'" + k + "' " + p.add[k].toFixed(1); }).join(', ');
           p.g.style.fontVariationSettings = p.g.dataset.base + (extra ? ', ' + extra : '');
+          /* the micro row: by the time a corner reaches the opsz 8 master it is tracked out 10 units (the
+             font's cond_micro_8 kern) and wearing cv03 */
+          var micro = p.micro || 0;
+          p.g.style.letterSpacing = micro > 0.001 ? (micro * 10 / 2000).toFixed(4) + 'em' : '';
+          p.g.style.fontFeatureSettings = p.microOn ? "'cv03' 1" : '';
           /* the label says what the glyph is doing, since YTAS and SHRP move far less than GEOM at this size */
           Object.keys(labels[i]).forEach(function (tag) {
             var l = labels[i][tag], on = tag in p.add, v = on ? (tag === 'opsz' ? p.add[tag].toFixed(1) : Math.round(p.add[tag]) + '') : l.base;
