@@ -271,9 +271,16 @@
             if (d < bd) { bd = d; best = p; }
           });
           if (inf[i] <= 0) return;
-          /* full pull inside the near 40% of reach, so each axis gets to show its whole travel, not a quarter of it */
-          var k = Math.max(0, Math.min(1, (reach - bd) / (reach * 0.6)));
-          best.add[a.dataset.axis] = AX[a.dataset.axis] + (parseFloat(a.dataset.to) - AX[a.dataset.axis]) * k * k * inf[i];
+          var axis = a.dataset.axis, to = parseFloat(a.dataset.to);
+          if (fine) {
+            /* a virtual master moves the whole family it ties to, as it does in the file: every tied corner
+               takes the influence, the near ones a little ahead of the far ones */
+            links[i].idx.forEach(function (j) { var p = pts[j], d = Math.hypot(p.x - ax, p.y - ay); p.add[axis] = AX[axis] + (to - AX[axis]) * inf[i] * (0.7 + 0.3 * Math.max(0, 1 - d / reach)); });
+          } else {
+            /* touch has no hover, so the geometry pulls: the nearest corner, full inside the near 40% of reach */
+            var k = Math.max(0, Math.min(1, (reach - bd) / (reach * 0.6)));
+            best.add[axis] = AX[axis] + (to - AX[axis]) * k * k;
+          }
         });
         pts.forEach(function (p, i) {
           var extra = Object.keys(p.add).map(function (k) { return "'" + k + "' " + p.add[k].toFixed(1); }).join(', ');
