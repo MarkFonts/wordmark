@@ -239,7 +239,7 @@
         vms.forEach(function (a, i) {
           var r = a.getBoundingClientRect(), cx = r.left + r.width / 2 - sr.left, cy = r.top + r.height / 2 - sr.top;
           a.style.setProperty('--ring-in', Math.max(24, Math.floor(Math.min(cx, cy, sr.width - cx, sr.height - cy)) - 4) + 'px');
-          if (a.hasAttribute('data-arc')) { var arc = Math.round(sr.width * 0.6); a.style.setProperty('--ring-out', arc + 'px'); reachOf[i] = arc; }
+          if (a.hasAttribute('data-arc')) { var arc = Math.round(sr.width * 0.6); a.style.setProperty('--ring-out', arc + 'px'); reachOf[i] = arc + 24; }   /* influence starts a run-in before the arc */
         });
       }
       sizeRings(); window.addEventListener('resize', sizeRings);
@@ -297,6 +297,12 @@
             /* a virtual master moves the whole family it ties to, as it does in the file: every tied corner
                takes the influence, the near ones a little ahead of the far ones */
             var target = AX[axis] + (to - AX[axis]) * inf[i];
+            if (a.hasAttribute('data-arc')) {
+              /* the arc is GEOM 0 and the ring is GEOM 100: outside the arc the family rests at its default,
+                 crossing it lands on 0 (a short run-in so nothing jumps), and the way in to the ring climbs to 100 */
+              var rIn = parseFloat(a.style.getPropertyValue('--ring-in')) || 40, band = 24, rOut = reachOf[i] - band, lo = 0;
+              target = md >= rOut + band ? AX[axis] : md >= rOut ? AX[axis] + (lo - AX[axis]) * (1 - (md - rOut) / band) : md <= rIn ? to : lo + (to - lo) * (1 - (md - rIn) / (rOut - rIn));
+            }
             links[i].idx.forEach(function (j) { var p = pts[j], d = Math.hypot(p.x - ax, p.y - ay), w = 0.85 + 0.15 * Math.max(0, 1 - d / reach); p.add[axis] = AX[axis] + (target - AX[axis]) * w; if (axis === 'opsz') { p.micro = inf[i] * w; p.microOn = inf[i] >= 0.85; } });
           } else {
             /* touch has no hover, so the geometry pulls: the nearest corner, full inside the near 40% of reach */

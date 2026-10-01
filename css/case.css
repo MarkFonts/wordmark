@@ -695,8 +695,8 @@ a.code:hover .where { color: var(--signal); }
 @media (prefers-reduced-motion: reduce) { .tie { animation: none; } }
 .vm { position: absolute; display: grid; justify-items: center; gap: 2px; z-index: 2; pointer-events: none; }
 /* the rings fade in as the mouse nears (case.js writes --inf and sizes them). Every virtual master has a ring,
-   as large as the stage allows it; the GEOM master also has the arc: the reach of its influence, faint, which
-   the stage crops. Strokes only, no fill. */
+   as large as the stage allows it; the GEOM master also has the arc, which is GEOM 0, faint, and the stage crops it;
+   its ring is GEOM 100. Strokes only, no fill. */
 .vm::before, .vm::after { content: ''; position: absolute; left: 50%; top: 50%; transform: translate(-50%, -50%); border-radius: 50%; corner-shape: round; border: 1px solid rgba(var(--text-rgb), 0.7); opacity: var(--inf, 0); pointer-events: none; }
 .vm::before { width: calc(var(--ring-in, 50px) * 2); height: calc(var(--ring-in, 50px) * 2); }
 .vm::after { display: none; width: calc(var(--ring-out, 260px) * 2); height: calc(var(--ring-out, 260px) * 2); border-color: rgba(var(--text-rgb), 0.3); }
