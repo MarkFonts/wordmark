@@ -644,6 +644,8 @@ a.code:hover .where { color: var(--signal); }
 .ds-o path { fill: var(--text); }
 .ds-faint { opacity: 0.45; }
 .ds-mvp { fill: var(--signal); }
+.ds-tag { fill: var(--text-muted); font-size: 13px; font-family: 'CalSans', sans-serif; font-variation-settings: 'wght' 640, 'GEOM' 25, 'opsz' 14; }
+.ds-val { fill: var(--text-dim); font-size: 13px; font-family: 'CalSans', sans-serif; font-feature-settings: 'tnum' 1; }
 .ds-v1 { font-family: 'CalSans1', 'CalSans', sans-serif; font-size: 64px; fill: var(--text); font-variation-settings: normal; }
 .ds-ax line { stroke: var(--text-dim); stroke-width: 1.2; }
 .ds-ax text { fill: var(--text-dim); font-size: 16px; font-family: 'CalSans', sans-serif; }
