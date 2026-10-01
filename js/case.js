@@ -281,6 +281,45 @@
     }
   } else if (ds) { ds.classList.add('is-in'); ds.classList.add('is-live'); }
 
+  /* deck pages: cycle while in view; a click advances and restarts the clock */
+  document.querySelectorAll('.deck').forEach(function (deck) {
+    var imgs = deck.querySelectorAll('img'), n = deck.querySelector('.deck-n'), i = 0, timer = null, every = +deck.dataset.every || 3600;
+    function show(k) {
+      i = (k + imgs.length) % imgs.length;
+      imgs.forEach(function (im, j) { im.classList.toggle('is-on', j === i); });
+      if (n) n.textContent = (i + 1) + ' / ' + imgs.length;
+    }
+    function start() { stop(); timer = setInterval(function () { show(i + 1); }, every); }
+    function stop() { if (timer) { clearInterval(timer); timer = null; } }
+    deck.addEventListener('click', function () { show(i + 1); start(); });
+    if ('IntersectionObserver' in window) {
+      new IntersectionObserver(function (es) { es.forEach(function (e) { if (e.isIntersecting) start(); else stop(); }); }, { threshold: 0.4 }).observe(deck);
+    } else start();
+  });
+
+  /* the statics sheet drifts on its own while in view, turns at the ends, and yields to a hand on it */
+  var sheet = document.querySelector('.mb-scroll');
+  if (sheet && !window.matchMedia('(prefers-reduced-motion: reduce)').matches) {
+    var dir = 1, pos = 0, hold = 0, inView = false, last = 0;
+    function drift(now) {
+      if (!inView) return;
+      var dt = Math.min(50, now - last); last = now;
+      if (hold > 0) hold -= dt;
+      else {
+        var max = sheet.scrollHeight - sheet.clientHeight;
+        pos = sheet.scrollTop + dir * dt * 0.018;
+        if (pos >= max) { pos = max; dir = -1; hold = 1200; }
+        if (pos <= 0) { pos = 0; dir = 1; hold = 1200; }
+        sheet.scrollTop = pos;
+      }
+      requestAnimationFrame(drift);
+    }
+    ['wheel', 'pointerdown', 'touchstart', 'keydown'].forEach(function (ev) { sheet.addEventListener(ev, function () { hold = 4000; }, { passive: true }); });
+    if ('IntersectionObserver' in window) {
+      new IntersectionObserver(function (es) { es.forEach(function (e) { var was = inView; inView = e.isIntersecting; if (inView && !was) { last = performance.now(); requestAnimationFrame(drift); } }); }, { threshold: 0.3 }).observe(sheet);
+    }
+  }
+
   /* feature switches */
   document.querySelectorAll('.switch').forEach(function (sw) {
     var target = document.getElementById(sw.dataset.target);
