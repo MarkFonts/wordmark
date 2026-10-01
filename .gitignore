@@ -11,3 +11,4 @@ adobe fonts/
 # case-study source decks and pricing are local only; page images go in calsans/img/
 calsans/ref/
 calsans/_handoff/
+calsans/ignore/
