@@ -33,7 +33,7 @@
 <link rel="stylesheet" href="../shared/src/icon.css">
 <link rel="stylesheet" href="../shared/src/themeSwitch.css">
 <link rel="stylesheet" href="../shared/src/UiKitBoard.css">
-<link rel="stylesheet" href="../css/case.css?v=47">
+<link rel="stylesheet" href="../css/case.css?v=48">
 </head>
 <body>
 
@@ -182,6 +182,9 @@
   <g mask="url(#mK)"><g id="F" filter="url(#colorF)" opacity="0"><g filter="url(#material)"><g mask="url(#shapeB)"><rect x="-120" y="-230" width="2200" height="880" fill="#fff"/></g></g></g></g>
   <g mask="url(#mB)"><g id="B" filter="url(#colorB)" opacity="0"><g filter="url(#material)"><g mask="url(#shapeB)"><rect x="-120" y="-230" width="2200" height="880" fill="url(#stripe)"/></g></g></g></g>
 </svg>
+<!-- phones: the same piece as a video with an alpha channel, one per theme, chosen in thermal-hero.js;
+     HEVC alpha for WebKit, VP9 alpha for everything else. The SVG filter chain stays on desktop. -->
+<video class="hero-video" muted playsinline preload="auto" disablepictureinpicture aria-hidden="true"></video>
   </div>
 </header>
 
@@ -566,7 +569,7 @@
   <p>&copy; 2026 Mark Davis and WORDMARK.</p>
 </footer>
 
-<script src="../js/thermal-hero.js?v=6"></script>
+<script src="../js/thermal-hero.js?v=7"></script>
 <script src="../js/case.js?v=25"></script>
 <script type="module">
   import { mountThemeSwitch } from '../shared/src/theme.js';

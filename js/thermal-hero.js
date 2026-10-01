@@ -5,6 +5,29 @@
 (()=>{
 const $=id=>document.getElementById(id);
 const stage=document.getElementById('hero-thermal');if(!stage)return;
+// phones get the piece as a video with alpha, rendered from this same chain at 60fps: the filters are too much for
+// a phone live, and the only thing the theme changes is the ink it drains to, so there is one file per theme.
+const video=stage.querySelector('.hero-video');
+if(video&&window.matchMedia&&window.matchMedia('(pointer: coarse)').matches&&window.__t==null){
+  const ua=navigator.userAgent,webkit=/iPhone|iPad|iPod/.test(ua)||(/AppleWebKit/.test(ua)&&!/Chrome|Chromium|Android/.test(ua));
+  const ok=webkit?video.canPlayType('video/mp4; codecs="hvc1"'):video.canPlayType('video/webm; codecs="vp9"');
+  if(ok){
+    const theme=()=>{const t=document.documentElement.dataset.theme;return t==='light'||t==='dark'?t:(matchMedia('(prefers-color-scheme: light)').matches?'light':'dark')};
+    let played=false,cur='';
+    const load=()=>{const th=theme();if(th===cur)return;cur=th;
+      video.poster='img/hero-'+th+'.png';video.src='img/hero-'+th+(webkit?'.mov':'.webm');video.load();
+      if(played)video.addEventListener('loadedmetadata',()=>{video.currentTime=Math.max(0,video.duration-0.05)},{once:true});};
+    load();stage.classList.add('is-video');
+    new MutationObserver(load).observe(document.documentElement,{attributes:true,attributeFilter:['data-theme']});
+    matchMedia('(prefers-color-scheme: light)').addEventListener('change',load);
+    const play=()=>{played=true;video.currentTime=0;video.play().catch(()=>{})};
+    if(!matchMedia('(prefers-reduced-motion: reduce)').matches){
+      const io=new IntersectionObserver(es=>{for(const e of es)if(e.isIntersecting){play();io.disconnect()}},{threshold:0.6});io.observe(stage);
+    }else video.addEventListener('loadedmetadata',()=>{video.currentTime=Math.max(0,video.duration-0.05)},{once:true});
+    stage.addEventListener('click',play);
+    return;
+  }
+}
 // the page's text colour, whatever notation the stylesheet uses (the site's is oklch): resolved through a canvas pixel
 const rgb=el=>{try{const cv=document.createElement('canvas');cv.width=cv.height=1;const x=cv.getContext('2d',{willReadFrequently:true});x.fillStyle='#000';x.fillStyle=getComputedStyle(el).color;x.fillRect(0,0,1,1);const d=x.getImageData(0,0,1,1).data;return [d[0]/255,d[1]/255,d[2]/255]}catch(e){return [0.9,0.9,0.9]}};
 // the table: dark blue, blue, cyan, white, orange, red, magenta
@@ -19,7 +42,7 @@ function setColor(side,blur,grain,T,w,h){if(h==null)h=1;$('color'+side+'Halo').s
 const ease=t=>{t=Math.max(0,Math.min(1,t));return t<0.5?4*t*t*t:1-Math.pow(-2*t+2,3)/2};
 const lin=(t,a,b)=>Math.max(0,Math.min(1,(t-a)/(b-a)));
 function seam(x){for(const id of ['seamL','seamR'])$(id).setAttribute('gradientTransform','translate('+x.toFixed(1)+' 0)')}
-const SPEED=1;
+const SPEED=2;
 const LEAD=1.2;                                                     // dead space before anything moves on Calendso; it scales with the speed like everything else
 const T={holdA:0.8,bloom:1.6,settle:0.9,drain:2.4,hold:2.2};
 // the stripe: one period per word, a notch of nothing in each. One speed from the first frame, never stopping.

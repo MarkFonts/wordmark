@@ -189,6 +189,10 @@ section[id] { scroll-margin-top: var(--nav-h); }
    swaps in Cal.com, the word cools and the effect drains to the plain logo. One SVG filter chain. */
 .hero-word-box { margin-top: clamp(40px, 7vw, 96px); cursor: pointer; }
 .hero-thermal { display: block; width: 100%; height: auto; overflow: visible; }
+.hero-video { display: none; width: 100%; height: auto; }
+/* thermal-hero.js flips to the video on coarse pointers once it knows a source will play */
+.hero-word-box.is-video .hero-thermal { display: none; }
+.hero-word-box.is-video .hero-video { display: block; }
 
 /* ═══ SECTIONS ══════════════════════════════════════════ */
 .sec { padding-top: var(--sec); }
