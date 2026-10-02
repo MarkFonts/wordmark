@@ -902,6 +902,10 @@ a.tool-name { color: inherit; text-decoration: none; }
   --col: calc((100cqw - (var(--grid-cols) - 1) * var(--grid-gutter)) / var(--grid-cols));
 }
 .hero-cols > *, .hl-grid > *, .mb > *, .studio > *, .rel-grid > *, .nums > *, .tools > *, .ds-panels > * { grid-column: 1 / -1; }
+/* below 961 a .look-item is a box of its own in the .look grid and takes the whole width;
+   from 961 it is display: contents and its head and demo are placed below -- without this
+   the six items sat side by side in one column each (18px at 390; shipped 2026-10-01) */
+.look > * { grid-column: 1 / -1; }
 .look-item > * { grid-column: 1 / -1; }
 
 /* cards: one gutter top and bottom, one column + one gutter each side */
