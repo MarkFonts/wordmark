@@ -338,8 +338,36 @@
     var card = document.getElementById('hl-four'); if (!card) return;
     var figs = Array.prototype.slice.call(card.querySelectorAll('[data-count]'));
     var tiles = card.querySelector('.hl-tiles'), N = +(tiles && tiles.dataset.n) || 187, cells = [];
+    /* the posts themselves, in date order, each tile a link; until they load, blanks keep the count */
     if (tiles) { for (var i = 0; i < N; i++) cells.push(tiles.appendChild(document.createElement('i'))); }
-    var order = cells.map(function (_, i) { return i; }).sort(function () { return Math.random() - 0.5; });
+    var pop = card.querySelector('.hl-pop');
+    function fmtN(n) { return n >= 1e6 ? (n / 1e6).toFixed(1) + 'M' : n >= 1e3 ? (n / 1e3).toFixed(n >= 1e4 ? 0 : 1) + 'K' : String(n); }
+    function showPop(a, post) {
+      if (!pop) return;
+      pop.innerHTML = '';
+      var who = document.createElement('b'); who.textContent = post.who; pop.appendChild(who);
+      var when = document.createElement('time'); when.textContent = post.date; pop.appendChild(when);
+      var txt = document.createElement('p'); txt.textContent = post.text; pop.appendChild(txt);
+      var stats = ['views', 'likes', 'reposts', 'bookmarks'].filter(function (k) { return post[k] != null; }).map(function (k) { return fmtN(post[k]) + ' ' + k; });
+      if (stats.length) { var st = document.createElement('span'); st.textContent = stats.join(' · '); pop.appendChild(st); }
+      var sr = tiles.getBoundingClientRect(), r = a.getBoundingClientRect();
+      pop.hidden = false;
+      var pw = pop.offsetWidth, ph = pop.offsetHeight;
+      var x = Math.max(0, Math.min(sr.width - pw, r.left - sr.left + r.width / 2 - pw / 2));
+      var y = r.top - sr.top + r.height + 6; if (y + ph > sr.height) y = Math.max(0, r.top - sr.top - ph - 6);
+      pop.style.transform = 'translate(' + Math.round(x) + 'px,' + Math.round(y) + 'px)';
+    }
+    function hidePop() { if (pop) pop.hidden = true; }
+    if (tiles && window.fetch) fetch(tiles.dataset.src || 'data/posts.json').then(function (r) { return r.json(); }).then(function (posts) {
+      posts.slice(0, N).forEach(function (post, i) {
+        var a = document.createElement('a'); a.href = post.url; a.target = '_blank'; a.rel = 'noopener';
+        a.className = cells[i].className; a.setAttribute('aria-label', post.who + ', ' + post.date);
+        a.addEventListener('mouseenter', function () { showPop(a, post); }); a.addEventListener('focus', function () { showPop(a, post); });
+        a.addEventListener('mouseleave', hidePop); a.addEventListener('blur', hidePop);
+        tiles.replaceChild(a, cells[i]); cells[i] = a;
+      });
+    }).catch(function () {});
+    var order = cells.map(function (_, i) { return i; });   /* in date order: the census fills as it happened */
     function fmt(v, spec) {   /* "1.4M" / "12.6K": one decimal and the unit the spec carries */
       var unit = spec.replace(/[\d.]/g, ''), n = parseFloat(spec) * v;
       return (unit ? n.toFixed(1) : Math.round(n).toLocaleString()) + unit;

@@ -273,9 +273,18 @@ section[id] { scroll-margin-top: var(--nav-h); }
 
 /* 4 · the census: two tabular figures over the tiles of the outside posts */
 .hl-stage--count { min-height: 210px; display: flex; flex-direction: column; justify-content: space-between; }
-.hl-tiles { position: absolute; inset: 0; display: grid; grid-template-columns: repeat(17, 1fr); gap: 3px; pointer-events: none; }
-.hl-tiles i { display: block; border-radius: 3px; background: var(--text); opacity: 0; transition: opacity 400ms ease; }
-.hl-tiles i.on { opacity: 0.07; }
+.hl-tiles { position: absolute; inset: 0; display: grid; grid-template-columns: repeat(17, 1fr); gap: 3px; }
+.hl-tiles > * { display: block; border-radius: 3px; background: var(--text); opacity: 0; transform: scale(0.6); transition: opacity 400ms ease, transform 400ms cubic-bezier(0.2, 0.9, 0.3, 1.2); }
+.hl-tiles > .on { opacity: 0.07; transform: none; }
+.hl-tiles > a.on:hover, .hl-tiles > a.on:focus-visible { opacity: 0.4; outline: none; }
+/* one post at a time, under the pointer: handle, date, the text, its numbers */
+.hl-pop { position: absolute; left: 0; top: 0; z-index: 3; width: min(300px, 100%); padding: 12px 15px; border-radius: var(--r); background: var(--surface-hi); color: var(--text); font-size: 13px; --lh: 18px; line-height: var(--lh); pointer-events: none; box-shadow: 0 6px 24px rgba(0, 0, 0, 0.35); }
+.hl-pop[hidden] { display: none; }
+.hl-pop b { --wght: 600; }
+.hl-pop time { float: right; color: var(--text-dim); font-feature-settings: 'tnum' 1; }
+.hl-pop p { margin: 6px 0 0; color: var(--text-muted); white-space: pre-line; display: -webkit-box; -webkit-line-clamp: 8; -webkit-box-orient: vertical; overflow: hidden; }
+.hl-pop span { display: block; margin-top: 6px; color: var(--text-dim); font-feature-settings: 'tnum' 1; }
+.hl-stage--count .hl-icon, .hl-stage--count .hl-fig { pointer-events: none; }   /* the tiles underneath take the pointer */
 .hl-icon {
   position: relative; display: block; width: 72px; height: 72px; margin: 0;
   font-family: 'Material Symbols Outlined'; font-size: 72px; line-height: 1;   /* token-lint: allow -- a mark drawn at 72, not a text role */
