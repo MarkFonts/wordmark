@@ -34,7 +34,8 @@
 <link rel="stylesheet" href="../shared/src/themeSwitch.css">
 <link rel="stylesheet" href="../shared/src/UiKitBoard.css">
 <link rel="stylesheet" href="../shared/src/grid.css">
-<link rel="stylesheet" href="../css/case.css?v=63">
+<link rel="stylesheet" href="../shared/src/dialHandle.css">
+<link rel="stylesheet" href="../css/case.css?v=64">
 </head>
 <body>
 
@@ -195,27 +196,41 @@
   <div class="hl-grid wm-baselines">
     <article class="card hl">
       <p class="cal-word" role="img" aria-label="Cal.com logo">Cal.com</p>
-      <p class="hl-text"><strong>Type &ldquo;cal.com&rdquo; and it reads as rings.</strong> The geometry Peer Richelsen, co-founder, requested for the redesigned logo from Calendso in 2021 is the geometry every weight keeps.</p>
+      <p class="hl-text"><strong class="hl-say">Cal.com reads as rings.</strong> <span class="hl-cap">Peer&rsquo;s 2021 brief, kept in every weight.</span></p>
     </article>
 
     <article class="card hl">
       <div class="axes-wrap">
         <button type="button" class="ax-reset" aria-label="Reset the axes" hidden><svg width="16" height="16" viewBox="0 0 16 16" aria-hidden="true"><path fill="currentColor" fill-rule="evenodd" d="M13.5 8c0-3.034-2.474-5.5-5.535-5.5a5.53 5.53 0 0 0-5.328 4H6V8H.75A.75.75 0 0 1 0 7.25V2h1.5v3.233A7.04 7.04 0 0 1 7.965 1C11.846 1 15 4.13 15 8s-3.154 7-7.035 7a7.04 7.04 0 0 1-5.695-2.888l-.442-.605 1.211-.885.443.605A5.54 5.54 0 0 0 7.965 13.5c3.06 0 5.535-2.466 5.535-5.5" clip-rule="evenodd"/></svg></button>
         <div class="axes-sample" id="axes-sample" aria-hidden="true">Geometry</div>
-        <div class="axes" data-axes="axes-sample">
-          <label class="ax"><span>Optical size</span><input type="range" data-axis="opsz" min="8" max="45" step="1" value="45"><output></output></label>
-          <label class="ax"><span>Geometry</span><input type="range" data-axis="GEOM" min="0" max="100" step="1" value="50"><output></output></label>
-          <label class="ax"><span>Weight</span><input type="range" data-axis="wght" min="400" max="700" step="1" value="600"><output></output></label>
-          <label class="ax"><span>Ascender height</span><input type="range" data-axis="YTAS" min="1440" max="1600" step="1" value="1440"><output></output></label>
-          <label class="ax"><span>Sharpness</span><input type="range" data-axis="SHRP" min="0" max="100" step="1" value="0"><output></output></label>
-          <label class="ax"><span>Italic</span><input type="range" data-axis="ital" min="0" max="1" step="0.01" value="0"><output></output></label>
-        </div>
+        <!-- six axes, each the house dial with its value in the handle (shared/src/dialHandle.js),
+             vertical, in one row -- case.js mounts them from the spec there, and sets them
+             moving at harmonic periods until you touch one. -->
+        <div class="axes axes--dials" data-axes="axes-sample" aria-label="The six axes"></div>
       </div>
-      <p class="hl-text"><strong>Six axes in one file.</strong> Optical size, geometry, weight, ascender height, sharpness, and italic, each a slider the site CSS can move.</p>
+      <p class="hl-text"><strong class="hl-say">Six axes, one file.</strong> <span class="hl-cap">Drag a slider and the whole site follows.</span></p>
+    </article>
+
+    <article class="card hl hl--fig">
+      <span class="hl-icon material-symbols-outlined" aria-hidden="true" translate="no">bookmark</span>
+      <p class="hl-fig" aria-hidden="true">12.6K</p>
+      <p class="hl-text"><strong class="hl-say">12.6K bookmarks on X.</strong> <span class="hl-cap">1.4M views. People couldn&rsquo;t bookmark fast enough over liking&mdash;utility.</span></p>
+    </article>
+
+    <article class="card hl hl--fig">
+      <span class="hl-icon material-symbols-outlined" aria-hidden="true" translate="no">call_merge</span>
+      <p class="hl-fig hl-fig--names" aria-hidden="true"><s>Matter</s><br><s>Inter</s><br>Cal Sans</p>
+      <p class="hl-text"><strong class="hl-say">Three typefaces became one.</strong> <span class="hl-cap">The homepage needed Matter and Inter too. Now it doesn&rsquo;t.</span></p>
+    </article>
+
+    <article class="card hl hl--fig">
+      <span class="hl-icon material-symbols-outlined" aria-hidden="true" translate="no">star</span>
+      <p class="hl-fig" aria-hidden="true">1.6k</p>
+      <p class="hl-text"><strong class="hl-say">1.6k stars on GitHub.</strong> <span class="hl-cap">A launch post that never stops running.</span></p>
     </article>
 
     <article class="card hl hl--wide">
-      <p class="hl-text"><strong>Open source from day one.</strong> Cal Sans lives on Google Fonts, npm, and jsDelivr, so anyone can ship it.</p>
+      <div class="hl-lead"><span class="hl-icon material-symbols-outlined" aria-hidden="true" translate="no">public</span><p class="hl-text"><strong class="hl-say">Open source from day one.</strong> <span class="hl-cap">On Google Fonts, npm, and jsDelivr. Anyone can ship it.</span></p></div>
       <div class="get-list">
         <a class="code" href="https://fonts.google.com/specimen/Cal+Sans" target="_blank" rel="noopener"><span>fonts.google.com/specimen/Cal+Sans</span><span class="where">Google Fonts &#x2197;</span></a>
         <a class="code" href="https://www.npmjs.com/package/cal-sans" target="_blank" rel="noopener"><span>npm i cal-sans</span><span class="where">npm &#x2197;</span></a>
@@ -572,8 +587,9 @@
 </footer>
 
 <script src="../js/thermal-hero.js?v=7"></script>
+<script src="../shared/src/dialHandle.js"></script>
 <script src="../shared/src/gridSnap.js" defer></script>
-<script src="../js/case.js?v=40"></script>
+<script src="../js/case.js?v=41"></script>
 <script type="module">
   import { mountThemeSwitch } from '../shared/src/theme.js';
   mountThemeSwitch(document.getElementById('theme-toggle'));

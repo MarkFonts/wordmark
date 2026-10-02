@@ -258,19 +258,17 @@ section[id] { scroll-margin-top: var(--nav-h); }
 }
 /* side by side, the sample is pinned to the size Cal.com reaches at 700, so the two share a baseline */
 @media (min-width: 861px) { .axes-sample { font-size: var(--hl-size, clamp(56px, 9vw, 132px)); } }
-.axes { display: grid; gap: 9px 28px; margin-top: 18px; }
-.ax {
-  --snap-unit: 1;   /* a slider row moves as one: words, track and thumb (gridSnap.js) */
-  min-height: 24px;   /* one body line, so the rows below stay on it */
-  display: grid;
-  grid-template-columns: 9.5em 1fr 3.2em;
-  align-items: center;
-  gap: 12px;
-  font-size: 13px;
-  color: var(--text-muted);
-}
-.ax output { text-align: right; color: var(--text); font-feature-settings: 'tnum' 1; }
-@media (min-width: 1100px) { .axes { grid-template-columns: 1fr 1fr; } }
+/* The six axes: the house dial with its value in the handle (shared/src/dialHandle.css),
+   vertical, six in one row under the word. The rail is 96px (32 units) and the caption line
+   12 (4), so the row is 114px tall at every width -- against the six 24px rows it replaced
+   (189px on a phone), which is what let this card run 100px past the one beside it. The
+   dials move on their own (case.js) until touched. */
+.axes { display: flex; justify-content: space-between; gap: var(--grid-gutter); margin-top: 24px; --hd-rail: 96px; }
+.axes .wm-hd { flex: 1 1 0; min-width: 0; gap: 6px; }   /* 12 + 6 + 96 = 114, 38 units */
+.axes .wm-hd-rail { width: 100%; }
+.axes .wm-hd-name { line-height: 12px; }
+.axes .wm-hd-pill { box-shadow: 0 0 0 3px var(--surface); }
+@media (max-width: 599px) { .axes { gap: 6px; } }
 
 input[type="range"] {
   -webkit-appearance: none;
@@ -321,6 +319,49 @@ a.code:hover .where { color: var(--signal); }
   .hl--wide { grid-column: 1 / -1; flex-direction: row; align-items: center; }
   .hl--wide > * { flex: 1; }
 }
+
+/* the bento's three sizes, each a role: the SCREAMER (the bold lead, two to five words --
+   the cell's one line), the FIGURE (a big numeral, or a list of names at half) and the
+   CAPTION (the rest of the sentence, UI size, muted). One of the first two per cell, never
+   two ideas at one size -- which is what makes a bento read as messy. */
+.hl-say { display: block; --wght: 600; color: var(--text); font-size: clamp(19px, 1.9vw, 26px); --lh: round(nearest, 1.25em, var(--bl)); line-height: var(--lh); text-wrap: balance; }
+.hl-cap { display: block; font-size: 14px; --lh: 21px; line-height: var(--lh); color: var(--text-muted); margin-top: 6px; max-width: 34ch; text-wrap: pretty; }
+.hl-text { max-width: none; }   /* its two spans set their own size and line; the p holds nothing itself */
+/* a figure card stacks mark, figure, text: the first two together at the top, the text at
+   the bottom -- the card's space-between would spread all three evenly */
+.hl--fig { justify-content: flex-start; gap: 24px; }   /* mark and figure one gutter apart, not the card's gap */
+.hl--fig .hl-text { margin-top: auto; padding-top: 24px; }
+
+/* the thin marks: the Material face at weight 100, its 48 drawing, drawn big -- a sleek
+   line where Apple's bento has a photograph */
+.hl-icon {
+  display: block; width: 72px; height: 72px; margin: 0;
+  font-family: 'Material Symbols Outlined'; font-size: 72px; line-height: 1;   /* token-lint: allow -- a mark drawn at 72, not a text role */
+  font-variation-settings: 'FILL' 0, 'wght' 100, 'GRAD' 0, 'opsz' 48;
+  color: var(--text); overflow: hidden; white-space: nowrap; letter-spacing: normal; text-transform: none; font-feature-settings: 'liga';
+}
+.hl-lead { display: flex; align-items: flex-start; gap: 24px; }
+.hl-lead .hl-icon { margin: 0; flex: none; }
+
+/* the figure cards: one number (or three names, two of them struck) set in the face at the
+   size the Cal.com word was fitted to, so every big thing in the section is one size */
+.hl-fig {
+  margin: 0;
+  font-size: var(--hl-size, clamp(64px, 8vw, 112px));
+  --lh: round(nearest, 1.05em, var(--bl)); line-height: var(--lh);
+  white-space: nowrap;
+  color: var(--text);
+  font-variation-settings: 'opsz' 45, 'GEOM' 50, 'wght' 600;
+  font-feature-settings: 'tnum' 1;
+}
+.hl-fig--names {
+  font-size: calc(var(--hl-size, clamp(64px, 8vw, 112px)) * .5);
+  /* its first line meets the big figures' baseline in LAYOUT: a baseline sits .925em below
+     its box (half of the .05em leading, then the .9em ascent), so the half-size figure
+     starts .4625 of the big size lower -- on the unit, so the text below stays on the line */
+  padding-top: round(nearest, calc(var(--hl-size, clamp(64px, 8vw, 112px)) * .4625), var(--bl));
+}
+.hl-fig s { color: var(--text-dim); text-decoration-thickness: .06em; }
 
 /* ═══ CLOSER LOOK ═══════════════════════════════════════
    Phone: six stacked features, each with its demo. Desktop: the titles become tabs on
@@ -794,7 +835,8 @@ a.tool-name { color: inherit; text-decoration: none; }
 .tt-reset:hover, .ax-reset:hover { opacity: 1; }
 .tt-reset.is-spun, .ax-reset.is-spun { transform: rotate(360deg); }
 .axes-wrap { position: relative; }
-.ax-reset { top: 0; right: 0; }   /* the axes card: the same reset, tucked in the sample's corner */
+.ax-reset { top: 0; right: 0; }
+.axes-wrap.is-live .ax-reset { opacity: 0; pointer-events: none; }   /* nothing to reset while the axes move on their own */   /* the axes card: the same reset, tucked in the sample's corner */
 .tt-clamp { height: var(--tt-clamp, 180px); overflow: hidden; display: flex; flex-direction: column; }
 @media (min-width: 861px) { .tt-clamp { --tt-clamp: 260px; } }
 .tt-preview {
@@ -935,6 +977,7 @@ a.tool-name { color: inherit; text-decoration: none; }
   .hero-cols > :last-child  { grid-column: 8 / span 5; }
   .hl-grid > :nth-child(1) { grid-column: 1 / span 5; }
   .hl-grid > :nth-child(2) { grid-column: 6 / span 7; }
+  .hl-grid > .hl--fig { grid-column: span 4; }
   .hl-grid > .hl--wide { grid-column: 1 / -1; }
   .mb > .mb-text { grid-column: 1 / span 5; }
   .mb > .mb-media { grid-column: 6 / span 7; }
@@ -955,6 +998,7 @@ a.tool-name { color: inherit; text-decoration: none; }
   .hero-cols > :last-child  { grid-column: 15 / span 10; }
   .hl-grid > :nth-child(1) { grid-column: 1 / span 10; }
   .hl-grid > :nth-child(2) { grid-column: 11 / span 14; }
+  .hl-grid > .hl--fig { grid-column: span 8; }
   .mb > .mb-text { grid-column: 1 / span 9; }
   .mb > .mb-media { grid-column: 11 / span 14; }
   .studio > .studio-side { grid-column: 1 / span 9; }
