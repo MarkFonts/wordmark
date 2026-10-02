@@ -193,7 +193,8 @@
     function layout() {
       A.forEach(function (t) { t.remove(); }); B.forEach(function (t) { t.remove(); }); P.forEach(function (t) { t.remove(); }); A = []; B = []; P = [];
       var size = 200, lh = 215, maxW = W, x = 0, y = 230, lines = [];
-      var off = [[1.06, 10], [0.94, -8], [1, 0], [0.97, 7], [1.05, -6], [0.95, 9], [1.03, -4]];
+      /* the three faces share one baseline; only the size is a touch off, the way the 2025 page had them */
+      var off = [[1.03, 0], [0.97, 0], [1, 0], [0.98, 0], [1.03, 0], [0.97, 0], [1.02, 0]];
       /* B, Cal Sans, sets the lines; A keeps those lines but each word advances by its own face's width,
          so Inter is spaced as Inter and Matter as Matter, never as Cal Sans */
       words.forEach(function (w, i) {
@@ -397,6 +398,23 @@
       pop.style.transform = 'translate(' + Math.round(x) + 'px,' + Math.round(y) + 'px)';
     }
     function hidePop() { if (pop) pop.hidden = true; }
+    /* left alone, the posts show themselves one by one, the ones with pictures first, each for a
+       couple of seconds over its own tile; a pointer on the stage takes over, and leaving hands back */
+    var tour = { i: 0, timer: 0, list: [], hover: false, on: false };
+    function tourStep() {
+      clearTimeout(tour.timer);
+      if (!tour.on || tour.hover || !tour.list.length) return;
+      var item = tour.list[tour.i % tour.list.length]; tour.i++;
+      showPop(item.a, item.post);
+      tour.timer = setTimeout(tourStep, item.post.img ? 3200 : 2200);
+    }
+    function tourStart() { if (still) return; tour.on = true; tourStep(); }
+    function tourStop() { tour.on = false; clearTimeout(tour.timer); if (!tour.hover) hidePop(); }
+    var stage4 = card.querySelector('.hl-stage');
+    if (stage4) {
+      stage4.addEventListener('mouseenter', function () { tour.hover = true; clearTimeout(tour.timer); });
+      stage4.addEventListener('mouseleave', function () { tour.hover = false; hidePop(); if (tour.on) tour.timer = setTimeout(tourStep, 600); });
+    }
     if (tiles && window.fetch) fetch(tiles.dataset.src || 'data/posts.json').then(function (r) { return r.json(); }).then(function (posts) {
       posts.slice(0, N).forEach(function (post, i) {
         var a = document.createElement('a'); a.href = post.url; a.target = '_blank'; a.rel = 'noopener';
@@ -405,7 +423,9 @@
         a.addEventListener('mouseenter', function () { showPop(a, post); }); a.addEventListener('focus', function () { showPop(a, post); });
         a.addEventListener('mouseleave', hidePop); a.addEventListener('blur', hidePop);
         tiles.replaceChild(a, cells[i]); cells[i] = a;
+        tour.list.push({ a: a, post: post });
       });
+      tour.list.sort(function (p, q) { return (q.post.img ? 1 : 0) - (p.post.img ? 1 : 0); });
     }).catch(function () {});
     var order = cells.map(function (_, i) { return i; });   /* in date order: the census fills as it happened */
     function fmt(v, spec) {   /* "1.4M" / "12.6K": one decimal and the unit the spec carries */
@@ -419,7 +439,10 @@
       var k = Math.round(p * N);
       order.forEach(function (idx, j) { cells[idx].classList.toggle('on', j < k); });
       return t > T1 + 0.3;
-    }, { duration: T1 + 1 });
+    }, { duration: T1 + 1, after: function () { tourStart(); } });
+    if ('IntersectionObserver' in window) new IntersectionObserver(function (es) {
+      es.forEach(function (e) { if (!e.isIntersecting) tourStop(); else if (card.classList.contains('is-done')) tourStart(); });
+    }, { threshold: 0.3 }).observe(card);
   })();
 
   /* ── bento or slideshow ──────────────────────────────────────────────────────────────── */
