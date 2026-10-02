@@ -25,6 +25,12 @@
   font-weight: 600;
   font-display: swap;
 }
+/* the two faces the 2025 homepage mixed with Cal Sans, for the first highlight. Inter ships (OFL);
+   Matter is Cal.com's licence, not this site's, so fonts/Matter.woff2 is a local, gitignored drop-in and
+   the live page falls back to the system face until one is there. */
+@font-face { font-family: 'Inter'; src: url('../fonts/InterVariable.woff2') format('woff2'); font-weight: 100 900; font-display: swap; }
+@font-face { font-family: 'Matter'; src: url('../fonts/Matter.woff2') format('woff2'); font-weight: 100 900; font-display: swap; }
+
 /* the 2025 release, for its own title in the releases row: wght + GEOM only */
 @font-face {
   font-family: 'CalSansUI';
@@ -77,7 +83,7 @@ body {
 h1, h2, h3, strong, b { font-weight: inherit; }
 em, cite { font-style: normal; --ital: 1; }
 a { color: inherit; }
-button { font: inherit; color: inherit; background: none; border: 0; cursor: pointer; }
+button:not(.wm-chip) { font: inherit; color: inherit; background: none; border: 0; cursor: pointer; }   /* the chip draws its own box (shared/src/chip.css, layered) */
 section[id] { scroll-margin-top: var(--nav-h); }
 
 .wrap { padding-inline: var(--gut); }
@@ -214,40 +220,38 @@ section[id] { scroll-margin-top: var(--nav-h); }
 }
 
 /* ═══ HIGHLIGHTS ════════════════════════════════════════ */
+/* ═══ HIGHLIGHTS: four cards, each an animation (js/highlights.js) ══════════════════════
+   A card is a stage over a caption. The stage holds an inline SVG (the sentence, the rings) or
+   the dials or the count; it is data-nosnap, so the grid snapper leaves its insides alone and
+   only the caption below sits on the line. */
+.hl-head { display: flex; align-items: flex-end; justify-content: space-between; gap: 24px; flex-wrap: wrap; margin-bottom: round(nearest, clamp(28px, 4vw, 56px), var(--bl)); }
+.hl-head .sec-title { margin-bottom: 0; }
+.hl-mode { margin-bottom: 6px; --ui-font: 'CalSans', sans-serif; }
 .hl-grid { display: grid; gap: 15px; }
 .hl {
   display: flex;
   flex-direction: column;
   justify-content: space-between;
   gap: round(nearest, clamp(28px, 4vw, 56px), var(--bl));
+  position: relative;
 }
+.hl-stage { position: relative; min-height: 120px; }
+.hl-stage svg { display: block; width: 100%; height: auto; overflow: visible; }
+.hl-stage--sentence, .hl-stage--rings { cursor: pointer; }   /* a tap replays, as the hero */
+.hl-stage--rings svg { padding-top: 6px; }
 .hl-text {
   --wght: 500;
   font-size: clamp(19px, 1.9vw, 26px);
   --lh: round(nearest, 1.25em, var(--bl)); line-height: var(--lh);
   color: var(--text-muted);
-  max-width: 30ch;
+  max-width: none;
   text-wrap: pretty;
 }
 .hl-text strong { color: var(--text); }
+.hl-say { display: block; --wght: 600; color: var(--text); font-size: clamp(19px, 1.9vw, 26px); --lh: round(nearest, 1.25em, var(--bl)); line-height: var(--lh); text-wrap: balance; }
+.hl-cap { display: block; font-size: 14px; --lh: 21px; line-height: var(--lh); color: var(--text-muted); margin-top: 6px; max-width: 34ch; text-wrap: pretty; }
 
-.cal-word {
-  margin: 0;
-  font-size: var(--hl-size, clamp(64px, 8vw, 112px));
-  --lh: round(nearest, 1.05em, var(--bl)); line-height: var(--lh);
-  white-space: nowrap;
-  color: var(--text);
-  font-variation-settings: 'opsz' 45, 'GEOM' 50, 'wght' 400;
-  animation: cal-word-wght 3.2s ease-in-out infinite alternate;
-}
-@keyframes cal-word-wght {
-  from { font-variation-settings: 'opsz' 45, 'GEOM' 50, 'wght' 400; }
-  to   { font-variation-settings: 'opsz' 45, 'GEOM' 50, 'wght' 700; }
-}
-@media (prefers-reduced-motion: reduce) {
-  .cal-word { animation: none; font-variation-settings: 'opsz' 45, 'GEOM' 50, 'wght' 600; }
-}
-
+/* 3 · the axes: the word, the stamp, six vertical dials that come in from below their rail */
 .axes-sample {
   font-size: clamp(56px, 9vw, 132px);
   --lh: round(nearest, 1.05em, var(--bl)); line-height: var(--lh);
@@ -256,45 +260,60 @@ section[id] { scroll-margin-top: var(--nav-h); }
   overflow-y: visible;
   font-variation-settings: 'opsz' 45, 'GEOM' 50, 'wght' 600, 'YTAS' 1440, 'SHRP' 0, 'ital' 0;
 }
-/* side by side, the sample is pinned to the size Cal.com reaches at 700, so the two share a baseline */
-@media (min-width: 861px) { .axes-sample { font-size: var(--hl-size, clamp(56px, 9vw, 132px)); } }
-/* The six axes: the house dial with its value in the handle (shared/src/dialHandle.css),
-   vertical, six in one row under the word. The rail is 96px (32 units) and the caption line
-   12 (4), so the row is 114px tall at every width -- against the six 24px rows it replaced
-   (189px on a phone), which is what let this card run 100px past the one beside it. The
-   dials move on their own (case.js) until touched. */
+.ax-stamp { position: absolute; top: 0; right: 0; font-size: 13px; --lh: 21px; line-height: var(--lh); color: var(--text-dim); font-feature-settings: 'tnum' 1; letter-spacing: 0.12em; }
 .axes { display: flex; justify-content: space-between; gap: var(--grid-gutter); margin-top: 24px; --hd-rail: 96px; }
 .axes .wm-hd { flex: 1 1 0; min-width: 0; gap: 6px; }   /* 12 + 6 + 96 = 114, 38 units */
 .axes .wm-hd-rail { width: 100%; }
 .axes .wm-hd-name { line-height: 12px; }
 .axes .wm-hd-pill { box-shadow: 0 0 0 3px var(--surface); }
 @media (max-width: 599px) { .axes { gap: 6px; } }
+/* a dial arrives wiped in from the foot of its rail (--enter 0..1, from the script) */
+.axes .ax-in { --e: calc(var(--enter, 1) * 100%); mask-image: linear-gradient(to top, #000 var(--e), transparent calc(var(--e) + 14%)); -webkit-mask-image: linear-gradient(to top, #000 var(--e), transparent calc(var(--e) + 14%)); }
+.axes-wrap.is-live .ax-reset { opacity: 0; pointer-events: none; }   /* nothing to reset while an axis drifts */
 
-input[type="range"] {
-  -webkit-appearance: none;
-  appearance: none;
-  width: 100%;
-  height: 20px;
-  background: transparent;
-  cursor: pointer;
+/* 4 · the census: two tabular figures over the tiles of the outside posts */
+.hl-stage--count { min-height: 210px; display: flex; flex-direction: column; justify-content: space-between; }
+.hl-tiles { position: absolute; inset: 0; display: grid; grid-template-columns: repeat(17, 1fr); gap: 3px; pointer-events: none; }
+.hl-tiles i { display: block; border-radius: 3px; background: var(--text); opacity: 0; transition: opacity 400ms ease; }
+.hl-tiles i.on { opacity: 0.07; }
+.hl-icon {
+  position: relative; display: block; width: 72px; height: 72px; margin: 0;
+  font-family: 'Material Symbols Outlined'; font-size: 72px; line-height: 1;   /* token-lint: allow -- a mark drawn at 72, not a text role */
+  font-variation-settings: 'FILL' 0, 'wght' 100, 'GRAD' 0, 'opsz' 48;
+  color: var(--text); overflow: hidden; white-space: nowrap; letter-spacing: normal; text-transform: none; font-feature-settings: 'liga';
 }
-input[type="range"]::-webkit-slider-runnable-track { height: 2px; background: var(--border); border-radius: 1px; }
-input[type="range"]::-moz-range-track { height: 2px; background: var(--border); border-radius: 1px; }
-input[type="range"]::-webkit-slider-thumb {
-  -webkit-appearance: none;
-  width: 14px; height: 14px;
-  margin-top: -6px;
-  border-radius: 50%;
-  background: var(--text);
-  transition: background 0.12s, transform 0.12s;
+.hl-fig {
+  position: relative;
+  margin: 0;
+  --wght: 640; --geom: 50;
+  font-size: var(--hl-size, clamp(64px, 8vw, 112px));
+  --lh: round(nearest, 1em, var(--bl)); line-height: var(--lh);
+  font-feature-settings: 'tnum' 1;
+  color: var(--text);
 }
-input[type="range"]::-moz-range-thumb { width: 14px; height: 14px; border: 0; border-radius: 50%; background: var(--text); }
-input[type="range"]:hover::-webkit-slider-thumb,
-input[type="range"]:active::-webkit-slider-thumb { background: var(--signal); transform: scale(1.15); }
-input[type="range"]:hover::-moz-range-thumb { background: var(--signal); }
-input[type="range"]:focus-visible { outline: 1.5px solid var(--signal); outline-offset: 4px; border-radius: 4px; }
+.hl-fig--two { display: flex; flex-wrap: wrap; gap: 0 0.4em; }
+.hl-fig--two b { --wght: 640; }
+.hl-fig--two b:last-child { color: var(--text-muted); }
 
+/* the slideshow: one card at a time, a bar of dots and a play button below */
+.hl-grid.is-show { display: block; }
+.hl-grid.is-show > .hl { display: none; }
+.hl-grid.is-show > .hl.is-current { display: flex; min-height: 60vh; }
+.hl-bar { display: none; align-items: center; justify-content: center; gap: 12px; margin-top: 15px; }
+.is-show .hl-bar { display: flex; }
+.hl-play, .hl-dot { display: inline-flex; align-items: center; justify-content: center; height: 36px; border-radius: 999px; background: var(--surface); color: var(--text); }
+.hl-play { width: 36px; }
+.hl-play .ic-play { display: none; }
+.hl-play[aria-pressed="false"] .ic-play { display: block; }
+.hl-play[aria-pressed="false"] .ic-pause { display: none; }
+.hl-dots { display: flex; align-items: center; gap: 6px; height: 36px; padding: 0 15px; border-radius: 999px; background: var(--surface); }
+.hl-dot { width: 6px; height: 6px; padding: 0; background: var(--text-dim); transition: width 300ms ease, background 300ms ease; }
+.hl-dot.on { width: 30px; background: var(--text); }
+.hl-play:focus-visible, .hl-dot:focus-visible { outline: 1.5px solid var(--signal); outline-offset: 3px; }
+
+/* the three places to get the font, under the close */
 .get-list { display: grid; gap: 9px; }
+.get-list--close { margin-top: 24px; max-width: 520px; }
 .code {
   --geom: 0;
   display: flex;
@@ -329,20 +348,9 @@ a.code:hover .where { color: var(--signal); }
 .hl-text { max-width: none; }   /* its two spans set their own size and line; the p holds nothing itself */
 /* a figure card stacks mark, figure, text: the first two together at the top, the text at
    the bottom -- the card's space-between would spread all three evenly */
-.hl--fig { justify-content: flex-start; gap: 24px; }   /* mark and figure one gutter apart, not the card's gap */
-.hl--fig .hl-text { margin-top: auto; padding-top: 24px; }
 
 /* the thin marks: the Material face at weight 100, its 48 drawing, drawn big -- a sleek
    line where Apple's bento has a photograph */
-.hl-icon {
-  display: block; width: 72px; height: 72px; margin: 0;
-  font-family: 'Material Symbols Outlined'; font-size: 72px; line-height: 1;   /* token-lint: allow -- a mark drawn at 72, not a text role */
-  font-variation-settings: 'FILL' 0, 'wght' 100, 'GRAD' 0, 'opsz' 48;
-  color: var(--text); overflow: hidden; white-space: nowrap; letter-spacing: normal; text-transform: none; font-feature-settings: 'liga';
-}
-.hl-lead { display: flex; align-items: flex-start; gap: 24px; }
-.hl-lead .hl-icon { margin: 0; flex: none; }
-
 /* the figure cards: one number (or three names, two of them struck) set in the face at the
    size the Cal.com word was fitted to, so every big thing in the section is one size */
 .hl-fig {
@@ -354,14 +362,6 @@ a.code:hover .where { color: var(--signal); }
   font-variation-settings: 'opsz' 45, 'GEOM' 50, 'wght' 600;
   font-feature-settings: 'tnum' 1;
 }
-.hl-fig--names {
-  font-size: calc(var(--hl-size, clamp(64px, 8vw, 112px)) * .5);
-  /* its first line meets the big figures' baseline in LAYOUT: a baseline sits .925em below
-     its box (half of the .05em leading, then the .9em ascent), so the half-size figure
-     starts .4625 of the big size lower -- on the unit, so the text below stays on the line */
-  padding-top: round(nearest, calc(var(--hl-size, clamp(64px, 8vw, 112px)) * .4625), var(--bl));
-}
-.hl-fig s { color: var(--text-dim); text-decoration-thickness: .06em; }
 
 /* ═══ CLOSER LOOK ═══════════════════════════════════════
    Phone: six stacked features, each with its demo. Desktop: the titles become tabs on
@@ -975,10 +975,8 @@ a.tool-name { color: inherit; text-decoration: none; }
   /* 12 columns: 7 | 5 and 5 | 7, the old 7fr/5fr exactly */
   .hero-cols > :first-child { grid-column: 1 / span 7; }
   .hero-cols > :last-child  { grid-column: 8 / span 5; }
-  .hl-grid > :nth-child(1) { grid-column: 1 / span 5; }
-  .hl-grid > :nth-child(2) { grid-column: 6 / span 7; }
-  .hl-grid > .hl--fig { grid-column: span 4; }
-  .hl-grid > .hl--wide { grid-column: 1 / -1; }
+  .hl-grid > .hl { grid-column: span 6; }
+  .hl-grid.is-show > .hl { grid-column: auto; }
   .mb > .mb-text { grid-column: 1 / span 5; }
   .mb > .mb-media { grid-column: 6 / span 7; }
   .studio > .studio-side { grid-column: 1 / span 5; }
@@ -992,13 +990,13 @@ a.tool-name { color: inherit; text-decoration: none; }
   .look-demo { grid-column: 6 / span 7; }
 }
 @media (min-width: 1024px) {
+  .nums { grid-template-columns: repeat(5, minmax(0, 1fr)); }
+  .nums > * { grid-column: auto; }
   /* 24 columns: the hero is 13 | skip | 10; text beside a picture is 9 | skip | 14, keeping
      the wide gap those sections had; side-by-side cards are 10 | 14 on the gutter */
   .hero-cols > :first-child { grid-column: 1 / span 13; }
   .hero-cols > :last-child  { grid-column: 15 / span 10; }
-  .hl-grid > :nth-child(1) { grid-column: 1 / span 10; }
-  .hl-grid > :nth-child(2) { grid-column: 11 / span 14; }
-  .hl-grid > .hl--fig { grid-column: span 8; }
+  .hl-grid > .hl { grid-column: span 12; }
   .mb > .mb-text { grid-column: 1 / span 9; }
   .mb > .mb-media { grid-column: 11 / span 14; }
   .studio > .studio-side { grid-column: 1 / span 9; }
@@ -1006,7 +1004,6 @@ a.tool-name { color: inherit; text-decoration: none; }
   .look-head { grid-column: 1 / span 9; }
   .look-demo { grid-column: 11 / span 14; }
   .rel-grid > * { grid-column: span 8; }
-  .nums > * { grid-column: span 6; }
   .tools > * { grid-column: span 12; }
   .ds-panels > * { grid-column: span 12; }
 }

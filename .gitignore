@@ -12,3 +12,6 @@ adobe fonts/
 calsans/ref/
 calsans/_handoff/
 calsans/ignore/
+
+# Matter is licensed to Cal.com, not to this site: a local copy at fonts/Matter.woff2 shows in the case study, nothing is committed
+fonts/Matter*

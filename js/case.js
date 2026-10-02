@@ -21,67 +21,7 @@
   window.addEventListener('resize', fitWord);
   if (document.fonts && document.fonts.ready) document.fonts.ready.then(fitWord);
 
-  /* six axes, one font-variation-settings string -- each the house dial with its value in
-     the handle (shared/src/dialHandle.js), vertical, in one row. They move on their own:
-     every axis runs a cosine between its ends at a period that is a whole fraction of one
-     fundamental (T, T/2 ... T/6 -- the harmonic series), each phased so it passes through
-     the font's own default at t = 0; so every T they all meet on the default at once and
-     the word is Cal Sans as shipped for a beat, then they part again. Touch a dial and the
-     motion stops at what you set; reset puts the defaults back and the motion resumes. */
-  var AXES = [
-    { tag: 'opsz', label: 'Optical size',    min: 8,    max: 45,   step: 1,    value: 45,   n: 2 },
-    { tag: 'GEOM', label: 'Geometry',        min: 0,    max: 100,  step: 1,    value: 50,   n: 3 },
-    { tag: 'wght', label: 'Weight',          min: 400,  max: 700,  step: 1,    value: 600,  n: 4 },
-    { tag: 'YTAS', label: 'Ascender height', min: 1440, max: 1600, step: 1,    value: 1440, n: 5 },
-    { tag: 'SHRP', label: 'Sharpness',       min: 0,    max: 100,  step: 1,    value: 0,    n: 6 },
-    { tag: 'ital', label: 'Italic',          min: 0,    max: 1,    step: 0.01, value: 0,    n: 1 }
-  ];
-  var T = 24000;   // the fundamental, ms: every axis is back on its default when t is a multiple of this
-  document.querySelectorAll('[data-axes]').forEach(function (group) {
-    if (!window.wmHandleDial) return;
-    var target = document.getElementById(group.dataset.axes);
-    var wrap = group.parentElement, reset = wrap.querySelector('.ax-reset');
-    var dials = AXES.map(function (a) {
-      return { a: a, h: wmHandleDial.mount(group, { label: a.label, caption: a.tag, min: a.min, max: a.max, step: a.step, value: a.value, orient: 'vertical',
-        onChange: function () { stop(); apply(); dirty(); } }) };
-    });
-    function apply() {
-      target.style.fontVariationSettings = dials.map(function (d) { return "'" + d.a.tag + "' " + d.h.get(); }).join(', ');
-    }
-    function dirty() { if (reset) reset.hidden = !dials.some(function (d) { return d.h.get() !== d.a.value; }); }
-    // the motion
-    var live = false, t0 = 0, raf = 0, still = matchMedia('(prefers-reduced-motion: reduce)').matches;
-    function at(a, t) {   // where axis a is at time t (ms), phased through its default at t = 0
-      var span = a.max - a.min, phi = Math.acos(1 - 2 * (a.value - a.min) / span);
-      var v = a.min + span * (1 - Math.cos(2 * Math.PI * a.n * t / T + phi)) / 2;
-      return Math.round(v / a.step) * a.step;
-    }
-    function frame(now) {
-      if (!live) return;
-      var t = now - t0;
-      dials.forEach(function (d) { d.h.set(at(d.a, t), true); });
-      apply();
-      raf = requestAnimationFrame(frame);
-    }
-    function start() { if (still || live) return; live = true; wrap.classList.add('is-live'); if (reset) reset.hidden = true; t0 = performance.now(); raf = requestAnimationFrame(frame); }
-    function stop() { if (!live) return; live = false; wrap.classList.remove('is-live'); cancelAnimationFrame(raf); }
-    if (reset) reset.addEventListener('click', function () {
-      reset.classList.add('is-spun');
-      setTimeout(function () { reset.classList.remove('is-spun'); }, 500);
-      dials.forEach(function (d) { d.h.set(d.a.value, true); });
-      apply(); dirty(); start();
-    });
-    // only while on screen: six axes at 60fps is work the page should not do out of view
-    if ('IntersectionObserver' in window) new IntersectionObserver(function (es) {
-      es.forEach(function (e) { if (e.isIntersecting) { if (!wrap.classList.contains('is-touched')) start(); } else stop(); });
-    }, { threshold: 0.2 }).observe(wrap);
-    group.addEventListener('pointerdown', function () { wrap.classList.add('is-touched'); stop(); dirty(); }, true);
-    group.addEventListener('focusin', function () { wrap.classList.add('is-touched'); stop(); dirty(); });
-    if (reset) reset.addEventListener('click', function () { wrap.classList.remove('is-touched'); });
-    apply();
-    // for tests: seek the motion to a time, synchronously
-    group._axes = { seek: function (ms) { stop(); dials.forEach(function (d) { d.h.set(at(d.a, ms), true); }); apply(); }, dials: dials };
-  });
+  /* the six axes live in js/highlights.js now, with the rest of the Highlights section */
 
   /* a single axis moved through its custom property (the booking card's GEOM) */
   document.querySelectorAll('input[data-var]').forEach(function (i) {

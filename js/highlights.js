@@ -1,0 +1,377 @@
+/* The case study's Highlights: four cards, each an animation that plays once as it scrolls in
+   and rests on its end state, or, in slideshow mode, one stage at a time with a play bar.
+
+   The transitions reuse the hero's thermal chain (a striped fill under a material filter and
+   a colour LUT, a seam that sweeps the stripe across while the layers swap under it, then every
+   parameter drained to the page's ink), built here as a small engine any inline SVG can host.
+   Plain script, no dependencies; dialHandle.js for the six axes. */
+(function () {
+  var still = window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+  var SVG = 'http://www.w3.org/2000/svg';
+  function el(tag, attrs, parent) {
+    var e = document.createElementNS(SVG, tag);
+    for (var k in attrs) e.setAttribute(k, attrs[k]);
+    if (parent) parent.appendChild(e);
+    return e;
+  }
+  /* the page's ink as 0..1 rgb, whatever notation the stylesheet uses: resolved through a canvas pixel */
+  function inkOf(node) {
+    try {
+      var cv = document.createElement('canvas'); cv.width = cv.height = 1;
+      var x = cv.getContext('2d', { willReadFrequently: true });
+      x.fillStyle = '#000'; x.fillStyle = getComputedStyle(node).color; x.fillRect(0, 0, 1, 1);
+      var d = x.getImageData(0, 0, 1, 1).data; return [d[0] / 255, d[1] / 255, d[2] / 255];
+    } catch (e) { return [0.9, 0.9, 0.9]; }
+  }
+  var ease = function (t) { t = Math.max(0, Math.min(1, t)); return t < 0.5 ? 4 * t * t * t : 1 - Math.pow(-2 * t + 2, 3) / 2; };
+  var lin = function (t, a, b) { return Math.max(0, Math.min(1, (t - a) / (b - a))); };
+
+  /* ── the thermal engine ──────────────────────────────────────────────────────────────────
+     thermal(svg, id, box) builds the defs in `box` (the SVG's user space) and returns a
+     controller. Host layers:
+       ctl.hot(shapeNode)   a heated layer: the stripe seen through `shapeNode` (a mask child),
+                            visible LEFT of the seam
+       ctl.cold(node)       a plain layer, visible RIGHT of the seam
+       ctl.seam(x)          where the swap is, in user units
+       ctl.heat(b)          0..1: blur, grain, halo and the hot LUT, b=1 fully hot
+       ctl.drain(z, ink)    0..1: everything to zero and the LUT to `ink` (0..1 rgb)
+     The constants are the hero's: a stripe with a period of 2000 units, a seam 240 wide. */
+  var HOT = [[0.02, 0.05, 0.1, 1, 1, 0.95, 0.9], [0.02, 0.2, 0.85, 1, 0.55, 0.1, 0.1], [0.25, 0.75, 0.95, 1, 0.1, 0.1, 0.6], [0, 0.05, 0.45, 1, 1, 1, 1]];
+  function flat(c) { return [Array(7).fill(c[0]), Array(7).fill(c[1]), Array(7).fill(c[2]), Array(7).fill(1)]; }
+  function lerpT(a, b, u) { return a.map(function (row, i) { return row.map(function (x, j) { return x + (b[i][j] - x) * u; }); }); }
+  function thermal(svg, id, box) {
+    var defs = el('defs', {}, svg);
+    var g = el('linearGradient', { id: id + 'S', gradientUnits: 'userSpaceOnUse', x1: 0, x2: 8000, spreadMethod: 'pad' }, defs);
+    [[0,'#a0a0a0'],[0.03,'#a0a0a0'],[0.095,'#000'],[0.155,'#000'],[0.22,'#c4c4c4'],[0.28,'#c4c4c4'],[0.345,'#000'],[0.405,'#000'],[0.47,'#c4c4c4'],[0.53,'#c4c4c4'],[0.595,'#000'],[0.655,'#000'],[0.72,'#c4c4c4'],[0.78,'#c4c4c4'],[0.845,'#000'],[0.905,'#000'],[0.97,'#a0a0a0'],[1,'#a0a0a0']].forEach(function (s) { el('stop', { offset: s[0], 'stop-color': s[1] }, g); });
+    var region = { filterUnits: 'userSpaceOnUse', x: box.x, y: box.y, width: box.w, height: box.h, 'color-interpolation-filters': 'sRGB' };
+    var mat = el('filter', Object.assign({ id: id + 'M' }, region), defs);
+    el('feGaussianBlur', { in: 'SourceAlpha', stdDeviation: 30 }, mat);
+    el('feComposite', { in2: 'SourceAlpha', operator: 'arithmetic', k2: -1, k3: 1 }, mat);
+    el('feBlend', { in: 'SourceGraphic', mode: 'overlay' }, mat);
+    var col = el('filter', Object.assign({ id: id + 'C' }, region), defs);
+    var blur = el('feGaussianBlur', { stdDeviation: 5, result: 'soft' }, col);
+    el('feGaussianBlur', { in: 'SourceGraphic', stdDeviation: 26, result: 'halo0' }, col);
+    var halo = el('feColorMatrix', { in: 'halo0', type: 'matrix', values: '0.5 0 0 0 0  0 0.5 0 0 0  0 0 0.5 0 0  0 0 0 0.9 0', result: 'halo' }, col);
+    el('feComposite', { in: 'soft', in2: 'halo', operator: 'over', result: 'body' }, col);
+    el('feTurbulence', { type: 'fractalNoise', baseFrequency: 0.8, numOctaves: 2, seed: 7, result: 'noise' }, col);
+    el('feColorMatrix', { in: 'noise', type: 'matrix', values: '0 0 0 0 0.5  0 0 0 0 0.5  0 0 0 0 0.5  0 0 0 0 1', result: 'grainBase' }, col);
+    var grain = el('feComposite', { in: 'grainBase', in2: 'body', operator: 'arithmetic', k1: 0, k2: 0, k3: 1, k4: 0, result: 'mixed' }, col);
+    var alpha = el('feColorMatrix', { in: 'mixed', type: 'matrix', values: '1 0 0 0 0  0 1 0 0 0  0 0 1 0 0  0.3 0.59 0.11 0 0', result: 'lumA' }, col);
+    var lut = el('feComponentTransfer', { in: 'lumA' }, col);
+    var funcs = ['feFuncR', 'feFuncG', 'feFuncB', 'feFuncA'].map(function (f, i) { return el(f, { type: 'table', tableValues: HOT[i].join(' ') }, lut); });
+    el('feComposite', { in2: 'body', operator: 'in' }, col);
+    var seamL = el('linearGradient', { id: id + 'L', gradientUnits: 'userSpaceOnUse', x1: -120, x2: 120 }, defs);
+    el('stop', { offset: 0, 'stop-color': '#fff' }, seamL); el('stop', { offset: 1, 'stop-color': '#000' }, seamL);
+    var seamR = el('linearGradient', { id: id + 'R', gradientUnits: 'userSpaceOnUse', x1: -120, x2: 120 }, defs);
+    el('stop', { offset: 0, 'stop-color': '#000' }, seamR); el('stop', { offset: 1, 'stop-color': '#fff' }, seamR);
+    var rect = function (fill) { return { x: box.x, y: box.y, width: box.w, height: box.h, fill: fill }; };
+    el('rect', rect('url(#' + id + 'L)'), el('mask', Object.assign({ id: id + 'mB', maskUnits: 'userSpaceOnUse' }, rect('')), defs));
+    el('rect', rect('url(#' + id + 'R)'), el('mask', Object.assign({ id: id + 'mA', maskUnits: 'userSpaceOnUse' }, rect('')), defs));
+    var ctl = {
+      hot: function (shape) {
+        var m = el('mask', Object.assign({ id: id + 'sh' + (++ctl.n), maskUnits: 'userSpaceOnUse' }, rect('')), defs);
+        m.appendChild(shape);
+        var outer = el('g', { mask: 'url(#' + id + 'mB)' }, svg);
+        var layer = el('g', { filter: 'url(#' + id + 'C)' }, outer);
+        var mt = el('g', { filter: 'url(#' + id + 'M)' }, layer);
+        var sh = el('g', { mask: 'url(#' + m.id + ')' }, mt);
+        el('rect', rect('url(#' + id + 'S)'), sh);
+        return layer;
+      },
+      cold: function (node) { var outer = el('g', { mask: 'url(#' + id + 'mA)' }, svg); outer.appendChild(node); return outer; },
+      n: 0,
+      seam: function (x) {
+        g.setAttribute('gradientTransform', 'translate(' + (x - 7000 + 2000).toFixed(1) + ' 0)');   /* the stripe's notch rides with the seam */
+        seamL.setAttribute('gradientTransform', 'translate(' + x.toFixed(1) + ' 0)');
+        seamR.setAttribute('gradientTransform', 'translate(' + x.toFixed(1) + ' 0)');
+      },
+      set: function (bl, gr, T, w, h) {
+        if (h == null) h = 1;
+        halo.setAttribute('values', '0.5 0 0 0 0  0 0.5 0 0 0  0 0 0.5 0 0  0 0 0 ' + (0.9 * h).toFixed(3) + ' 0');
+        blur.setAttribute('stdDeviation', bl.toFixed(2));
+        grain.setAttribute('k1', (gr * 2).toFixed(3)); grain.setAttribute('k3', (1 - gr).toFixed(3));
+        alpha.setAttribute('values', '1 0 0 0 0  0 1 0 0 0  0 0 1 0 0  ' + (0.3 * w).toFixed(3) + ' ' + (0.59 * w).toFixed(3) + ' ' + (0.11 * w).toFixed(3) + ' ' + (1 - w).toFixed(3) + ' 0');
+        for (var i = 0; i < 4; i++) funcs[i].setAttribute('tableValues', T[i].map(function (v) { return v.toFixed(3); }).join(' '));
+      },
+      /* fully hot, or drained by z toward `ink` */
+      drain: function (z, ink) { ctl.set(8 * (1 - z), 0.5 * (1 - z), lerpT(HOT, flat(ink), z), 1 - z, 1 - z); }
+    };
+    ctl.set(8, 0.5, HOT, 1, 1);
+    return ctl;
+  }
+
+  /* a stage's box is put on the 3px line (its SVG or dials are any height), so the caption below it
+     sits where the grid wants it; then the snapper is asked to look again */
+  function snapStage(stage) {
+    stage.style.height = '';
+    var h = stage.getBoundingClientRect().height, unit = 3;
+    stage.style.height = Math.ceil(h / unit) * unit + 'px';
+    if (window.wmGridSnap) window.wmGridSnap();
+  }
+  function snapAll() { document.querySelectorAll('.hl-stage').forEach(snapStage); }
+
+  /* a card plays once when it scrolls in; a tap replays it; the slideshow calls play() itself */
+  function player(card, run, opts) {
+    opts = opts || {};
+    var state = { playing: false, raf: 0, done: false };
+    function play() {
+      if (state.raf) cancelAnimationFrame(state.raf);
+      var t0 = performance.now(); state.playing = true; state.done = false;
+      card.classList.add('is-playing');
+      (function frame(now) {
+        var t = (now - t0) / 1000;
+        var over = run(still ? 1e9 : t);
+        if (over) { state.playing = false; state.done = true; card.classList.remove('is-playing'); card.classList.add('is-done'); if (opts.after) opts.after(); return; }
+        state.raf = requestAnimationFrame(frame);
+      })(t0);
+    }
+    function rest() { run(1e9); card.classList.add('is-done'); if (opts.after) opts.after(); }
+    card._hl = { play: play, rest: rest, duration: opts.duration || 6 };
+    if (still) rest(); else if ('IntersectionObserver' in window) {
+      var io = new IntersectionObserver(function (es) { es.forEach(function (e) { if (e.isIntersecting && !card.closest('.is-show')) { play(); io.disconnect(); } }); }, { threshold: 0.5 });
+      io.observe(card);
+    } else play();
+    var stage = card.querySelector('.hl-stage');
+    if (stage) stage.addEventListener('click', function () { if (!still) play(); });
+    return card._hl;
+  }
+
+  /* ── 1 · three typefaces became one ───────────────────────────────────────────────────
+     The sentence sets word by word in Matter, Inter and Cal Sans, sizes and baselines off,
+     the way the 2025 homepage was; holds; then the seam sweeps it into Cal Sans. */
+  var W = 1954;   /* every stage is this wide in user units, so the hero's constants hold */
+  (function () {
+    var card = document.getElementById('hl-one'); if (!card) return;
+    var stage = card.querySelector('.hl-stage');
+    var words = (stage.dataset.words || '').split(' ');
+    var FAM = ["'Matter', system-ui, sans-serif", "'Inter', system-ui, sans-serif", "'CalSans', sans-serif"];
+    var svg = el('svg', { viewBox: '0 0 ' + W + ' 760', 'aria-hidden': 'true', focusable: 'false' }, stage);
+    var ctl = thermal(svg, 'h1', { x: -200, y: -300, w: W + 400, h: 1400 });
+    var shape = el('g', { fill: '#fff' });
+    var hot = ctl.hot(shape), coldG = el('g', { fill: 'currentColor' }), cold = ctl.cold(coldG);
+    var A = [], B = [], laid = false;
+    function word(parent, text, fam, size, vs) {
+      var t = el('text', { 'font-family': fam, 'font-size': size, 'font-weight': fam === FAM[2] ? 600 : 500 }, parent);
+      if (vs) t.style.fontVariationSettings = vs;
+      t.textContent = text; return t;
+    }
+    /* the two layers, each its own line breaking: Cal Sans straight (B); the mixed set (A)
+       on the same line breaks, a little off in size and baseline, so the swap under the
+       seam snaps it straight */
+    function layout() {
+      A.forEach(function (t) { t.remove(); }); B.forEach(function (t) { t.remove(); }); A = []; B = [];
+      var size = 200, lh = 215, maxW = W, x = 0, y = 230, line = 0;
+      var off = [[1.06, 10], [0.94, -8], [1, 0], [0.97, 7], [1.05, -6], [0.95, 9], [1.03, -4]];
+      words.forEach(function (w, i) {
+        var tb = word(shape, w, FAM[2], size, "'opsz' 45, 'GEOM' 50, 'wght' 600");
+        var wb = tb.getComputedTextLength(), gap = size * 0.24;
+        if (x + wb > maxW && x > 0) { x = 0; y += lh; line++; }
+        tb.setAttribute('x', x); tb.setAttribute('y', y);
+        var f = FAM[i % 3], o = off[i % off.length];
+        var ta = word(coldG, w, f, size * o[0], f === FAM[2] ? "'opsz' 45, 'GEOM' 50, 'wght' 600" : "'wght' " + (f === FAM[1] ? 500 : 500));
+        ta.setAttribute('x', x); ta.setAttribute('y', y + o[1]);
+        A.push(ta); B.push(tb);
+        x += wb + gap;
+      });
+      svg.setAttribute('viewBox', '0 0 ' + W + ' ' + (y + 80));
+      laid = true;
+    }
+    layout();
+    if (document.fonts && document.fonts.ready) document.fonts.ready.then(layout);
+    var ink = inkOf(card);
+    /* the piece: words in (0–1.0s), hold to 3.0, the seam crosses 3.0–4.6, the drain 4.6–6.0 */
+    var T0 = 1.0, T1 = 3.0, T2 = 4.6, T3 = 6.0;
+    player(card, function (t) {
+      A.forEach(function (ta, i) { ta.setAttribute('opacity', (t >= 1e8 ? 1 : lin(t, i * (T0 / A.length), i * (T0 / A.length) + 0.25)).toFixed(3)); });
+      var s = ease(lin(t, T1, T2));
+      ctl.seam(-300 + s * (W + 600));
+      var z = ease(lin(t, T2, T3));
+      ctl.drain(z, inkOf(card));
+      return t > T3 + 0.2;
+    }, { duration: T3 });
+    stage.addEventListener('hl:relayout', function () { layout(); snapStage(stage); });
+  })();
+
+  /* ── 2 · day one: Cal.com reads as rings ──────────────────────────────────────────────
+     Hairline rings through C, a, c, o and the arches of m draw on; then one pass of the
+     stripe reveals the letters and takes the rings with it. */
+  (function () {
+    var card = document.getElementById('hl-two'); if (!card) return;
+    var stage = card.querySelector('.hl-stage'), src = document.getElementById('calcom-paths');
+    if (!src) return;
+    var paths = JSON.parse(src.textContent);
+    var svg = el('svg', { viewBox: '-20 -20 ' + (W + 40) + ' 450', 'aria-hidden': 'true', focusable: 'false' }, stage);
+    var ctl = thermal(svg, 'h2', { x: -200, y: -300, w: W + 400, h: 1100 });
+    var shape = el('g', { fill: '#fff' });
+    paths.forEach(function (d) { el('path', { d: d }, shape); });
+    ctl.hot(shape);
+    /* the rings: through the stroke of each round letter; the m's two arches as half rings */
+    var rings = el('g', { fill: 'none', stroke: 'currentColor', 'stroke-width': 3, 'vector-effect': 'non-scaling-stroke' });
+    var RINGS = [[195, 204, 163], [488, 254, 114], [1038, 254, 114], [1314, 254, 113]];
+    var strokes = RINGS.map(function (r) { var c = el('circle', { cx: r[0], cy: r[1], r: r[2] }, rings); return { el: c, len: 2 * Math.PI * r[2] }; });
+    [[1663, 202, 64], [1848, 202, 64]].forEach(function (r) {
+      var d = 'M' + (r[0] - r[2]) + ' ' + r[1] + ' A' + r[2] + ' ' + r[2] + ' 0 0 1 ' + (r[0] + r[2]) + ' ' + r[1];
+      var p = el('path', { d: d }, rings); strokes.push({ el: p, len: Math.PI * r[2] });
+    });
+    strokes.forEach(function (s) { s.el.setAttribute('stroke-dasharray', s.len); s.el.setAttribute('stroke-dashoffset', s.len); });
+    ctl.cold(rings);
+    var T0 = 1.4, T1 = 2.0, T2 = 3.6, T3 = 5.0;
+    player(card, function (t) {
+      strokes.forEach(function (s, i) { var d = ease(lin(t, i * 0.12, i * 0.12 + 1.0)); s.el.setAttribute('stroke-dashoffset', (s.len * (1 - d)).toFixed(1)); });
+      var s = ease(lin(t, T1, T2));
+      ctl.seam(-300 + s * (W + 600));
+      ctl.drain(ease(lin(t, T2, T3)), inkOf(card));
+      return t > T3 + 0.2;
+    }, { duration: T3 });
+  })();
+
+  /* ── 3 · six axes, one file, added as Cal.com grew ─────────────────────────────────────
+     The word alone, stamped 2021. The dials arrive in release order, each stamped and each
+     nudging the word once: wght and GEOM (2025), then opsz, YTAS, SHRP, ital (2026). End
+     state: all six live and one of them drifting on its own until a hand stops it. */
+  var AXES = [
+    { tag: 'wght', label: 'Weight',          min: 400,  max: 700,  step: 1,    value: 600,  year: 2025 },
+    { tag: 'GEOM', label: 'Geometry',        min: 0,    max: 100,  step: 1,    value: 50,   year: 2025 },
+    { tag: 'opsz', label: 'Optical size',    min: 8,    max: 45,   step: 1,    value: 45,   year: 2026 },
+    { tag: 'YTAS', label: 'Ascender height', min: 1440, max: 1600, step: 1,    value: 1440, year: 2026 },
+    { tag: 'SHRP', label: 'Sharpness',       min: 0,    max: 100,  step: 1,    value: 0,    year: 2026 },
+    { tag: 'ital', label: 'Italic',          min: 0,    max: 1,    step: 0.01, value: 0,    year: 2026 }
+  ];
+  /* the sample word fills its stage's width, whatever the card's width is */
+  function fitSample() {
+    document.querySelectorAll('.axes-sample').forEach(function (w) {
+      w.style.fontSize = '100px';
+      var range = document.createRange(); range.selectNodeContents(w);
+      var tw = range.getBoundingClientRect().width, box = w.getBoundingClientRect().width;
+      if (tw > 0 && box > 0) w.style.fontSize = Math.max(40, Math.min(160, Math.floor(100 * box / tw))) + 'px';
+    });
+  }
+  fitSample();
+  if (document.fonts && document.fonts.ready) document.fonts.ready.then(function () { fitSample(); snapAll(); });
+  window.addEventListener('resize', fitSample);
+  document.querySelectorAll('[data-axes]').forEach(function (group) {
+    if (!window.wmHandleDial) return;
+    var card = group.closest('.hl') || group.parentElement;
+    var target = document.getElementById(group.dataset.axes);
+    var wrap = group.parentElement, reset = wrap.querySelector('.ax-reset'), stamp = card.querySelector('.ax-stamp');
+    var dials = AXES.map(function (a) {
+      var h = wmHandleDial.mount(group, { label: a.label, caption: a.tag, min: a.min, max: a.max, step: a.step, value: a.value, orient: 'vertical',
+        onChange: function () { stopDrift(); apply(); dirty(); } });
+      var root = group.lastElementChild; root.style.setProperty('--enter', 0); root.classList.add('ax-in');
+      return { a: a, h: h, root: root };
+    });
+    var nudge = {};   /* a transient push per axis, decaying, so an arrival is felt once */
+    function apply() {
+      target.style.fontVariationSettings = dials.map(function (d) {
+        var v = d.h.get(), n = nudge[d.a.tag] || 0;
+        if (n) v = Math.max(d.a.min, Math.min(d.a.max, v + n * (d.a.max - d.a.min) * 0.35));
+        return "'" + d.a.tag + "' " + (d.a.step < 1 ? v.toFixed(2) : Math.round(v));
+      }).join(', ');
+    }
+    function dirty() { if (reset) reset.hidden = !dials.some(function (d) { return d.h.get() !== d.a.value; }); }
+    /* the drift: one axis, GEOM, on a slow cosine through its default, until touched */
+    var drift = null, driftT0 = 0, DRIFT = 24000, DRIFT_AXIS = 'GEOM';
+    function driftFrame(now) {
+      if (!drift) return;
+      var d = dials.filter(function (d) { return d.a.tag === DRIFT_AXIS; })[0];
+      var span = d.a.max - d.a.min, phi = Math.acos(1 - 2 * (d.a.value - d.a.min) / span);
+      d.h.set(Math.round(d.a.min + span * (1 - Math.cos(2 * Math.PI * (now - driftT0) / DRIFT + phi)) / 2), true);
+      apply(); drift = requestAnimationFrame(driftFrame);
+    }
+    function startDrift() { if (still || drift || wrap.classList.contains('is-touched')) return; wrap.classList.add('is-live'); if (reset) reset.hidden = true; driftT0 = performance.now(); drift = requestAnimationFrame(driftFrame); }
+    function stopDrift() { if (!drift) return; cancelAnimationFrame(drift); drift = null; wrap.classList.remove('is-live'); }
+    if (reset) reset.addEventListener('click', function () {
+      reset.classList.add('is-spun'); setTimeout(function () { reset.classList.remove('is-spun'); }, 500);
+      wrap.classList.remove('is-touched');
+      dials.forEach(function (d) { d.h.set(d.a.value, true); }); apply(); dirty(); startDrift();
+    });
+    group.addEventListener('pointerdown', function () { wrap.classList.add('is-touched'); stopDrift(); dirty(); }, true);
+    group.addEventListener('focusin', function () { wrap.classList.add('is-touched'); stopDrift(); dirty(); });
+    /* the arrivals: 2021 the word alone; 2025 wght and GEOM together; 2026 the other four, one by one */
+    var AT = { wght: 1.2, GEOM: 1.2, opsz: 2.8, YTAS: 3.25, SHRP: 3.7, ital: 4.15 }, END = 5.4;
+    player(card, function (t) {
+      var year = 2021;
+      dials.forEach(function (d) {
+        var at = AT[d.a.tag], e = ease(lin(t, at, at + 0.7));
+        d.root.style.setProperty('--enter', e.toFixed(3));
+        if (t >= at) year = Math.max(year, d.a.year);
+        /* the nudge: a half-sine over 0.9s from the arrival */
+        var p = lin(t, at + 0.1, at + 1.0); nudge[d.a.tag] = p > 0 && p < 1 ? Math.sin(p * Math.PI) : 0;
+      });
+      if (t >= 1e8) { year = 2026; dials.forEach(function (d) { d.root.style.setProperty('--enter', 1); nudge[d.a.tag] = 0; }); }
+      if (stamp && stamp.textContent !== String(year)) stamp.textContent = String(year);
+      apply();
+      return t > END;
+    }, { duration: END, after: function () { startDrift(); } });
+    /* out of view the drift stops; back in view it resumes, unless a hand has it */
+    if ('IntersectionObserver' in window) new IntersectionObserver(function (es) {
+      es.forEach(function (e) { if (!e.isIntersecting) stopDrift(); else if (card.classList.contains('is-done')) startDrift(); });
+    }, { threshold: 0.2 }).observe(wrap);
+    apply();
+    group._axes = { dials: dials };
+  });
+
+  /* ── 4 · 1.4M views, 12.6K bookmarks ──────────────────────────────────────────────────
+     Both figures count up from zero, tabular, once; behind them the 187 outside posts tile in
+     as faint cards, filling as the count climbs. */
+  (function () {
+    var card = document.getElementById('hl-four'); if (!card) return;
+    var figs = Array.prototype.slice.call(card.querySelectorAll('[data-count]'));
+    var tiles = card.querySelector('.hl-tiles'), N = +(tiles && tiles.dataset.n) || 187, cells = [];
+    if (tiles) { for (var i = 0; i < N; i++) cells.push(tiles.appendChild(document.createElement('i'))); }
+    var order = cells.map(function (_, i) { return i; }).sort(function () { return Math.random() - 0.5; });
+    function fmt(v, spec) {   /* "1.4M" / "12.6K": one decimal and the unit the spec carries */
+      var unit = spec.replace(/[\d.]/g, ''), n = parseFloat(spec) * v;
+      return (unit ? n.toFixed(1) : Math.round(n).toLocaleString()) + unit;
+    }
+    var T1 = 1.8;
+    player(card, function (t) {
+      var p = ease(lin(t, 0.1, T1));
+      figs.forEach(function (f) { f.textContent = fmt(p, f.dataset.count); });
+      var k = Math.round(p * N);
+      order.forEach(function (idx, j) { cells[idx].classList.toggle('on', j < k); });
+      return t > T1 + 0.3;
+    }, { duration: T1 + 1 });
+  })();
+
+  /* ── bento or slideshow ──────────────────────────────────────────────────────────────── */
+  (function () {
+    var grid = document.querySelector('.hl-grid'), sec = document.getElementById('highlights'); if (!grid) return;
+    var cards = Array.prototype.slice.call(grid.querySelectorAll('.hl')), chips = sec.querySelectorAll('.hl-mode .wm-chip');
+    var bar = sec.querySelector('.hl-bar'), dots = bar ? Array.prototype.slice.call(bar.querySelectorAll('.hl-dot')) : [], playBtn = bar && bar.querySelector('.hl-play');
+    var cur = 0, timer = 0, running = true;
+    function show(i, play) {
+      cur = (i + cards.length) % cards.length;
+      cards.forEach(function (c, j) { c.classList.toggle('is-current', j === cur); });
+      dots.forEach(function (d, j) { d.classList.toggle('on', j === cur); d.setAttribute('aria-selected', j === cur); });
+      var c = cards[cur];
+      c.querySelectorAll('.hl-stage').forEach(function (s) { s.dispatchEvent(new Event('hl:relayout')); });
+      if (play !== false && c._hl) { if (still) c._hl.rest(); else c._hl.play(); }
+      arm();
+    }
+    function arm() {
+      clearTimeout(timer);
+      if (!running || !grid.classList.contains('is-show')) return;
+      var c = cards[cur], d = still ? 4 : ((c._hl && c._hl.duration) || 5) + 3;
+      timer = setTimeout(function () { show(cur + 1); }, d * 1000);
+    }
+    function mode(show_) {
+      grid.classList.toggle('is-show', show_); sec.classList.toggle('is-show', show_);
+      chips.forEach(function (ch) { var on = (ch.dataset.mode === 'show') === show_; ch.classList.toggle('on', on); ch.setAttribute('aria-pressed', on); });
+      if (show_) { running = true; if (playBtn) playBtn.setAttribute('aria-pressed', 'true'); show(cur); }
+      else { clearTimeout(timer); cards.forEach(function (c) { c.classList.remove('is-current'); c.querySelectorAll('.hl-stage').forEach(function (s) { s.dispatchEvent(new Event('hl:relayout')); }); }); }
+      fitSample(); snapAll();
+      try { localStorage.setItem('hl-mode', show_ ? 'show' : 'bento'); } catch (e) {}
+    }
+    chips.forEach(function (ch) { ch.addEventListener('click', function () { mode(ch.dataset.mode === 'show'); }); });
+    dots.forEach(function (d, j) { d.addEventListener('click', function () { show(j); }); });
+    if (playBtn) playBtn.addEventListener('click', function () {
+      running = !running; playBtn.setAttribute('aria-pressed', running); playBtn.setAttribute('aria-label', running ? 'Pause' : 'Play');
+      if (running) show(cur); else clearTimeout(timer);
+    });
+    var want = null; try { want = localStorage.getItem('hl-mode'); } catch (e) {}
+    if (want === 'show') mode(true);
+    window.addEventListener('resize', function () { fitSample(); grid.querySelectorAll('.hl-stage').forEach(function (s) { s.dispatchEvent(new Event('hl:relayout')); }); snapAll(); });
+    snapAll();
+  })();
+})();

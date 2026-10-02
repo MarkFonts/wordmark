@@ -35,7 +35,8 @@
 <link rel="stylesheet" href="../shared/src/UiKitBoard.css">
 <link rel="stylesheet" href="../shared/src/grid.css">
 <link rel="stylesheet" href="../shared/src/dialHandle.css">
-<link rel="stylesheet" href="../css/case.css?v=64">
+<link rel="stylesheet" href="../shared/src/chip.css">
+<link rel="stylesheet" href="../css/case.css?v=65">
 </head>
 <body>
 
@@ -192,52 +193,64 @@
 
 <!-- highlights ─────────────────────────────────────────── -->
 <section id="highlights" class="sec wrap">
-  <h2 class="sec-title">Get the highlights</h2>
-  <div class="hl-grid wm-baselines">
-    <article class="card hl">
-      <p class="cal-word" role="img" aria-label="Cal.com logo">Cal.com</p>
-      <p class="hl-text"><strong class="hl-say">Cal.com reads as rings.</strong> <span class="hl-cap">Peer&rsquo;s 2021 brief, kept in every weight.</span></p>
+  <div class="hl-head">
+    <h2 class="sec-title">Get the highlights</h2>
+    <!-- bento, or one stage at a time: the house chip (shared/src/chip.css) -->
+    <div class="wm-chip-row hl-mode" role="group" aria-label="How the highlights show">
+      <button type="button" class="wm-chip on" data-mode="bento" data-label="Bento" aria-pressed="true">Bento</button>
+      <button type="button" class="wm-chip" data-mode="show" data-label="Slideshow" aria-pressed="false">Slideshow</button>
+    </div>
+  </div>
+  <div class="hl-grid">
+
+    <!-- 1 · the sentence is the animation: word by word in Matter, Inter and Cal Sans, then the seam
+         sweeps it into Cal Sans and the baseline snaps straight (js/highlights.js) -->
+    <article class="card hl" id="hl-one">
+      <div class="hl-stage hl-stage--sentence" data-nosnap data-words="Three typefaces on the homepage became one." role="img" aria-label="The sentence set in Matter, Inter and Cal Sans becomes Cal Sans"></div>
+      <p class="hl-text"><strong class="hl-say">Three typefaces on the homepage became one.</strong> <span class="hl-cap">Matter, Inter and Cal Sans, sizes and baselines off. Now one face, one baseline.</span></p>
     </article>
 
-    <article class="card hl">
-      <div class="axes-wrap">
+    <!-- 2 · hairline rings through the round letters, then the first pass of the stripe reveals Cal.com -->
+    <article class="card hl" id="hl-two">
+      <div class="hl-stage hl-stage--rings" data-nosnap role="img" aria-label="Rings through the C, a, c, o and m become the Cal.com logo"></div>
+      <p class="hl-text"><strong class="hl-say">Day one: Cal.com reads as rings, in every weight.</strong> <span class="hl-cap">Peer&rsquo;s 2021 brief, kept in every weight since.</span></p>
+    </article>
+
+    <!-- 3 · the word alone, stamped 2021; the dials arrive in release order, each stamped -->
+    <article class="card hl" id="hl-three">
+      <div class="axes-wrap hl-stage" data-nosnap>
+        <span class="ax-stamp" aria-hidden="true">2021</span>
         <button type="button" class="ax-reset" aria-label="Reset the axes" hidden><svg width="16" height="16" viewBox="0 0 16 16" aria-hidden="true"><path fill="currentColor" fill-rule="evenodd" d="M13.5 8c0-3.034-2.474-5.5-5.535-5.5a5.53 5.53 0 0 0-5.328 4H6V8H.75A.75.75 0 0 1 0 7.25V2h1.5v3.233A7.04 7.04 0 0 1 7.965 1C11.846 1 15 4.13 15 8s-3.154 7-7.035 7a7.04 7.04 0 0 1-5.695-2.888l-.442-.605 1.211-.885.443.605A5.54 5.54 0 0 0 7.965 13.5c3.06 0 5.535-2.466 5.535-5.5" clip-rule="evenodd"/></svg></button>
         <div class="axes-sample" id="axes-sample" aria-hidden="true">Geometry</div>
-        <!-- six axes, each the house dial with its value in the handle (shared/src/dialHandle.js),
-             vertical, in one row -- case.js mounts them from the spec there, and sets them
-             moving at harmonic periods until you touch one. -->
+        <!-- six axes, each the house dial with its value in the handle (shared/src/dialHandle.js), vertical, in
+             release order; js/highlights.js mounts them, brings them in with their year, and leaves one drifting -->
         <div class="axes axes--dials" data-axes="axes-sample" aria-label="The six axes"></div>
       </div>
-      <p class="hl-text"><strong class="hl-say">Six axes, one file.</strong> <span class="hl-cap">Drag a slider and the whole site follows.</span></p>
+      <p class="hl-text"><strong class="hl-say">Six axes, one file, added as Cal.com grew.</strong> <span class="hl-cap">One weight in 2021. Weight and geometry in 2025. The rest in 2026.</span></p>
     </article>
 
-    <article class="card hl hl--fig">
-      <span class="hl-icon material-symbols-outlined" aria-hidden="true" translate="no">bookmark</span>
-      <p class="hl-fig" aria-hidden="true">12.6K</p>
-      <p class="hl-text"><strong class="hl-say">12.6K bookmarks on X.</strong> <span class="hl-cap">1.4M views. People couldn&rsquo;t bookmark fast enough over liking&mdash;utility.</span></p>
-    </article>
-
-    <article class="card hl hl--fig">
-      <span class="hl-icon material-symbols-outlined" aria-hidden="true" translate="no">call_merge</span>
-      <p class="hl-fig hl-fig--names" aria-hidden="true"><s>Matter</s><br><s>Inter</s><br>Cal Sans</p>
-      <p class="hl-text"><strong class="hl-say">Three typefaces became one.</strong> <span class="hl-cap">The homepage needed Matter and Inter too. Now it doesn&rsquo;t.</span></p>
-    </article>
-
-    <article class="card hl hl--fig">
-      <span class="hl-icon material-symbols-outlined" aria-hidden="true" translate="no">star</span>
-      <p class="hl-fig" aria-hidden="true">1.6k</p>
-      <p class="hl-text"><strong class="hl-say">1.6k stars on GitHub.</strong> <span class="hl-cap">A launch post that never stops running.</span></p>
-    </article>
-
-    <article class="card hl hl--wide">
-      <div class="hl-lead"><span class="hl-icon material-symbols-outlined" aria-hidden="true" translate="no">public</span><p class="hl-text"><strong class="hl-say">Open source from day one.</strong> <span class="hl-cap">On Google Fonts, npm, and jsDelivr. Anyone can ship it.</span></p></div>
-      <div class="get-list">
-        <a class="code" href="https://fonts.google.com/specimen/Cal+Sans" target="_blank" rel="noopener"><span>fonts.google.com/specimen/Cal+Sans</span><span class="where">Google Fonts &#x2197;</span></a>
-        <a class="code" href="https://www.npmjs.com/package/cal-sans" target="_blank" rel="noopener"><span>npm i cal-sans</span><span class="where">npm &#x2197;</span></a>
-        <a class="code" href="https://www.jsdelivr.com/package/gh/calcom/sans" target="_blank" rel="noopener"><span>cdn.jsdelivr.net/gh/calcom/sans</span><span class="where">jsDelivr &#x2197;</span></a>
+    <!-- 4 · the census: both figures count up once; the 187 outside posts tile in behind -->
+    <article class="card hl hl--fig" id="hl-four">
+      <div class="hl-stage hl-stage--count" data-nosnap>
+        <div class="hl-tiles" data-n="187" aria-hidden="true"></div>
+        <span class="hl-icon material-symbols-outlined" aria-hidden="true" translate="no">bookmark</span>
+        <p class="hl-fig hl-fig--two" aria-hidden="true"><b data-count="1.4M">0.0M</b><b data-count="12.6K">0.0K</b></p>
       </div>
+      <p class="hl-text"><strong class="hl-say">1.4M views, 12.6K bookmarks.</strong> <span class="hl-cap">A million of them from posts Cal.com never wrote. 285 posts counted, 187 of them by other people.</span></p>
     </article>
   </div>
+  <!-- the slideshow's bar: one dot per card, the chosen one long; play and pause -->
+  <div class="hl-bar" data-nosnap hidden>
+    <button type="button" class="hl-play" aria-label="Pause" aria-pressed="true"><svg width="16" height="16" viewBox="0 0 16 16" aria-hidden="true"><path class="ic-play" fill="currentColor" d="M4 2.5v11l9-5.5z"/><path class="ic-pause" fill="currentColor" d="M3.5 2.5h3v11h-3zM9.5 2.5h3v11h-3z"/></svg></button>
+    <div class="hl-dots" role="tablist" aria-label="Highlights">
+      <button type="button" class="hl-dot on" role="tab" aria-selected="true" aria-label="Three typefaces became one"></button>
+      <button type="button" class="hl-dot" role="tab" aria-selected="false" aria-label="Cal.com reads as rings"></button>
+      <button type="button" class="hl-dot" role="tab" aria-selected="false" aria-label="Six axes, one file"></button>
+      <button type="button" class="hl-dot" role="tab" aria-selected="false" aria-label="1.4M views, 12.6K bookmarks"></button>
+    </div>
+  </div>
+  <!-- the Cal.com logo, for the rings card: the same paths the hero's mask uses -->
+  <script type="application/json" id="calcom-paths">["M196.05736,399.28317C84.22939,399.28317,0,312.18638,0,204.65949,0,96.77419,79.92832,8.96057,196.05736,8.96057c61.64874,0,104.30107,18.638,137.63442,61.29033l-53.76344,44.08603c-22.58066-23.65591-49.8208-35.48388-83.87098-35.48388-75.62724,0-117.20431,56.98925-117.20431,125.80645s45.51972,124.7312,117.20431,124.7312c33.69176,0,62.3656-11.82797,84.94623-35.48388l53.04661,45.87815c-31.89965,40.86022-75.62726,59.4982-137.99284,59.4982Z", "M565.59139,112.90322h72.40142v279.5699h-72.40142v-40.86022c-15.05375,29.03225-40.14336,48.3871-88.17207,48.3871-76.70252,0-137.99284-65.59141-137.99284-146.23657s61.29032-146.23656,137.99284-146.23656c47.67026,0,73.11826,19.35484,88.17207,48.3871v-43.01074ZM567.74194,253.76345c0-43.72759-30.46595-79.92832-78.4946-79.92832-46.23654,0-76.3441,36.55914-76.3441,79.92832,0,42.29392,30.10751,79.9283,76.3441,79.9283,47.67021,0,78.4946-36.55913,78.4946-79.9283Z", "M689.2473,0h72.40142v392.11471h-72.40142V0Z", "M793.90685,355.19713c0-22.93907,18.63798-42.29392,44.08603-42.29392s43.36914,19.35484,43.36914,42.29392c0,23.65591-18.27959,43.01075-43.3692,43.01075s-44.08598-19.35482-44.08598-43.01075Z", "M1158.42292,347.31184c-26.88172,32.25807-67.74192,52.68816-116.12901,52.68816-86.37995,0-149.82075-65.59141-149.82075-146.23657s63.44091-146.23656,149.82075-146.23656c46.59498,0,87.09673,19.35484,113.97845,49.82078l-55.914,46.23657c-13.97847-17.2043-32.25807-30.10753-58.06456-30.10753-46.23654,0-76.34404,36.55913-76.34404,79.9283s30.10751,79.92833,76.34404,79.92833c27.95695,0,47.31187-14.33692,61.64879-33.69176l54.48033,47.67029Z", "M1164.51616,253.76345c0-80.64516,63.44091-146.23656,149.82075-146.23656s149.82075,65.5914,149.82075,146.23656-63.44091,146.23655-149.82075,146.23655c-86.37984-.35842-149.82075-65.59138-149.82075-146.23655ZM1390.68106,253.76345c0-43.72759-30.10751-79.92832-76.34404-79.92832-46.23665-.35843-76.34415,36.2007-76.34415,79.92832,0,43.36917,30.10751,79.9283,76.34404,79.9283s76.34415-36.55913,76.34415-79.9283Z", "M1953.76354,221.50539v170.60932h-72.40148v-153.04659c0-48.3871-22.93916-69.17563-57.34767-69.17563-32.25807,0-55.19711,15.77062-55.19711,69.17563v153.04659h-72.40148v-153.04659c0-48.3871-23.29749-69.17563-57.34767-69.17563-32.25807,0-60.57346,15.77062-60.57346,69.17563v153.04659h-72.40148V112.5448h72.40148v38.70968c15.05381-30.10752,42.29386-45.1613,84.22939-45.1613,39.78497,0,73.11826,19.35484,91.39785,51.97133,18.27959-33.33333,45.1612-51.97133,93.90686-51.97133,59.49812.35843,105.73477,44.80288,105.73477,115.41221Z"]</script>
 </section>
 
 <!-- closer look ────────────────────────────────────────── -->
@@ -346,6 +359,7 @@
     <div class="num"><b>1,550</b><span>glyphs</span></div>
     <div class="num"><b>3,000</b><span>kern pairs</span></div>
     <div class="num"><b>120+</b><span>languages</span></div>
+    <div class="num"><b>1.6k</b><span>GitHub stars</span></div>
   </div>
 </section>
 
@@ -479,7 +493,9 @@
       <p>I&rsquo;m Mark Davis, and I run WORDMARK. The UI cut of Cal Sans was in round one; Cal.com took the headline first.</p>
       <p>Five directions were on the table, from Futura in light disguise to a grotesk. Cal.com picked the one that reads as rings.</p>
       <p>The other three were worth a shot.</p>
+      <p>Matter cost about &euro;1,400 a year. Inter cost nothing, and that was the problem; everyone has it.</p>
       <p>The pull request to Google Fonts changed the pace. Peer saw the roadmap, asked if it was a UI font, and wanted to talk commercials that day.</p>
+      <p>Peer&rsquo;s Cal Sans 2 post hit 60K views and 536 bookmarks in 12 hours, saved faster than it was liked.</p>
       <blockquote class="quote">
         <p>&ldquo;I went to the website and I immediately said, what&rsquo;s that font? I don&rsquo;t do that a lot. [&hellip;] Rather than getting a logo design, they had a font, and they open sourced the font.&rdquo;</p>
         <footer><a href="https://open.spotify.com/episode/5dNGwm49w1hEXkmuKH0Bcd?t=2580" target="_blank" rel="noopener">Syntax, &ldquo;AI and Coding with ChatGPT,&rdquo; March 2023, at 43:30 <span class="arrow">&#x2197;</span></a></footer>
@@ -561,6 +577,11 @@
     <a class="pill pill--lg" href="https://github.com/calcom/sans" target="_blank" rel="noopener">Get Cal Sans <span class="arrow">&#x2197;</span></a>
     <a class="pill pill--lg pill--ghost" href="https://cal.com/davis" target="_blank" rel="noopener">Let&rsquo;s talk type <span class="arrow">&#x2197;</span></a>
   </div>
+  <div class="get-list get-list--close">
+    <a class="code" href="https://fonts.google.com/specimen/Cal+Sans" target="_blank" rel="noopener"><span>fonts.google.com/specimen/Cal+Sans</span><span class="where">Google Fonts &#x2197;</span></a>
+    <a class="code" href="https://www.npmjs.com/package/cal-sans" target="_blank" rel="noopener"><span>npm i cal-sans</span><span class="where">npm &#x2197;</span></a>
+    <a class="code" href="https://www.jsdelivr.com/package/gh/calcom/sans" target="_blank" rel="noopener"><span>cdn.jsdelivr.net/gh/calcom/sans</span><span class="where">jsDelivr &#x2197;</span></a>
+  </div>
 </section>
 
 </main>
@@ -588,8 +609,9 @@
 
 <script src="../js/thermal-hero.js?v=7"></script>
 <script src="../shared/src/dialHandle.js"></script>
+<script src="../js/highlights.js?v=1"></script>
 <script src="../shared/src/gridSnap.js" defer></script>
-<script src="../js/case.js?v=41"></script>
+<script src="../js/case.js?v=42"></script>
 <script type="module">
   import { mountThemeSwitch } from '../shared/src/theme.js';
   mountThemeSwitch(document.getElementById('theme-toggle'));
