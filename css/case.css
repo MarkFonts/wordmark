@@ -621,7 +621,7 @@ a.code:hover .where { color: var(--signal); }
 .num b {
   --wght: 640; --geom: 50;
   display: block;
-  font-size: clamp(40px, 6.2vw, 96px);
+  font-size: clamp(40px, 5.2vw, 80px);   /* five across: 3,000 has to fit a 228px column at 1440 */
   --lh: round(nearest, 1em, var(--bl)); line-height: var(--lh);
 }
 .num span { display: block; margin-top: 9px; font-size: 14px; color: var(--text-muted); }

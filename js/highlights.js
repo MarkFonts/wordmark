@@ -39,7 +39,10 @@
   var HOT = [[0.02, 0.05, 0.1, 1, 1, 0.95, 0.9], [0.02, 0.2, 0.85, 1, 0.55, 0.1, 0.1], [0.25, 0.75, 0.95, 1, 0.1, 0.1, 0.6], [0, 0.05, 0.45, 1, 1, 1, 1]];
   function flat(c) { return [Array(7).fill(c[0]), Array(7).fill(c[1]), Array(7).fill(c[2]), Array(7).fill(1)]; }
   function lerpT(a, b, u) { return a.map(function (row, i) { return row.map(function (x, j) { return x + (b[i][j] - x) * u; }); }); }
-  function thermal(svg, id, box) {
+  var MONO = [[0, 0.3, 0.7, 1, 1, 1, 1], [0, 0.3, 0.7, 1, 1, 1, 1], [0, 0.3, 0.7, 1, 1, 1, 1], [0, 0.05, 0.45, 1, 1, 1, 1]];   /* no colour: the stripe's light as white, with the grain and the blur */
+  function thermal(svg, id, box, opts) {
+    opts = opts || {};
+    var TABLE = opts.mono ? MONO : HOT;
     var defs = el('defs', {}, svg);
     var g = el('linearGradient', { id: id + 'S', gradientUnits: 'userSpaceOnUse', x1: 0, x2: 8000, spreadMethod: 'pad' }, defs);
     [[0,'#a0a0a0'],[0.03,'#a0a0a0'],[0.095,'#000'],[0.155,'#000'],[0.22,'#c4c4c4'],[0.28,'#c4c4c4'],[0.345,'#000'],[0.405,'#000'],[0.47,'#c4c4c4'],[0.53,'#c4c4c4'],[0.595,'#000'],[0.655,'#000'],[0.72,'#c4c4c4'],[0.78,'#c4c4c4'],[0.845,'#000'],[0.905,'#000'],[0.97,'#a0a0a0'],[1,'#a0a0a0']].forEach(function (s) { el('stop', { offset: s[0], 'stop-color': s[1] }, g); });
@@ -58,7 +61,7 @@
     var grain = el('feComposite', { in: 'grainBase', in2: 'body', operator: 'arithmetic', k1: 0, k2: 0, k3: 1, k4: 0, result: 'mixed' }, col);
     var alpha = el('feColorMatrix', { in: 'mixed', type: 'matrix', values: '1 0 0 0 0  0 1 0 0 0  0 0 1 0 0  0.3 0.59 0.11 0 0', result: 'lumA' }, col);
     var lut = el('feComponentTransfer', { in: 'lumA' }, col);
-    var funcs = ['feFuncR', 'feFuncG', 'feFuncB', 'feFuncA'].map(function (f, i) { return el(f, { type: 'table', tableValues: HOT[i].join(' ') }, lut); });
+    var funcs = ['feFuncR', 'feFuncG', 'feFuncB', 'feFuncA'].map(function (f, i) { return el(f, { type: 'table', tableValues: TABLE[i].join(' ') }, lut); });
     el('feComposite', { in2: 'body', operator: 'in' }, col);
     var seamL = el('linearGradient', { id: id + 'L', gradientUnits: 'userSpaceOnUse', x1: -120, x2: 120 }, defs);
     el('stop', { offset: 0, 'stop-color': '#fff' }, seamL); el('stop', { offset: 1, 'stop-color': '#000' }, seamL);
@@ -68,10 +71,11 @@
     el('rect', rect('url(#' + id + 'L)'), el('mask', Object.assign({ id: id + 'mB', maskUnits: 'userSpaceOnUse' }, rect('')), defs));
     el('rect', rect('url(#' + id + 'R)'), el('mask', Object.assign({ id: id + 'mA', maskUnits: 'userSpaceOnUse' }, rect('')), defs));
     var ctl = {
+      hots: [], plains: [],
       hot: function (shape) {
         var m = el('mask', Object.assign({ id: id + 'sh' + (++ctl.n), maskUnits: 'userSpaceOnUse' }, rect('')), defs);
         m.appendChild(shape);
-        var outer = el('g', { mask: 'url(#' + id + 'mB)' }, svg);
+        var outer = el('g', { mask: 'url(#' + id + 'mB)' }, svg); ctl.hots.push(outer);
         var layer = el('g', { filter: 'url(#' + id + 'C)' }, outer);
         var mt = el('g', { filter: 'url(#' + id + 'M)' }, layer);
         var sh = el('g', { mask: 'url(#' + m.id + ')' }, mt);
@@ -79,6 +83,9 @@
         return layer;
       },
       cold: function (node) { var outer = el('g', { mask: 'url(#' + id + 'mA)' }, svg); outer.appendChild(node); return outer; },
+      /* the end state as plain ink, no filter: shown once the piece is over, so nothing heavy runs at rest */
+      plain: function (node) { var g = el('g', { fill: 'currentColor', style: 'display:none' }, svg); g.appendChild(node); ctl.plains.push(g); return g; },
+      finish: function (on) { ctl.hots.forEach(function (h) { h.style.display = on ? 'none' : ''; }); ctl.plains.forEach(function (p) { p.style.display = on ? '' : 'none'; }); },
       n: 0,
       seam: function (x) {
         g.setAttribute('gradientTransform', 'translate(' + (x - 7000 + 2000).toFixed(1) + ' 0)');   /* the stripe's notch rides with the seam */
@@ -94,9 +101,9 @@
         for (var i = 0; i < 4; i++) funcs[i].setAttribute('tableValues', T[i].map(function (v) { return v.toFixed(3); }).join(' '));
       },
       /* fully hot, or drained by z toward `ink` */
-      drain: function (z, ink) { ctl.set(8 * (1 - z), 0.5 * (1 - z), lerpT(HOT, flat(ink), z), 1 - z, 1 - z); }
+      drain: function (z, ink) { ctl.set(8 * (1 - z), 0.5 * (1 - z), lerpT(TABLE, flat(ink), z), 1 - z, 1 - z); }
     };
-    ctl.set(8, 0.5, HOT, 1, 1);
+    ctl.set(8, 0.5, TABLE, 1, 1);
     return ctl;
   }
 
@@ -118,12 +125,17 @@
       if (state.raf) cancelAnimationFrame(state.raf);
       var t0 = performance.now(); state.playing = true; state.done = false;
       card.classList.add('is-playing');
+      var last = t0;
       (function frame(now) {
-        var t = (now - t0) / 1000;
-        var over = run(still ? 1e9 : t);
+        var t = (now - t0) / 1000, over;
+        try { over = run(still ? 1e9 : t); } catch (e) { console.warn('highlight', card.id, e); over = true; }
+        last = now;
         if (over) { state.playing = false; state.done = true; card.classList.remove('is-playing'); card.classList.add('is-done'); if (opts.after) opts.after(); return; }
         state.raf = requestAnimationFrame(frame);
       })(t0);
+      /* if the frames stop arriving while the piece is on (a throttled tab, a stalled compositor), finish it */
+      clearInterval(state.dog);
+      state.dog = setInterval(function () { if (!state.playing) { clearInterval(state.dog); return; } if (performance.now() - last > 1500) { clearInterval(state.dog); cancelAnimationFrame(state.raf); rest(); } }, 500);
     }
     function rest() { run(1e9); card.classList.add('is-done'); if (opts.after) opts.after(); }
     card._hl = { play: play, rest: rest, duration: opts.duration || 6 };
@@ -146,10 +158,11 @@
     var words = (stage.dataset.words || '').split(' ');
     var FAM = ["'Matter', system-ui, sans-serif", "'Inter', system-ui, sans-serif", "'CalSans', sans-serif"];
     var svg = el('svg', { viewBox: '0 0 ' + W + ' 760', 'aria-hidden': 'true', focusable: 'false' }, stage);
-    var ctl = thermal(svg, 'h1', { x: -200, y: -300, w: W + 400, h: 1400 });
+    var ctl = thermal(svg, 'h1', { x: -200, y: -300, w: W + 400, h: 1400 }, { mono: stage.hasAttribute('data-mono') });
     var shape = el('g', { fill: '#fff' });
     var hot = ctl.hot(shape), coldG = el('g', { fill: 'currentColor' }), cold = ctl.cold(coldG);
-    var A = [], B = [], laid = false;
+    var plainG = el('g'), plain = ctl.plain(plainG);
+    var A = [], B = [], P = [], laid = false;
     function word(parent, text, fam, size, vs) {
       var t = el('text', { 'font-family': fam, 'font-size': size, 'font-weight': fam === FAM[2] ? 600 : 500 }, parent);
       if (vs) t.style.fontVariationSettings = vs;
@@ -159,7 +172,7 @@
        on the same line breaks, a little off in size and baseline, so the swap under the
        seam snaps it straight */
     function layout() {
-      A.forEach(function (t) { t.remove(); }); B.forEach(function (t) { t.remove(); }); A = []; B = [];
+      A.forEach(function (t) { t.remove(); }); B.forEach(function (t) { t.remove(); }); P.forEach(function (t) { t.remove(); }); A = []; B = []; P = [];
       var size = 200, lh = 215, maxW = W, x = 0, y = 230, line = 0;
       var off = [[1.06, 10], [0.94, -8], [1, 0], [0.97, 7], [1.05, -6], [0.95, 9], [1.03, -4]];
       words.forEach(function (w, i) {
@@ -170,7 +183,8 @@
         var f = FAM[i % 3], o = off[i % off.length];
         var ta = word(coldG, w, f, size * o[0], f === FAM[2] ? "'opsz' 45, 'GEOM' 50, 'wght' 600" : "'wght' " + (f === FAM[1] ? 500 : 500));
         ta.setAttribute('x', x); ta.setAttribute('y', y + o[1]);
-        A.push(ta); B.push(tb);
+        var tp = word(plainG, w, FAM[2], size, "'opsz' 45, 'GEOM' 50, 'wght' 600"); tp.setAttribute('x', x); tp.setAttribute('y', y);
+        A.push(ta); B.push(tb); P.push(tp);
         x += wb + gap;
       });
       svg.setAttribute('viewBox', '0 0 ' + W + ' ' + (y + 80));
@@ -187,6 +201,7 @@
       ctl.seam(-300 + s * (W + 600));
       var z = ease(lin(t, T2, T3));
       ctl.drain(z, inkOf(card));
+      ctl.finish(t > T3);
       return t > T3 + 0.2;
     }, { duration: T3 });
     stage.addEventListener('hl:relayout', function () { layout(); snapStage(stage); });
@@ -201,10 +216,10 @@
     if (!src) return;
     var paths = JSON.parse(src.textContent);
     var svg = el('svg', { viewBox: '-20 -20 ' + (W + 40) + ' 450', 'aria-hidden': 'true', focusable: 'false' }, stage);
-    var ctl = thermal(svg, 'h2', { x: -200, y: -300, w: W + 400, h: 1100 });
-    var shape = el('g', { fill: '#fff' });
-    paths.forEach(function (d) { el('path', { d: d }, shape); });
-    ctl.hot(shape);
+    var ctl = thermal(svg, 'h2', { x: -200, y: -300, w: W + 400, h: 1100 }, { mono: stage.hasAttribute('data-mono') });
+    var shape = el('g', { fill: '#fff' }), plainG = el('g');
+    paths.forEach(function (d) { el('path', { d: d }, shape); el('path', { d: d }, plainG); });
+    ctl.hot(shape); ctl.plain(plainG);
     /* the rings: through the stroke of each round letter; the m's two arches as half rings */
     var rings = el('g', { fill: 'none', stroke: 'currentColor', 'stroke-width': 3, 'vector-effect': 'non-scaling-stroke' });
     var RINGS = [[195, 204, 163], [488, 254, 114], [1038, 254, 114], [1314, 254, 113]];
@@ -221,6 +236,7 @@
       var s = ease(lin(t, T1, T2));
       ctl.seam(-300 + s * (W + 600));
       ctl.drain(ease(lin(t, T2, T3)), inkOf(card));
+      ctl.finish(t > T3);
       return t > T3 + 0.2;
     }, { duration: T3 });
   })();
