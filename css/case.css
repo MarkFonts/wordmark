@@ -303,9 +303,6 @@ section[id] { scroll-margin-top: var(--nav-h); }
 .is-show .hl-bar { display: flex; }
 .hl-play, .hl-dot { display: inline-flex; align-items: center; justify-content: center; height: 36px; border-radius: 999px; background: var(--surface); color: var(--text); }
 .hl-play { width: 36px; }
-.hl-play .ic-play { display: none; }
-.hl-play[aria-pressed="false"] .ic-play { display: block; }
-.hl-play[aria-pressed="false"] .ic-pause { display: none; }
 .hl-dots { display: flex; align-items: center; gap: 6px; height: 36px; padding: 0 15px; border-radius: 999px; background: var(--surface); }
 .hl-dot { width: 6px; height: 6px; padding: 0; background: var(--text-dim); transition: width 300ms ease, background 300ms ease; }
 .hl-dot.on { width: 30px; background: var(--text); }

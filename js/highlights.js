@@ -23,6 +23,8 @@
       var d = x.getImageData(0, 0, 1, 1).data; return [d[0] / 255, d[1] / 255, d[2] / 255];
     } catch (e) { return [0.9, 0.9, 0.9]; }
   }
+  /* one pass of the stripe, the hero's: the lead from START to FREEZE at V units/s (the hero's 1320 at its SPEED 2) */
+  var START = -1300, FREEZE = 3300 + 3 * 2000 - 640, V = 2640, PASS = (FREEZE - START) / V;
   var ease = function (t) { t = Math.max(0, Math.min(1, t)); return t < 0.5 ? 4 * t * t * t : 1 - Math.pow(-2 * t + 2, 3) / 2; };
   var lin = function (t, a, b) { return Math.max(0, Math.min(1, (t - a) / (b - a))); };
 
@@ -32,7 +34,7 @@
        ctl.hot(shapeNode)   a heated layer: the stripe seen through `shapeNode` (a mask child),
                             visible LEFT of the seam
        ctl.cold(node)       a plain layer, visible RIGHT of the seam
-       ctl.seam(x)          where the swap is, in user units
+       ctl.lead(x)          where the stripe's first notch is; the swap rides 2000 behind it
        ctl.heat(b)          0..1: blur, grain, halo and the hot LUT, b=1 fully hot
        ctl.drain(z, ink)    0..1: everything to zero and the LUT to `ink` (0..1 rgb)
      The constants are the hero's: a stripe with a period of 2000 units, a seam 240 wide. */
@@ -87,10 +89,14 @@
       plain: function (node) { var g = el('g', { fill: 'currentColor', style: 'display:none' }, svg); g.appendChild(node); ctl.plains.push(g); return g; },
       finish: function (on) { ctl.hots.forEach(function (h) { h.style.display = on ? 'none' : ''; }); ctl.plains.forEach(function (p) { p.style.display = on ? '' : 'none'; }); },
       n: 0,
-      seam: function (x) {
-        g.setAttribute('gradientTransform', 'translate(' + (x - 7000 + 2000).toFixed(1) + ' 0)');   /* the stripe's notch rides with the seam */
-        seamL.setAttribute('gradientTransform', 'translate(' + x.toFixed(1) + ' 0)');
-        seamR.setAttribute('gradientTransform', 'translate(' + x.toFixed(1) + ' 0)');
+      /* the stripe as the hero runs it: `lead` is where its first notch is; the swap rides in the second
+         notch, one period (2000) behind; the bands and the grey pad follow at one speed until the
+         whole word sits in the pad, uniformly lit. One call per frame. */
+      lead: function (x) {
+        g.setAttribute('gradientTransform', 'translate(' + (x - 7000).toFixed(1) + ' 0)');
+        var seam = x - 2000;
+        seamL.setAttribute('gradientTransform', 'translate(' + seam.toFixed(1) + ' 0)');
+        seamR.setAttribute('gradientTransform', 'translate(' + seam.toFixed(1) + ' 0)');
       },
       set: function (bl, gr, T, w, h) {
         if (h == null) h = 1;
@@ -193,12 +199,11 @@
     layout();
     if (document.fonts && document.fonts.ready) document.fonts.ready.then(layout);
     var ink = inkOf(card);
-    /* the piece: words in (0–1.0s), hold to 3.0, the seam crosses 3.0–4.6, the drain 4.6–6.0 */
-    var T0 = 1.0, T1 = 3.0, T2 = 4.6, T3 = 6.0;
+    /* the piece: words in (0–1.0s), hold to 2.2, the stripe's pass, a beat uniformly lit, the drain */
+    var T0 = 1.0, T1 = 2.2, T2 = T1 + PASS + 0.3, T3 = T2 + 1.0;
     player(card, function (t) {
       A.forEach(function (ta, i) { ta.setAttribute('opacity', (t >= 1e8 ? 1 : lin(t, i * (T0 / A.length), i * (T0 / A.length) + 0.25)).toFixed(3)); });
-      var s = ease(lin(t, T1, T2));
-      ctl.seam(-300 + s * (W + 600));
+      ctl.lead(Math.min(START + Math.max(0, t - T1) * V, FREEZE));
       var z = ease(lin(t, T2, T3));
       ctl.drain(z, inkOf(card));
       ctl.finish(t > T3);
@@ -230,11 +235,10 @@
     });
     strokes.forEach(function (s) { s.el.setAttribute('stroke-dasharray', s.len); s.el.setAttribute('stroke-dashoffset', s.len); });
     ctl.cold(rings);
-    var T0 = 1.4, T1 = 2.0, T2 = 3.6, T3 = 5.0;
+    var T0 = 1.4, T1 = 2.0, T2 = T1 + PASS + 0.3, T3 = T2 + 1.0;
     player(card, function (t) {
       strokes.forEach(function (s, i) { var d = ease(lin(t, i * 0.12, i * 0.12 + 1.0)); s.el.setAttribute('stroke-dashoffset', (s.len * (1 - d)).toFixed(1)); });
-      var s = ease(lin(t, T1, T2));
-      ctl.seam(-300 + s * (W + 600));
+      ctl.lead(Math.min(START + Math.max(0, t - T1) * V, FREEZE));
       ctl.drain(ease(lin(t, T2, T3)), inkOf(card));
       ctl.finish(t > T3);
       return t > T3 + 0.2;
@@ -383,6 +387,7 @@
     dots.forEach(function (d, j) { d.addEventListener('click', function () { show(j); }); });
     if (playBtn) playBtn.addEventListener('click', function () {
       running = !running; playBtn.setAttribute('aria-pressed', running); playBtn.setAttribute('aria-label', running ? 'Pause' : 'Play');
+      var ic = playBtn.querySelector('.wm-icon'); if (ic) ic.textContent = running ? 'pause' : 'play_arrow';
       if (running) show(cur); else clearTimeout(timer);
     });
     var want = null; try { want = localStorage.getItem('hl-mode'); } catch (e) {}
