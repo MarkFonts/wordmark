@@ -162,6 +162,9 @@
     var card = document.getElementById('hl-one'); if (!card) return;
     var stage = card.querySelector('.hl-stage');
     var words = (stage.dataset.words || '').split(' ');
+    /* Matter comes as outlines of this one sentence (Cal.com's licence, not the site's): one path per word,
+       in the PDF's points, with its cap height and baseline, scaled here to Cal Sans's cap at the word size */
+    var mj = document.getElementById('matter-words'), MATTER = mj ? JSON.parse(mj.textContent) : null;
     var FAM = ["'Matter', system-ui, sans-serif", "'Inter', system-ui, sans-serif", "'CalSans', sans-serif"];
     var svg = el('svg', { viewBox: '0 0 ' + W + ' 760', 'aria-hidden': 'true', focusable: 'false' }, stage);
     var ctl = thermal(svg, 'h1', { x: -200, y: -300, w: W + 400, h: 1400 }, { mono: stage.hasAttribute('data-mono') });
@@ -170,28 +173,50 @@
     var plainG = el('g'), plain = ctl.plain(plainG);
     var A = [], B = [], P = [], laid = false;
     function word(parent, text, fam, size, vs) {
-      var t = el('text', { 'font-family': fam, 'font-size': size, 'font-weight': fam === FAM[2] ? 600 : 500 }, parent);
+      var t = el('text', { 'font-family': fam, 'font-size': size, 'font-weight': fam === FAM[2] ? 600 : 700 }, parent);
       if (vs) t.style.fontVariationSettings = vs;
       t.textContent = text; return t;
+    }
+    /* a Matter word from its outline: placed so its baseline is y and its cap height is Cal Sans's at `size` */
+    function matterWord(parent, text, size) {
+      var m = MATTER && MATTER.words.filter(function (w) { return w.w === text; })[0];
+      if (!m) return null;
+      var k = size * 0.72 / MATTER.cap;   /* Cal Sans cap 1440/2000 */
+      var g = el('g', {}, parent), path = el('path', { d: m.d }, g);
+      g._place = function (x, y) { g.setAttribute('transform', 'translate(' + (x - m.x0 * k).toFixed(2) + ' ' + (y - MATTER.base * k).toFixed(2) + ') scale(' + k.toFixed(4) + ')'); };
+      g._w = (m.x1 - m.x0) * k;
+      return g;
     }
     /* the two layers, each its own line breaking: Cal Sans straight (B); the mixed set (A)
        on the same line breaks, a little off in size and baseline, so the swap under the
        seam snaps it straight */
     function layout() {
       A.forEach(function (t) { t.remove(); }); B.forEach(function (t) { t.remove(); }); P.forEach(function (t) { t.remove(); }); A = []; B = []; P = [];
-      var size = 200, lh = 215, maxW = W, x = 0, y = 230, line = 0;
+      var size = 200, lh = 215, maxW = W, x = 0, y = 230, lines = [];
       var off = [[1.06, 10], [0.94, -8], [1, 0], [0.97, 7], [1.05, -6], [0.95, 9], [1.03, -4]];
+      /* B, Cal Sans, sets the lines; A keeps those lines but each word advances by its own face's width,
+         so Inter is spaced as Inter and Matter as Matter, never as Cal Sans */
       words.forEach(function (w, i) {
         var tb = word(shape, w, FAM[2], size, "'opsz' 45, 'GEOM' 50, 'wght' 600");
         var wb = tb.getComputedTextLength(), gap = size * 0.24;
-        if (x + wb > maxW && x > 0) { x = 0; y += lh; line++; }
+        if (x + wb > maxW && x > 0) { x = 0; y += lh; }
         tb.setAttribute('x', x); tb.setAttribute('y', y);
-        var f = FAM[i % 3], o = off[i % off.length];
-        var ta = word(coldG, w, f, size * o[0], f === FAM[2] ? "'opsz' 45, 'GEOM' 50, 'wght' 600" : "'wght' " + (f === FAM[1] ? 500 : 500));
-        ta.setAttribute('x', x); ta.setAttribute('y', y + o[1]);
         var tp = word(plainG, w, FAM[2], size, "'opsz' 45, 'GEOM' 50, 'wght' 600"); tp.setAttribute('x', x); tp.setAttribute('y', y);
-        A.push(ta); B.push(tb); P.push(tp);
+        B.push(tb); P.push(tp); lines.push(y);
         x += wb + gap;
+      });
+      var ax = 0, ay = -1;
+      words.forEach(function (w, i) {
+        var f = FAM[i % 3], o = off[i % off.length], s = size * o[0];
+        if (lines[i] !== ay) { ax = 0; ay = lines[i]; }
+        var ta = null, wa;
+        if (f === FAM[0]) { ta = matterWord(coldG, w, s); if (ta) { ta._place(ax, ay + o[1]); wa = ta._w; } }
+        if (!ta) {
+          ta = word(coldG, w, f === FAM[0] ? FAM[0] : f, s, f === FAM[2] ? "'opsz' 45, 'GEOM' 50, 'wght' 600" : "'wght' 700");
+          ta.setAttribute('x', ax); ta.setAttribute('y', ay + o[1]); wa = ta.getComputedTextLength();
+        }
+        A.push(ta);
+        ax += wa + s * 0.26;
       });
       svg.setAttribute('viewBox', '0 0 ' + W + ' ' + (y + 80));
       laid = true;
@@ -226,13 +251,10 @@
     paths.forEach(function (d) { el('path', { d: d }, shape); el('path', { d: d }, plainG); });
     ctl.hot(shape); ctl.plain(plainG);
     /* the rings: through the stroke of each round letter; the m's two arches as half rings */
-    var rings = el('g', { fill: 'none', stroke: 'currentColor', 'stroke-width': 3, 'vector-effect': 'non-scaling-stroke' });
-    var RINGS = [[195, 204, 163], [488, 254, 114], [1038, 254, 114], [1314, 254, 113]];
+    /* the rings in the signal colour, through the stroke of C, a, c, o, and the two arches of m as full rings */
+    var rings = el('g', { fill: 'none', 'stroke-width': 3, style: 'stroke: var(--signal)' });
+    var RINGS = [[195, 204, 163], [488, 254, 114], [1038, 254, 114], [1314, 254, 113], [1663, 202, 64], [1848, 202, 64]];
     var strokes = RINGS.map(function (r) { var c = el('circle', { cx: r[0], cy: r[1], r: r[2] }, rings); return { el: c, len: 2 * Math.PI * r[2] }; });
-    [[1663, 202, 64], [1848, 202, 64]].forEach(function (r) {
-      var d = 'M' + (r[0] - r[2]) + ' ' + r[1] + ' A' + r[2] + ' ' + r[2] + ' 0 0 1 ' + (r[0] + r[2]) + ' ' + r[1];
-      var p = el('path', { d: d }, rings); strokes.push({ el: p, len: Math.PI * r[2] });
-    });
     strokes.forEach(function (s) { s.el.setAttribute('stroke-dasharray', s.len); s.el.setAttribute('stroke-dashoffset', s.len); });
     ctl.cold(rings);
     var T0 = 1.4, T1 = 2.0, T2 = T1 + PASS + 0.3, T3 = T2 + 1.0;
@@ -274,6 +296,13 @@
     var card = group.closest('.hl') || group.parentElement;
     var target = document.getElementById(group.dataset.axes);
     var wrap = group.parentElement, reset = wrap.querySelector('.ax-reset'), stamp = card.querySelector('.ax-stamp');
+    var stampYear = stamp && stamp.querySelector('b'), stampFace = stamp && stamp.querySelector('i');
+    /* the three releases: the word itself changes face as the years pass */
+    var FACES = { 2021: ['v1', 'Cal Sans 1.000'], 2025: ['ui', 'Cal Sans UI 1.6'], 2026: ['v2', 'Cal Sans 2.000'] };
+    function setYear(year) {
+      if (stampYear && stampYear.textContent !== String(year)) { stampYear.textContent = String(year); if (stampFace) stampFace.textContent = FACES[year][1]; }
+      if (target.dataset.face !== FACES[year][0]) target.dataset.face = FACES[year][0];
+    }
     var dials = AXES.map(function (a) {
       var h = wmHandleDial.mount(group, { label: a.label, caption: a.tag, min: a.min, max: a.max, step: a.step, value: a.value, orient: 'vertical',
         onChange: function () { stopDrift(); apply(); dirty(); } });
@@ -307,19 +336,25 @@
     });
     group.addEventListener('pointerdown', function () { wrap.classList.add('is-touched'); stopDrift(); dirty(); }, true);
     group.addEventListener('focusin', function () { wrap.classList.add('is-touched'); stopDrift(); dirty(); });
-    /* the arrivals: 2021 the word alone; 2025 wght and GEOM together; 2026 the other four, one by one */
-    var AT = { wght: 1.2, GEOM: 1.2, opsz: 2.8, YTAS: 3.25, SHRP: 3.7, ital: 4.15 }, END = 5.4;
+    /* the arrivals: 2021 the word alone in Cal Sans 1; 2025 Cal Sans UI 1.6, wght and GEOM arrive together
+       and run their whole range twice; 2026 Cal Sans 2 and the other four, one by one, each nudging the word */
+    var AT = { wght: 1.2, GEOM: 1.2, opsz: 4.6, YTAS: 5.05, SHRP: 5.5, ital: 5.95 }, UI0 = 1.2, UI1 = 4.6, END = 7.2;
     player(card, function (t) {
-      var year = 2021;
+      var year = t >= 1e8 ? 2026 : t >= UI1 ? 2026 : t >= UI0 ? 2025 : 2021;
+      setYear(year);
       dials.forEach(function (d) {
-        var at = AT[d.a.tag], e = ease(lin(t, at, at + 0.7));
+        var at = AT[d.a.tag], e = t >= 1e8 ? 1 : ease(lin(t, at, at + 0.7));
         d.root.style.setProperty('--enter', e.toFixed(3));
-        if (t >= at) year = Math.max(year, d.a.year);
-        /* the nudge: a half-sine over 0.9s from the arrival */
-        var p = lin(t, at + 0.1, at + 1.0); nudge[d.a.tag] = p > 0 && p < 1 ? Math.sin(p * Math.PI) : 0;
+        var p = t >= 1e8 ? 1 : lin(t, at + 0.1, at + 1.0); nudge[d.a.tag] = p > 0 && p < 1 ? Math.sin(p * Math.PI) : 0;
+        /* the UI phase: weight and geometry sweep end to end, twice, a quarter turn apart */
+        if (t < 1e8 && t >= UI0 + 0.7 && t < UI1 && (d.a.tag === 'wght' || d.a.tag === 'GEOM')) {
+          var u = (t - UI0 - 0.7) / (UI1 - UI0 - 0.7), ph = d.a.tag === 'GEOM' ? Math.PI / 2 : 0;
+          var v = d.a.min + (d.a.max - d.a.min) * (1 - Math.cos(2 * Math.PI * 2 * u + ph)) / 2;
+          d.h.set(Math.round(v), true); nudge[d.a.tag] = 0;
+        } else if (t < 1e8 && t >= UI1 && t < UI1 + 0.6 && (d.a.tag === 'wght' || d.a.tag === 'GEOM')) {
+          d.h.set(d.a.value, true);   /* 2026 opens on the defaults */
+        }
       });
-      if (t >= 1e8) { year = 2026; dials.forEach(function (d) { d.root.style.setProperty('--enter', 1); nudge[d.a.tag] = 0; }); }
-      if (stamp && stamp.textContent !== String(year)) stamp.textContent = String(year);
       apply();
       return t > END;
     }, { duration: END, after: function () { startDrift(); } });
@@ -345,6 +380,7 @@
     function showPop(a, post) {
       if (!pop) return;
       pop.innerHTML = '';
+      if (post.img) { var im = document.createElement('img'); im.src = post.img; im.alt = ''; im.loading = 'lazy'; pop.appendChild(im); }
       var who = document.createElement('b'); who.textContent = post.who; pop.appendChild(who);
       var when = document.createElement('time'); when.textContent = post.date; pop.appendChild(when);
       var txt = document.createElement('p'); txt.textContent = post.text; pop.appendChild(txt);
@@ -362,6 +398,7 @@
       posts.slice(0, N).forEach(function (post, i) {
         var a = document.createElement('a'); a.href = post.url; a.target = '_blank'; a.rel = 'noopener';
         a.className = cells[i].className; a.setAttribute('aria-label', post.who + ', ' + post.date);
+        if (post.img) { a.classList.add('has-img'); a.style.backgroundImage = 'url(' + post.img + ')'; }
         a.addEventListener('mouseenter', function () { showPop(a, post); }); a.addEventListener('focus', function () { showPop(a, post); });
         a.addEventListener('mouseleave', hidePop); a.addEventListener('blur', hidePop);
         tiles.replaceChild(a, cells[i]); cells[i] = a;

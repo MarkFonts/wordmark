@@ -30,6 +30,8 @@
    the live page falls back to the system face until one is there. */
 @font-face { font-family: 'Inter'; src: url('../fonts/InterVariable.woff2') format('woff2'); font-weight: 100 900; font-display: swap; }
 @font-face { font-family: 'Matter'; src: url('../fonts/Matter.woff2') format('woff2'); font-weight: 100 900; font-display: swap; }
+/* the 2021 release, as Google Fonts ships it, for the versions card's first stop */
+@font-face { font-family: 'CalSans1'; src: url('../fonts/CalSans-1.000.woff2') format('woff2'); font-weight: 400 700; font-display: swap; }
 
 /* the 2025 release, for its own title in the releases row: wght + GEOM only */
 @font-face {
@@ -260,7 +262,12 @@ section[id] { scroll-margin-top: var(--nav-h); }
   overflow-y: visible;
   font-variation-settings: 'opsz' 45, 'GEOM' 50, 'wght' 600, 'YTAS' 1440, 'SHRP' 0, 'ital' 0;
 }
-.ax-stamp { position: absolute; top: 0; right: 0; font-size: 13px; --lh: 21px; line-height: var(--lh); color: var(--text-dim); font-feature-settings: 'tnum' 1; letter-spacing: 0.12em; }
+.ax-stamp { position: absolute; top: 0; right: 0; display: grid; justify-items: end; font-size: 13px; --lh: 21px; line-height: var(--lh); color: var(--text-dim); font-feature-settings: 'tnum' 1; letter-spacing: 0.12em; }
+.ax-stamp b { --wght: 600; color: var(--text-muted); }
+.ax-stamp i { font-style: normal; letter-spacing: 0; font-size: 12px; --lh: 18px; line-height: var(--lh); }
+/* the three releases on the word: Cal Sans 1 (static), UI 1.6 (wght, GEOM), Cal Sans 2 */
+.axes-sample[data-face="v1"] { font-family: 'CalSans1', 'CalSans', sans-serif; }
+.axes-sample[data-face="ui"] { font-family: 'CalSansUI', 'CalSans', sans-serif; }
 .axes { display: flex; justify-content: space-between; gap: var(--grid-gutter); margin-top: 24px; --hd-rail: 96px; }
 .axes .wm-hd { flex: 1 1 0; min-width: 0; gap: 6px; }   /* 12 + 6 + 96 = 114, 38 units */
 .axes .wm-hd-rail { width: 100%; }
@@ -277,9 +284,13 @@ section[id] { scroll-margin-top: var(--nav-h); }
 .hl-tiles > * { display: block; border-radius: 3px; background: var(--text); opacity: 0; transform: scale(0.6); transition: opacity 400ms ease, transform 400ms cubic-bezier(0.2, 0.9, 0.3, 1.2); }
 .hl-tiles > .on { opacity: 0.07; transform: none; }
 .hl-tiles > a.on:hover, .hl-tiles > a.on:focus-visible { opacity: 0.4; outline: none; }
+.hl-tiles > .has-img { background-size: cover; background-position: center; }
+.hl-tiles > .has-img.on { opacity: 0.28; }
+.hl-tiles > a.has-img.on:hover, .hl-tiles > a.has-img.on:focus-visible { opacity: 0.9; }
 /* one post at a time, under the pointer: handle, date, the text, its numbers */
 .hl-pop { position: absolute; left: 0; top: 0; z-index: 3; width: min(300px, 100%); padding: 12px 15px; border-radius: var(--r); background: var(--surface-hi); color: var(--text); font-size: 13px; --lh: 18px; line-height: var(--lh); pointer-events: none; box-shadow: 0 6px 24px rgba(0, 0, 0, 0.35); }
 .hl-pop[hidden] { display: none; }
+.hl-pop img { display: block; width: 100%; height: auto; max-height: 150px; object-fit: cover; border-radius: 6px; margin-bottom: 9px; }
 .hl-pop b { --wght: 600; }
 .hl-pop time { float: right; color: var(--text-dim); font-feature-settings: 'tnum' 1; }
 .hl-pop p { margin: 6px 0 0; color: var(--text-muted); white-space: pre-line; display: -webkit-box; -webkit-line-clamp: 8; -webkit-box-orient: vertical; overflow: hidden; }
