@@ -1,0 +1,13 @@
+{
+  "_": "wordmark.nyc joins the house system one law at a time. Today: the line (wm-primitives src/grid.css). The Cal Sans case study's text sits on the 3px grid, so every leading and vertical space in its stylesheet is a whole number of units. linesSkip is the demos' own insides -- the cube, the waterfall, the UI kit, the tester -- which keep their own type and are data-nosnap in the page. Components whose own height is set in units (pills, slider rows) keep their insides too.",
+  "roots": [
+    "css/case.css"
+  ],
+  "only": [
+    "lines"
+  ],
+  "lines": [
+    "css/case.css"
+  ],
+  "linesSkip": "\\.(cube|vlab|vm|ds-|tie|ukit|hello|d-fall|d-track|tt-|deck|switch|bk|cs-nav|cs-links|look-dot|code|pill|coss|ui-)|input|::-|@keyframes|^(from|to|\\d+%)"
+}
