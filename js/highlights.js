@@ -282,9 +282,12 @@
   /* the sample word fills its stage's width, whatever the card's width is */
   function fitSample() {
     document.querySelectorAll('.axes-sample').forEach(function (w) {
-      w.style.fontSize = '100px';
+      /* measured on the widest the word gets: the UI face at full weight and geometry */
+      var face = w.dataset.face, fvs = w.style.fontVariationSettings;
+      w.dataset.face = 'ui'; w.style.fontVariationSettings = "'wght' 700, 'GEOM' 100"; w.style.fontSize = '100px';
       var range = document.createRange(); range.selectNodeContents(w);
       var tw = range.getBoundingClientRect().width, box = w.getBoundingClientRect().width;
+      if (face) w.dataset.face = face; else delete w.dataset.face; w.style.fontVariationSettings = fvs;
       if (tw > 0 && box > 0) w.style.fontSize = Math.max(40, Math.min(160, Math.floor(100 * box / tw))) + 'px';
     });
   }
