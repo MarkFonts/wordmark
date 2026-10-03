@@ -908,6 +908,11 @@ a.tool-name { color: inherit; text-decoration: none; }
 .tt-reset:hover, .ax-reset:hover { opacity: 1; }
 .tt-reset.is-spun, .ax-reset.is-spun { transform: rotate(360deg); }
 .axes-wrap { position: relative; }
+/* the Geometry card shares a row with the census, which is taller: its stage takes the spare height and the
+   rails grow into it, never shorter than the 96px they are on their own (a phone, a single column) */
+.axes-wrap.hl-stage { flex: 1 1 auto; display: flex; flex-direction: column; }
+.axes-wrap .axes { flex: 1 1 auto; }
+.axes .wm-hd--vertical .wm-hd-rail { flex: 1 1 auto; height: auto; min-height: var(--hd-rail); }
 .ax-reset { top: 0; right: 0; }
 .axes-wrap.is-live .ax-reset { opacity: 0; pointer-events: none; }   /* nothing to reset while the axes move on their own */   /* the axes card: the same reset, tucked in the sample's corner */
 .tt-clamp { height: var(--tt-clamp, 180px); overflow: hidden; display: flex; flex-direction: column; }
