@@ -41,7 +41,8 @@
   font-style: normal;
   font-display: swap;
 }
-*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+*:not(.wm-chip), *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }   /* the chip keeps chip.css's padding: an unlayered reset beats its layer */
+.wm-chip { box-sizing: border-box; margin: 0; }
 
 /* Axes ride custom properties so a parent can move one without restating the rest.
    opsz is left out on purpose: font-optical-sizing:auto supplies it from the size. */
