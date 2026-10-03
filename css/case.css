@@ -278,16 +278,42 @@ section[id] { scroll-margin-top: var(--nav-h); }
 .axes .ax-in { --e: calc(var(--enter, 1) * 100%); mask-image: linear-gradient(to top, #000 var(--e), transparent calc(var(--e) + 14%)); -webkit-mask-image: linear-gradient(to top, #000 var(--e), transparent calc(var(--e) + 14%)); }
 .axes-wrap.is-live .ax-reset { opacity: 0; pointer-events: none; }   /* nothing to reset while an axis drifts */
 
-/* 4 · the census: two tabular figures over the tiles of the outside posts */
-.hl-stage--count { min-height: 210px; display: flex; flex-direction: column; justify-content: space-between; }
-.hl-tiles { position: absolute; inset: 0; display: grid; grid-template-columns: repeat(17, 1fr); gap: 3px; }
-.hl-tiles > * { display: block; border-radius: 3px; background: var(--text); opacity: 0; transform: scale(0.6); transition: opacity 400ms ease, transform 400ms cubic-bezier(0.2, 0.9, 0.3, 1.2); }
-.hl-tiles > .on { opacity: 0.07; transform: none; }
-.hl-tiles > a.on:hover, .hl-tiles > a.on:focus-visible { opacity: 0.4; outline: none; }
+/* 4 · the census: two tabular figures, and beneath them the reel of the outside posts */
+.hl-stage--count { display: flex; flex-direction: column; }
+.hl-stage--count .hl-fig { z-index: 2; text-shadow: 0 27px 54px rgba(0, 0, 0, var(--fig-shade, 0.42)); }   /* a big soft shade onto the reel */
+:root[data-theme="light"] .hl-stage--count .hl-fig { --fig-shade: 0.16; }
+@media (prefers-color-scheme: light) { :root:not([data-theme="dark"]) .hl-stage--count .hl-fig { --fig-shade: 0.16; } }
+/* the reel: five rows of tiles in date order, the full-height ones carrying the post itself;
+   two copies end to end, the track drifting right at --reel-v px/s (js sets the duration) */
+.hl-reel { position: relative; margin-top: 3px; height: var(--reel-h, 192px); overflow: clip; width: 100%; }
+.hl-reel::before, .hl-reel::after { content: ''; position: absolute; top: 0; bottom: 0; width: 36px; z-index: 2; pointer-events: none; }
+.hl-reel::before { left: 0; background: linear-gradient(to right, var(--surface), transparent); }
+.hl-reel::after { right: 0; background: linear-gradient(to left, var(--surface), transparent); }
+.hl-tiles { position: absolute; left: 0; top: 0; height: 100%; display: grid; grid-auto-flow: column; grid-template-rows: repeat(5, 1fr); grid-auto-columns: max-content; gap: 3px; width: max-content; animation: hl-reel var(--reel-t, 240s) linear infinite; will-change: transform; }
+.hl-reel:hover .hl-tiles, .hl-reel:focus-within .hl-tiles { animation-play-state: paused; }
+@keyframes hl-reel { from { transform: translateX(-50%); } to { transform: none; } }
+@media (prefers-reduced-motion: reduce) { .hl-tiles { animation: none; } }
+.hl-tiles > * { display: block; border-radius: 3px; background: var(--surface-hi); color: var(--text); opacity: 0; transform: scale(0.6); transition: opacity 400ms ease, transform 400ms cubic-bezier(0.2, 0.9, 0.3, 1.2); text-decoration: none; overflow: hidden; }
+.hl-tiles > .on { opacity: 0.7; transform: none; }
+.hl-tiles > a.on:hover, .hl-tiles > a.on:focus-visible { opacity: 1; outline: none; }
+/* the teeny cards, five rows of them: the handle and the post's own text at 5px, real words too small to read */
+.hl-tiles > a:not(.big):not(.has-img) { width: 66px; box-sizing: border-box; padding: 3px 4px; font-size: 5px; --lh: 6px; line-height: var(--lh); }   /* token-lint: allow -- miniature, a texture of real posts */
+.hl-tiles > a:not(.big) b { display: block; --wght: 600; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.hl-tiles > a:not(.big) p { margin: 0; color: var(--text-muted); white-space: pre-line; display: -webkit-box; -webkit-line-clamp: 4; -webkit-box-orient: vertical; overflow: hidden; }
 .hl-tiles > .has-img { background-size: cover; background-position: center; }
-.hl-tiles > .has-img.on { opacity: 0.28; }
-.hl-tiles > a.has-img.on:hover, .hl-tiles > a.has-img.on:focus-visible { opacity: 0.9; }
-/* one post at a time, under the pointer: handle, date, the text, its numbers */
+.hl-tiles > .has-img:not(.big) { width: 66px; }
+.hl-tiles > .has-img.on { opacity: 0.55; }
+.hl-tiles > a.has-img.on:hover, .hl-tiles > a.has-img.on:focus-visible { opacity: 1; }
+/* the full-height tiles: the post as a small card -- handle, date, text, and its picture across the top */
+.hl-tiles > .big { grid-row: 1 / -1; width: 228px; box-sizing: border-box; padding: 9px 12px; border-radius: var(--r); background: var(--surface-hi); color: var(--text); font-size: 12px; --lh: 15px; line-height: var(--lh); overflow: hidden; display: flex; flex-direction: column; }
+.hl-tiles > .big.on, .hl-tiles > .big.has-img.on { opacity: 1; }
+.hl-tiles > .big img { display: block; width: calc(100% + 24px); margin: -9px -12px 6px; height: 90px; object-fit: cover; object-position: top; }
+.hl-tiles > .big b { --wght: 600; }
+.hl-tiles > .big time { float: right; color: var(--text-dim); font-feature-settings: 'tnum' 1; }
+.hl-tiles > .big p { margin: 3px 0 0; color: var(--text-muted); white-space: pre-line; display: -webkit-box; -webkit-line-clamp: 9; -webkit-box-orient: vertical; overflow: hidden; }
+.hl-tiles > .big.has-img p { -webkit-line-clamp: 4; }
+.hl-tiles > .big span { display: block; margin-top: auto; padding-top: 3px; color: var(--text-dim); font-feature-settings: 'tnum' 1; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+/* one small tile at a time, under the pointer: handle, date, the text, its numbers */
 .hl-pop { position: absolute; left: 0; top: 0; z-index: 3; width: min(300px, 100%); padding: 12px 15px; border-radius: var(--r); background: var(--surface-hi); color: var(--text); font-size: 13px; --lh: 18px; line-height: var(--lh); pointer-events: none; box-shadow: 0 6px 24px rgba(0, 0, 0, 0.35); }
 .hl-pop[hidden] { display: none; }
 .hl-pop img { display: block; width: 100%; height: auto; max-height: 150px; object-fit: cover; border-radius: 6px; margin-bottom: 9px; }
@@ -295,7 +321,6 @@ section[id] { scroll-margin-top: var(--nav-h); }
 .hl-pop time { float: right; color: var(--text-dim); font-feature-settings: 'tnum' 1; }
 .hl-pop p { margin: 6px 0 0; color: var(--text-muted); white-space: pre-line; display: -webkit-box; -webkit-line-clamp: 8; -webkit-box-orient: vertical; overflow: hidden; }
 .hl-pop span { display: block; margin-top: 6px; color: var(--text-dim); font-feature-settings: 'tnum' 1; }
-.hl-stage--count .hl-icon, .hl-stage--count .hl-fig { pointer-events: none; }   /* the tiles underneath take the pointer */
 .hl-icon {
   position: relative; display: block; width: 72px; height: 72px; margin: 0;
   font-family: 'Material Symbols Outlined'; font-size: 72px; line-height: 1;   /* token-lint: allow -- a mark drawn at 72, not a text role */

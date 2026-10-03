@@ -371,63 +371,78 @@
   });
 
   /* ── 4 · 1.4M views, 12.6K bookmarks ──────────────────────────────────────────────────
-     Both figures count up from zero, tabular, once; behind them the 187 outside posts tile in
-     as faint cards, filling as the count climbs. */
+     Both figures count up from zero, tabular, once; beneath them the 187 outside posts tile
+     into a reel in date order -- tiny grey cards with the post's own text, pictures as pictures,
+     the most-read ones as full-height cards -- which then drifts
+     left to right. Two copies sit end to end so the loop never shows a seam. */
   (function () {
     var card = document.getElementById('hl-four'); if (!card) return;
     var figs = Array.prototype.slice.call(card.querySelectorAll('[data-count]'));
-    var tiles = card.querySelector('.hl-tiles'), N = +(tiles && tiles.dataset.n) || 187, cells = [];
-    /* the posts themselves, in date order, each tile a link; until they load, blanks keep the count */
+    var reel = card.querySelector('.hl-reel'), tiles = card.querySelector('.hl-tiles'), N = +(tiles && tiles.dataset.n) || 187;
+    var cells = [], copy = [];   /* cells: the first copy, in date order; copy: its twin, aria-hidden */
+    var BIG = 14, V = 28;        /* how many posts get the full-height card; the drift, px per second */
     if (tiles) { for (var i = 0; i < N; i++) cells.push(tiles.appendChild(document.createElement('i'))); }
     var pop = card.querySelector('.hl-pop');
     function fmtN(n) { return n >= 1e6 ? (n / 1e6).toFixed(1) + 'M' : n >= 1e3 ? (n / 1e3).toFixed(n >= 1e4 ? 0 : 1) + 'K' : String(n); }
+    function stats(post) {
+      return ['views', 'likes', 'reposts', 'bookmarks'].filter(function (k) { return post[k] != null; }).map(function (k) { return fmtN(post[k]) + ' ' + k; }).join(' · ');
+    }
     function showPop(a, post) {
-      if (!pop) return;
+      if (!pop || !reel) return;
       pop.innerHTML = '';
       if (post.img) { var im = document.createElement('img'); im.src = post.img; im.alt = ''; im.loading = 'lazy'; pop.appendChild(im); }
       var who = document.createElement('b'); who.textContent = post.who; pop.appendChild(who);
       var when = document.createElement('time'); when.textContent = post.date; pop.appendChild(when);
       var txt = document.createElement('p'); txt.textContent = post.text; pop.appendChild(txt);
-      var stats = ['views', 'likes', 'reposts', 'bookmarks'].filter(function (k) { return post[k] != null; }).map(function (k) { return fmtN(post[k]) + ' ' + k; });
-      if (stats.length) { var st = document.createElement('span'); st.textContent = stats.join(' · '); pop.appendChild(st); }
-      var sr = tiles.getBoundingClientRect(), r = a.getBoundingClientRect();
+      var st = stats(post); if (st) { var sp = document.createElement('span'); sp.textContent = st; pop.appendChild(sp); }
+      var stage = card.querySelector('.hl-stage'), sr = stage.getBoundingClientRect(), r = a.getBoundingClientRect();
       pop.hidden = false;
       var pw = pop.offsetWidth, ph = pop.offsetHeight;
       var x = Math.max(0, Math.min(sr.width - pw, r.left - sr.left + r.width / 2 - pw / 2));
-      var y = r.top - sr.top + r.height + 6; if (y + ph > sr.height) y = Math.max(0, r.top - sr.top - ph - 6);
-      pop.style.transform = 'translate(' + Math.round(x) + 'px,' + Math.round(y) + 'px)';
+      var y = r.top - sr.top - ph - 6; if (y < 0) y = Math.min(sr.height - ph, r.top - sr.top + r.height + 6);
+      pop.style.transform = 'translate(' + Math.round(x) + 'px,' + Math.round(Math.max(0, y)) + 'px)';
     }
     function hidePop() { if (pop) pop.hidden = true; }
-    /* left alone, the posts show themselves one by one, the ones with pictures first, each for a
-       couple of seconds over its own tile; a pointer on the stage takes over, and leaving hands back */
-    var tour = { i: 0, timer: 0, list: [], hover: false, on: false };
-    function tourStep() {
-      clearTimeout(tour.timer);
-      if (!tour.on || tour.hover || !tour.list.length) return;
-      var item = tour.list[tour.i % tour.list.length]; tour.i++;
-      showPop(item.a, item.post);
-      tour.timer = setTimeout(tourStep, item.post.img ? 3200 : 2200);
+    /* the full-height card: the picture across the top if there is one, handle, date, text, numbers */
+    function bigTile(a, post) {
+      a.classList.add('big');
+      if (post.img) { var im = document.createElement('img'); im.src = post.img; im.alt = ''; im.loading = 'lazy'; a.appendChild(im); }
+      var who = document.createElement('b'); who.textContent = post.who; a.appendChild(who);
+      var when = document.createElement('time'); when.textContent = post.date; a.appendChild(when);
+      var txt = document.createElement('p'); txt.textContent = post.text.replace(/\s*(https?:\/\/\S+|pic\.twitter\.com\/\S+)\s*$/g, '').trim(); a.appendChild(txt);
+      var st = stats(post); if (st) { var sp = document.createElement('span'); sp.textContent = st; a.appendChild(sp); }
     }
-    function tourStart() { if (still) return; tour.on = true; tourStep(); }
-    function tourStop() { tour.on = false; clearTimeout(tour.timer); if (!tour.hover) hidePop(); }
-    var stage4 = card.querySelector('.hl-stage');
-    if (stage4) {
-      stage4.addEventListener('mouseenter', function () { tour.hover = true; clearTimeout(tour.timer); });
-      stage4.addEventListener('mouseleave', function () { tour.hover = false; hidePop(); if (tour.on) tour.timer = setTimeout(tourStep, 600); });
+    function pace() {   /* the drift: one copy's width at V px/s; after a resize, keep the speed */
+      if (!tiles) return;
+      var w = tiles.scrollWidth / 2; if (w > 0) tiles.style.setProperty('--reel-t', Math.round(w / V) + 's');
     }
     if (tiles && window.fetch) fetch(tiles.dataset.src || 'data/posts.json').then(function (r) { return r.json(); }).then(function (posts) {
-      posts.slice(0, N).forEach(function (post, i) {
+      posts = posts.slice(0, N);
+      var big = {}, span = posts.length / BIG;   /* the most-read post of each stretch of the timeline, so the cards come evenly */
+      for (var b = 0; b < BIG; b++) {
+        var top = null;
+        posts.slice(Math.round(b * span), Math.round((b + 1) * span)).forEach(function (p) { if (!top || (p.views || 0) > (top.views || 0)) top = p; });
+        if (top) big[top.id] = true;
+      }
+      function make(post, i, twin) {
         var a = document.createElement('a'); a.href = post.url; a.target = '_blank'; a.rel = 'noopener';
-        a.className = cells[i].className; a.setAttribute('aria-label', post.who + ', ' + post.date);
-        if (post.img) { a.classList.add('has-img'); a.style.backgroundImage = 'url(' + post.img + ')'; }
-        a.addEventListener('mouseenter', function () { showPop(a, post); }); a.addEventListener('focus', function () { showPop(a, post); });
-        a.addEventListener('mouseleave', hidePop); a.addEventListener('blur', hidePop);
-        tiles.replaceChild(a, cells[i]); cells[i] = a;
-        tour.list.push({ a: a, post: post });
-      });
-      tour.list.sort(function (p, q) { return (q.post.img ? 1 : 0) - (p.post.img ? 1 : 0); });
+        a.className = twin ? '' : cells[i].className; a.setAttribute('aria-label', post.who + ', ' + post.date);
+        if (twin) { a.setAttribute('aria-hidden', 'true'); a.tabIndex = -1; }
+        if (post.img) { a.classList.add('has-img'); if (!big[post.id]) a.style.backgroundImage = 'url(' + post.img + ')'; }
+        if (big[post.id]) bigTile(a, post);
+        else {
+          if (!post.img) { var tw = document.createElement('b'); tw.textContent = post.who; a.appendChild(tw); var tt = document.createElement('p'); tt.textContent = post.text.replace(/\s*(https?:\/\/\S+|pic\.twitter\.com\/\S+)\s*$/g, '').trim(); a.appendChild(tt); }
+          a.addEventListener('mouseenter', function () { showPop(a, post); }); a.addEventListener('focus', function () { showPop(a, post); });
+          a.addEventListener('mouseleave', hidePop); a.addEventListener('blur', hidePop);
+        }
+        return a;
+      }
+      posts.forEach(function (post, i) { var a = make(post, i, false); tiles.replaceChild(a, cells[i]); cells[i] = a; });
+      posts.forEach(function (post, i) { copy.push(tiles.appendChild(make(post, i, true))); });
+      pace();
+      if (card.classList.contains('is-done')) cells.forEach(function (c, i) { c.classList.add('on'); copy[i].classList.add('on'); });
     }).catch(function () {});
-    var order = cells.map(function (_, i) { return i; });   /* in date order: the census fills as it happened */
+    window.addEventListener('resize', pace);
     function fmt(v, spec) {   /* "1.4M" / "12.6K": one decimal and the unit the spec carries */
       var unit = spec.replace(/[\d.]/g, ''), n = parseFloat(spec) * v;
       return (unit ? n.toFixed(1) : Math.round(n).toLocaleString()) + unit;
@@ -436,13 +451,10 @@
     player(card, function (t) {
       var p = ease(lin(t, 0.1, T1));
       figs.forEach(function (f) { f.textContent = fmt(p, f.dataset.count); });
-      var k = Math.round(p * N);
-      order.forEach(function (idx, j) { cells[idx].classList.toggle('on', j < k); });
+      var k = Math.round(p * N);   /* in date order: the census fills as it happened */
+      cells.forEach(function (c, i) { var on = i < k; c.classList.toggle('on', on); if (copy[i]) copy[i].classList.toggle('on', on); });
       return t > T1 + 0.3;
-    }, { duration: T1 + 1, after: function () { tourStart(); } });
-    if ('IntersectionObserver' in window) new IntersectionObserver(function (es) {
-      es.forEach(function (e) { if (!e.isIntersecting) tourStop(); else if (card.classList.contains('is-done')) tourStart(); });
-    }, { threshold: 0.3 }).observe(card);
+    }, { duration: T1 + 1 });
   })();
 
   /* ── bento or slideshow ──────────────────────────────────────────────────────────────── */

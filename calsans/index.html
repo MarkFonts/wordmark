@@ -36,7 +36,7 @@
 <link rel="stylesheet" href="../shared/src/grid.css">
 <link rel="stylesheet" href="../shared/src/dialHandle.css">
 <link rel="stylesheet" href="../shared/src/chip.css">
-<link rel="stylesheet" href="../css/case.css?v=69">
+<link rel="stylesheet" href="../css/case.css?v=70">
 </head>
 <body>
 
@@ -232,10 +232,14 @@
     <!-- 4 · the census: both figures count up once; the 187 outside posts tile in behind -->
     <article class="card hl hl--fig" id="hl-four">
       <div class="hl-stage hl-stage--count" data-nosnap>
-        <div class="hl-tiles" data-n="187" data-src="data/posts.json" aria-label="187 posts about Cal Sans by other people, in date order; each links to the post"></div>
-        <div class="hl-pop" hidden aria-hidden="true"></div>
         <span class="hl-icon material-symbols-outlined" aria-hidden="true" translate="no">bookmark</span>
         <p class="hl-fig hl-fig--two" aria-hidden="true"><b data-count="1.4M">0.0M</b><b data-count="12.6K">0.0K</b></p>
+        <!-- the reel: every outside post as a tile, the most-read ones as full-height cards, in date
+             order, drifting left to right under the figures; the pointer holds it still -->
+        <div class="hl-reel" aria-label="187 posts about Cal Sans by other people, in date order; each links to the post">
+          <div class="hl-tiles" data-n="187" data-src="data/posts.json"></div>
+        </div>
+        <div class="hl-pop" hidden aria-hidden="true"></div>
       </div>
       <p class="hl-text"><strong class="hl-say">1.4M views, 12.6K bookmarks.</strong> <span class="hl-cap">A million of them from posts Cal.com never wrote. 285 posts counted, 187 of them by other people.</span></p>
     </article>
@@ -612,7 +616,7 @@
 
 <script src="../js/thermal-hero.js?v=7"></script>
 <script src="../shared/src/dialHandle.js"></script>
-<script src="../js/highlights.js?v=8"></script>
+<script src="../js/highlights.js?v=9"></script>
 <script src="../shared/src/gridSnap.js" defer></script>
 <script src="../js/case.js?v=42"></script>
 <script type="module">
