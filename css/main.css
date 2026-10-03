@@ -63,6 +63,15 @@
    corners.css, toggleGroup.css. The page declares no ground or ink of its own. */
 :root { --r: 10px; }
 
+/* THE LINE (shared/src/grid.css). <main> is .wm-lines: every leading and every vertical space
+   below is a whole number of 3px units -- N x 3px, or round(nearest, ..., var(--bl)) for
+   anything fluid -- so each baseline lands on a line and gridSnap.js only ever has a sub-unit
+   left to put back. The house margin and gutter are grid.css's (--grid-margin, --grid-gutter);
+   the work rows are on its 24 columns (12 below 1024). Stages keep their own type and are
+   data-nosnap in the page: the hero (the recomposing headline over the comet, the pill laid
+   over the canvas at two thirds of the screen) and the dek (a paragraph placed by dek.js
+   inside the x-height of a word drawn on canvas). */
+
 /* corners.css puts every radius on the house superellipse. These two are true circles on
    square boxes, where that reads as a rounded square, and its opt-out list names its own
    classes (.ui-dot, .ui-avatar), not ours. */
@@ -200,38 +209,21 @@ body {
 .hero-text {
   grid-area: 1 / 1;
   align-self: start;
-  margin-top: 66.6vh;
+  margin-top: round(nearest, 66.6vh, var(--bl));
   position: relative;
   text-align: center;
   display: flex;
   flex-direction: column;
   align-items: center;
-  gap: 14px;
-  padding: 32px 24px 60px;
-}
-
-.hero-headline {
-  font-family: 'CalSans', sans-serif;
-  font-weight: 700;
-  font-variation-settings: 'opsz' 45, 'wght' 700, 'GEOM' 50;
-  font-size: clamp(22px, 3vw, 34px);
-  color: var(--text);
-  line-height: 1.1;
-}
-
-.hero-sub {
-  font-variation-settings: 'wght' 400;
-  font-size: 14px;
-  color: var(--text-muted);
-  line-height: 1.65;
-  max-width: 520px;
-  margin-top: 38px;
+  gap: 15px;
+  padding: 33px 24px 60px;
 }
 
 .hero-cta {
   display: flex;
   align-items: center;
-  gap: 10px;
+  column-gap: 10px;
+  --snap-unit: 1;   /* avatar and pill are one component: they move whole */
 }
 
 .hero-pill {
@@ -241,10 +233,14 @@ body {
   font-weight: 700;
   font-variation-settings: 'opsz' 45, 'wght' 700, 'GEOM' 50;
   font-size: clamp(22px, 3vw, 34px);
-  line-height: 1.1;
+  line-height: 1;
+  /* The pill's HEIGHT is on the unit (1.7em, what 1.1 + 0.22 + 0.38 came to), so the
+     avatar beside it can be the same size and a row of it is a line of type. The label
+     is centred in it and lifted 0.08em by the bottom padding, as the old 0.22/0.38 did. */
+  height: round(nearest, 1.7em, var(--bl));
   color: var(--bg);
   background: var(--text);
-  padding: 0.22em 0.65em 0.38em;
+  padding: 0 0.65em 0.16em;
   border-radius: 999px;
   text-decoration: none;
   white-space: nowrap;
@@ -268,7 +264,8 @@ body {
   z-index: 100;
   font-family: 'CalSans', -apple-system, sans-serif;
   font-size: clamp(20px, 2.6vw, 32px);   /* identical to .logos-headline (same breakpoints) */
-  line-height: normal;                    /* match headline box so baselines align on release */
+  /* the same leading as .logos-headline, so the two baselines align on release */
+  --lh: round(nearest, 1.15em, var(--bl)); line-height: var(--lh);
   font-optical-sizing: auto;              /* opsz auto — driven by font-size */
   font-variation-settings: 'wght' 700, 'GEOM' 100;
   letter-spacing: 0.1em;         /* = Illustrator tracking 100 (1/1000 em) */
@@ -285,10 +282,12 @@ body {
   top: 0.08em;
 }
 
-/* height ≈ pill: font-size × (line-height + 2×padding-em) = font-size × 1.66 */
+/* the pill's own size: the same font-size and the same 1.7em on the unit, so the two are
+   one height at every width (they were 58 and 57.8 at 1440, 40 and 40.8 at 800) */
 .hero-avatar {
-  width: clamp(38px, 5vw, 58px);
-  height: clamp(38px, 5vw, 58px);
+  font-size: clamp(22px, 3vw, 34px);
+  width: round(nearest, 1.7em, var(--bl));
+  height: round(nearest, 1.7em, var(--bl));
   border-radius: 50%;
   overflow: hidden;
   background: rgba(127,127,127,0.1);
@@ -317,32 +316,44 @@ body {
 /* ═══ WORK ══════════════════════════════════════════════ */
 #work { padding: 0; }
 
-/* mobile-first: single column by default, 3-col only on desktop */
+/* A work row is a .wm-grid (columns + the house margin) and a .wm-baselines row: the
+   headline and the figure's caption share a first baseline. Phone: one column, the figure
+   above the copy. From 681: copy | caption | image, the old 3fr 1fr 4fr on whole columns --
+   on 24, copy 1-8, a column skipped (gutter + column + gutter, the 72px gap it had at 1440),
+   caption 10-12, image 13-24; on 12, copy 1-5, caption 6-7, image 8-12, and below 768
+   copy 1-6, caption 7-8, image 9-12. The copy takes the extra columns because the case-study
+   pill is 264px and does not wrap: at four columns it ran into the caption. */
 .work-item {
-  display: grid;
-  grid-template-columns: 1fr;
-  padding: 0 clamp(20px, 5vw, 40px);
-  gap: 24px;
+  /* restated: grid.css gives .wm-grid the margin inside its layer, and the universal
+     reset at the top of this file is unlayered, so it zeroed it */
+  padding-inline: var(--grid-margin);
+  row-gap: 24px;
   align-items: start;
 }
 
 .work-copy {
   padding-top: 0;
-  padding-bottom: clamp(48px, 8vw, 80px);
+  padding-bottom: round(nearest, clamp(48px, 8vw, 80px), var(--bl));
 }
 
 @media (min-width: 681px) {
   .work-item {
-    /* 3/8 copy | 1/8 caption | 4/8 image */
-    grid-template-columns: 3fr 1fr 4fr;
-    min-height: 100vh;
-    padding: 0 clamp(32px, 7vw, 112px);
-    gap: clamp(32px, 5vw, 80px);
+    min-height: round(up, 100vh, var(--bl));
+    row-gap: round(nearest, clamp(32px, 5vw, 80px), var(--bl));
+    --copy: 8; --fig: 15; --cap: 3;
   }
-  .work-copy {
-    padding-top: clamp(24px, 7vw, 50px);
-    padding-bottom: clamp(72px, 10vw, 140px);
-  }
+  .work-item > .work-copy { --start: 1; --span: var(--copy); --start-md: 1; --span-md: 5; }
+  .work-item > .work-fig  { --start: 10; --span: var(--fig); --start-md: 6; --span-md: 7; }
+  .work-copy { padding-bottom: round(nearest, clamp(72px, 10vw, 140px), var(--bl)); }
+  /* The headline sits so its first baseline is a little above the caption's (0.87em is
+     its half-leading plus ascent at 1.08, --fig-first is the caption's); gridSnap's row
+     rule then brings it down the last few px onto the caption's line. */
+  .work-headline { margin-top: round(down, calc(var(--fig-first) - 0.87em), var(--bl)); }
+}
+@media (min-width: 681px) and (max-width: 1023px) { .work-item { --cap: 2; } }
+@media (min-width: 681px) and (max-width: 767px) {
+  .work-item > .work-copy, .closing > .portrait-track, .closing > footer { --span-md: 6; }
+  .work-item > .work-fig { --start-md: 7; --span-md: 6; }
 }
 
 .work-headline {
@@ -350,16 +361,16 @@ body {
   font-weight: 700;
   font-variation-settings: 'opsz' 45, 'wght' 700, 'GEOM' 50;
   font-size: clamp(22px, 2.8vw, 36px);
-  line-height: 1.08;
+  --lh: round(nearest, 1.08em, var(--bl)); line-height: var(--lh);
   color: var(--text);
-  margin-bottom: 28px;
+  margin-bottom: 27px;
   text-wrap: balance;
 }
 
 .para {
   font-variation-settings: 'wght' 400;
   font-size: 15px;
-  line-height: 1.72;
+  --lh: round(nearest, 1.72em, var(--bl)); line-height: var(--lh);   /* 27, nine units */
   color: var(--text-muted);
   hyphens: auto;
   -webkit-hyphens: auto;
@@ -367,8 +378,11 @@ body {
   max-width: 38ch;
 }
 
-/* the case-study button: the page's one pill, in the logo's weight */
-.work-cta { margin-top: 24px; }
+/* the case-study button: the page's one pill, in the logo's weight. It is a component on
+   the line: its height is in units (the case study's own pill, 2.2em on the unit, 33px),
+   its row is exactly that tall (flex, so the paragraph's strut does not grow it), and the
+   space above and below it is the same 24px. */
+.work-cta { display: flex; margin-top: 24px; }
 .pill {
   display: inline-flex;
   align-items: center;
@@ -377,14 +391,16 @@ body {
   font-optical-sizing: auto;
   font-variation-settings: 'wght' 700, 'GEOM' 50;
   font-size: 15px;
-  line-height: 1.1;
+  line-height: 1;
+  height: round(nearest, 2.2em, var(--bl));
   color: var(--bg);
   background: var(--text);
-  padding: 0.55em 1em 0.68em;
+  padding: 0 1em 0.13em;   /* the label lifted 0.065em, as the old 0.55 / 0.68 did */
   border-radius: 999px;
   text-decoration: none;
   white-space: nowrap;
   transition: opacity 0.15s;
+  --snap-unit: 1;   /* moves whole, label and arrow together */
 }
 .pill:hover { opacity: 0.78; }
 .pill .arrow { position: relative; top: 0.02em; transition: transform 0.2s; }
@@ -393,10 +409,10 @@ body {
 .learn-more {
   font-variation-settings: 'wght' 400;
   font-size: 15px;
-  line-height: 1.72;
+  --lh: round(nearest, 1.72em, var(--bl)); line-height: var(--lh);
   color: var(--text-muted);
   max-width: 38ch;
-  margin-top: 20px;
+  margin-top: 24px;
 }
 .learn-more a {
   color: var(--text);
@@ -412,6 +428,13 @@ body {
   --fig-shape-size: 11px;   /* diameter of the morphing shape */
   --fig-shape-inset: 20px;  /* inset from image corner */
   --fig-text-gap: 12px;     /* gap between fig-header and text */
+  /* the figure's padding-top on desktop (it was a 16px margin; padding, so the figure's box
+     starts where the copy's does and the two are one row) */
+  --fig-pad: 15px;
+  /* where the caption's first baseline lands below the row's top on desktop: 15 + 42 + 12,
+     then half-leading 4 + ascent 13 at 14/24, then the nudge onto the line -- 88, give or
+     take a unit with the row's own position. The headline is set against this. */
+  --fig-first: 88px;
 }
 
 /* ── mobile-first figure defaults ──────────────────────────────── */
@@ -427,7 +450,7 @@ body {
 .work-figcaption {
   padding-left: calc(var(--fig-shape-inset) + var(--fig-shape-size) / 2 + 10px);
   padding-right: 20%;
-  padding-bottom: 8px;
+  padding-bottom: 9px;
   order: -1;
 }
 
@@ -438,16 +461,17 @@ body {
 /* ── desktop override (3-col layout) ────────────────────────────── */
 @media (min-width: 681px) {
   .work-fig {
-    grid-column: 2 / -1;
     position: sticky;
-    top: clamp(34px, 7vw, 60px);   /* pushed 10px down */
+    /* pushed 10px down; less the padding, so the image pins where it did */
+    top: calc(clamp(34px, 7vw, 60px) - var(--fig-pad));
     align-self: start;
     flex-direction: row;
     align-items: start;
     order: 0;
     width: auto;
     gap: 0;
-    margin-block: 16px;
+    margin-block: 0;
+    padding-block: var(--fig-pad);
     transform: translateX(48px);
     opacity: 0;
     transition: transform 0.75s cubic-bezier(0.22, 1, 0.36, 1),
@@ -455,18 +479,20 @@ body {
   }
   .work-fig.visible { transform: translateX(0); opacity: 1; }
 
-  /* caption takes 1/5 of figure; padding-top puts text below the rule line */
+  /* the caption is --cap columns and the gutter after them; the image the rest of the
+     figure. padding-top puts text below the rule line (42px, fourteen units) */
+  .work-fig { --cap-w: calc(var(--cap) * (var(--grid-col) + var(--grid-gutter))); }
   .work-figcaption {
     display: block;
-    flex: 1;
+    flex: 0 0 var(--cap-w);
     width: auto;
     padding-left: 0;
-    padding-right: 0;
-    padding-top: calc(var(--fig-shape-inset) + var(--fig-shape-size) / 2 - 0.5px + 17px);
+    padding-right: var(--grid-gutter);
+    padding-top: round(nearest, calc(var(--fig-shape-inset) + var(--fig-shape-size) / 2 - 0.5px + 17px), var(--bl));
     order: 0;
   }
 
-  .fig-text { order: 0; font-size: 14px; margin-right: 5px; }
+  .fig-text { order: 0; font-size: 14px; }
 
   .fig-header {
     display: block;           /* spacer — empty div, just provides margin-bottom */
@@ -527,8 +553,8 @@ body {
      overflow:visible on work-img lets the rule escape leftward into the figcaption column. */
   .fig-rule {
     top: calc(var(--fig-shape-inset) + var(--fig-shape-size) / 2 - 0.5px + 12px);
-    left: -25%;
-    width: calc(25% + var(--fig-shape-inset) + var(--fig-shape-size) / 2);
+    left: calc(-1 * var(--cap-w));   /* across the caption's columns to the dot */
+    width: calc(var(--cap-w) + var(--fig-shape-inset) + var(--fig-shape-size) / 2);
     height: 1px;
     transform-origin: right center;
     transform: scaleX(0);
@@ -540,7 +566,7 @@ body {
   font-family: 'CalSans', sans-serif;
   font-variation-settings: 'wght' 400;
   font-size: 14px;
-  line-height: 1.65;
+  --lh: round(nearest, 1.65em, var(--bl)); line-height: var(--lh);   /* 24 at 14, 15 at 10 */
   color: var(--text-muted);
   font-weight: 400;
   opacity: 0;
@@ -554,7 +580,7 @@ body {
 /* image container — 4/5 of figure (= 4/8 of work-item) */
 .work-img {
   position: relative; /* contains the absolutely-positioned .work-shape */
-  flex: 4;
+  flex: 1 1 0;
   min-width: 0;
   border-radius: var(--r);
   overflow: visible;  /* rule must be able to break out toward the figcaption */
@@ -590,8 +616,8 @@ body {
   display: flex;
   flex-direction: column;
   align-items: center;
-  padding-bottom: 80px;
-  margin-top: 6.25vh;   /* 1/16 vh */
+  padding-bottom: 81px;
+  margin-top: round(nearest, 6.25vh, var(--bl));   /* 1/16 vh */
   overflow: visible;
 }
 
@@ -632,13 +658,14 @@ body {
 
 
 /* ═══ CAROUSEL ══════════════════════════════════════════ */
-#logos { padding-top: 88px; overflow: hidden; }
-.logos-header { padding: 0 clamp(32px, 7vw, 112px) 52px; }
+#logos { padding-top: 87px; overflow: hidden; }
+.logos-header { padding: 0 var(--grid-margin) 51px; }
 .logos-headline {
   font-family: 'CalSans', sans-serif;
   font-weight: 700;
   font-variation-settings: 'opsz' 45, 'wght' 700, 'GEOM' 50;
   font-size: clamp(20px, 2.6vw, 32px);
+  --lh: round(nearest, 1.15em, var(--bl)); line-height: var(--lh);   /* about what normal was, on the unit */
   color: var(--text);
 }
 .track-wrap { overflow: hidden; width: 100%; cursor: grab; }
@@ -647,7 +674,7 @@ body {
   display: flex;
   align-items: center;
   width: max-content;
-  padding: 20px 0;
+  padding: 21px 0;
 }
 .logo-slide {
   flex: 0 0 auto;
@@ -671,103 +698,20 @@ body {
   [data-theme="auto"] .logo-slide svg { filter: brightness(0); }
 }
 
-/* ═══ CONTACT ═══════════════════════════════════════════ */
-#contact {
-  min-height: 100vh;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  padding: clamp(48px, 8vw, 120px) clamp(32px, 7vw, 112px);
-}
-
-.contact-inner {
-  display: flex;
-  align-items: center;
-  gap: clamp(32px, 5vw, 64px);
-  max-width: 560px;
-  width: 100%;
-}
-
-.contact-photo {
-  flex: 0 0 clamp(64px, 10vw, 96px);
-  width: clamp(64px, 10vw, 96px);
-  height: clamp(64px, 10vw, 96px);
-  border-radius: 50%;
-  overflow: hidden;
-  background: rgba(127,127,127,0.1);
-  align-self: flex-start;
-  margin-top: 4px;
-}
-.contact-photo img {
-  width: 100%;
-  height: 100%;
-  object-fit: cover;
-  display: block;
-}
-
-.contact-copy { flex: 1; }
-
-.contact-name {
-  font-family: 'CalSans', sans-serif;
-  font-weight: 700;
-  font-variation-settings: 'opsz' 45, 'wght' 700, 'GEOM' 50;
-  font-size: clamp(20px, 2.4vw, 28px);
-  color: var(--text);
-  margin-bottom: 6px;
-}
-
-.contact-role {
-  font-variation-settings: 'wght' 400;
-  font-size: 13px;
-  color: var(--text-muted);
-  margin-bottom: 20px;
-}
-
-.contact-cta {
-  display: inline-block;
-  font-family: 'CalSans', -apple-system, sans-serif;
-  font-variation-settings: 'wght' 700;
-  font-size: 14px;
-  letter-spacing: 0;
-  color: var(--bg);
-  background: var(--text);
-  padding: 6px 14px;
-  border-radius: 999px;
-  text-decoration: none;
-  transition: opacity 0.15s;
-  margin-bottom: 20px;
-}
-.contact-cta:hover { opacity: 0.75; }
-
-/* staggered social links — 4-col grid, left-aligned in each track */
-.contact-links {
-  display: grid;
-  grid-template-columns: 2.5ch 3.5ch 2.5ch 1fr;
-  gap: 0 2ch;
-  align-items: baseline;
-}
-.contact-links a {
-  font-variation-settings: 'wght' 400;
-  font-size: 14px;
-  color: var(--text-muted);
-  text-decoration: none;
-  transition: color 0.12s;
-  white-space: nowrap;
-}
-.contact-links a:hover { color: var(--text); }
-
 /* ═══ FOOTER ════════════════════════════════════════════ */
 footer {
   position: relative;
   z-index: 2;
-  padding: 10vh clamp(32px, 7vw, 112px) 36px;
+  /* no side padding: the footer sits inside the closing work row, which has the margin
+     already (on a phone it had both, and its text stood 40px in where the copy is at 20) */
+  padding: round(nearest, 10vh, var(--bl)) 0 36px;
 }
 
 /* The footer is one brick — a 2-col contact grid stacked over the credit line. */
 .footer-brick {
   display: flex;
   flex-direction: column;
-  gap: 22px;
+  gap: 24px;
 }
 
 /* Desktop: footer follows the work grid — brick on the left (copy+caption
@@ -779,27 +723,29 @@ footer {
      rises from the bottom into the left column beside it. */
   .closing {
     position: relative;
-    min-height: 150vh;               /* runway (TUNING KNOB) — now safe to tweak; portrait stays put */
-    grid-template-rows: auto 1fr;    /* copy row, then a filler row that drops the footer to the bottom */
-    /* minmax(0,..) so the 440px portrait in col 1 can't blow the track out and
-       steal width from the image column (keeps the NYMZO image full-width) */
-    grid-template-columns: minmax(0, 3fr) minmax(0, 1fr) minmax(0, 4fr);
+    min-height: round(up, 150vh, var(--bl));   /* runway (TUNING KNOB) — now safe to tweak; portrait stays put */
+    /* copy row, then a filler row (the portrait's runway) that drops the footer to the bottom,
+       then the footer. The runway used to share the footer's row and cell, so the pinned
+       portrait could be drawn over the footer on a short screen; it now ends a gap above it. */
+    grid-template-rows: auto 1fr auto;
   }
+  /* the portrait and the footer take the copy's columns (grid.css's minmax(0, 1fr) keeps the
+     440px portrait from blowing a track out and stealing width from the NYMZO image) */
+  .closing > .portrait-track, .closing > footer { --start: 1; --span: var(--copy); --start-md: 1; --span-md: 5; }
   .portrait-track { min-width: 0; }
   .footer-portrait img { max-width: 100%; }   /* shrink within col 1 if it's narrower than 440px */
-  .closing .work-copy { grid-column: 1; grid-row: 1; }
+  .closing .work-copy { grid-row: 1; }
   /* image spans the full stage height so its sticky pin holds the whole way down */
   .closing .work-fig { grid-row: 1 / -1; align-self: start; }
   /* footer: bottom-left of the stage, single left column, NOT sticky — it rises
      from the bottom beside the still-pinned image */
   .closing > footer {
-    grid-column: 1;
-    grid-row: 2;
+    grid-row: 3;
     align-self: end;
     display: block;
     margin: 0;
     padding: 0;
-    transform: translateY(-10px);   /* nudge 10px up, closer to the portrait (visual only) */
+    transform: translateY(-9px);   /* nudge three units up, closer to the portrait (visual only) */
     z-index: 3;
   }
   /* Portrait rides its OWN top-anchored sticky track, decoupled from the
@@ -807,7 +753,6 @@ footer {
        • .portrait-track height → HOW LONG it stays stuck (pin duration)
        • .footer-portrait top   → WHERE it pins (scroll → sticky line) */
   .portrait-track {
-    grid-column: 1;
     grid-row: 2;
     align-self: stretch;           /* fill the row → portrait stays pinned regardless of
                                       the runway, so tweaking min-height no longer moves it */
@@ -831,47 +776,20 @@ footer {
   .footer-portrait { display: none; }
 }
 
-/* Single wide photo, sized to match the work image (4/5 of the figure span,
-   the caption slot being the other 1/5). */
-.footer-photos {
-  display: flex;
-  gap: 0;
-  min-width: 0;
-}
-.footer-photos::before {
-  content: "";
-  flex: 1;   /* the figcaption slot — keeps the photo aligned to the work image */
-}
-.footer-photos img {
-  flex: 4;
-  min-width: 0;
-  aspect-ratio: 7 / 3;   /* wide single-photo crop */
-  object-fit: cover;
-  border-radius: var(--r);
-  display: block;
-}
-
-.footer-brand {
-  font-family: 'CalSans', sans-serif;
-  font-weight: 700;
-  font-variation-settings: 'opsz' 45, 'wght' 700, 'GEOM' 50;
-  font-size: 14px;
-  color: var(--text);
-}
-
 /* ig  tw · in  email — col 1 sized to the short labels, email defines col 2;
    tw and email share col 2 so they align. */
 .footer-links {
   display: grid;
   grid-template-columns: max-content max-content;
   column-gap: clamp(40px, 11vw, 160px);   /* ig/in ↔ tw/email, still within the copy column */
-  row-gap: 8px;
+  row-gap: 3px;   /* 21 + 3: the links run on a 24px pitch, the body leading */
   align-items: baseline;
 }
 
 .footer-links a {
   font-variation-settings: 'wght' 400;
   font-size: 14px;
+  line-height: 21px;
   color: var(--text-muted);
   text-decoration: none;
   transition: color 0.12s;
@@ -883,7 +801,7 @@ footer {
 .footer-credit {
   font-variation-settings: 'wght' 400;
   font-size: 14px;
-  line-height: 1.5;
+  --lh: 21px; line-height: var(--lh);
   color: var(--text);
   opacity: 0.2;
 }
@@ -984,39 +902,19 @@ footer {
    • Footer links wrap to 2 cols
 ══════════════════════════════════════════════════════ */
 @media (max-width: 680px) {
-  .work-item {
-    grid-template-columns: 1fr;
-    min-height: auto;
-    padding: 0 clamp(20px, 5vw, 40px);
-    gap: 24px;
-  }
-  /* Match the footer's side gutters to the rest of the content
-     (content uses clamp(20px,5vw,40px); footer defaulted to the wider
-     clamp(32px,7vw,112px)). Also drop the desktop email nudge. */
-  footer {
-    padding-left: clamp(20px, 5vw, 40px);
-    padding-right: clamp(20px, 5vw, 40px);
-  }
   #contact-link { padding-left: 0; }
-  .footer-photos { display: none; }   /* photo bricks are desktop-only */
   .work-img { width: 100%; order: 1; }  /* caption+rule above, image below */
   .work-figcaption { order: -1; }       /* ensure caption is above image */
   .fig-text { font-size: 10px; }
-  .work-copy { padding-bottom: clamp(48px, 8vw, 80px); }
-  .contact-inner {
-    flex-direction: column;
-    align-items: flex-start;
-    gap: 24px;
-  }
-  .contact-photo { align-self: auto; }
+  .work-copy { padding-bottom: round(nearest, clamp(48px, 8vw, 80px), var(--bl)); }
   .footer-links a:last-child { text-align: left; }
-  #logos { padding-top: 56px; }
-  .logos-header { padding: 0 clamp(20px, 5vw, 40px) 36px; }
+  #logos { padding-top: 57px; }
+  .logos-header { padding-bottom: 36px; }
 
   /* Nameplate: centred on desktop collides with the headline + toggle on phones,
      so left-align it to the content margin here (vertical behaviour unchanged). */
   #site-wordmark {
-    left: clamp(20px, 5vw, 40px);
+    left: var(--grid-margin);
     transform: none;
     text-indent: 0;              /* flush to the margin, no centring indent */
   }
@@ -1033,7 +931,7 @@ footer {
     width: auto !important;
     align-self: stretch;
     font-size: clamp(20px, 5.5vw, 36px);
-    padding: 0 clamp(20px, 5vw, 40px) 28px !important;
+    padding: 0 var(--grid-margin) 28px !important;
     order: 0;
   }
   #dek-canvas {
@@ -1042,7 +940,7 @@ footer {
 }
 
 @media (min-width: 768px) {
-  footer { padding-bottom: clamp(60px, 8vw, 100px); }
+  footer { padding-bottom: round(nearest, clamp(60px, 8vw, 100px), var(--bl)); }
 }
 
 /* ═══ STICKERS ══════════════════════════════════════════════ */
