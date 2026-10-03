@@ -271,7 +271,7 @@
   /* ── 3 · six axes, one file, added as Cal.com grew ─────────────────────────────────────
      The word alone, stamped 2021. The dials arrive in release order, each stamped and each
      nudging the word once: wght and GEOM (2025), then opsz, YTAS, SHRP, ital (2026). End
-     state: all six live and one of them drifting on its own until a hand stops it. */
+     state: all six live and drifting on their harmonics until a hand stops them. */
   var AXES = [
     { tag: 'wght', label: 'Weight',          min: 400,  max: 700,  step: 1,    value: 600,  year: 2025 },
     { tag: 'GEOM', label: 'Geometry',        min: 0,    max: 100,  step: 1,    value: 50,   year: 2025 },
@@ -322,13 +322,16 @@
       }).join(', ');
     }
     function dirty() { if (reset) reset.hidden = !dials.some(function (d) { return d.h.get() !== d.a.value; }); }
-    /* the drift: one axis, GEOM, on a slow cosine through its default, until touched */
-    var drift = null, driftT0 = 0, DRIFT = 24000, DRIFT_AXIS = 'GEOM';
+    /* the drift: all six dials on harmonics of one 24 s period (ital 1, opsz 2, GEOM 3, wght 4, YTAS 5,
+       SHRP 6), each a cosine phased through its own default, rounded to its step, until a hand stops it */
+    var drift = null, driftT0 = 0, DRIFT = 24000, HARMONIC = { ital: 1, opsz: 2, GEOM: 3, wght: 4, YTAS: 5, SHRP: 6 };
     function driftFrame(now) {
       if (!drift) return;
-      var d = dials.filter(function (d) { return d.a.tag === DRIFT_AXIS; })[0];
-      var span = d.a.max - d.a.min, phi = Math.acos(1 - 2 * (d.a.value - d.a.min) / span);
-      d.h.set(Math.round(d.a.min + span * (1 - Math.cos(2 * Math.PI * (now - driftT0) / DRIFT + phi)) / 2), true);
+      dials.forEach(function (d) {
+        var span = d.a.max - d.a.min, phi = Math.acos(1 - 2 * (d.a.value - d.a.min) / span), n = HARMONIC[d.a.tag] || 1;
+        var v = d.a.min + span * (1 - Math.cos(2 * Math.PI * n * (now - driftT0) / DRIFT + phi)) / 2;
+        d.h.set(Math.round(v / d.a.step) * d.a.step, true);
+      });
       apply(); drift = requestAnimationFrame(driftFrame);
     }
     function startDrift() { if (still || drift || wrap.classList.contains('is-touched')) return; wrap.classList.add('is-live'); if (reset) reset.hidden = true; driftT0 = performance.now(); drift = requestAnimationFrame(driftFrame); }
