@@ -280,9 +280,11 @@ section[id] { scroll-margin-top: var(--nav-h); }
 .axes-wrap.is-live .ax-reset { opacity: 0; pointer-events: none; }   /* nothing to reset while an axis drifts */
 
 /* 4 · the census: two tabular figures, and beneath them the reel of the outside posts */
-.hl-stage--count { min-height: 210px; display: flex; flex-direction: column; justify-content: space-between; }
-.hl-stage--count .hl-icon { z-index: 3; }   /* above the reel's edge fades (z 2), which otherwise paint over the first numeral */
-.hl-stage--count .hl-fig { z-index: 3; text-shadow: 0 27px 54px rgba(0, 0, 0, var(--fig-shade, 0.55)); }   /* the figures float over the reel on a big soft shade */
+.hl-stage--count { min-height: 210px; display: flex; flex-direction: column; justify-content: flex-end; }
+.hl-stage--count .hl-fig { z-index: 3;   /* above the reel's edge fades (z 2), which otherwise paint over the first numeral */ text-shadow: 0 27px 54px rgba(0, 0, 0, var(--fig-shade, 0.55)); }   /* the figures float over the reel on a big soft shade */
+.hl-stage--count .hl-fig--two { gap: 6px 0.4em; }
+.hl-figb { display: flex; flex-direction: column; }
+.hl-figb .hl-icon { margin-bottom: 3px; filter: drop-shadow(0 27px 54px rgba(0, 0, 0, var(--fig-shade, 0.55))); }   /* a few pixels above its figure, on the same shade */
 :root[data-theme="light"] .hl-stage--count .hl-fig { --fig-shade: 0.16; }
 @media (prefers-color-scheme: light) { :root:not([data-theme="dark"]) .hl-stage--count .hl-fig { --fig-shade: 0.16; } }
 /* the reel fills the stage behind the figures: five rows of tiles in date order, the full-height
@@ -310,12 +312,11 @@ section[id] { scroll-margin-top: var(--nav-h); }
 .hl-tiles > .big { grid-row: 1 / -1; width: 228px; box-sizing: border-box; padding: 9px 12px; border-radius: var(--r); background: var(--surface-hi); color: var(--text); font-size: 12px; --lh: 15px; line-height: var(--lh); overflow: hidden; display: flex; flex-direction: column; }
 .hl-tiles > .big.on, .hl-tiles > .big.has-img.on { opacity: 0.85; }
 .hl-tiles > .big.on:hover, .hl-tiles > .big.has-img.on:hover { opacity: 1; }
-.hl-tiles > .big img { display: block; width: calc(100% + 24px); margin: -9px -12px 6px; height: 40%; object-fit: cover; object-position: top; }
+.hl-tiles > .big img { display: block; flex: none; width: calc(100% + 24px); margin: -9px -12px 6px; height: 40%; object-fit: cover; object-position: top; }
 .hl-tiles > .big b { --wght: 600; }
 .hl-tiles > .big time { float: right; color: var(--text-dim); font-feature-settings: 'tnum' 1; }
-.hl-tiles > .big p { margin: 3px 0 0; color: var(--text-muted); white-space: pre-line; display: -webkit-box; -webkit-line-clamp: 9; -webkit-box-orient: vertical; overflow: hidden; }
-.hl-tiles > .big.has-img p { -webkit-line-clamp: 4; }
-.hl-tiles > .big span { display: block; margin-top: auto; padding-top: 3px; color: var(--text-dim); font-feature-settings: 'tnum' 1; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.hl-tiles > .big p { margin: 3px 0 0; color: var(--text-muted); white-space: pre-line; flex: 1 1 auto; min-height: 0; overflow: hidden; }   /* the whole post, no clamp */
+.hl-tiles > .big span { display: block; flex: none; margin-top: auto; padding-top: 3px; color: var(--text-dim); font-feature-settings: 'tnum' 1; }
 /* one small tile at a time, under the pointer: handle, date, the text, its numbers */
 .hl-pop { position: absolute; left: 0; top: 0; z-index: 4; width: min(300px, 100%); padding: 12px 15px; border-radius: var(--r); background: var(--surface-hi); color: var(--text); font-size: 13px; --lh: 18px; line-height: var(--lh); pointer-events: none; box-shadow: 0 6px 24px rgba(0, 0, 0, 0.35); }
 .hl-pop[hidden] { display: none; }
@@ -341,7 +342,7 @@ section[id] { scroll-margin-top: var(--nav-h); }
 }
 .hl-fig--two { display: flex; flex-wrap: wrap; gap: 0 0.4em; }
 .hl-fig--two b { --wght: 640; }
-.hl-fig--two b:last-child { color: var(--text-muted); }
+.hl-fig--two > :last-child b { color: var(--text-muted); }   /* the second figure a step down */
 
 /* the slideshow: one card at a time, a bar of dots and a play button below */
 .hl-grid.is-show { display: block; }

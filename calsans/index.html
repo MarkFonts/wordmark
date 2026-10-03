@@ -36,7 +36,7 @@
 <link rel="stylesheet" href="../shared/src/grid.css">
 <link rel="stylesheet" href="../shared/src/dialHandle.css">
 <link rel="stylesheet" href="../shared/src/chip.css">
-<link rel="stylesheet" href="../css/case.css?v=73">
+<link rel="stylesheet" href="../css/case.css?v=74">
 </head>
 <body>
 
@@ -232,8 +232,11 @@
     <!-- 4 · the census: both figures count up once; the 187 outside posts tile in behind -->
     <article class="card hl hl--fig" id="hl-four">
       <div class="hl-stage hl-stage--count" data-nosnap>
-        <span class="hl-icon material-symbols-outlined" aria-hidden="true" translate="no">bookmark</span>
-        <p class="hl-fig hl-fig--two" aria-hidden="true"><b data-count="1.4M">0.0M</b><b data-count="12.6K">0.0K</b></p>
+        <!-- each figure under its mark: the eye for the views, the bookmark for the bookmarks -->
+        <p class="hl-fig hl-fig--two" aria-hidden="true">
+          <span class="hl-figb"><span class="hl-icon material-symbols-outlined" translate="no">visibility</span><b data-count="1.4M">0.0M</b></span>
+          <span class="hl-figb"><span class="hl-icon material-symbols-outlined" translate="no">bookmark</span><b data-count="12.6K">0.0K</b></span>
+        </p>
         <!-- the reel: every outside post as a tile, the most-read ones as full-height cards, in date
              order, drifting left to right under the figures; the pointer holds it still -->
         <div class="hl-reel" aria-label="187 posts about Cal Sans by other people, in date order; each links to the post">
@@ -616,7 +619,7 @@
 
 <script src="../js/thermal-hero.js?v=7"></script>
 <script src="../shared/src/dialHandle.js"></script>
-<script src="../js/highlights.js?v=9"></script>
+<script src="../js/highlights.js?v=10"></script>
 <script src="../shared/src/gridSnap.js" defer></script>
 <script src="../js/case.js?v=42"></script>
 <script type="module">

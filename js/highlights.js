@@ -403,13 +403,14 @@
       pop.style.transform = 'translate(' + Math.round(x) + 'px,' + Math.round(Math.max(0, y)) + 'px)';
     }
     function hidePop() { if (pop) pop.hidden = true; }
-    /* the full-height card: the picture across the top if there is one, handle, date, text, numbers */
+    function clean(text) { return text.replace(/\s*(https?:\/\/\S+|pic\.twitter\.com\/\S+)\s*$/g, '').replace(/\n{3,}/g, '\n\n').trim(); }
+    /* the full-height card: the picture across the top if there is one, handle, date, then the whole post, never cut */
     function bigTile(a, post) {
       a.classList.add('big');
       if (post.img) { var im = document.createElement('img'); im.src = post.img; im.alt = ''; im.loading = 'lazy'; a.appendChild(im); }
       var who = document.createElement('b'); who.textContent = post.who; a.appendChild(who);
       var when = document.createElement('time'); when.textContent = post.date; a.appendChild(when);
-      var txt = document.createElement('p'); txt.textContent = post.text.replace(/\s*(https?:\/\/\S+|pic\.twitter\.com\/\S+)\s*$/g, '').trim(); a.appendChild(txt);
+      var txt = document.createElement('p'); txt.textContent = clean(post.text); a.appendChild(txt);
       var st = stats(post); if (st) { var sp = document.createElement('span'); sp.textContent = st; a.appendChild(sp); }
     }
     function pace() {   /* the drift: one copy's width at V px/s; after a resize, keep the speed */
@@ -431,7 +432,7 @@
         if (post.img) { a.classList.add('has-img'); if (!big[post.id]) a.style.backgroundImage = 'url(' + post.img + ')'; }
         if (big[post.id]) bigTile(a, post);
         else {
-          if (!post.img) { var tw = document.createElement('b'); tw.textContent = post.who; a.appendChild(tw); var tt = document.createElement('p'); tt.textContent = post.text.replace(/\s*(https?:\/\/\S+|pic\.twitter\.com\/\S+)\s*$/g, '').trim(); a.appendChild(tt); }
+          if (!post.img) { var tw = document.createElement('b'); tw.textContent = post.who; a.appendChild(tw); var tt = document.createElement('p'); tt.textContent = clean(post.text); a.appendChild(tt); }
           a.addEventListener('mouseenter', function () { showPop(a, post); }); a.addEventListener('focus', function () { showPop(a, post); });
           a.addEventListener('mouseleave', hidePop); a.addEventListener('blur', hidePop);
         }
