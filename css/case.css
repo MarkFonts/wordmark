@@ -281,8 +281,8 @@ section[id] { scroll-margin-top: var(--nav-h); }
 
 /* 4 · the census: two tabular figures, and beneath them the reel of the outside posts */
 .hl-stage--count { min-height: 210px; display: flex; flex-direction: column; justify-content: space-between; }
-.hl-stage--count .hl-icon { z-index: 2; }
-.hl-stage--count .hl-fig { z-index: 2; text-shadow: 0 27px 54px rgba(0, 0, 0, var(--fig-shade, 0.55)); }   /* the figures float over the reel on a big soft shade */
+.hl-stage--count .hl-icon { z-index: 3; }   /* above the reel's edge fades (z 2), which otherwise paint over the first numeral */
+.hl-stage--count .hl-fig { z-index: 3; text-shadow: 0 27px 54px rgba(0, 0, 0, var(--fig-shade, 0.55)); }   /* the figures float over the reel on a big soft shade */
 :root[data-theme="light"] .hl-stage--count .hl-fig { --fig-shade: 0.16; }
 @media (prefers-color-scheme: light) { :root:not([data-theme="dark"]) .hl-stage--count .hl-fig { --fig-shade: 0.16; } }
 /* the reel fills the stage behind the figures: five rows of tiles in date order, the full-height
@@ -317,7 +317,7 @@ section[id] { scroll-margin-top: var(--nav-h); }
 .hl-tiles > .big.has-img p { -webkit-line-clamp: 4; }
 .hl-tiles > .big span { display: block; margin-top: auto; padding-top: 3px; color: var(--text-dim); font-feature-settings: 'tnum' 1; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
 /* one small tile at a time, under the pointer: handle, date, the text, its numbers */
-.hl-pop { position: absolute; left: 0; top: 0; z-index: 3; width: min(300px, 100%); padding: 12px 15px; border-radius: var(--r); background: var(--surface-hi); color: var(--text); font-size: 13px; --lh: 18px; line-height: var(--lh); pointer-events: none; box-shadow: 0 6px 24px rgba(0, 0, 0, 0.35); }
+.hl-pop { position: absolute; left: 0; top: 0; z-index: 4; width: min(300px, 100%); padding: 12px 15px; border-radius: var(--r); background: var(--surface-hi); color: var(--text); font-size: 13px; --lh: 18px; line-height: var(--lh); pointer-events: none; box-shadow: 0 6px 24px rgba(0, 0, 0, 0.35); }
 .hl-pop[hidden] { display: none; }
 .hl-pop img { display: block; width: 100%; height: auto; max-height: 150px; object-fit: cover; border-radius: 6px; margin-bottom: 9px; }
 .hl-pop b { --wght: 600; }
