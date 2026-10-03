@@ -56,6 +56,8 @@
   --gut: var(--grid-margin);   /* the house margin (shared/src/grid.css), which is this page's own */
   --sec: round(nearest, clamp(72px, 12vw, 168px), 24px);   /* whole body lines */
   --nav-h: 57px;   /* 19 units, so everything under the sticky nav starts on a line */
+  --ui-font: 'CalSans', sans-serif;   /* the chrome face for every primitive (dials, chips, switches): never the platform's */
+  --ui-fvs: 'opsz' 10, 'GEOM' 25;
   --text-rgb: 232, 232, 232;
   --signal: #eeff41;
   --signal: color(display-p3 0.9333 1 0.2549);
@@ -229,7 +231,7 @@ section[id] { scroll-margin-top: var(--nav-h); }
    only the caption below sits on the line. */
 .hl-head { display: flex; align-items: flex-end; justify-content: space-between; gap: 24px; flex-wrap: wrap; margin-bottom: round(nearest, clamp(28px, 4vw, 56px), var(--bl)); }
 .hl-head .sec-title { margin-bottom: 0; }
-.hl-mode { margin-bottom: 6px; --ui-font: 'CalSans', sans-serif; }
+.hl-mode { margin-bottom: 6px; }
 .hl-grid { display: grid; gap: 15px; }
 .hl {
   display: flex;
