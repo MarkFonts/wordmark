@@ -296,7 +296,7 @@ window.hlMaterialize = (function () {
 
   var PATHS = []; try { PATHS = JSON.parse(document.getElementById('calcom-paths').textContent); } catch (e) { PATHS = []; }
   if (!PATHS.length) { /* fallback: a plain word, so the logo variants still play */ PATHS = null; }
-  var RINGS = [[195, 204, 163], [488, 254, 114], [1038, 254, 114], [1314, 254, 113]], ARCHES = [[1663, 202, 64], [1848, 202, 64]];
+  var RINGS = [[195, 204, 163], [488, 254, 114], [837.7, 355.6, 43.5], [1038, 254, 114], [1314, 254, 113]]   /* C, a, the period, c, o */, ARCHES = [[1663, 202, 64], [1848, 202, 64]];
   var RING_OF = { 0: [0], 1: [1], 4: [2], 5: [3] };
   function ringNodes(parent, attrs) {
     var out = [];
