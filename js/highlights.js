@@ -117,6 +117,7 @@
      sits where the grid wants it; then the snapper is asked to look again */
   function snapStage(stage) {
     stage.style.height = '';
+    if (stage.closest('.hl-grid.is-show')) return;   /* a full-height slide: its stages flex to fill, no fixed height */
     var h = stage.getBoundingClientRect().height, unit = 3;
     stage.style.height = Math.ceil(h / unit) * unit + 'px';
     if (window.wmGridSnap) window.wmGridSnap();
@@ -289,7 +290,9 @@
       var range = document.createRange(); range.selectNodeContents(w);
       var tw = range.getBoundingClientRect().width, box = w.getBoundingClientRect().width;
       if (face) w.dataset.face = face; else delete w.dataset.face; w.style.fontVariationSettings = fvs;
-      if (tw > 0 && box > 0) w.style.fontSize = Math.max(40, Math.min(160, Math.floor(100 * box / tw))) + 'px';
+      /* a bento card caps it at 160px; a full-screen slide lets it fill the width, up to a quarter of the screen's height */
+      var cap = w.closest('.hl-grid.is-show') ? Math.max(160, Math.min(320, Math.round(innerHeight * 0.26))) : 160;
+      if (tw > 0 && box > 0) w.style.fontSize = Math.max(40, Math.min(cap, Math.floor(100 * box / tw))) + 'px';
     });
   }
   fitSample();
@@ -304,12 +307,23 @@
     /* the three releases: the word itself changes face as the years pass; the pill carries the version to
        where its year falls on the 2021-2026 line */
     var FACES = { 2021: ['v1', 'V1', 0], 2025: ['ui', '\u201cUI\u201d V1.6', 0.8], 2026: ['v2', 'V2', 1] };
-    function setYear(year) {
+    function setYear(year, fade) {
       if (verYear && verYear.textContent !== String(year)) {
         verYear.textContent = String(year);
         if (verPill) { verPill.textContent = FACES[year][1]; verPill.style.setProperty('--p', FACES[year][2]); }
       }
-      if (target.dataset.face !== FACES[year][0]) target.dataset.face = FACES[year][0];
+      if (target.dataset.face === FACES[year][0]) return;
+      /* a release change is a crossfade, never a cut: a ghost of the word in the old face sits exactly over
+         it and dissolves (opacity + a little blur) while the word in the new face comes up underneath */
+      if (fade && !still) {
+        var ghost = target.cloneNode(true), wr = wrap.getBoundingClientRect(), tr = target.getBoundingClientRect();
+        ghost.removeAttribute('id'); ghost.setAttribute('aria-hidden', 'true'); ghost.classList.add('ax-ghost');
+        ghost.style.left = (tr.left - wr.left) + 'px'; ghost.style.top = (tr.top - wr.top) + 'px'; ghost.style.width = tr.width + 'px';
+        wrap.appendChild(ghost);
+        target.classList.remove('ax-face-in'); void target.offsetWidth; target.classList.add('ax-face-in');
+        setTimeout(function () { ghost.remove(); }, 420);
+      }
+      target.dataset.face = FACES[year][0];
     }
     var dials = AXES.map(function (a) {
       var h = wmHandleDial.mount(group, { label: a.label, caption: a.tag, min: a.min, max: a.max, step: a.step, value: a.value, orient: 'vertical',
@@ -334,6 +348,8 @@
       dials.forEach(function (d) {
         var span = d.a.max - d.a.min, phi = Math.acos(1 - 2 * (d.a.value - d.a.min) / span), n = HARMONIC[d.a.tag] || 1;
         var v = d.a.min + span * (1 - Math.cos(2 * Math.PI * n * (now - driftT0) / DRIFT + phi)) / 2;
+        var k = Math.min(1, (now - driftT0) / 1800), amp = k * k * (3 - 2 * k);   /* the drift eases in over 1.8 s */
+        v = d.a.value + amp * (v - d.a.value);
         d.h.set(Math.round(v / d.a.step) * d.a.step, true);
       });
       apply(); drift = requestAnimationFrame(driftFrame);
@@ -349,21 +365,38 @@
     group.addEventListener('focusin', function () { wrap.classList.add('is-touched'); stopDrift(); dirty(); });
     /* the arrivals: 2021 the word alone in Cal Sans 1; 2025 Cal Sans UI 1.6, wght and GEOM arrive together
        and run their whole range twice; 2026 Cal Sans 2 and the other four, one by one, each nudging the word */
-    var AT = { wght: 1.2, GEOM: 1.2, opsz: 4.6, YTAS: 5.05, SHRP: 5.5, ital: 5.95 }, UI0 = 1.2, UI1 = 4.6, END = 7.2;
+    /* the three stages, each handing off without a cut:
+         2021  the word rises in, alone, in Cal Sans 1
+         2025  crossfade to Cal Sans UI 1.6; weight and geometry wipe in and sweep their whole range twice. The
+               sweep starts and ends ON each axis's default with its amplitude eased in and out, so the value
+               never jumps and the motion never starts or stops at full speed
+         2026  crossfade to Cal Sans 2; the other four arrive one by one, a beat after the face, each nudging the
+               word with a bump that starts and ends at rest (sin squared); then the drift eases in */
+    var AT = { wght: 1.25, GEOM: 1.35, opsz: 4.85, YTAS: 5.3, SHRP: 5.75, ital: 6.2 }, UI0 = 1.2, UI1 = 4.6, SW0 = 1.45, SW1 = 4.45, END = 7.4;
+    var lastYear = 2021;
+    function osc(a, u) {   /* two full turns through the default: value(0) = value(1) = default */
+      var span = a.max - a.min, phi = Math.acos(1 - 2 * (a.value - a.min) / span);
+      return a.min + span * (1 - Math.cos(2 * Math.PI * 2 * u + phi)) / 2;
+    }
     player(card, function (t) {
       var year = t >= 1e8 ? 2026 : t >= UI1 ? 2026 : t >= UI0 ? 2025 : 2021;
-      setYear(year);
+      setYear(year, year !== lastYear && t < 1e8); lastYear = year;
+      /* 2021: the word rises 12px and comes up, out-eased */
+      var r = t >= 1e8 ? 1 : 1 - Math.pow(1 - lin(t, 0, 0.6), 3);
+      target.style.opacity = r.toFixed(3); target.style.transform = r < 1 ? 'translateY(' + ((1 - r) * 12).toFixed(1) + 'px)' : '';
       dials.forEach(function (d) {
         var at = AT[d.a.tag], e = t >= 1e8 ? 1 : ease(lin(t, at, at + 0.7));
         d.root.style.setProperty('--enter', e.toFixed(3));
-        var p = t >= 1e8 ? 1 : lin(t, at + 0.1, at + 1.0); nudge[d.a.tag] = p > 0 && p < 1 ? Math.sin(p * Math.PI) : 0;
-        /* the UI phase: weight and geometry sweep end to end, twice, a quarter turn apart */
-        if (t < 1e8 && t >= UI0 + 0.7 && t < UI1 && (d.a.tag === 'wght' || d.a.tag === 'GEOM')) {
-          var u = (t - UI0 - 0.7) / (UI1 - UI0 - 0.7), ph = d.a.tag === 'GEOM' ? Math.PI / 2 : 0;
-          var v = d.a.min + (d.a.max - d.a.min) * (1 - Math.cos(2 * Math.PI * 2 * u + ph)) / 2;
-          d.h.set(Math.round(v), true); nudge[d.a.tag] = 0;
-        } else if (t < 1e8 && t >= UI1 && t < UI1 + 0.6 && (d.a.tag === 'wght' || d.a.tag === 'GEOM')) {
-          d.h.set(d.a.value, true);   /* 2026 opens on the defaults */
+        var sweeps = d.a.tag === 'wght' || d.a.tag === 'GEOM';
+        if (sweeps) {
+          nudge[d.a.tag] = 0;   /* the sweep is their arrival; no nudge on top of it */
+          if (t < 1e8 && t >= SW0 && t < SW1) {
+            var u = (t - SW0) / (SW1 - SW0), env = Math.min(1, u / 0.15, (1 - u) / 0.15); env = env * env * (3 - 2 * env);
+            d.h.set(Math.round(d.a.value + env * (osc(d.a, u) - d.a.value)), true);
+          } else if (t < 1e8 && t >= SW1 && t < SW1 + 0.2) d.h.set(d.a.value, true);
+        } else {
+          var p = t >= 1e8 ? 1 : lin(t, at + 0.1, at + 1.0), b = Math.sin(p * Math.PI);
+          nudge[d.a.tag] = p > 0 && p < 1 ? b * b : 0;   /* starts and ends at rest */
         }
       });
       apply();
@@ -470,12 +503,14 @@
     var grid = document.querySelector('.hl-grid'), sec = document.getElementById('highlights'); if (!grid) return;
     var cards = Array.prototype.slice.call(grid.querySelectorAll('.hl')), chips = sec.querySelectorAll('.hl-mode .wm-chip');
     var bar = sec.querySelector('.hl-bar'), dots = bar ? Array.prototype.slice.call(bar.querySelectorAll('.hl-dot')) : [], playBtn = bar && bar.querySelector('.hl-play');
+    var prevBtn = bar && bar.querySelector('.hl-prev'), nextBtn = bar && bar.querySelector('.hl-next');
     var cur = 0, timer = 0, running = true;
     function show(i, play) {
       cur = (i + cards.length) % cards.length;
       cards.forEach(function (c, j) { c.classList.toggle('is-current', j === cur); });
       dots.forEach(function (d, j) { d.classList.toggle('on', j === cur); d.setAttribute('aria-selected', j === cur); });
       var c = cards[cur];
+      fitSample();   /* the word can only be measured once its slide is showing */
       c.querySelectorAll('.hl-stage').forEach(function (s) { s.dispatchEvent(new Event('hl:relayout')); });
       if (play !== false && c._hl) { if (still) c._hl.rest(); else c._hl.play(); }
       arm();
@@ -496,6 +531,34 @@
     }
     chips.forEach(function (ch) { ch.addEventListener('click', function () { mode(ch.dataset.mode === 'show'); }); });
     dots.forEach(function (d, j) { d.addEventListener('click', function () { show(j); }); });
+    /* back and next: the bar's arrows, the keyboard's arrows while the section is on screen, a swipe on touch */
+    if (prevBtn) prevBtn.addEventListener('click', function () { show(cur - 1); });
+    if (nextBtn) nextBtn.addEventListener('click', function () { show(cur + 1); });
+    var onScreen = false;
+    if ('IntersectionObserver' in window) new IntersectionObserver(function (es) { onScreen = es[0].isIntersecting; }, { threshold: 0.3 }).observe(grid);
+    document.addEventListener('keydown', function (e) {
+      if (!grid.classList.contains('is-show') || !onScreen || e.metaKey || e.ctrlKey || e.altKey) return;
+      var el = document.activeElement; if (el && /^(INPUT|TEXTAREA|SELECT)$/.test(el.tagName)) return;
+      if (e.key === 'ArrowRight') { e.preventDefault(); show(cur + 1); }
+      else if (e.key === 'ArrowLeft') { e.preventDefault(); show(cur - 1); }
+    });
+    var sx = null, sy = null;
+    grid.addEventListener('pointerdown', function (e) { if (e.pointerType === 'touch' && grid.classList.contains('is-show')) { sx = e.clientX; sy = e.clientY; } });
+    grid.addEventListener('pointerup', function (e) {
+      if (sx == null) return; var dx = e.clientX - sx, dy = e.clientY - sy; sx = sy = null;
+      if (Math.abs(dx) > 50 && Math.abs(dx) > 1.5 * Math.abs(dy)) show(cur + (dx < 0 ? 1 : -1));
+    });
+    /* the arrows are the shared icon face's chevrons; until a face that spells them arrives they stay hidden
+       rather than print their names */
+    function glyphCheck() {
+      [prevBtn, nextBtn].forEach(function (b) {
+        var ic = b && b.querySelector('.wm-icon'); if (!ic) return;
+        var probe = ic.cloneNode(true); probe.style.cssText += ';position:absolute;visibility:hidden;width:auto;overflow:visible;white-space:nowrap';
+        document.body.appendChild(probe); var ok = probe.getBoundingClientRect().width < 2 * parseFloat(getComputedStyle(probe).fontSize); probe.remove();
+        b.classList.toggle('no-glyph', !ok);
+      });
+    }
+    if (document.fonts && document.fonts.ready) document.fonts.ready.then(glyphCheck); else glyphCheck();
     if (playBtn) playBtn.addEventListener('click', function () {
       running = !running; playBtn.setAttribute('aria-pressed', running); playBtn.setAttribute('aria-label', running ? 'Pause' : 'Play');
       var ic = playBtn.querySelector('.wm-icon'); if (ic) ic.textContent = running ? 'pause' : 'play_arrow';

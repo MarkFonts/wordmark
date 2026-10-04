@@ -283,6 +283,12 @@ section[id] { scroll-margin-top: var(--nav-h); }
 /* the three releases on the word: Cal Sans 1 (static), UI 1.6 (wght, GEOM), Cal Sans 2 */
 .axes-sample[data-face="v1"] { font-family: 'CalSans1', 'CalSans', sans-serif; }
 .axes-sample[data-face="ui"] { font-family: 'CalSansUI', 'CalSans', sans-serif; }
+/* a release change: the old face as a ghost over the word, dissolving, while the new one comes up */
+.ax-ghost { position: absolute; margin: 0; pointer-events: none; animation: ax-ghost 380ms cubic-bezier(0.4, 0, 0.2, 1) forwards; }
+@keyframes ax-ghost { from { opacity: 1; filter: blur(0); } to { opacity: 0; filter: blur(3px); } }
+.axes-sample.ax-face-in { animation: ax-face-in 380ms cubic-bezier(0.4, 0, 0.2, 1); }
+@keyframes ax-face-in { from { opacity: 0; filter: blur(3px); } to { opacity: 1; filter: blur(0); } }
+@media (prefers-reduced-motion: reduce) { .ax-ghost, .axes-sample.ax-face-in { animation: none; } .ax-ghost { display: none; } }
 .axes { display: flex; justify-content: space-between; gap: var(--grid-gutter); margin-top: 24px; --hd-rail: 96px; }
 .axes .wm-hd { flex: 1 1 0; min-width: 0; gap: 6px; }   /* 12 + 6 + 96 = 114, 38 units */
 .axes .wm-hd-rail { width: 100%; }
@@ -361,11 +367,20 @@ section[id] { scroll-margin-top: var(--nav-h); }
 /* the slideshow: one card at a time, a bar of dots and a play button below */
 .hl-grid.is-show { display: block; }
 .hl-grid.is-show > .hl { display: none; }
-.hl-grid.is-show > .hl.is-current { display: flex; min-height: 60vh; }
+.hl-grid.is-show > .hl.is-current { display: flex; min-height: max(60vh, calc(100svh - var(--nav-h) - 72px)); }   /* a slide is the screen, less the nav and the bar */
+/* inside a slide every stage takes the spare height: the sentence and the rings scale up to it, the dials' rails
+   grow into it, the census reel fills it */
+.hl-grid.is-show > .hl.is-current .hl-stage { flex: 1 1 auto; min-height: 0; }
+.hl-grid.is-show .hl-stage--sentence, .hl-grid.is-show .hl-stage--rings { display: flex; flex-direction: column; justify-content: center; }
+.hl-grid.is-show .hl-stage--sentence svg, .hl-grid.is-show .hl-stage--rings svg { flex: 1 1 auto; min-height: 0; height: 100%; max-height: 64svh; }
 .hl-bar { display: none; align-items: center; justify-content: center; gap: 12px; margin-top: 15px; }
 .is-show .hl-bar { display: flex; }
 .hl-play, .hl-dot { display: inline-flex; align-items: center; justify-content: center; height: 36px; border-radius: 999px; background: var(--surface); color: var(--text); }
 .hl-play { width: 36px; }
+.hl-arrow { display: inline-flex; align-items: center; justify-content: center; width: 36px; height: 36px; border-radius: 999px; background: var(--surface); color: var(--text); }
+.hl-arrow:hover { background: var(--surface-hi); }
+.hl-arrow:focus-visible { outline: 1.5px solid var(--signal); outline-offset: 3px; }
+.hl-arrow.no-glyph { visibility: hidden; }
 .hl-dots { display: flex; align-items: center; gap: 6px; height: 36px; padding: 0 15px; border-radius: 999px; background: var(--surface); }
 .hl-dot { width: 6px; height: 6px; padding: 0; background: var(--text-dim); transition: width 300ms ease, background 300ms ease; }
 .hl-dot.on { width: 30px; background: var(--text); }
