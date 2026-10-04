@@ -41,8 +41,8 @@
   font-style: normal;
   font-display: swap;
 }
-*:not(.wm-chip), *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }   /* the chip keeps chip.css's padding: an unlayered reset beats its layer */
-.wm-chip { box-sizing: border-box; margin: 0; }
+*:not(.wm-chip, .wm-hd-pill), *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }   /* the chip and the dial's lozenge keep their primitives' padding: an unlayered reset beats a layer */
+.wm-chip, .wm-hd-pill { box-sizing: border-box; margin: 0; }
 
 /* Axes ride custom properties so a parent can move one without restating the rest.
    opsz is left out on purpose: font-optical-sizing:auto supplies it from the size. */
@@ -56,15 +56,20 @@
   --gut: var(--grid-margin);   /* the house margin (shared/src/grid.css), which is this page's own */
   --sec: round(nearest, clamp(72px, 12vw, 168px), 24px);   /* whole body lines */
   --nav-h: 57px;   /* 19 units, so everything under the sticky nav starts on a line */
+  --ui-font: 'CalSans', sans-serif;   /* the chrome face for every primitive (dials, chips, switches): never the platform's */
+  --ui-fvs: 'opsz' 10, 'GEOM' 25;
   --text-rgb: 232, 232, 232;
   --signal: #eeff41;
   --signal: color(display-p3 0.9333 1 0.2549);
 }
+/* color-scheme follows the page's theme, not the OS: the browser's own parts (scrollbars, form controls)
+   were drawn light-scheme in the dark theme -- a black bar on the statics sheet, or a white track */
+:root { color-scheme: dark; }
 @media (prefers-color-scheme: light) {
-  :root:not([data-theme="dark"]) { --text-rgb: 22, 22, 22; --bg: #f5faff; --signal: #5c6b00; }
+  :root:not([data-theme="dark"]) { --text-rgb: 22, 22, 22; --bg: #f5faff; --signal: #5c6b00; color-scheme: light; }
 }
-:root[data-theme="dark"]  { --text-rgb: 232, 232, 232; }
-:root[data-theme="light"] { --text-rgb: 22, 22, 22; --bg: #f5faff; --signal: #5c6b00; }
+:root[data-theme="dark"]  { --text-rgb: 232, 232, 232; color-scheme: dark; }
+:root[data-theme="light"] { --text-rgb: 22, 22, 22; --bg: #f5faff; --signal: #5c6b00; color-scheme: light; }
 
 html { scroll-behavior: smooth; overflow-x: clip; }
 @media (prefers-reduced-motion: reduce) { html { scroll-behavior: auto; } }
@@ -229,7 +234,7 @@ section[id] { scroll-margin-top: var(--nav-h); }
    only the caption below sits on the line. */
 .hl-head { display: flex; align-items: flex-end; justify-content: space-between; gap: 24px; flex-wrap: wrap; margin-bottom: round(nearest, clamp(28px, 4vw, 56px), var(--bl)); }
 .hl-head .sec-title { margin-bottom: 0; }
-.hl-mode { margin-bottom: 6px; --ui-font: 'CalSans', sans-serif; }
+.hl-mode { margin-bottom: 6px; }
 .hl-grid { display: grid; gap: 15px; }
 .hl {
   display: flex;
@@ -240,7 +245,18 @@ section[id] { scroll-margin-top: var(--nav-h); }
 }
 .hl-stage { position: relative; min-height: 120px; }
 .hl-stage svg { display: block; width: 100%; height: auto; overflow: visible; }
-.hl-stage--sentence, .hl-stage--rings { cursor: pointer; }   /* a tap replays, as the hero */
+/* Replay, bottom right of every highlight card: the cube's control, the house restart icon and the word */
+.hl > .hl-text { position: relative; padding-inline-end: 96px; }   /* the caption keeps clear of it */
+/* lives inside .hl-text and sits on the caption's last line: same size and line as .hl-cap, bottom of the
+   caption, right of the card's content. .hl .hl-replay outranks the page's button:not(.wm-chip) reset, which otherwise paints it --text */
+.hl .hl-replay { position: absolute; right: 0; bottom: 0; display: flex; align-items: center; gap: 6px; font-size: 14px; --lh: 21px; line-height: var(--lh); color: var(--text-muted); cursor: pointer; transition: color 0.15s; }
+.hl .hl-replay:hover { color: var(--text); }
+.hl .hl-replay:focus-visible { outline: 1.5px solid var(--signal); outline-offset: 3px; border-radius: 6px; }
+/* the icon white, the word gray; the ring's centre (12,13 on the 24 grid) sits on the word's cap middle,
+   and the spin turns about that centre, so the ring stays put and only the arrowhead travels */
+.hl .hl-replay .wm-icon { color: var(--text); translate: 0 -1px; transform-origin: 50% 54.1667%; }
+.hl .hl-replay.is-spun .wm-icon { animation: hl-replay-spin 0.6s cubic-bezier(0.3, 0, 0.2, 1); }
+@keyframes hl-replay-spin { to { rotate: -360deg; } }
 .hl-stage--rings svg { padding-top: 6px; }
 .hl-text {
   --wght: 500;
@@ -263,9 +279,21 @@ section[id] { scroll-margin-top: var(--nav-h); }
   overflow-y: visible;
   font-variation-settings: 'opsz' 45, 'GEOM' 50, 'wght' 600, 'YTAS' 1440, 'SHRP' 0, 'ital' 0;
 }
-.ax-stamp { position: absolute; top: 0; right: 0; display: grid; justify-items: end; font-size: 13px; --lh: 21px; line-height: var(--lh); color: var(--text-dim); font-feature-settings: 'tnum' 1; letter-spacing: 0.12em; }
-.ax-stamp b { --wght: 600; color: var(--text-muted); }
-.ax-stamp i { font-style: normal; letter-spacing: 0; font-size: 12px; --lh: 18px; line-height: var(--lh); }
+/* the release, as a timeline over the word: Cal Sans fixed left, the year fixed right, the version a pill
+   that zips along the hairline (fast in, fast out) to where its year falls */
+.ax-ver { display: flex; align-items: center; gap: 12px; height: 21px; margin-bottom: 12px; font-size: 12px; --lh: 21px; line-height: var(--lh); color: var(--text-muted); font-feature-settings: 'tnum' 1; }
+.ax-ver-name, .ax-ver-year { flex: none; --wght: 600; color: var(--text); }
+.ax-ver-year { letter-spacing: 0.04em; }
+.ax-ver-track { position: relative; flex: 1 1 auto; height: 21px; }
+.ax-ver-track > i { position: absolute; left: 0; right: 0; top: 50%; height: 1px; background: var(--border); }
+.ax-ver-pill {
+  position: absolute; top: 50%; left: calc(var(--p) * 100%); transform: translate(calc(var(--p) * -100%), -50%);
+  display: inline-flex; align-items: center; height: 18px; padding: 0 9px; border-radius: 999px;
+  background: var(--text); color: var(--bg); font-size: 11px; --lh: 18px; line-height: var(--lh); --wght: 600; white-space: nowrap;
+  box-shadow: 0 0 0 3px var(--surface);
+  transition: left 240ms cubic-bezier(0.85, 0, 0.15, 1), transform 240ms cubic-bezier(0.85, 0, 0.15, 1);
+}
+@media (prefers-reduced-motion: reduce) { .ax-ver-pill { transition: none; } }
 /* the three releases on the word: Cal Sans 1 (static), UI 1.6 (wght, GEOM), Cal Sans 2 */
 .axes-sample[data-face="v1"] { font-family: 'CalSans1', 'CalSans', sans-serif; }
 .axes-sample[data-face="ui"] { font-family: 'CalSansUI', 'CalSans', sans-serif; }
@@ -276,13 +304,16 @@ section[id] { scroll-margin-top: var(--nav-h); }
 .axes .wm-hd-pill { box-shadow: 0 0 0 3px var(--surface); }
 @media (max-width: 599px) { .axes { gap: 6px; } }
 /* a dial arrives wiped in from the foot of its rail (--enter 0..1, from the script) */
-.axes .ax-in { --e: calc(var(--enter, 1) * 100%); mask-image: linear-gradient(to top, #000 var(--e), transparent calc(var(--e) + 14%)); -webkit-mask-image: linear-gradient(to top, #000 var(--e), transparent calc(var(--e) + 14%)); }
+.axes .ax-in { --e: calc(var(--enter, 1) * 114%); mask-image: linear-gradient(to top, #000 calc(var(--e) - 14%), transparent var(--e)); -webkit-mask-image: linear-gradient(to top, #000 calc(var(--e) - 14%), transparent var(--e)); }   /* at --enter 0 the whole dial is hidden, pill included; at 1 the mask has left the box */
 .axes-wrap.is-live .ax-reset { opacity: 0; pointer-events: none; }   /* nothing to reset while an axis drifts */
 
 /* 4 · the census: two tabular figures, and beneath them the reel of the outside posts */
-.hl-stage--count { min-height: 210px; display: flex; flex-direction: column; justify-content: space-between; }
-.hl-stage--count .hl-icon { z-index: 3; }   /* above the reel's edge fades (z 2), which otherwise paint over the first numeral */
-.hl-stage--count .hl-fig { z-index: 3; text-shadow: 0 27px 54px rgba(0, 0, 0, var(--fig-shade, 0.55)); }   /* the figures float over the reel on a big soft shade */
+.hl-stage--count { min-height: 210px; display: flex; flex-direction: column; justify-content: flex-end; }
+.hl-stage--count .hl-fig { z-index: 3;   /* above the reel's edge fades (z 2), which otherwise paint over the first numeral */ text-shadow: 0 27px 54px rgba(0, 0, 0, var(--fig-shade, 0.55)); }   /* the figures float over the reel on a big soft shade */
+.hl-stage--count .hl-fig--two { gap: 6px 0.4em; }
+.hl-stage--count .hl-fig { pointer-events: none; -webkit-user-select: none; user-select: none; }   /* the figures and icons only float: the posts under them still hover and click, and nothing selects */
+.hl-figb { display: flex; flex-direction: column; }
+.hl-figb .hl-icon { margin-bottom: 3px; filter: drop-shadow(0 27px 54px rgba(0, 0, 0, var(--fig-shade, 0.55))); }   /* a few pixels above its figure, on the same shade */
 :root[data-theme="light"] .hl-stage--count .hl-fig { --fig-shade: 0.16; }
 @media (prefers-color-scheme: light) { :root:not([data-theme="dark"]) .hl-stage--count .hl-fig { --fig-shade: 0.16; } }
 /* the reel fills the stage behind the figures: five rows of tiles in date order, the full-height
@@ -295,8 +326,9 @@ section[id] { scroll-margin-top: var(--nav-h); }
 .hl-reel:hover .hl-tiles, .hl-reel:focus-within .hl-tiles { animation-play-state: paused; }
 @keyframes hl-reel { from { transform: translateX(-50%); } to { transform: none; } }
 @media (prefers-reduced-motion: reduce) { .hl-tiles { animation: none; } }
-.hl-tiles > * { display: block; border-radius: 3px; background: var(--surface-hi); color: var(--text); opacity: 0; transform: scale(0.6); transition: opacity 400ms ease, transform 400ms cubic-bezier(0.2, 0.9, 0.3, 1.2); text-decoration: none; overflow: hidden; }
-.hl-tiles > .on { opacity: 0.5; transform: none; }
+/* the census develops in place, a fade along the sweep; nothing scales or flies */
+.hl-tiles > * { display: block; border-radius: 3px; background: var(--surface-hi); color: var(--text); opacity: 0; transition: opacity 700ms ease-out; text-decoration: none; overflow: hidden; }
+.hl-tiles > .on { opacity: 0.5; }
 .hl-tiles > a.on:hover, .hl-tiles > a.on:focus-visible { opacity: 1; outline: none; }
 /* the teeny cards, five rows of them: the handle and the post's own text at 5px, real words too small to read */
 .hl-tiles > a:not(.big):not(.has-img) { width: 66px; box-sizing: border-box; padding: 3px 4px; font-size: 5px; --lh: 6px; line-height: var(--lh); }   /* token-lint: allow -- miniature, a texture of real posts */
@@ -310,12 +342,11 @@ section[id] { scroll-margin-top: var(--nav-h); }
 .hl-tiles > .big { grid-row: 1 / -1; width: 228px; box-sizing: border-box; padding: 9px 12px; border-radius: var(--r); background: var(--surface-hi); color: var(--text); font-size: 12px; --lh: 15px; line-height: var(--lh); overflow: hidden; display: flex; flex-direction: column; }
 .hl-tiles > .big.on, .hl-tiles > .big.has-img.on { opacity: 0.85; }
 .hl-tiles > .big.on:hover, .hl-tiles > .big.has-img.on:hover { opacity: 1; }
-.hl-tiles > .big img { display: block; width: calc(100% + 24px); margin: -9px -12px 6px; height: 40%; object-fit: cover; object-position: top; }
+.hl-tiles > .big img { display: block; flex: none; width: calc(100% + 24px); margin: -9px -12px 6px; height: 40%; object-fit: cover; object-position: top; }
 .hl-tiles > .big b { --wght: 600; }
 .hl-tiles > .big time { float: right; color: var(--text-dim); font-feature-settings: 'tnum' 1; }
-.hl-tiles > .big p { margin: 3px 0 0; color: var(--text-muted); white-space: pre-line; display: -webkit-box; -webkit-line-clamp: 9; -webkit-box-orient: vertical; overflow: hidden; }
-.hl-tiles > .big.has-img p { -webkit-line-clamp: 4; }
-.hl-tiles > .big span { display: block; margin-top: auto; padding-top: 3px; color: var(--text-dim); font-feature-settings: 'tnum' 1; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.hl-tiles > .big p { margin: 3px 0 0; color: var(--text-muted); white-space: pre-line; flex: 1 1 auto; min-height: 0; overflow: hidden; }   /* the whole post, no clamp */
+.hl-tiles > .big span { display: block; flex: none; margin-top: auto; padding-top: 3px; color: var(--text-dim); font-feature-settings: 'tnum' 1; }
 /* one small tile at a time, under the pointer: handle, date, the text, its numbers */
 .hl-pop { position: absolute; left: 0; top: 0; z-index: 4; width: min(300px, 100%); padding: 12px 15px; border-radius: var(--r); background: var(--surface-hi); color: var(--text); font-size: 13px; --lh: 18px; line-height: var(--lh); pointer-events: none; box-shadow: 0 6px 24px rgba(0, 0, 0, 0.35); }
 .hl-pop[hidden] { display: none; }
@@ -341,22 +372,61 @@ section[id] { scroll-margin-top: var(--nav-h); }
 }
 .hl-fig--two { display: flex; flex-wrap: wrap; gap: 0 0.4em; }
 .hl-fig--two b { --wght: 640; }
-.hl-fig--two b:last-child { color: var(--text-muted); }
+.hl-fig--two > :last-child b { color: var(--text-muted); }   /* the second figure a step down */
 
 /* the slideshow: one card at a time, a bar of dots and a play button below */
 .hl-grid.is-show { display: block; }
 .hl-grid.is-show > .hl { display: none; }
-.hl-grid.is-show > .hl.is-current { display: flex; min-height: 60vh; }
+.hl-grid.is-show > .hl.is-current { display: flex; min-height: max(60vh, calc(100svh - var(--nav-h) - 72px)); }   /* a slide is the screen, less the nav and the bar */
+/* inside a slide every stage takes the spare height: the sentence and the rings scale up to it, the dials' rails
+   grow into it, the census reel fills it */
+.hl-grid.is-show > .hl.is-current .hl-stage { flex: 1 1 auto; min-height: 0; }
+.hl-grid.is-show .hl-stage--sentence, .hl-grid.is-show .hl-stage--rings { display: flex; flex-direction: column; justify-content: center; }
+.hl-grid.is-show .hl-stage--sentence svg, .hl-grid.is-show .hl-stage--rings svg { flex: 1 1 auto; min-height: 0; height: 100%; max-height: 64svh; }
 .hl-bar { display: none; align-items: center; justify-content: center; gap: 12px; margin-top: 15px; }
 .is-show .hl-bar { display: flex; }
-.hl-play, .hl-dot { display: inline-flex; align-items: center; justify-content: center; height: 36px; border-radius: 999px; background: var(--surface); color: var(--text); }
+/* the bar's buttons, scoped to the bar: the page's unlayered `button` reset would otherwise blank their fills */
+.hl-bar .hl-play { display: inline-flex; align-items: center; justify-content: center; height: 36px; border-radius: 999px; background: var(--surface); color: var(--text); }
 .hl-play { width: 36px; }
-.hl-dots { display: flex; align-items: center; gap: 6px; height: 36px; padding: 0 15px; border-radius: 999px; background: var(--surface); }
-.hl-dot { width: 6px; height: 6px; padding: 0; background: var(--text-dim); transition: width 300ms ease, background 300ms ease; }
-.hl-dot.on { width: 30px; background: var(--text); }
+.hl-bar .hl-arrow { display: inline-flex; align-items: center; justify-content: center; width: 36px; height: 36px; border-radius: 999px; background: var(--surface); color: var(--text); }
+.hl-bar .hl-arrow:hover { background: var(--surface-hi); }
+.hl-arrow:focus-visible { outline: 1.5px solid var(--signal); outline-offset: 3px; }
+.hl-arrow-sys { font-family: -apple-system, BlinkMacSystemFont, system-ui, sans-serif; font-size: 18px; --lh: 18px; line-height: var(--lh); }   /* until the icon face spells the chevrons */
+.hl-dots { display: flex; align-items: center; gap: 0; height: 36px; padding: 0 9px; border-radius: 999px; background: var(--surface); }
+/* a dot is a period you can click: a 24px target around a 6px mark; the current one stretches to a dash */
+.hl-bar .hl-dot { position: relative; display: inline-block; width: 18px; height: 24px; padding: 0; border-radius: 999px; background: none; cursor: pointer; transition: width 300ms ease; }
+.hl-bar .hl-dot::after { content: ''; position: absolute; left: 50%; top: 50%; width: 6px; height: 6px; transform: translate(-50%, -50%); border-radius: 999px; background: var(--text-dim); transition: width 300ms ease, background 300ms ease; }
+.hl-bar .hl-dot:hover::after { background: var(--text-muted); }
+.hl-bar .hl-dot.on { width: 36px; }
+.hl-bar .hl-dot.on::after { width: 30px; background: var(--text); }
 .hl-play:focus-visible, .hl-dot:focus-visible { outline: 1.5px solid var(--signal); outline-offset: 3px; }
 
 /* the three places to get the font, under the close */
+/* every range on the page (the tester, the UI kit's GEOM): a 2px track in --border, a 14px ink thumb, the signal on hover */
+input[type="range"] {
+  -webkit-appearance: none;
+  appearance: none;
+  width: 100%;
+  height: 21px;
+  background: transparent;
+  cursor: pointer;
+}
+input[type="range"]::-webkit-slider-runnable-track { height: 2px; background: var(--border); border-radius: 1px; }
+input[type="range"]::-moz-range-track { height: 2px; background: var(--border); border-radius: 1px; }
+input[type="range"]::-webkit-slider-thumb {
+  -webkit-appearance: none;
+  width: 14px; height: 14px;
+  margin-top: -6px;
+  border-radius: 50%;
+  background: var(--text);
+  transition: background 0.12s, transform 0.12s;
+}
+input[type="range"]::-moz-range-thumb { width: 14px; height: 14px; border: 0; border-radius: 50%; background: var(--text); }
+input[type="range"]:hover::-webkit-slider-thumb,
+input[type="range"]:active::-webkit-slider-thumb { background: var(--signal); transform: scale(1.15); }
+input[type="range"]:hover::-moz-range-thumb { background: var(--signal); }
+input[type="range"]:focus-visible { outline: 1.5px solid var(--signal); outline-offset: 4px; border-radius: 4px; }
+
 .get-list { display: grid; gap: 9px; }
 .get-list--close { margin-top: 24px; max-width: 520px; }
 .code {
@@ -593,7 +663,7 @@ a.code:hover .where { color: var(--signal); }
 .ukit .coss-b { --wght: 640; }
 .ukit .coss-card-name { font-size: 30px; --wght: 640; }
 /* the board scrolls inside the demo box, like the proofer's board pans; the bottom edge fades so the next row shows */
-.ukit { flex: 1 1 auto; min-height: 0; overflow-y: auto; scrollbar-width: thin; padding-bottom: 24px;
+.ukit { flex: 1 1 auto; min-height: 0; overflow-y: auto; scrollbar-width: thin; scrollbar-color: rgba(var(--text-rgb), 0.28) transparent; padding-bottom: 24px;
   mask-image: linear-gradient(#000 calc(100% - 48px), transparent); -webkit-mask-image: linear-gradient(#000 calc(100% - 48px), transparent); }
 @media (max-width: 860px) { .ukit { max-height: 70vh; } }
 .ukit .coss-card { background: var(--bg); }
@@ -684,6 +754,7 @@ a.code:hover .where { color: var(--signal); }
 }
 .made-block figcaption strong, .made-cap strong { --wght: 640; color: var(--text); }
 .made-cap--lead { margin-top: 0; margin-bottom: round(nearest, clamp(20px, 2.6vw, 32px), var(--bl)); }
+.made-cap--lead:has(+ .tools) { margin-bottom: round(nearest, calc(2 * var(--grid-gutter, 24px)), var(--bl)); }   /* the tools lead: two gutters to the windows' edge, the shots' shadows cut out of the layout */
 /* text column and picture, side by side; alternate sides down the chapter */
 .mb { display: grid; gap: 24px; }
 .mb-text h3 { --wght: 400; --geom: 50; font-size: clamp(28px, 3.6vw, 48px); --lh: round(nearest, 1.06em, var(--bl)); line-height: var(--lh); text-wrap: balance; }
@@ -703,10 +774,27 @@ a.code:hover .where { color: var(--signal); }
 .deck-n { position: absolute; right: 14px; bottom: 12px; font-size: 11px; color: var(--text-dim); font-feature-settings: 'tnum' 1; }
 @media (prefers-reduced-motion: reduce) { .deck img { transition: opacity 400ms; transform: none; } }
 /* the statics sheet: the whole catalogue in the same box, scrolling, fading out at the bottom */
-.mb-scroll { display: block; overflow-y: auto; scrollbar-width: thin; mask-image: linear-gradient(#000 calc(100% - 72px), transparent); padding-bottom: 72px; }
+.mb-scroll { display: block; overflow-y: auto; scrollbar-width: thin; scrollbar-color: rgba(var(--text-rgb), 0.28) transparent; mask-image: linear-gradient(#000 calc(100% - 72px), transparent); padding-bottom: 72px; }
 .mb-scroll img { height: auto; object-fit: unset; border-radius: 0; background: none !important; }
 .mb-scroll:focus-visible { outline: 1.5px solid var(--signal); outline-offset: 4px; border-radius: 4px; }
 .tool--shot > img { aspect-ratio: 4 / 3; object-fit: contain; width: 100%; height: auto; }
+/* a macOS window shot sits as its window: the shared [data-shot="mac"] rule cuts the drop shadow out of the
+   layout, so the 4:3 contain box would only shrink it again */
+/* the shared rule (shared/src/grid.css) restated unlayered for the tool shots: this page's own `width: 100%` on
+   them and its margin reset both beat the layered original. The shadow is cut out of the layout, so the window's
+   edge, not the image's, sits on the column. */
+.tools img[data-shot="mac"][style*="--shot-w"] {
+  --_shot-k: calc(100% / (var(--shot-w) - (var(--shot-mac-l) + var(--shot-mac-r)) * var(--shot-scale)));
+  display: block; max-width: none; height: auto; aspect-ratio: auto; object-fit: fill;
+  width: calc(var(--_shot-k) * var(--shot-w));
+  margin: calc(var(--_shot-k) * var(--shot-mac-t) * var(--shot-scale) * -1) calc(var(--_shot-k) * var(--shot-mac-r) * var(--shot-scale) * -1) calc(var(--_shot-k) * var(--shot-mac-b) * var(--shot-scale) * -1) calc(var(--_shot-k) * var(--shot-mac-l) * var(--shot-scale) * -1);   /* token-lint: allow -- the shadow's measured size, cut out of the layout; not spacing */
+}
+main.wm-lines { overflow-x: clip; }
+/* the page's unlayered reset (margin: 0; padding: 0 on everything) beats the layered grid rules, as it did the
+   chip's padding: the hero's grid margin and its breaker's pull to the window edge, stated again unlayered */
+.cs-hero.wm-grid { padding-inline: var(--grid-margin); }
+.cs-hero > .wm-break { margin-inline: calc(-1 * var(--grid-margin)); }   /* the shots' shadows and the hero breaker never scroll the page sideways */
+.cs-hero > .hero-word-box.wm-break { padding-inline: clamp(12px, 2.1vw, 30px); }   /* the logo breaks the grid but keeps off the window edge: 30px wide, 12px on a phone */
 /* window captures carry their own alpha and shadow; nothing behind them */
 .mb--shot .mb-media img, .tool--shot > img { background: none !important; border-radius: 0; }
 @media (min-width: 861px) {
@@ -806,17 +894,19 @@ a.code:hover .where { color: var(--signal); }
 .cube-stage.is-flex .cube .v b, .cube-stage.is-flex .vm b { font-family: 'CalSansFlex', 'CalSans', sans-serif; }
 /* levels the tilt, roll and zoom once any of them has moved; the turn is left where it is. It sits in the
    switches row, not on the stage, where it would cover the top-right virtual master */
-.cube-reset { display: inline-flex; align-items: center; gap: 6px; font-size: 13px; color: var(--text-muted); cursor: pointer; transition: color 0.15s; }
+/* as the highlights' Replay: icon white, word gray (.cube-switches outranks the button reset), the ring on
+   the word's cap middle, the spin about the ring's centre so only the arrowhead travels */
+.cube-switches .cube-reset { display: inline-flex; align-items: center; gap: 6px; font-size: 13px; color: var(--text-muted); cursor: pointer; transition: color 0.15s; }
 .cube-reset[hidden] { display: none; }
-.cube-reset:hover { color: var(--text); }
-.cube-reset .wm-icon { transition: transform 0.5s; }
-.cube-reset.is-spun .wm-icon { transform: rotate(-360deg); }
+.cube-switches .cube-reset:hover { color: var(--text); }
+.cube-reset .wm-icon { color: var(--text); translate: 0 -1px; transform-origin: 50% 54.1667%; }
+.cube-reset.is-spun .wm-icon { animation: hl-replay-spin 0.6s cubic-bezier(0.3, 0, 0.2, 1); }
 @media (prefers-reduced-motion: reduce) {
   .cube .v > span, .cube .v b, .cube .e { transition: none; }
   .ds-block:not(.is-in) .cube .v > span { opacity: 1; } .ds-block:not(.is-in) .cube .v b { transform: none; } .ds-block:not(.is-in) .cube .e { opacity: 0.55; }
 }
 
-.tools { display: grid; gap: round(nearest, clamp(16px, 2vw, 24px), var(--bl)); }
+.tools { display: grid; gap: round(nearest, clamp(16px, 2vw, 24px), var(--bl)); row-gap: round(nearest, calc(2 * var(--grid-gutter, 24px)), var(--bl)); }   /* a caption and the window under it: two gutters, as the lead and the first row */
 @media (min-width: 681px) { .tools { grid-template-columns: 1fr 1fr; } }
 .tool { display: grid; gap: 9px; align-content: start; color: inherit; text-decoration: none; min-width: 0; }
 .tool--text { background: var(--surface); border-radius: var(--r-card); padding: round(nearest, clamp(22px, 3vw, 40px), var(--bl)); }
@@ -880,7 +970,12 @@ a.tool-name { color: inherit; text-decoration: none; }
 .tt-reset:hover, .ax-reset:hover { opacity: 1; }
 .tt-reset.is-spun, .ax-reset.is-spun { transform: rotate(360deg); }
 .axes-wrap { position: relative; }
-.ax-reset { top: 0; right: 0; }
+/* the Geometry card shares a row with the census, which is taller: its stage takes the spare height and the
+   rails grow into it, never shorter than the 96px they are on their own (a phone, a single column) */
+.axes-wrap.hl-stage { flex: 1 1 auto; display: flex; flex-direction: column; }
+.axes-wrap .axes { flex: 1 1 auto; }
+.axes .wm-hd--vertical .wm-hd-rail { flex: 1 1 auto; height: auto; min-height: var(--hd-rail); }
+.ax-reset { top: 33px; right: 0; }   /* under the release row */
 .axes-wrap.is-live .ax-reset { opacity: 0; pointer-events: none; }   /* nothing to reset while the axes move on their own */   /* the axes card: the same reset, tucked in the sample's corner */
 .tt-clamp { height: var(--tt-clamp, 180px); overflow: hidden; display: flex; flex-direction: column; }
 @media (min-width: 861px) { .tt-clamp { --tt-clamp: 260px; } }
@@ -910,14 +1005,19 @@ a.tool-name { color: inherit; text-decoration: none; }
 .tt-area input[type="range"] { position: absolute; inset: 0; margin: auto; opacity: 0; pointer-events: none; }
 .tt-track { position: absolute; left: 0; top: 50%; height: 2px; width: 0; margin-top: -1px; background: var(--border); border-radius: 1px; transition: width 380ms cubic-bezier(0.2, 0.7, 0.2, 1); }
 /* the handle: a small grey pill with a tick either side; on unlock it grows into the thumb and slides to the value */
+/* .tt-area .tt-unlock: the page's button:not(.wm-chip) reset outranks a single class and cleared its fill, so the
+   pill drew in neither theme; restated here it takes --text-dim, which follows light and dark */
+.tt-area .tt-unlock { background: var(--text-dim); }
+.tt-area .tt-unlock:hover { background: var(--text-muted); }
 .tt-unlock {
   position: absolute; left: 100%; top: 50%; width: 6px; height: 16px; margin: -8px 0 0 9px;
   border: 0; border-radius: 3px; background: var(--text-dim); cursor: pointer;
   transition: left 380ms cubic-bezier(0.2, 0.7, 0.2, 1), margin 380ms cubic-bezier(0.2, 0.7, 0.2, 1), width 380ms, height 380ms, border-radius 380ms, background 380ms, opacity 200ms 380ms;
 }
 .tt-unlock::before, .tt-unlock::after { content: ''; position: absolute; top: 50%; width: 4.5px; height: 1.5px; margin-top: -0.75px; background: var(--text-dim); border-radius: 1px; transition: width 200ms, opacity 200ms; }
-.tt-unlock::before { right: 100%; margin-right: 2px; }
+.tt-unlock::before { right: 100%; margin-right: 2px; }   /* the ticks show with the pill, always: hidden until hover they read as missing */
 .tt-unlock::after { left: 100%; margin-left: 2px; }
+.tt-unlock:hover::before, .tt-unlock:hover::after, .tt-unlock:focus-visible::before, .tt-unlock:focus-visible::after { background: var(--text-muted); }
 .tt-unlock:hover { background: var(--text-muted); }
 .tt-morph.is-opening .tt-seg { opacity: 0; pointer-events: none; }
 .tt-morph.is-opening .tt-track { width: 100%; }
