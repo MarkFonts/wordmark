@@ -265,9 +265,21 @@ section[id] { scroll-margin-top: var(--nav-h); }
   overflow-y: visible;
   font-variation-settings: 'opsz' 45, 'GEOM' 50, 'wght' 600, 'YTAS' 1440, 'SHRP' 0, 'ital' 0;
 }
-.ax-stamp { position: absolute; top: 0; right: 0; display: grid; justify-items: end; font-size: 13px; --lh: 21px; line-height: var(--lh); color: var(--text-dim); font-feature-settings: 'tnum' 1; letter-spacing: 0.12em; }
-.ax-stamp b { --wght: 600; color: var(--text-muted); }
-.ax-stamp i { font-style: normal; letter-spacing: 0; font-size: 12px; --lh: 18px; line-height: var(--lh); }
+/* the release, as a timeline over the word: Cal Sans fixed left, the year fixed right, the version a pill
+   that zips along the hairline (fast in, fast out) to where its year falls */
+.ax-ver { display: flex; align-items: center; gap: 12px; height: 21px; margin-bottom: 12px; font-size: 12px; --lh: 21px; line-height: var(--lh); color: var(--text-muted); font-feature-settings: 'tnum' 1; }
+.ax-ver-name, .ax-ver-year { flex: none; --wght: 600; color: var(--text); }
+.ax-ver-year { letter-spacing: 0.04em; }
+.ax-ver-track { position: relative; flex: 1 1 auto; height: 21px; }
+.ax-ver-track > i { position: absolute; left: 0; right: 0; top: 50%; height: 1px; background: var(--border); }
+.ax-ver-pill {
+  position: absolute; top: 50%; left: calc(var(--p) * 100%); transform: translate(calc(var(--p) * -100%), -50%);
+  display: inline-flex; align-items: center; height: 18px; padding: 0 9px; border-radius: 999px;
+  background: var(--text); color: var(--bg); font-size: 11px; --lh: 18px; line-height: var(--lh); --wght: 600; white-space: nowrap;
+  box-shadow: 0 0 0 3px var(--surface);
+  transition: left 240ms cubic-bezier(0.85, 0, 0.15, 1), transform 240ms cubic-bezier(0.85, 0, 0.15, 1);
+}
+@media (prefers-reduced-motion: reduce) { .ax-ver-pill { transition: none; } }
 /* the three releases on the word: Cal Sans 1 (static), UI 1.6 (wght, GEOM), Cal Sans 2 */
 .axes-sample[data-face="v1"] { font-family: 'CalSans1', 'CalSans', sans-serif; }
 .axes-sample[data-face="ui"] { font-family: 'CalSansUI', 'CalSans', sans-serif; }
@@ -913,7 +925,7 @@ a.tool-name { color: inherit; text-decoration: none; }
 .axes-wrap.hl-stage { flex: 1 1 auto; display: flex; flex-direction: column; }
 .axes-wrap .axes { flex: 1 1 auto; }
 .axes .wm-hd--vertical .wm-hd-rail { flex: 1 1 auto; height: auto; min-height: var(--hd-rail); }
-.ax-reset { top: 0; right: 0; }
+.ax-reset { top: 33px; right: 0; }   /* under the release row */
 .axes-wrap.is-live .ax-reset { opacity: 0; pointer-events: none; }   /* nothing to reset while the axes move on their own */   /* the axes card: the same reset, tucked in the sample's corner */
 .tt-clamp { height: var(--tt-clamp, 180px); overflow: hidden; display: flex; flex-direction: column; }
 @media (min-width: 861px) { .tt-clamp { --tt-clamp: 260px; } }

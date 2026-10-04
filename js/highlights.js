@@ -299,12 +299,16 @@
     if (!window.wmHandleDial) return;
     var card = group.closest('.hl') || group.parentElement;
     var target = document.getElementById(group.dataset.axes);
-    var wrap = group.parentElement, reset = wrap.querySelector('.ax-reset'), stamp = card.querySelector('.ax-stamp');
-    var stampYear = stamp && stamp.querySelector('b'), stampFace = stamp && stamp.querySelector('i');
-    /* the three releases: the word itself changes face as the years pass */
-    var FACES = { 2021: ['v1', 'Cal Sans 1.000'], 2025: ['ui', 'Cal Sans UI 1.6'], 2026: ['v2', 'Cal Sans 2.000'] };
+    var wrap = group.parentElement, reset = wrap.querySelector('.ax-reset'), ver = card.querySelector('.ax-ver');
+    var verYear = ver && ver.querySelector('.ax-ver-year'), verPill = ver && ver.querySelector('.ax-ver-pill');
+    /* the three releases: the word itself changes face as the years pass; the pill carries the version to
+       where its year falls on the 2021-2026 line */
+    var FACES = { 2021: ['v1', 'V1', 0], 2025: ['ui', '\u201cUI\u201d V1.6', 0.8], 2026: ['v2', 'V2', 1] };
     function setYear(year) {
-      if (stampYear && stampYear.textContent !== String(year)) { stampYear.textContent = String(year); if (stampFace) stampFace.textContent = FACES[year][1]; }
+      if (verYear && verYear.textContent !== String(year)) {
+        verYear.textContent = String(year);
+        if (verPill) { verPill.textContent = FACES[year][1]; verPill.style.setProperty('--p', FACES[year][2]); }
+      }
       if (target.dataset.face !== FACES[year][0]) target.dataset.face = FACES[year][0];
     }
     var dials = AXES.map(function (a) {
