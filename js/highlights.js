@@ -228,36 +228,31 @@
     /* the three releases: the word itself changes face as the years pass; the pill carries the version to
        where its year falls on the 2021-2026 line */
     var FACES = { 2021: ['v1', 'V1', 0], 2025: ['ui', '\u201cUI\u201d V1.6', 0.8], 2026: ['v2', 'V2', 1] };
-    function setYear(year, fade) {
+    function setYear(year) {
       if (verYear && verYear.textContent !== String(year)) {
         verYear.textContent = String(year);
         if (verPill) { verPill.textContent = FACES[year][1]; verPill.style.setProperty('--p', FACES[year][2]); }
       }
       if (target.dataset.face === FACES[year][0]) return;
-      /* a release change is a crossfade, never a cut: a ghost of the word in the old face sits exactly over
-         it and dissolves (opacity + a little blur) while the word in the new face comes up underneath */
-      if (fade && !still) {
-        var ghost = target.cloneNode(true), wr = wrap.getBoundingClientRect(), tr = target.getBoundingClientRect();
-        ghost.removeAttribute('id'); ghost.setAttribute('aria-hidden', 'true'); ghost.classList.add('ax-ghost');
-        ghost.style.left = (tr.left - wr.left) + 'px'; ghost.style.top = (tr.top - wr.top) + 'px'; ghost.style.width = tr.width + 'px';
-        wrap.appendChild(ghost);
-        target.classList.remove('ax-face-in'); void target.offsetWidth; target.classList.add('ax-face-in');
-        setTimeout(function () { ghost.remove(); }, 420);
-      }
       target.dataset.face = FACES[year][0];
     }
+    /* each dial keeps its exact value (d.v) for the font, which interpolates smoothly; only the number in its
+       lozenge is rounded to the step. Rounding before the font made opsz move in visible one-unit jumps and
+       made a value hovering near a rounding edge flick back and forth. */
     var dials = AXES.map(function (a) {
-      var h = wmHandleDial.mount(group, { label: a.label, caption: a.tag, min: a.min, max: a.max, step: a.step, value: a.value, orient: 'vertical',
-        onChange: function () { stopDrift(); apply(); dirty(); } });
-      var root = group.lastElementChild; root.style.setProperty('--enter', 0); root.classList.add('ax-in');
-      return { a: a, h: h, root: root };
+      var d = { a: a, v: a.value };
+      d.h = wmHandleDial.mount(group, { label: a.label, caption: a.tag, min: a.min, max: a.max, step: a.step, value: a.value, orient: 'vertical',
+        onChange: function () { d.v = d.h.get(); stopDrift(); apply(); dirty(); } });
+      d.root = group.lastElementChild; d.root.style.setProperty('--enter', 0); d.root.classList.add('ax-in');
+      return d;
     });
+    function setV(d, x) { d.v = x; d.h.set(Math.round(x / d.a.step) * d.a.step, true); }
     var nudge = {};   /* a transient push per axis, decaying, so an arrival is felt once */
     function apply() {
       target.style.fontVariationSettings = dials.map(function (d) {
-        var v = d.h.get(), n = nudge[d.a.tag] || 0;
+        var v = d.v, n = nudge[d.a.tag] || 0;
         if (n) v = Math.max(d.a.min, Math.min(d.a.max, v + n * (d.a.max - d.a.min) * 0.35));
-        return "'" + d.a.tag + "' " + (d.a.step < 1 ? v.toFixed(2) : Math.round(v));
+        return "'" + d.a.tag + "' " + v.toFixed(d.a.step < 1 ? 3 : 2);
       }).join(', ');
     }
     function dirty() { if (reset) reset.hidden = !dials.some(function (d) { return d.h.get() !== d.a.value; }); }
@@ -271,7 +266,7 @@
         var v = d.a.min + span * (1 - Math.cos(2 * Math.PI * n * (now - driftT0) / DRIFT + phi)) / 2;
         var k = Math.min(1, (now - driftT0) / 1800), amp = k * k * (3 - 2 * k);   /* the drift eases in over 1.8 s */
         v = d.a.value + amp * (v - d.a.value);
-        d.h.set(Math.round(v / d.a.step) * d.a.step, true);
+        setV(d, v);
       });
       apply(); drift = requestAnimationFrame(driftFrame);
     }
@@ -280,7 +275,7 @@
     if (reset) reset.addEventListener('click', function () {
       reset.classList.add('is-spun'); setTimeout(function () { reset.classList.remove('is-spun'); }, 500);
       wrap.classList.remove('is-touched');
-      dials.forEach(function (d) { d.h.set(d.a.value, true); }); apply(); dirty(); startDrift();
+      dials.forEach(function (d) { setV(d, d.a.value); }); apply(); dirty(); startDrift();
     });
     group.addEventListener('pointerdown', function () { wrap.classList.add('is-touched'); stopDrift(); dirty(); }, true);
     group.addEventListener('focusin', function () { wrap.classList.add('is-touched'); stopDrift(); dirty(); });
@@ -294,14 +289,46 @@
          2026  crossfade to Cal Sans 2; the other four arrive one by one, a beat after the face, each nudging the
                word with a bump that starts and ends at rest (sin squared); then the drift eases in */
     var AT = { wght: 1.25, GEOM: 1.35, opsz: 4.85, YTAS: 5.3, SHRP: 5.75, ital: 6.2 }, UI0 = 1.2, UI1 = 4.6, SW0 = 1.45, SW1 = 4.45, END = 7.4;
-    var lastYear = 2021;
+    /* a release change is the same condense as card 1: the word goes into a faint grained haze, the face
+       changes while the haze is thickest (the two faces are different widths, so a crossfade showed both),
+       and the haze settles into the new face. One motion: up in 40% of FOG_T, down over the rest. */
+    var FOG_T = 1.3, FOG_PEAK = 0.4, fogF = null;
+    function fogFilter() {
+      if (fogF) return fogF;
+      var NS = 'http://www.w3.org/2000/svg', box = document.createElementNS(NS, 'svg');
+      box.setAttribute('width', '0'); box.setAttribute('height', '0'); box.setAttribute('aria-hidden', 'true'); box.style.position = 'absolute';
+      box.innerHTML = '<filter id="ax-fog" x="-20%" y="-60%" width="140%" height="220%" color-interpolation-filters="sRGB">'
+        + '<feGaussianBlur in="SourceGraphic" stdDeviation="0" result="soft"/>'
+        + '<feTurbulence type="fractalNoise" baseFrequency="0.8" numOctaves="1" seed="7" result="noise"/>'
+        + '<feColorMatrix in="noise" type="matrix" values="0 0 0 0 0.5  0 0 0 0 0.5  0 0 0 0 0.5  0 0 0 0 1" result="grainBase"/>'
+        + '<feComposite in="grainBase" in2="soft" operator="arithmetic" k1="0" k2="0" k3="1" k4="0" result="mixed"/>'
+        + '<feComposite in="mixed" in2="soft" operator="in" result="clip"/>'
+        + '<feComponentTransfer in="clip"><feFuncA type="linear" slope="1"/></feComponentTransfer></filter>';
+      document.body.appendChild(box);
+      var f = box.querySelector('filter');
+      fogF = { blur: f.querySelector('feGaussianBlur'), grain: f.querySelectorAll('feComposite')[0], alpha: f.querySelector('feFuncA') };
+      return fogF;
+    }
+    function fog(t) {
+      var f = 0;
+      if (t < 1e8 && !still) [UI0, UI1].forEach(function (Tc) {
+        var u = (t - (Tc - FOG_PEAK * FOG_T)) / FOG_T;
+        if (u > 0 && u < 1) f = Math.max(f, u < FOG_PEAK ? Math.sin(Math.PI / 2 * u / FOG_PEAK) : Math.cos(Math.PI / 2 * (u - FOG_PEAK) / (1 - FOG_PEAK)));
+      });
+      if (f < 0.002) { if (target.style.filter) target.style.filter = ''; return; }
+      var F = fogFilter(), fs = parseFloat(getComputedStyle(target).fontSize) || 120;
+      F.blur.setAttribute('stdDeviation', (fs * 0.12 * Math.pow(f, 1.7)).toFixed(2));   /* the haze scales with the word */
+      var g = 0.6 * Math.pow(f, 1.4); F.grain.setAttribute('k1', (2 * g).toFixed(3)); F.grain.setAttribute('k3', (1 - g).toFixed(3));
+      F.alpha.setAttribute('slope', (1 - 0.5 * f).toFixed(3));   /* fainter as it fogs: the light spread thin */
+      target.style.filter = 'url(#ax-fog)';
+    }
     function osc(a, u) {   /* two full turns through the default: value(0) = value(1) = default */
       var span = a.max - a.min, phi = Math.acos(1 - 2 * (a.value - a.min) / span);
       return a.min + span * (1 - Math.cos(2 * Math.PI * 2 * u + phi)) / 2;
     }
     player(card, function (t) {
       var year = t >= 1e8 ? 2026 : t >= UI1 ? 2026 : t >= UI0 ? 2025 : 2021;
-      setYear(year, year !== lastYear && t < 1e8); lastYear = year;
+      setYear(year); fog(t);
       /* 2021: the word rises 12px and comes up, out-eased */
       var r = t >= 1e8 ? 1 : 1 - Math.pow(1 - lin(t, 0, 0.6), 3);
       target.style.opacity = r.toFixed(3); target.style.transform = r < 1 ? 'translateY(' + ((1 - r) * 12).toFixed(1) + 'px)' : '';
@@ -313,8 +340,8 @@
           nudge[d.a.tag] = 0;   /* the sweep is their arrival; no nudge on top of it */
           if (t < 1e8 && t >= SW0 && t < SW1) {
             var u = (t - SW0) / (SW1 - SW0), env = Math.min(1, u / 0.15, (1 - u) / 0.15); env = env * env * (3 - 2 * env);
-            d.h.set(Math.round(d.a.value + env * (osc(d.a, u) - d.a.value)), true);
-          } else if (t < 1e8 && t >= SW1 && t < SW1 + 0.2) d.h.set(d.a.value, true);
+            setV(d, d.a.value + env * (osc(d.a, u) - d.a.value));
+          } else if (t < 1e8 && t >= SW1 && t < SW1 + 0.2) setV(d, d.a.value);
         } else {
           var p = t >= 1e8 ? 1 : lin(t, at + 0.1, at + 1.0), b = Math.sin(p * Math.PI);
           nudge[d.a.tag] = p > 0 && p < 1 ? b * b : 0;   /* starts and ends at rest */
