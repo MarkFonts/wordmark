@@ -245,7 +245,10 @@ window.hlMaterialize = (function () {
         var u = units[perWord ? i : 0];
         if (C.breakBefore.indexOf(i) >= 0 && x > 0) { x = 0; y += lh; ln++; }
         var vs = C.lineVS[Math.min(ln, C.lineVS.length - 1)], wb = measure(w, FAM[2], size, vs);
-        if (hangs(w) && x > 0) x -= gap;
+        if (hangs(w) && x > 0) {   /* hangs on the word before, at the font's own kern for that pair (y. in "family.") */
+          var pw = words[i - 1];
+          x += measure(pw + w, FAM[2], size, vs) - measure(pw, FAM[2], size, vs) - wb - gap;
+        }
         else if (x + wb > maxW && x > 0) { x = 0; y += lh; ln++; vs = C.lineVS[Math.min(ln, C.lineVS.length - 1)]; wb = measure(w, FAM[2], size, vs); }
         var tb = setWord(u.shape, w, FAM[2], size, vs); tb.setAttribute('x', x); tb.setAttribute('y', y);
         var tp = setWord(u.plainG, w, FAM[2], size, vs); tp.setAttribute('x', x); tp.setAttribute('y', y);

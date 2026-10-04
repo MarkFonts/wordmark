@@ -41,8 +41,8 @@
   font-style: normal;
   font-display: swap;
 }
-*:not(.wm-chip), *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }   /* the chip keeps chip.css's padding: an unlayered reset beats its layer */
-.wm-chip { box-sizing: border-box; margin: 0; }
+*:not(.wm-chip, .wm-hd-pill), *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }   /* the chip and the dial's lozenge keep their primitives' padding: an unlayered reset beats a layer */
+.wm-chip, .wm-hd-pill { box-sizing: border-box; margin: 0; }
 
 /* Axes ride custom properties so a parent can move one without restating the rest.
    opsz is left out on purpose: font-optical-sizing:auto supplies it from the size. */
@@ -62,11 +62,14 @@
   --signal: #eeff41;
   --signal: color(display-p3 0.9333 1 0.2549);
 }
+/* color-scheme follows the page's theme, not the OS: the browser's own parts (scrollbars, form controls)
+   were drawn light-scheme in the dark theme -- a black bar on the statics sheet, or a white track */
+:root { color-scheme: dark; }
 @media (prefers-color-scheme: light) {
-  :root:not([data-theme="dark"]) { --text-rgb: 22, 22, 22; --bg: #f5faff; --signal: #5c6b00; }
+  :root:not([data-theme="dark"]) { --text-rgb: 22, 22, 22; --bg: #f5faff; --signal: #5c6b00; color-scheme: light; }
 }
-:root[data-theme="dark"]  { --text-rgb: 232, 232, 232; }
-:root[data-theme="light"] { --text-rgb: 22, 22, 22; --bg: #f5faff; --signal: #5c6b00; }
+:root[data-theme="dark"]  { --text-rgb: 232, 232, 232; color-scheme: dark; }
+:root[data-theme="light"] { --text-rgb: 22, 22, 22; --bg: #f5faff; --signal: #5c6b00; color-scheme: light; }
 
 html { scroll-behavior: smooth; overflow-x: clip; }
 @media (prefers-reduced-motion: reduce) { html { scroll-behavior: auto; } }
@@ -242,7 +245,18 @@ section[id] { scroll-margin-top: var(--nav-h); }
 }
 .hl-stage { position: relative; min-height: 120px; }
 .hl-stage svg { display: block; width: 100%; height: auto; overflow: visible; }
-.hl-stage--sentence, .hl-stage--rings { cursor: pointer; }   /* a tap replays, as the hero */
+/* Replay, bottom right of every highlight card: the cube's control, the house restart icon and the word */
+.hl > .hl-text { position: relative; padding-inline-end: 96px; }   /* the caption keeps clear of it */
+/* lives inside .hl-text and sits on the caption's last line: same size and line as .hl-cap, bottom of the
+   caption, right of the card's content. .hl .hl-replay outranks the page's button:not(.wm-chip) reset, which otherwise paints it --text */
+.hl .hl-replay { position: absolute; right: 0; bottom: 0; display: flex; align-items: center; gap: 6px; font-size: 14px; --lh: 21px; line-height: var(--lh); color: var(--text-muted); cursor: pointer; transition: color 0.15s; }
+.hl .hl-replay:hover { color: var(--text); }
+.hl .hl-replay:focus-visible { outline: 1.5px solid var(--signal); outline-offset: 3px; border-radius: 6px; }
+/* the icon white, the word gray; the ring's centre (12,13 on the 24 grid) sits on the word's cap middle,
+   and the spin turns about that centre, so the ring stays put and only the arrowhead travels */
+.hl .hl-replay .wm-icon { color: var(--text); translate: 0 -1px; transform-origin: 50% 54.1667%; }
+.hl .hl-replay.is-spun .wm-icon { animation: hl-replay-spin 0.6s cubic-bezier(0.3, 0, 0.2, 1); }
+@keyframes hl-replay-spin { to { rotate: -360deg; } }
 .hl-stage--rings svg { padding-top: 6px; }
 .hl-text {
   --wght: 500;
@@ -297,6 +311,7 @@ section[id] { scroll-margin-top: var(--nav-h); }
 .hl-stage--count { min-height: 210px; display: flex; flex-direction: column; justify-content: flex-end; }
 .hl-stage--count .hl-fig { z-index: 3;   /* above the reel's edge fades (z 2), which otherwise paint over the first numeral */ text-shadow: 0 27px 54px rgba(0, 0, 0, var(--fig-shade, 0.55)); }   /* the figures float over the reel on a big soft shade */
 .hl-stage--count .hl-fig--two { gap: 6px 0.4em; }
+.hl-stage--count .hl-fig { pointer-events: none; -webkit-user-select: none; user-select: none; }   /* the figures and icons only float: the posts under them still hover and click, and nothing selects */
 .hl-figb { display: flex; flex-direction: column; }
 .hl-figb .hl-icon { margin-bottom: 3px; filter: drop-shadow(0 27px 54px rgba(0, 0, 0, var(--fig-shade, 0.55))); }   /* a few pixels above its figure, on the same shade */
 :root[data-theme="light"] .hl-stage--count .hl-fig { --fig-shade: 0.16; }
@@ -311,8 +326,9 @@ section[id] { scroll-margin-top: var(--nav-h); }
 .hl-reel:hover .hl-tiles, .hl-reel:focus-within .hl-tiles { animation-play-state: paused; }
 @keyframes hl-reel { from { transform: translateX(-50%); } to { transform: none; } }
 @media (prefers-reduced-motion: reduce) { .hl-tiles { animation: none; } }
-.hl-tiles > * { display: block; border-radius: 3px; background: var(--surface-hi); color: var(--text); opacity: 0; transform: scale(0.6); transition: opacity 400ms ease, transform 400ms cubic-bezier(0.2, 0.9, 0.3, 1.2); text-decoration: none; overflow: hidden; }
-.hl-tiles > .on { opacity: 0.5; transform: none; }
+/* the census develops in place, a fade along the sweep; nothing scales or flies */
+.hl-tiles > * { display: block; border-radius: 3px; background: var(--surface-hi); color: var(--text); opacity: 0; transition: opacity 700ms ease-out; text-decoration: none; overflow: hidden; }
+.hl-tiles > .on { opacity: 0.5; }
 .hl-tiles > a.on:hover, .hl-tiles > a.on:focus-visible { opacity: 1; outline: none; }
 /* the teeny cards, five rows of them: the handle and the post's own text at 5px, real words too small to read */
 .hl-tiles > a:not(.big):not(.has-img) { width: 66px; box-sizing: border-box; padding: 3px 4px; font-size: 5px; --lh: 6px; line-height: var(--lh); }   /* token-lint: allow -- miniature, a texture of real posts */
@@ -647,7 +663,7 @@ a.code:hover .where { color: var(--signal); }
 .ukit .coss-b { --wght: 640; }
 .ukit .coss-card-name { font-size: 30px; --wght: 640; }
 /* the board scrolls inside the demo box, like the proofer's board pans; the bottom edge fades so the next row shows */
-.ukit { flex: 1 1 auto; min-height: 0; overflow-y: auto; scrollbar-width: thin; padding-bottom: 24px;
+.ukit { flex: 1 1 auto; min-height: 0; overflow-y: auto; scrollbar-width: thin; scrollbar-color: rgba(var(--text-rgb), 0.28) transparent; padding-bottom: 24px;
   mask-image: linear-gradient(#000 calc(100% - 48px), transparent); -webkit-mask-image: linear-gradient(#000 calc(100% - 48px), transparent); }
 @media (max-width: 860px) { .ukit { max-height: 70vh; } }
 .ukit .coss-card { background: var(--bg); }
@@ -738,6 +754,7 @@ a.code:hover .where { color: var(--signal); }
 }
 .made-block figcaption strong, .made-cap strong { --wght: 640; color: var(--text); }
 .made-cap--lead { margin-top: 0; margin-bottom: round(nearest, clamp(20px, 2.6vw, 32px), var(--bl)); }
+.made-cap--lead:has(+ .tools) { margin-bottom: round(nearest, calc(2 * var(--grid-gutter, 24px)), var(--bl)); }   /* the tools lead: two gutters to the windows' edge, the shots' shadows cut out of the layout */
 /* text column and picture, side by side; alternate sides down the chapter */
 .mb { display: grid; gap: 24px; }
 .mb-text h3 { --wght: 400; --geom: 50; font-size: clamp(28px, 3.6vw, 48px); --lh: round(nearest, 1.06em, var(--bl)); line-height: var(--lh); text-wrap: balance; }
@@ -757,7 +774,7 @@ a.code:hover .where { color: var(--signal); }
 .deck-n { position: absolute; right: 14px; bottom: 12px; font-size: 11px; color: var(--text-dim); font-feature-settings: 'tnum' 1; }
 @media (prefers-reduced-motion: reduce) { .deck img { transition: opacity 400ms; transform: none; } }
 /* the statics sheet: the whole catalogue in the same box, scrolling, fading out at the bottom */
-.mb-scroll { display: block; overflow-y: auto; scrollbar-width: thin; mask-image: linear-gradient(#000 calc(100% - 72px), transparent); padding-bottom: 72px; }
+.mb-scroll { display: block; overflow-y: auto; scrollbar-width: thin; scrollbar-color: rgba(var(--text-rgb), 0.28) transparent; mask-image: linear-gradient(#000 calc(100% - 72px), transparent); padding-bottom: 72px; }
 .mb-scroll img { height: auto; object-fit: unset; border-radius: 0; background: none !important; }
 .mb-scroll:focus-visible { outline: 1.5px solid var(--signal); outline-offset: 4px; border-radius: 4px; }
 .tool--shot > img { aspect-ratio: 4 / 3; object-fit: contain; width: 100%; height: auto; }
@@ -777,6 +794,7 @@ main.wm-lines { overflow-x: clip; }
    chip's padding: the hero's grid margin and its breaker's pull to the window edge, stated again unlayered */
 .cs-hero.wm-grid { padding-inline: var(--grid-margin); }
 .cs-hero > .wm-break { margin-inline: calc(-1 * var(--grid-margin)); }   /* the shots' shadows and the hero breaker never scroll the page sideways */
+.cs-hero > .hero-word-box.wm-break { padding-inline: clamp(12px, 2.1vw, 30px); }   /* the logo breaks the grid but keeps off the window edge: 30px wide, 12px on a phone */
 /* window captures carry their own alpha and shadow; nothing behind them */
 .mb--shot .mb-media img, .tool--shot > img { background: none !important; border-radius: 0; }
 @media (min-width: 861px) {
@@ -876,17 +894,19 @@ main.wm-lines { overflow-x: clip; }
 .cube-stage.is-flex .cube .v b, .cube-stage.is-flex .vm b { font-family: 'CalSansFlex', 'CalSans', sans-serif; }
 /* levels the tilt, roll and zoom once any of them has moved; the turn is left where it is. It sits in the
    switches row, not on the stage, where it would cover the top-right virtual master */
-.cube-reset { display: inline-flex; align-items: center; gap: 6px; font-size: 13px; color: var(--text-muted); cursor: pointer; transition: color 0.15s; }
+/* as the highlights' Replay: icon white, word gray (.cube-switches outranks the button reset), the ring on
+   the word's cap middle, the spin about the ring's centre so only the arrowhead travels */
+.cube-switches .cube-reset { display: inline-flex; align-items: center; gap: 6px; font-size: 13px; color: var(--text-muted); cursor: pointer; transition: color 0.15s; }
 .cube-reset[hidden] { display: none; }
-.cube-reset:hover { color: var(--text); }
-.cube-reset .wm-icon { transition: transform 0.5s; }
-.cube-reset.is-spun .wm-icon { transform: rotate(-360deg); }
+.cube-switches .cube-reset:hover { color: var(--text); }
+.cube-reset .wm-icon { color: var(--text); translate: 0 -1px; transform-origin: 50% 54.1667%; }
+.cube-reset.is-spun .wm-icon { animation: hl-replay-spin 0.6s cubic-bezier(0.3, 0, 0.2, 1); }
 @media (prefers-reduced-motion: reduce) {
   .cube .v > span, .cube .v b, .cube .e { transition: none; }
   .ds-block:not(.is-in) .cube .v > span { opacity: 1; } .ds-block:not(.is-in) .cube .v b { transform: none; } .ds-block:not(.is-in) .cube .e { opacity: 0.55; }
 }
 
-.tools { display: grid; gap: round(nearest, clamp(16px, 2vw, 24px), var(--bl)); }
+.tools { display: grid; gap: round(nearest, clamp(16px, 2vw, 24px), var(--bl)); row-gap: round(nearest, calc(2 * var(--grid-gutter, 24px)), var(--bl)); }   /* a caption and the window under it: two gutters, as the lead and the first row */
 @media (min-width: 681px) { .tools { grid-template-columns: 1fr 1fr; } }
 .tool { display: grid; gap: 9px; align-content: start; color: inherit; text-decoration: none; min-width: 0; }
 .tool--text { background: var(--surface); border-radius: var(--r-card); padding: round(nearest, clamp(22px, 3vw, 40px), var(--bl)); }
@@ -985,15 +1005,19 @@ a.tool-name { color: inherit; text-decoration: none; }
 .tt-area input[type="range"] { position: absolute; inset: 0; margin: auto; opacity: 0; pointer-events: none; }
 .tt-track { position: absolute; left: 0; top: 50%; height: 2px; width: 0; margin-top: -1px; background: var(--border); border-radius: 1px; transition: width 380ms cubic-bezier(0.2, 0.7, 0.2, 1); }
 /* the handle: a small grey pill with a tick either side; on unlock it grows into the thumb and slides to the value */
+/* .tt-area .tt-unlock: the page's button:not(.wm-chip) reset outranks a single class and cleared its fill, so the
+   pill drew in neither theme; restated here it takes --text-dim, which follows light and dark */
+.tt-area .tt-unlock { background: var(--text-dim); }
+.tt-area .tt-unlock:hover { background: var(--text-muted); }
 .tt-unlock {
   position: absolute; left: 100%; top: 50%; width: 6px; height: 16px; margin: -8px 0 0 9px;
   border: 0; border-radius: 3px; background: var(--text-dim); cursor: pointer;
   transition: left 380ms cubic-bezier(0.2, 0.7, 0.2, 1), margin 380ms cubic-bezier(0.2, 0.7, 0.2, 1), width 380ms, height 380ms, border-radius 380ms, background 380ms, opacity 200ms 380ms;
 }
 .tt-unlock::before, .tt-unlock::after { content: ''; position: absolute; top: 50%; width: 4.5px; height: 1.5px; margin-top: -0.75px; background: var(--text-dim); border-radius: 1px; transition: width 200ms, opacity 200ms; }
-.tt-unlock::before { right: 100%; margin-right: 2px; opacity: 0; }   /* the ticks only when the row is hovered or the handle focused */
-.tt-unlock::after { left: 100%; margin-left: 2px; opacity: 0; }
-.tt-area:hover .tt-unlock::before, .tt-area:hover .tt-unlock::after, .tt-unlock:focus-visible::before, .tt-unlock:focus-visible::after { opacity: 1; }
+.tt-unlock::before { right: 100%; margin-right: 2px; }   /* the ticks show with the pill, always: hidden until hover they read as missing */
+.tt-unlock::after { left: 100%; margin-left: 2px; }
+.tt-unlock:hover::before, .tt-unlock:hover::after, .tt-unlock:focus-visible::before, .tt-unlock:focus-visible::after { background: var(--text-muted); }
 .tt-unlock:hover { background: var(--text-muted); }
 .tt-morph.is-opening .tt-seg { opacity: 0; pointer-events: none; }
 .tt-morph.is-opening .tt-track { width: 100%; }

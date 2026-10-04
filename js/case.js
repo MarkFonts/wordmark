@@ -315,7 +315,7 @@
         reset.addEventListener('pointerdown', function (e) { e.stopPropagation(); });
         reset.addEventListener('click', function () {
           leveling = { t0: performance.now(), x: rot.x, z: rot.z, r: rot.r }; touched = false; idle = 91;
-          reset.classList.add('is-spun'); setTimeout(function () { reset.classList.remove('is-spun'); }, 500);
+          reset.classList.remove('is-spun'); void reset.offsetWidth; reset.classList.add('is-spun');
         });
       }
       function level(now) {

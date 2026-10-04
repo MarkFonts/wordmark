@@ -124,7 +124,7 @@
   }
   function snapAll() { document.querySelectorAll('.hl-stage').forEach(snapStage); }
 
-  /* a card plays once when it scrolls in; a tap replays it; the slideshow calls play() itself */
+  /* a card plays once when it scrolls in; its Replay button replays it; the slideshow calls play() itself */
   function player(card, run, opts) {
     opts = opts || {};
     var state = { playing: false, raf: 0, done: false };
@@ -150,8 +150,15 @@
       var io = new IntersectionObserver(function (es) { es.forEach(function (e) { if (e.isIntersecting && !card.closest('.is-show')) { play(); io.disconnect(); } }); }, { threshold: 0.5 });
       io.observe(card);
     } else play();
-    var stage = card.querySelector('.hl-stage');
-    if (stage) stage.addEventListener('click', function () { if (!still) play(); });
+    /* Replay: the house restart icon and the word, at the card's bottom right (as the cube's "Level the cube") */
+    var rb = document.createElement('button'); rb.type = 'button'; rb.className = 'hl-replay'; rb.setAttribute('aria-label', 'Replay');
+    rb.innerHTML = '<span class="wm-icon material-symbols-outlined wm-icon--rest" style="font-size:18px;--icon-opsz:20;--icon-fill:0" aria-hidden="true" translate="no">restart_alt</span>Replay';
+    rb.addEventListener('click', function () {
+      rb.classList.remove('is-spun'); void rb.offsetWidth; rb.classList.add('is-spun');
+      card.dispatchEvent(new Event('hl:restart'));
+      if (!still) play(); else rest();
+    });
+    (card.querySelector(':scope > .hl-text') || card).appendChild(rb);   /* inside the caption: its line is the caption's last line, snapped or not */
     return card._hl;
   }
 
@@ -214,21 +221,32 @@
     }
     measure();
     if (document.fonts && document.fonts.ready) document.fonts.ready.then(measure);
-    var readout = el('text', { x: 1954, y: 482, 'text-anchor': 'end', 'font-family': "'CalSans', sans-serif", 'font-size': 40, fill: 'currentColor', opacity: 0, style: "font-variation-settings: 'opsz' 10, 'GEOM' 25, 'wght' 500; font-feature-settings: 'tnum' 1" }, svg);
+    /* the readout: "logo" while the rings draw and the drawn logo condenses; once it is the font, its axes,
+       each tag bold, the items an em space apart */
+    var readout = el('text', { x: 1954, y: 482, 'text-anchor': 'end', 'font-family': "'CalSans', sans-serif", 'font-size': 40, fill: 'currentColor', opacity: 0.55, style: "font-variation-settings: 'opsz' 10, 'GEOM' 25, 'wght' 400; font-feature-settings: 'tnum' 1" }, svg);
+    function say(items) {
+      readout.textContent = '';
+      items.forEach(function (it, k) {
+        if (k) readout.appendChild(document.createTextNode('\u2003'));
+        var tag = el('tspan', { style: "font-variation-settings: 'opsz' 10, 'GEOM' 25, 'wght' 700" }, readout); tag.textContent = it[0];
+        if (it[1] != null) readout.appendChild(document.createTextNode(' ' + it[1]));
+      });
+    }
+    var said = '';
     svg.setAttribute('viewBox', '-20 -20 ' + (1954 + 40) + ' 510');
     var LAND = 3.4, M0 = 3.7, M1 = M0 + 4.6, END = M1 + 0.3;
     player(card, function (t) {
       piece.run(t >= 1e8 ? t : Math.min(t, LAND + 0.01));
       var live = t >= LAND;   /* the drawn logo hands over with no dissolve: the font sits exactly on it */
       text.style.display = live ? '' : 'none'; plainBox.style.visibility = live ? 'hidden' : '';
-      if (!live) { readout.setAttribute('opacity', 0); return false; }
+      if (!live) { if (said !== 'logo') { say([['logo']]); said = 'logo'; } return false; }
       var u = t >= 1e8 ? 1 : Math.max(0, Math.min(1, (t - M0) / (M1 - M0))), env = Math.sin(Math.PI * u);
       /* weight down to 400 and up past home to the heaviest; optical size down to 8 and home, a quarter turn behind */
       var w = BASE.wght + env * (u < 0.5 ? (400 - BASE.wght) * Math.sin(Math.PI * u * 2) : 0);
       var o = BASE.opsz + (8 - BASE.opsz) * Math.pow(Math.sin(Math.PI * u), 2);
       place(o, w);
-      readout.textContent = 'wght ' + Math.round(w) + '  ·  opsz ' + Math.round(o);
-      readout.setAttribute('opacity', (t >= 1e8 ? 0 : 0.55 * Math.min(1, Math.max(0, (t - M0) / 0.4), Math.max(0, (M1 - t) / 0.4))).toFixed(3));
+      var line = [['wght', Math.round(w)], ['opsz', Math.round(o)], ['GEOM', BASE.GEOM], ['YTAS', BASE.YTAS]], key = JSON.stringify(line);
+      if (key !== said) { say(line); said = key; }
       return t > END;   /* and it holds on the font */
     }, { duration: END });
     stage.addEventListener('hl:relayout', function () { piece.relayout(); measure(); snapStage(stage); });
@@ -290,7 +308,7 @@
       d.root = group.lastElementChild; d.root.style.setProperty('--enter', 0); d.root.classList.add('ax-in');
       return d;
     });
-    function setV(d, x) { d.v = x; d.h.set(Math.round(x / d.a.step) * d.a.step, true); }
+    function setV(d, x) { d.v = x; d.h.set(x, true); }   /* the lozenge glides on the exact value; the dial prints it to its step */
     var nudge = {};   /* a transient push per axis, decaying, so an arrival is felt once */
     function apply() {
       target.style.fontVariationSettings = dials.map(function (d) {
@@ -321,6 +339,7 @@
       wrap.classList.remove('is-touched');
       dials.forEach(function (d) { setV(d, d.a.value); }); apply(); dirty(); startDrift();
     });
+    card.addEventListener('hl:restart', function () { stopDrift(); wrap.classList.remove('is-touched'); dials.forEach(function (d) { setV(d, d.a.value); }); apply(); dirty(); });
     group.addEventListener('pointerdown', function () { wrap.classList.add('is-touched'); stopDrift(); dirty(); }, true);
     group.addEventListener('focusin', function () { wrap.classList.add('is-touched'); stopDrift(); dirty(); });
     /* the arrivals: 2021 the word alone in Cal Sans 1; 2025 Cal Sans UI 1.6, wght and GEOM arrive together
@@ -496,7 +515,7 @@
     var cards = Array.prototype.slice.call(grid.querySelectorAll('.hl')), chips = sec.querySelectorAll('.hl-mode .wm-chip');
     var bar = sec.querySelector('.hl-bar'), dots = bar ? Array.prototype.slice.call(bar.querySelectorAll('.hl-dot')) : [], playBtn = bar && bar.querySelector('.hl-play');
     var prevBtn = bar && bar.querySelector('.hl-prev'), nextBtn = bar && bar.querySelector('.hl-next');
-    var cur = 0, timer = 0, running = true;
+    var cur = 0, timer = 0, running = true, seen = false;   /* seen: the section has come on screen; nothing plays before */
     function show(i, play) {
       cur = (i + cards.length) % cards.length;
       cards.forEach(function (c, j) { c.classList.toggle('is-current', j === cur); });
@@ -504,12 +523,12 @@
       var c = cards[cur];
       fitSample();   /* the word can only be measured once its slide is showing */
       c.querySelectorAll('.hl-stage').forEach(function (s) { s.dispatchEvent(new Event('hl:relayout')); });
-      if (play !== false && c._hl) { if (still) c._hl.rest(); else c._hl.play(); }
+      if (play !== false && c._hl && seen) { if (still) c._hl.rest(); else c._hl.play(); }
       arm();
     }
     function arm() {
       clearTimeout(timer);
-      if (!running || !grid.classList.contains('is-show')) return;
+      if (!running || !seen || !grid.classList.contains('is-show')) return;
       var c = cards[cur], d = still ? 4 : ((c._hl && c._hl.duration) || 5) + 3;
       timer = setTimeout(function () { show(cur + 1); }, d * 1000);
     }
@@ -533,7 +552,11 @@
     if (prevBtn) prevBtn.addEventListener('click', function () { go(cur - 1); });
     if (nextBtn) nextBtn.addEventListener('click', function () { go(cur + 1); });
     var onScreen = false;
-    if ('IntersectionObserver' in window) new IntersectionObserver(function (es) { onScreen = es[0].isIntersecting; }, { threshold: 0.3 }).observe(grid);
+    if ('IntersectionObserver' in window) new IntersectionObserver(function (es) {
+      onScreen = es[0].isIntersecting;
+      if (onScreen && !seen) { seen = true; if (grid.classList.contains('is-show')) show(cur); }   /* the first slide starts when it is seen */
+    }, { threshold: 0.3 }).observe(grid);
+    else seen = true;
     document.addEventListener('keydown', function (e) {
       if (!grid.classList.contains('is-show') || !onScreen || e.metaKey || e.ctrlKey || e.altKey) return;
       var el = document.activeElement; if (el && /^(INPUT|TEXTAREA|SELECT)$/.test(el.tagName)) return;
@@ -564,7 +587,7 @@
       if (running) show(cur); else clearTimeout(timer);
     });
     var want = null; try { want = localStorage.getItem('hl-mode'); } catch (e) {}
-    if (want === 'show') mode(true);
+    mode(want !== 'bento');   /* the slideshow is the default (the markup starts in it); bento is the option */
     window.addEventListener('resize', function () { fitSample(); grid.querySelectorAll('.hl-stage').forEach(function (s) { s.dispatchEvent(new Event('hl:relayout')); }); snapAll(); });
     snapAll();
   })();
