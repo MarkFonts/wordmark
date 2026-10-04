@@ -375,15 +375,20 @@ section[id] { scroll-margin-top: var(--nav-h); }
 .hl-grid.is-show .hl-stage--sentence svg, .hl-grid.is-show .hl-stage--rings svg { flex: 1 1 auto; min-height: 0; height: 100%; max-height: 64svh; }
 .hl-bar { display: none; align-items: center; justify-content: center; gap: 12px; margin-top: 15px; }
 .is-show .hl-bar { display: flex; }
-.hl-play, .hl-dot { display: inline-flex; align-items: center; justify-content: center; height: 36px; border-radius: 999px; background: var(--surface); color: var(--text); }
+/* the bar's buttons, scoped to the bar: the page's unlayered `button` reset would otherwise blank their fills */
+.hl-bar .hl-play { display: inline-flex; align-items: center; justify-content: center; height: 36px; border-radius: 999px; background: var(--surface); color: var(--text); }
 .hl-play { width: 36px; }
-.hl-arrow { display: inline-flex; align-items: center; justify-content: center; width: 36px; height: 36px; border-radius: 999px; background: var(--surface); color: var(--text); }
-.hl-arrow:hover { background: var(--surface-hi); }
+.hl-bar .hl-arrow { display: inline-flex; align-items: center; justify-content: center; width: 36px; height: 36px; border-radius: 999px; background: var(--surface); color: var(--text); }
+.hl-bar .hl-arrow:hover { background: var(--surface-hi); }
 .hl-arrow:focus-visible { outline: 1.5px solid var(--signal); outline-offset: 3px; }
-.hl-arrow.no-glyph { visibility: hidden; }
-.hl-dots { display: flex; align-items: center; gap: 6px; height: 36px; padding: 0 15px; border-radius: 999px; background: var(--surface); }
-.hl-dot { width: 6px; height: 6px; padding: 0; background: var(--text-dim); transition: width 300ms ease, background 300ms ease; }
-.hl-dot.on { width: 30px; background: var(--text); }
+.hl-arrow-sys { font-family: -apple-system, BlinkMacSystemFont, system-ui, sans-serif; font-size: 18px; --lh: 18px; line-height: var(--lh); }   /* until the icon face spells the chevrons */
+.hl-dots { display: flex; align-items: center; gap: 0; height: 36px; padding: 0 9px; border-radius: 999px; background: var(--surface); }
+/* a dot is a period you can click: a 24px target around a 6px mark; the current one stretches to a dash */
+.hl-bar .hl-dot { position: relative; display: inline-block; width: 18px; height: 24px; padding: 0; border-radius: 999px; background: none; cursor: pointer; transition: width 300ms ease; }
+.hl-bar .hl-dot::after { content: ''; position: absolute; left: 50%; top: 50%; width: 6px; height: 6px; transform: translate(-50%, -50%); border-radius: 999px; background: var(--text-dim); transition: width 300ms ease, background 300ms ease; }
+.hl-bar .hl-dot:hover::after { background: var(--text-muted); }
+.hl-bar .hl-dot.on { width: 36px; }
+.hl-bar .hl-dot.on::after { width: 30px; background: var(--text); }
 .hl-play:focus-visible, .hl-dot:focus-visible { outline: 1.5px solid var(--signal); outline-offset: 3px; }
 
 /* the three places to get the font, under the close */

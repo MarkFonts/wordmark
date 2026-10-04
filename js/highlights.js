@@ -155,118 +155,39 @@
     return card._hl;
   }
 
-  /* ── 1 · three typefaces became one ───────────────────────────────────────────────────
-     The sentence sets word by word in Matter, Inter and Cal Sans, sizes and baselines off,
-     the way the 2025 homepage was; holds; then the seam sweeps it into Cal Sans. */
+  /* ── 1 · three typefaces became one family ────────────────────────────────────────────
+     Mark's pick from the comparison rounds (round 5, D V3, 2026-10-04): "Three typefaces" in Inter 14/400,
+     "on the homepage" in Matter SemiBold (outlines), "became one" in Cal Sans. The words cascade in out of a
+     faint haze (one and its period together), hold, then the first two lines condense into Cal Sans -- line 1
+     at opsz 10 / GEOM 25 / 400, line 2 at opsz 16 / GEOM 25 / 600 -- and once they have, the period slides out
+     and "family" condenses into the gap. The engine is js/hl-materialize.js. */
   var W = 1954;   /* every stage is this wide in user units, so the hero's constants hold */
   (function () {
-    var card = document.getElementById('hl-one'); if (!card) return;
-    var stage = card.querySelector('.hl-stage');
-    var words = (stage.dataset.words || '').split(' ');
-    /* Matter comes as outlines of this one sentence (Cal.com's licence, not the site's): one path per word,
-       in the PDF's points, with its cap height and baseline, scaled here to Cal Sans's cap at the word size */
-    var mj = document.getElementById('matter-words'), MATTER = mj ? JSON.parse(mj.textContent) : null;
-    var FAM = ["'Matter', system-ui, sans-serif", "'Inter', system-ui, sans-serif", "'CalSans', sans-serif"];
-    var svg = el('svg', { viewBox: '0 0 ' + W + ' 760', 'aria-hidden': 'true', focusable: 'false' }, stage);
-    var ctl = thermal(svg, 'h1', { x: -200, y: -300, w: W + 400, h: 1400 }, { mono: stage.hasAttribute('data-mono') });
-    var shape = el('g', { fill: '#fff' });
-    var hot = ctl.hot(shape), coldG = el('g', { fill: 'currentColor' }), cold = ctl.cold(coldG);
-    var plainG = el('g'), plain = ctl.plain(plainG);
-    var A = [], B = [], P = [], laid = false;
-    function word(parent, text, fam, size, vs) {
-      var t = el('text', { 'font-family': fam, 'font-size': size, 'font-weight': fam === FAM[2] ? 600 : 700 }, parent);
-      if (vs) t.style.fontVariationSettings = vs;
-      t.textContent = text; return t;
-    }
-    /* a Matter word from its outline: placed so its baseline is y and its cap height is Cal Sans's at `size` */
-    function matterWord(parent, text, size) {
-      var m = MATTER && MATTER.words.filter(function (w) { return w.w === text; })[0];
-      if (!m) return null;
-      var k = size * 0.72 / MATTER.cap;   /* Cal Sans cap 1440/2000 */
-      var g = el('g', {}, parent), path = el('path', { d: m.d }, g);
-      g._place = function (x, y) { g.setAttribute('transform', 'translate(' + (x - m.x0 * k).toFixed(2) + ' ' + (y - MATTER.base * k).toFixed(2) + ') scale(' + k.toFixed(4) + ')'); };
-      g._w = (m.x1 - m.x0) * k;
-      return g;
-    }
-    /* the two layers, each its own line breaking: Cal Sans straight (B); the mixed set (A)
-       on the same line breaks, a little off in size and baseline, so the swap under the
-       seam snaps it straight */
-    function layout() {
-      A.forEach(function (t) { t.remove(); }); B.forEach(function (t) { t.remove(); }); P.forEach(function (t) { t.remove(); }); A = []; B = []; P = [];
-      var size = 200, lh = 215, maxW = W, x = 0, y = 230, lines = [];
-      /* the three faces share one baseline; only the size is a touch off, the way the 2025 page had them */
-      var off = [[1.03, 0], [0.97, 0], [1, 0], [0.98, 0], [1.03, 0], [0.97, 0], [1.02, 0]];
-      /* B, Cal Sans, sets the lines; A keeps those lines but each word advances by its own face's width,
-         so Inter is spaced as Inter and Matter as Matter, never as Cal Sans */
-      words.forEach(function (w, i) {
-        var tb = word(shape, w, FAM[2], size, "'opsz' 45, 'GEOM' 50, 'wght' 600");
-        var wb = tb.getComputedTextLength(), gap = size * 0.24;
-        if (x + wb > maxW && x > 0) { x = 0; y += lh; }
-        tb.setAttribute('x', x); tb.setAttribute('y', y);
-        var tp = word(plainG, w, FAM[2], size, "'opsz' 45, 'GEOM' 50, 'wght' 600"); tp.setAttribute('x', x); tp.setAttribute('y', y);
-        B.push(tb); P.push(tp); lines.push(y);
-        x += wb + gap;
-      });
-      var ax = 0, ay = -1;
-      words.forEach(function (w, i) {
-        var f = FAM[i % 3], o = off[i % off.length], s = size * o[0];
-        if (lines[i] !== ay) { ax = 0; ay = lines[i]; }
-        var ta = null, wa;
-        if (f === FAM[0]) { ta = matterWord(coldG, w, s); if (ta) { ta._place(ax, ay + o[1]); wa = ta._w; } }
-        if (!ta) {
-          ta = word(coldG, w, f === FAM[0] ? FAM[0] : f, s, f === FAM[2] ? "'opsz' 45, 'GEOM' 50, 'wght' 600" : "'wght' 700");
-          ta.setAttribute('x', ax); ta.setAttribute('y', ay + o[1]); wa = ta.getComputedTextLength();
-        }
-        A.push(ta);
-        ax += wa + s * 0.26;
-      });
-      svg.setAttribute('viewBox', '0 0 ' + W + ' ' + (y + 80));
-      laid = true;
-    }
-    layout();
-    if (document.fonts && document.fonts.ready) document.fonts.ready.then(layout);
-    var ink = inkOf(card);
-    /* the piece: words in (0–1.0s), hold to 2.2, the stripe's pass, a beat uniformly lit, the drain */
-    var T0 = 1.0, T1 = 2.2, T2 = T1 + PASS + 0.3, T3 = T2 + 1.0;
-    player(card, function (t) {
-      A.forEach(function (ta, i) { ta.setAttribute('opacity', (t >= 1e8 ? 1 : lin(t, i * (T0 / A.length), i * (T0 / A.length) + 0.25)).toFixed(3)); });
-      ctl.lead(Math.min(START + Math.max(0, t - T1) * V, FREEZE));
-      var z = ease(lin(t, T2, T3));
-      ctl.drain(z, inkOf(card));
-      ctl.finish(t > T3);
-      return t > T3 + 0.2;
-    }, { duration: T3 });
-    stage.addEventListener('hl:relayout', function () { layout(); snapStage(stage); });
+    var card = document.getElementById('hl-one'); if (!card || !window.hlMaterialize) return;
+    var stage = card.querySelector('.hl-stage'), M = window.hlMaterialize, SPEED = 1.3;
+    var cast = {
+      words: ['Three', 'typefaces', 'on', 'the', 'homepage', 'became', 'one', 'family', '.'],
+      faces: [1, 1, 0, 0, 0, 2, 2, 2, 2], late: 7, breakBefore: [2, 5],
+      interVS: "'opsz' 14, 'wght' 400", interW: 400,
+      lineVS: ["'opsz' 10, 'GEOM' 25, 'wght' 400", "'opsz' 16, 'GEOM' 25, 'wght' 600", M.FINAL]
+    };
+    var piece = M.sentence(stage, card, cast, { blur: 30, grain: 1, spread: 44 });
+    var P = piece.plan(), dur = (P.lateAt + 1.3 + 0.3) / SPEED;
+    player(card, function (t) { return piece.run(t * SPEED); }, { duration: dur });
+    function relay() { piece.relayout(); snapStage(stage); }
+    stage.addEventListener('hl:relayout', relay);
+    if (document.fonts && document.fonts.ready) document.fonts.ready.then(relay);
   })();
 
   /* ── 2 · day one: Cal.com reads as rings ──────────────────────────────────────────────
-     Hairline rings through C, a, c, o and the arches of m draw on; then one pass of the
-     stripe reveals the letters and takes the rings with it. */
+     Mark's pick (round 5, D logo): hairline rings in the signal through C, a, c, o and both arches of m draw
+     on first; then Cal.com condenses out of a faint haze while the rings draw back off. */
   (function () {
-    var card = document.getElementById('hl-two'); if (!card) return;
-    var stage = card.querySelector('.hl-stage'), src = document.getElementById('calcom-paths');
-    if (!src) return;
-    var paths = JSON.parse(src.textContent);
-    var svg = el('svg', { viewBox: '-20 -20 ' + (W + 40) + ' 450', 'aria-hidden': 'true', focusable: 'false' }, stage);
-    var ctl = thermal(svg, 'h2', { x: -200, y: -300, w: W + 400, h: 1100 }, { mono: stage.hasAttribute('data-mono') });
-    var shape = el('g', { fill: '#fff' }), plainG = el('g');
-    paths.forEach(function (d) { el('path', { d: d }, shape); el('path', { d: d }, plainG); });
-    ctl.hot(shape); ctl.plain(plainG);
-    /* the rings: through the stroke of each round letter; the m's two arches as half rings */
-    /* the rings in the signal colour, through the stroke of C, a, c, o, and the two arches of m as full rings */
-    var rings = el('g', { fill: 'none', 'stroke-width': 3, style: 'stroke: var(--signal)' });
-    var RINGS = [[195, 204, 163], [488, 254, 114], [1038, 254, 114], [1314, 254, 113], [1663, 202, 64], [1848, 202, 64]];
-    var strokes = RINGS.map(function (r) { var c = el('circle', { cx: r[0], cy: r[1], r: r[2] }, rings); return { el: c, len: 2 * Math.PI * r[2] }; });
-    strokes.forEach(function (s) { s.el.setAttribute('stroke-dasharray', s.len); s.el.setAttribute('stroke-dashoffset', s.len); });
-    ctl.cold(rings);
-    var T0 = 1.4, T1 = 2.0, T2 = T1 + PASS + 0.3, T3 = T2 + 1.0;
-    player(card, function (t) {
-      strokes.forEach(function (s, i) { var d = ease(lin(t, i * 0.12, i * 0.12 + 1.0)); s.el.setAttribute('stroke-dashoffset', (s.len * (1 - d)).toFixed(1)); });
-      ctl.lead(Math.min(START + Math.max(0, t - T1) * V, FREEZE));
-      ctl.drain(ease(lin(t, T2, T3)), inkOf(card));
-      ctl.finish(t > T3);
-      return t > T3 + 0.2;
-    }, { duration: T3 });
+    var card = document.getElementById('hl-two'); if (!card || !window.hlMaterialize) return;
+    var stage = card.querySelector('.hl-stage');
+    var piece = window.hlMaterialize.logo(stage, card, { blur: 31, grain: 0.35, spread: 43 });
+    player(card, piece.run, { duration: 2.0 + 1.1 + 0.3 });
+    stage.addEventListener('hl:relayout', function () { piece.relayout(); snapStage(stage); });
   })();
 
   /* ── 3 · six axes, one file, added as Cal.com grew ─────────────────────────────────────
@@ -530,32 +451,39 @@
       try { localStorage.setItem('hl-mode', show_ ? 'show' : 'bento'); } catch (e) {}
     }
     chips.forEach(function (ch) { ch.addEventListener('click', function () { mode(ch.dataset.mode === 'show'); }); });
-    dots.forEach(function (d, j) { d.addEventListener('click', function () { show(j); }); });
+    /* any hand on the slides pauses the autoplay, so a slide can be looked at; play resumes it */
+    function hold() {
+      if (!running) return; running = false; clearTimeout(timer);
+      if (playBtn) { playBtn.setAttribute('aria-pressed', 'false'); playBtn.setAttribute('aria-label', 'Play'); var ic = playBtn.querySelector('.wm-icon'); if (ic) ic.textContent = 'play_arrow'; }
+    }
+    function go(i) { hold(); show(i); }
+    dots.forEach(function (d, j) { d.addEventListener('click', function () { go(j); }); });
     /* back and next: the bar's arrows, the keyboard's arrows while the section is on screen, a swipe on touch */
-    if (prevBtn) prevBtn.addEventListener('click', function () { show(cur - 1); });
-    if (nextBtn) nextBtn.addEventListener('click', function () { show(cur + 1); });
+    if (prevBtn) prevBtn.addEventListener('click', function () { go(cur - 1); });
+    if (nextBtn) nextBtn.addEventListener('click', function () { go(cur + 1); });
     var onScreen = false;
     if ('IntersectionObserver' in window) new IntersectionObserver(function (es) { onScreen = es[0].isIntersecting; }, { threshold: 0.3 }).observe(grid);
     document.addEventListener('keydown', function (e) {
       if (!grid.classList.contains('is-show') || !onScreen || e.metaKey || e.ctrlKey || e.altKey) return;
       var el = document.activeElement; if (el && /^(INPUT|TEXTAREA|SELECT)$/.test(el.tagName)) return;
-      if (e.key === 'ArrowRight') { e.preventDefault(); show(cur + 1); }
-      else if (e.key === 'ArrowLeft') { e.preventDefault(); show(cur - 1); }
+      if (e.key === 'ArrowRight') { e.preventDefault(); go(cur + 1); }
+      else if (e.key === 'ArrowLeft') { e.preventDefault(); go(cur - 1); }
     });
     var sx = null, sy = null;
     grid.addEventListener('pointerdown', function (e) { if (e.pointerType === 'touch' && grid.classList.contains('is-show')) { sx = e.clientX; sy = e.clientY; } });
     grid.addEventListener('pointerup', function (e) {
       if (sx == null) return; var dx = e.clientX - sx, dy = e.clientY - sy; sx = sy = null;
-      if (Math.abs(dx) > 50 && Math.abs(dx) > 1.5 * Math.abs(dy)) show(cur + (dx < 0 ? 1 : -1));
+      if (Math.abs(dx) > 50 && Math.abs(dx) > 1.5 * Math.abs(dy)) go(cur + (dx < 0 ? 1 : -1));
     });
-    /* the arrows are the shared icon face's chevrons; until a face that spells them arrives they stay hidden
-       rather than print their names */
+    /* the arrows are the shared icon face's chevrons; until a face that spells them arrives they are the system
+       face's arrows (SF Pro on a Mac), never their names */
     function glyphCheck() {
       [prevBtn, nextBtn].forEach(function (b) {
         var ic = b && b.querySelector('.wm-icon'); if (!ic) return;
         var probe = ic.cloneNode(true); probe.style.cssText += ';position:absolute;visibility:hidden;width:auto;overflow:visible;white-space:nowrap';
         document.body.appendChild(probe); var ok = probe.getBoundingClientRect().width < 2 * parseFloat(getComputedStyle(probe).fontSize); probe.remove();
         b.classList.toggle('no-glyph', !ok);
+        if (!ok) { ic.textContent = b === prevBtn ? '\u2190' : '\u2192'; ic.classList.remove('material-symbols-outlined'); ic.classList.add('hl-arrow-sys'); }
       });
     }
     if (document.fonts && document.fonts.ready) document.fonts.ready.then(glyphCheck); else glyphCheck();
