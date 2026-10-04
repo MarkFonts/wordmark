@@ -297,7 +297,7 @@
       if (fogF) return fogF;
       var NS = 'http://www.w3.org/2000/svg', box = document.createElementNS(NS, 'svg');
       box.setAttribute('width', '0'); box.setAttribute('height', '0'); box.setAttribute('aria-hidden', 'true'); box.style.position = 'absolute';
-      box.innerHTML = '<filter id="ax-fog" x="-20%" y="-60%" width="140%" height="220%" color-interpolation-filters="sRGB">'
+      box.innerHTML = '<filter id="ax-fog" x="-8%" y="-20%" width="116%" height="140%" color-interpolation-filters="sRGB">'
         + '<feGaussianBlur in="SourceGraphic" stdDeviation="0" result="soft"/>'
         + '<feTurbulence type="fractalNoise" baseFrequency="0.8" numOctaves="1" seed="7" result="noise"/>'
         + '<feColorMatrix in="noise" type="matrix" values="0 0 0 0 0.5  0 0 0 0 0.5  0 0 0 0 0.5  0 0 0 0 1" result="grainBase"/>'
@@ -317,9 +317,9 @@
       });
       if (f < 0.002) { if (target.style.filter) target.style.filter = ''; return; }
       var F = fogFilter(), fs = parseFloat(getComputedStyle(target).fontSize) || 120;
-      F.blur.setAttribute('stdDeviation', (fs * 0.12 * Math.pow(f, 1.7)).toFixed(2));   /* the haze scales with the word */
-      var g = 0.6 * Math.pow(f, 1.4); F.grain.setAttribute('k1', (2 * g).toFixed(3)); F.grain.setAttribute('k3', (1 - g).toFixed(3));
-      F.alpha.setAttribute('slope', (1 - 0.5 * f).toFixed(3));   /* fainter as it fogs: the light spread thin */
+      F.blur.setAttribute('stdDeviation', (fs * 0.03 * Math.pow(f, 1.7)).toFixed(2));   /* a light haze, scaled with the word (Mark: way less) */
+      var g = 0.15 * Math.pow(f, 1.4); F.grain.setAttribute('k1', (2 * g).toFixed(3)); F.grain.setAttribute('k3', (1 - g).toFixed(3));
+      F.alpha.setAttribute('slope', (1 - 0.15 * f).toFixed(3));   /* fainter as it fogs: the light spread thin */
       target.style.filter = 'url(#ax-fog)';
     }
     function osc(a, u) {   /* two full turns through the default: value(0) = value(1) = default */
