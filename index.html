@@ -27,7 +27,8 @@
 <link rel="stylesheet" href="shared/src/motion.css">
 <link rel="stylesheet" href="shared/src/icon.css">
 <link rel="stylesheet" href="shared/src/themeSwitch.css">
-<link rel="stylesheet" href="css/main.css?v=45">
+<link rel="stylesheet" href="shared/src/grid.css">
+<link rel="stylesheet" href="css/main.css?v=46">
 </head>
 <body>
 
@@ -53,6 +54,7 @@
       releaseY = hl.getBoundingClientRect().top + window.scrollY - TOP + OFFSET;
     }
     function update() {
+      measure();   // the headline's glyphs move after load (gridSnap.js), so read it each time
       if (window.scrollY + TOP < releaseY) {        // still in hero/dek → pinned
         nm.style.position = 'fixed';
         nm.style.top = TOP + 'px';
@@ -62,11 +64,11 @@
       }
     }
 
-    measure(); update();
+    update();
     window.addEventListener('scroll', update, { passive: true });
-    window.addEventListener('resize', function () { measure(); update(); });
-    window.addEventListener('load',   function () { measure(); update(); });
-    if (document.fonts && document.fonts.ready) { document.fonts.ready.then(function () { measure(); update(); }); }
+    window.addEventListener('resize', update);
+    window.addEventListener('load',   update);
+    if (document.fonts && document.fonts.ready) { document.fonts.ready.then(update); }
   });
 </script>
 
@@ -78,8 +80,12 @@
 </div>
 
 
+<!-- the copy is on the house grid (shared/src/grid.css): main is the one .wm-lines root,
+     its baselines on 3px lines. The hero and the dek are stages with their own type. -->
+<main class="wm-lines">
+
 <!-- hero ───────────────────────────────────────────────── -->
-<section id="hero">
+<section id="hero" data-nosnap>
   <canvas id="flapjack-canvas" aria-hidden="true"></canvas>
   <div id="flapjack-text" aria-label="WORDMARK">
     <!-- one canvas per wave — z-index slots them between letters -->
@@ -103,7 +109,7 @@
 
 <!-- dek ────────────────────────────────────────────────── -->
 <section id="dek">
-  <div id="dek-wrap">
+  <div id="dek-wrap" data-nosnap>
     <p id="dek-header">At&thinsp;WORDMARK, we design custom typefaces and logotypes that make brands consistent, clear, and&nbsp;unmistakable.</p>
     <canvas id="dek-canvas" aria-hidden="true"></canvas>
     <span id="dek-annot" aria-hidden="true">U+0021</span>
@@ -153,7 +159,7 @@
 
 <!-- work ───────────────────────────────────────────────── -->
 <section id="work">
-  <div class="work-item">
+  <div class="work-item wm-grid wm-baselines">
     <div class="work-copy">
       <h2 class="work-headline">Brands tell unique stories with letters that fit.</h2>
       <p class="para" lang="en">Brands may share typefaces. None of them should sound alike. The difference is in the choices, the ones you can point to and the ones you only feel.</p>
@@ -170,7 +176,7 @@
       </div>
     </figure>
   </div>
-  <div class="work-item">
+  <div class="work-item wm-grid wm-baselines">
     <div class="work-copy">
       <h2 class="work-headline">Get expert help with your mark, or start fresh. Work with people who live to make your letters sing.</h2>
       <p class="para" lang="en">The logo&shy;type is the most es&shy;sen&shy;tial form of brand com&shy;mu&shy;ni&shy;ca&shy;tion. It must work at six pix&shy;els and at sixty feet. We craft type meticu&shy;lous&shy;ly by hand, ad&shy;just&shy;ing let&shy;ters and spac&shy;ing un&shy;til it looks like it was al&shy;ways there.</p>
@@ -187,7 +193,7 @@
       </div>
     </figure>
   </div>
-  <div class="work-item">
+  <div class="work-item wm-grid wm-baselines">
     <div class="work-copy">
       <h2 class="work-headline">One font file. Every size, weight, and mood.</h2>
       <p class="para" lang="en">Var&shy;i&shy;able fonts are the 30-year-old font for&shy;mat, re&shy;built for ev&shy;ery screen. We tune them by hand, axis by axis, so your type holds at any size.</p>
@@ -214,7 +220,7 @@
   <!-- CLOSING STAGE: a tall stage so the NYMZO image (sticky) stays pinned in
        the right column while the copy scrolls away and the footer rises from the
        bottom into the left column beside it. -->
-  <div class="work-item closing">
+  <div class="work-item wm-grid wm-baselines closing">
     <div class="work-copy">
       <h2 class="work-headline">Consistency holds when the rules are explicit.</h2>
       <p class="para" lang="en">We audit how your type behaves across web, print, and motion, then write the guidelines that make the right choice the easy one. Even where your logo never appears.</p>
@@ -261,6 +267,8 @@
   </div>
 </section>
 
+</main>
+
 <!-- reveal runway: desktop scroll room below the closing stage; site.js sizes it
      so the full WORDMARK rests 50px under the footer block -->
 <div class="reveal-room" aria-hidden="true"></div>
@@ -287,5 +295,6 @@
 <script src="js/carousel.js"></script>
 <script src="js/stickers.js"></script>
 <script type="module" src="js/fitting.js?v=2"></script>
+<script src="shared/src/gridSnap.js" defer></script>
 </body>
 </html>

@@ -445,8 +445,216 @@ input[type="range"]::-moz-range-thumb { corner-shape: round; }
   color: var(--bg);
 }
 
+/* ==== shared/src/grid.css ==== */
+/* grid.css -- the house grid: 24 columns, a 3px line, one margin for every page.
+ *
+ * COLUMNS. 24 on a desktop, 12 below 1024px -- 12 divides 24, so a half is still a half
+ * and a third still a third on a phone. 30 was considered and lost to the pages it is for:
+ * calsans splits its sections 5:7 three times, which is 10 | 14 here and 12.5 | 17.5 on 30.
+ * The gutter is the pad scale's 24px (12 on a phone). The margin is the case study's own --
+ * clamp(20px, 5vw, 40px) on a phone, clamp(32px, 7vw, 112px) from 681px -- and it is the
+ * SAME for every project: page padding belongs to the grid, not to the page.
+ *
+ * LINES. A 3px unit: the leading subdivided, the way 12/15 sits on a 3pt grid. Body is
+ * 16/24. A leading is a whole number of units -- for fluid type, round(nearest, Nem,
+ * var(--bl)) gives that at every size the clamp() produces -- and so is the vertical space
+ * between text blocks in a column, because that decides where the next baseline lands.
+ * The pad scale is NOT on the line and need not be: a component's insides are its own.
+ * What carries text in the flow (a pill, a chip, a button) is the exception: its HEIGHT is
+ * in units, so a row of them is a line of type and nothing below it is knocked off.
+ *
+ * CARDS (rule A, Mark 2026-10-01). A card is a box on the grid; its contents step in one
+ * column + one gutter, so they land on the next column line.
+ *
+ *   .wm-grid            columns + the page margin (a whole page or section)
+ *   .wm-cols            the same columns, no margin -- inside a wrapper that has it
+ *   --span / --start    a child's columns on the 24 (default: all of them)
+ *   --span-md / --start-md   the same below 1024px (default: all 12)
+ *   .wm-card            a box whose contents start one column + one gutter in
+ *   --grid-col          one column's width, as a length, inside either container
+ *   --bl                the line; .wm-lines puts text's baselines on it (below)
+ *   --snap              the remainder a builder or gridSnap.js measured (below)
+ *
+ * PAGES AND TOOLS (Mark 2026-10-04). A page has the margin; a tool has none, ever.
+ *   .wm-grid--bleed     no margin: on a .wm-grid, or once on main/body for a whole app.
+ *                       Columns run the full width, the gutter stays, and a box touching a
+ *                       window edge holds its text one gutter in from it.
+ *   .wm-break           a child of a margined grid whose BOX runs to both window edges; its
+ *   .wm-break--left     text stays at the margin (a bleed of the box, not of the words).
+ *   .wm-break--right    One edge only, on the child's own --span. [data-nosnap]: a picture
+ *                       or stage, no inner padding.
+ *   [data-shot="mac"]   a macOS window screenshot (img, video, or a picture): the shadow
+ *                       margin is cut out of the layout so the WINDOW's edge sits on the
+ *                       column edge. --shot-mac-l/r/t/b are the shadow in capture px. */
+@layer wm.grid {
+  :root {
+    --grid-cols: 24;
+    --grid-gutter: 24px;
+    --grid-margin: clamp(20px, 5vw, 40px);
+    --bl: 3px;
+  }
+  @media (min-width: 681px)  { :root { --grid-margin: clamp(32px, 7vw, 112px); } }
+  @media (max-width: 1023px) { :root { --grid-cols: 12; } }
+  @media (max-width: 599px)  { :root { --grid-gutter: 12px; } }
+
+  .wm-grid, .wm-cols {
+    /* A container, so anything inside can measure a column in cqw without JS. */
+    container-type: inline-size;
+    display: grid;
+    grid-template-columns: repeat(var(--grid-cols), minmax(0, 1fr));
+    column-gap: var(--grid-gutter);
+  }
+  .wm-grid { padding-inline: var(--grid-margin); --_m: var(--grid-margin); }
+  .wm-cols { --_m: 0px; }
+  :is(.wm-grid, .wm-cols) > * {
+    /* Declared and unset (`initial`), so the fallbacks apply until a host sets them on the
+       child -- the same move as chip.css's --chip-color. */
+    --span: initial; --start: initial; --span-md: initial; --start-md: initial;
+    min-width: 0;
+    grid-column: var(--start, auto) / span var(--span, 24);
+    /* One column, as a length. 100cqw is the container's own width, margins included. */
+    --grid-col: calc((100cqw - 2 * var(--_m) - (var(--grid-cols) - 1) * var(--grid-gutter)) / var(--grid-cols));
+  }
+  @media (max-width: 1023px) {
+    :is(.wm-grid, .wm-cols) > * { grid-column: var(--start-md, auto) / span var(--span-md, 12); }
+  }
+  .wm-card { padding: var(--grid-gutter) calc(var(--grid-col) + var(--grid-gutter)); }
+
+  /* GRID BREAKERS. A child of a margined .wm-grid that runs to the window edge: the box takes
+     the margin back (negative margin-inline by --grid-margin) and pads it back in, so text in a
+     breaker still starts at the margin and a .wm-cols inside it lands on the page's own
+     columns -- its content box IS the page's column area. A breaker of two edges spans
+     everything; a one-edge breaker keeps the child's --span (--span-md below 1024) and runs to
+     the side it breaks. A picture or stage (data-nosnap) gets no inner padding: it is the box.
+     With both classes, the side the modifier names wins. In a bleed root there is no margin
+     to break: a breaker is an ordinary child there, and the bleed rule below pads it. */
+  .wm-grid > .wm-break { grid-column: 1 / -1; margin-inline: calc(-1 * var(--grid-margin)); padding-inline: var(--grid-margin); }
+  .wm-grid > .wm-break--left { grid-column: 1 / span var(--span, 24); margin-inline: calc(-1 * var(--grid-margin)) 0; padding-inline: var(--grid-margin) 0; }
+  .wm-grid > .wm-break--right { grid-column: span var(--span, 24) / -1; margin-inline: 0 calc(-1 * var(--grid-margin)); padding-inline: 0 var(--grid-margin); }
+  .wm-grid > :is(.wm-break, .wm-break--left, .wm-break--right):where([data-nosnap]) { padding-inline: 0; }
+
+  /* TOOLS BLEED: .wm-grid--bleed. font-proofer, ReCal: no margin, ever. On one .wm-grid, or once
+     on main / body so every grid inside opts in (--grid-margin is inherited; on <html> a
+     host's own unlayered :root --grid-margin would beat it, so prefer main or body). The
+     columns run edge to edge, still 24 / 12, gutter kept -- and text never sits flush against
+     the window: a box that touches an edge pads one gutter on that side. Which boxes touch an
+     edge is read from the house placement, not guessed from the DOM:
+       start pad = gutter x max(0, 2 - start)                      1 when it starts in column 1
+       end pad   = gutter x max(0, start + span - cols)            1 when it ends in the last
+     An auto-placed child counts as starting in column 1: give one that starts elsewhere its
+     --start (--start-md). A stage (data-nosnap) or a picture is not padded: it keeps its own room. The pad is
+     layered, so a host's own unlayered padding on the box replaces it -- put that padding on
+     an inner element instead. */
+  .wm-grid--bleed { --grid-margin: 0px; }
+  :is(.wm-grid--bleed .wm-grid, .wm-grid.wm-grid--bleed) > :not(:where([data-nosnap], [data-shot], img, video, picture, canvas, svg)) {
+    padding-inline-start: calc(var(--grid-gutter) * max(0, 2 - var(--start, 1)));
+    padding-inline-end: calc(var(--grid-gutter) * max(0, var(--start, 1) + var(--span, 24) - var(--grid-cols)));
+  }
+  @media (max-width: 1023px) {
+    .wm-grid > .wm-break--left { grid-column: 1 / span var(--span-md, 12); }
+    .wm-grid > .wm-break--right { grid-column: span var(--span-md, 12) / -1; }
+    :is(.wm-grid--bleed .wm-grid, .wm-grid.wm-grid--bleed) > :not(:where([data-nosnap], [data-shot], img, video, picture, canvas, svg)) {
+      padding-inline-start: calc(var(--grid-gutter) * max(0, 2 - var(--start-md, 1)));
+      padding-inline-end: calc(var(--grid-gutter) * max(0, var(--start-md, 1) + var(--span-md, 12) - var(--grid-cols)));
+    }
+  }
+
+  /* MACOS WINDOW SCREENSHOTS: [data-shot="mac"]. Cmd-Shift-4, space, and the window comes with
+     its drop shadow as a transparent margin, so the visible window edge sits INSIDE the image
+     and a shot set on the columns lands its window short of them. The margin is a fixed size
+     in points, not a ratio: measured on the case study's shots (2026-10-04, alpha >= 250), a 2x
+     capture carries 112 px left and right, 76 on top and 148 below (56 / 38 / 74 pt; the
+     shadow falls downward). A file scaled after capture keeps the same FRACTIONS of its own
+     width as the capture had of its, so it says by how much in --shot-scale (file px per
+     capture px: the case study's 2000px files are 0.643 of a ~3111px capture, 72 / 2000).
+     A 1x capture is --shot-scale: 0.5.
+
+     The arithmetic. B is the box the WINDOW should fill (the containing block, 100%), w the
+     file's width in px (--shot-w), and l r t b the shadow in file px (token x scale). The
+     window is w - l - r file px wide, so one file px renders at k = B / (w - l - r), and:
+       width  = k x w                            the whole file, shadow included
+       margin = -k x t   -k x r   -k x b   -k x l
+     Percent margins resolve against the containing block's INLINE size on all four sides,
+     the top and bottom too -- which is exactly B, so every term is 100% x n / (w - l - r)
+     and the image's layout box is the window, to the pixel, at any width. The shadow is
+     drawn past the box like any shadow; a margined .wm-grid holding a shot clips its own
+     sides (overflow-x: clip, not a scroll container) so a phone's 20px margin, narrower
+     than the shadow, does not scroll the page sideways.
+
+     --shot-w needs the file's pixel width and CSS cannot read it: gridSnap.js writes it
+     inline (from the loaded image, the width attribute until then), or the page does. The
+     rules apply only once it is there -- [style*="--shot-w"] -- so a page without the
+     script shows the plain image, never one sized from a guess. */
+  :root { --shot-mac-l: 112; --shot-mac-r: 112; --shot-mac-t: 76; --shot-mac-b: 148; }
+  [data-shot="mac"] { --shot-w: initial; --shot-scale: 1; }
+  picture[data-shot="mac"] { display: block; }
+  :is(img, video)[data-shot="mac"][style*="--shot-w"], picture[data-shot="mac"][style*="--shot-w"] > img {
+    --_shot-k: calc(100% / (var(--shot-w) - (var(--shot-mac-l) + var(--shot-mac-r)) * var(--shot-scale)));
+    display: block;
+    max-width: none;
+    height: auto;
+    width: calc(var(--_shot-k) * var(--shot-w));
+    margin: calc(var(--_shot-k) * var(--shot-mac-t) * var(--shot-scale) * -1)
+            calc(var(--_shot-k) * var(--shot-mac-r) * var(--shot-scale) * -1)
+            calc(var(--_shot-k) * var(--shot-mac-b) * var(--shot-scale) * -1)
+            calc(var(--_shot-k) * var(--shot-mac-l) * var(--shot-scale) * -1);
+  }
+  .wm-grid:has([data-shot="mac"]) { overflow-x: clip; }
+}
+
+/* BASELINES ON THE LINE -- UNLAYERED, on purpose. type.css's .t-* classes are unlayered (they
+   are its API, not a default), and an unlayered rule beats any layered one however specific:
+   inside a layer, .wm-lines .t-ui lost to .t-ui and ui sat at 16.8 instead of 15. Out here,
+   specificity decides, and .wm-lines X outranks X.
+
+   Inside .wm-lines a text block's leading is --lh, a whole number of units, and its box
+   starts on a line. That does not yet put its BASELINES there: a baseline sits the
+   half-leading plus the ascent below the top of its line box, and that depends on the face.
+   So each block is nudged down by however far that lands short of the next line -- under
+   one unit, by `top`, which moves the glyphs and not the layout. The browser rounds ascent
+   and descent to whole pixels at each size and floors an odd half-leading (lede: 27 - 20 = 7,
+   so 3 above, not 3.5), and so does this. Cal Sans's hhea is 1800 / -490 on 2000; a page on
+   another face sets --font-asc / --font-desc from its own (or typo, if USE_TYPO_METRICS).
+   A page sets --lh wherever it sets a leading; nothing here touches margins. */
+.wm-lines {
+  --font-asc: 0.9; --font-desc: 0.245;
+  /* the roles' own leadings (type.css rounds each to --bl); the px are what they come to at
+     the 16px root, and what a page without type.css gets */
+  --lead-micro: var(--type-micro-lead, 12px); --lead-ui: var(--type-ui-lead, 15px);
+  --lead-body: var(--type-body-lead, 24px); --lead-lede: var(--type-lede-lead, 27px);
+  --lead-title: var(--type-title-lead, 30px); --lead-display: var(--type-display-lead, 51px);
+  --lh: var(--lead-body);
+}
+/* :where, so any rule that sets --lh outranks it, whatever selector it is written with.
+   A STAGE IS NOT REACHED. The trailing :not(:where(...)) leaves out a [data-nosnap] subtree
+   (the element itself, or anything inside it): a demo with its own type keeps its own leading,
+   position and top, and a shell no longer hands them back with a `revert-layer` rule. The
+   :where inside the :not is what keeps the specificity story true -- a :not() counts its
+   argument, so a bare :not([data-nosnap] *) would lift this from (0,1,0) to (0,2,0) and a
+   page's own `.card p` would stop outranking it. */
+.wm-lines :where(p, li, h1, h2, h3, h4, h5, figcaption, .t-display, .t-title, .t-lede, .t-ui, .t-label, .t-micro, [data-line]):not(:where([data-nosnap], [data-nosnap] *)) {
+  line-height: var(--lh);
+  position: relative;
+  /* unset until a builder or gridSnap.js writes it ON the element (inline wins); declared
+     here, not listed as a runtime token, so consumers' own token lists don't fail on it */
+  --snap: initial;
+  --asc: round(calc(var(--font-asc) * 1em), 1px);
+  --desc: round(calc(var(--font-desc) * 1em), 1px);
+  top: calc(mod(calc(var(--bl) - mod(calc(round(down, (var(--lh) - var(--asc) - var(--desc)) / 2, 1px) + var(--asc)), var(--bl))), var(--bl)) + var(--snap, 0px));
+}
+/* --snap: what CSS cannot know. The nudge above is exact for a block whose BOX starts on a
+   line; a block below an image, an embed or a 1px rule starts wherever those end. A builder
+   (or src/gridSnap.js, after layout) measures the rendered baseline and sets --snap to the
+   remainder -- under one unit, glyphs only, never the layout. */
+/* The roles' --lh, out of a stage by the same :not(:where()) -- (0,2,0) as before, not more. */
+.wm-lines .t-lede:not(:where([data-nosnap], [data-nosnap] *)) { --lh: var(--lead-lede); }
+.wm-lines .t-title:not(:where([data-nosnap], [data-nosnap] *)) { --lh: var(--lead-title); }
+.wm-lines :is(.t-ui, .t-label):not(:where([data-nosnap], [data-nosnap] *)) { --lh: var(--lead-ui); }
+.wm-lines .t-micro:not(:where([data-nosnap], [data-nosnap] *)) { --lh: var(--lead-micro); }
+.wm-lines .t-display:not(:where([data-nosnap], [data-nosnap] *)) { --lh: var(--lead-display); }
+
 /* ==== shared/dist/dial.css ==== */
-@layer wm.controls{.wm-chevron,.slider-step-btn svg,.triplet-step-btn svg{stroke-width:var(--chevron-stroke, 1.15);transition:stroke-width var(--icon-dur, 90ms) ease}.slider-row:hover .slider-step-btn svg,.slider-row:focus-within .slider-step-btn svg,.triplet-f:hover .triplet-step-btn svg,.triplet-f:focus-within .triplet-step-btn svg,.triplet-row:hover .triplet-step-btn svg,.instance-select-wrap:hover .wm-chevron,button:hover>.wm-chevron{stroke-width:calc(var(--chevron-stroke, 1.15) * 1.17)}.wm-chevron.chev-left{transform:rotate(90deg)}.wm-chevron.chev-right{transform:rotate(-90deg)}@media(prefers-reduced-motion:reduce){.slider-step-btn svg,.triplet-step-btn svg{transition:none}}}@layer wm.controls{.slider-row{display:flex;flex-direction:column;gap:3px}.slider-row--off{opacity:.4}.slider-label{display:flex;align-items:center;justify-content:space-between;gap:6px;font-size:var(--type-ui-size, .75rem);line-height:var(--type-ui-lead, 15px)}.slider-label-left{display:flex;align-items:baseline;gap:var(--spacing-01, 4px);flex:1 1 auto;min-width:0;overflow:visible;padding-bottom:var(--nudge, 2px)}.slider-label-text{font-size:var(--type-ui-size, .75rem);color:var(--text-muted);font-family:var(--ui-font, system-ui, sans-serif);white-space:nowrap;overflow:visible;text-overflow:clip}.slider-label-name{white-space:nowrap}.slider-label-text--tagged{min-width:var(--axis-label-w, 105px);flex:0 0 auto;display:inline-flex;align-items:baseline;gap:var(--spacing-01, 4px)}.slider-tag{font-size:var(--type-micro-size, .5625rem);color:var(--text-muted);font-family:var(--ui-font, system-ui, sans-serif);letter-spacing:0;flex-shrink:0;font-feature-settings:"tnum"}.slider-range{color:var(--text-dim);font-variant-numeric:tabular-nums;white-space:nowrap}.slider-value{display:flex;align-items:baseline;gap:var(--spacing-01, 4px);flex-shrink:0}.slider-number{font-family:var(--ui-font, system-ui, sans-serif);font-size:var(--type-ui-size, .75rem);color:var(--text);background:transparent;border:none;border-radius:0;text-align:right;width:auto;field-sizing:content;min-width:2ch;max-width:14ch;padding:var(--nudge, 2px) 0;font-feature-settings:"tnum";color-scheme:inherit;text-decoration:underline;text-decoration-thickness:1px;text-underline-offset:2px;text-decoration-color:var(--text-muted, currentColor)}.slider-number:focus,.slider-row:focus-within .slider-number{outline:none;color:var(--accent, currentColor);text-decoration-color:var(--accent, currentColor);text-decoration-thickness:2px}.slider-row--boxed .slider-number{background:var(--bg-elevated, var(--surface));border:1px solid var(--border);border-radius:var(--radius, 6px);corner-shape:superellipse(var(--corner-k, 1.2));padding:4px 6px;text-decoration:none}.slider-row--boxed .slider-number:focus{border-color:var(--text-muted)}.slider-auto{font:inherit;font-size:10.5px;line-height:1;letter-spacing:0;margin-left:var(--spacing-02, 6px);padding:2px 0;border:0;background:none;color:var(--text-dim, var(--text-muted));cursor:pointer;display:inline-flex;align-items:baseline;gap:.28em;vertical-align:baseline;flex-shrink:0;transition:color var(--dur-fast, .12s) ease}.slider-auto:hover{color:var(--text-muted, var(--text))}.slider-auto--on{color:var(--ok, #00a01e)}.slider-auto:focus-visible{outline:2px solid var(--accent, currentColor);outline-offset:2px}.slider-auto-dot{font-size:.7em;position:relative;top:-1px}.slider-auto-word{text-transform:uppercase;letter-spacing:normal}@media(pointer:coarse){.slider-auto{padding:6px 0}}.slider-step{display:inline-flex;flex-direction:column;margin-left:var(--nudge, 2px);opacity:0;transition:opacity var(--dur-fast, .12s);position:absolute;justify-content:center}.slider-value{position:relative;padding-right:calc(1.75 * var(--type-ui-size, .75rem))}.slider-suffix,.slider-step{position:absolute;right:calc(.21 * var(--type-ui-size, .75rem));top:50%;transform:translateY(-50%)}.slider-row:hover .slider-step,.slider-row:focus-within .slider-step{opacity:1}.slider-row:hover .slider-suffix,.slider-row:focus-within .slider-suffix{opacity:0}.slider-suffix{transition:opacity var(--dur-fast, .12s)}.slider-step-btn{padding:0;border:0;background:none;color:var(--text-muted);cursor:pointer;width:16px;height:12px;display:grid;place-items:center;position:relative;border-radius:999px;corner-shape:superellipse(var(--corner-k, 1.2))}.slider-step-btn svg{display:block}.slider-step-btn:hover{color:var(--text)}.slider-step-btn:focus-visible{outline:1px solid var(--accent, currentColor)}.slider-step-btn:before{content:"";position:absolute;inset:0;background-image:url(data:image/avif;base64,AAAAIGZ0eXBhdmlmAAAAAE1pUHJhdmlmbWlhZm1pZjEAAAFebWV0YQAAAAAAAAAhaGRscgAAAAAAAAAAcGljdAAAAAAAAAAAAAAAAAAAAAAkZGluZgAAABxkcmVmAAAAAAAAAAEAAAAMdXJsIAAAAAEAAAAOcGl0bQAAAAAAAQAAADhpaW5mAAAAAAACAAAAFWluZmUCAAAAAAEAAGF2MDEAAAAAFWluZmUCAAABAAIAAEV4aWYAAAAAGmlyZWYAAAAAAAAADmNkc2MAAgABAAEAAACBaXBycAAAAGBpcGNvAAAAE2NvbHJuY2x4AAkAEAABgAAAAAxjbGxpA+gAQAAAABRpc3BlAAAAAAAAAGQAAABkAAAACWlyb3QAAAAAEHBpeGkAAAAAAwoKCgAAAAxhdjFDgQBMAAAAABlpcG1hAAAAAAAAAAEAAQaBAgMFhoQAAAAsaWxvYwAAAABEAAACAAEAAAABAAAB0AAAADcAAgAAAAEAAAGOAAAAQgAAAAFtZGF0AAAAAAAAAIkAAAAGRXhpZgAATU0AKgAAAAgAAYdpAAQAAAABAAAAGgAAAAAAAqACAAQAAAABAAAAZKADAAQAAAABAAAAZAAAAAASAAoNAAAAAzY8Z//ChIgAwjIkEAGEgAYYYYi0VMregO56Wg+x6xnwsfoJWaYWX85G+ibLVJ6A);background-size:100% 100%;background-repeat:no-repeat;dynamic-range-limit:no-limit;mask-repeat:no-repeat;mask-position:center;mask-size:10px 6px;-webkit-mask-repeat:no-repeat;-webkit-mask-position:center;-webkit-mask-size:10px 6px;opacity:0;transition:opacity calc(var(--dur-fast, .12s) * 2) ease-out;pointer-events:none}.slider-step-btn:first-child:before{mask-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 10 6'%3E%3Cpath d='M1 4.38 5 1.62 9 4.38' fill='none' stroke='%23fff' stroke-width='1.35' stroke-linecap='round' stroke-linejoin='miter' stroke-miterlimit='4'/%3E%3C/svg%3E");-webkit-mask-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 10 6'%3E%3Cpath d='M1 4.38 5 1.62 9 4.38' fill='none' stroke='%23fff' stroke-width='1.35' stroke-linecap='round' stroke-linejoin='miter' stroke-miterlimit='4'/%3E%3C/svg%3E")}.slider-step-btn+.slider-step-btn:before{mask-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 10 6'%3E%3Cpath d='M1 1.62 5 4.38 9 1.62' fill='none' stroke='%23fff' stroke-width='1.35' stroke-linecap='round' stroke-linejoin='miter' stroke-miterlimit='4'/%3E%3C/svg%3E");-webkit-mask-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 10 6'%3E%3Cpath d='M1 1.62 5 4.38 9 1.62' fill='none' stroke='%23fff' stroke-width='1.35' stroke-linecap='round' stroke-linejoin='miter' stroke-miterlimit='4'/%3E%3C/svg%3E")}.slider-step-btn:active:before{opacity:1;transition:none}@media(pointer:coarse){input.slider-number,.slider-row--track input.slider-number{padding:12px 8px;margin:-12px -8px;position:relative;z-index:2}.slider-step{opacity:1;position:static;transform:none}.slider-suffix{position:static;transform:none}.slider-value{padding-right:var(--spacing-02, 8px);align-items:center}.slider-suffix{order:1}.slider-step{order:2}.slider-row:hover .slider-suffix,.slider-row:focus-within .slider-suffix{opacity:1}.slider-step-btn{width:40px;height:16px;padding-block:3px;margin-block:-3px}.slider-step-btn:first-child{align-items:end}.slider-step-btn+.slider-step-btn{align-items:start}}@media(prefers-reduced-motion:reduce){.slider-step-btn:before{transition:none}}.slider-number:disabled{cursor:default}.slider-track-wrap{position:relative}.slider-track-wrap input[type=range]{-webkit-appearance:none;appearance:none;width:100%;height:max(14px,var(--dial-track-h, 24px));background:transparent;cursor:pointer;margin:0;display:block}.slider-track-wrap input[type=range]::-webkit-slider-runnable-track{height:2px;background:linear-gradient(to right,var(--border) 0%,var(--border) var(--locked-pct, 100%),var(--track-empty, var(--surface-hi)) var(--locked-pct, 100%),var(--track-empty, var(--surface-hi)) 100%);border-radius:1px}.slider-track-wrap input[type=range]::-webkit-slider-thumb{-webkit-appearance:none;width:var(--dial-thumb, 14px);height:var(--dial-thumb, 14px);border-radius:50%;background:var(--text);cursor:pointer;margin-top:calc((2px - var(--dial-thumb, 14px)) / 2)}.slider-track-wrap input[type=range]::-moz-range-track{height:2px;background:linear-gradient(to right,var(--border) 0%,var(--border) var(--locked-pct, 100%),var(--track-empty, var(--surface-hi)) var(--locked-pct, 100%),var(--track-empty, var(--surface-hi)) 100%);border-radius:1px}.slider-track-wrap input[type=range]::-moz-range-thumb{width:var(--dial-thumb, 14px);height:var(--dial-thumb, 14px);border-radius:50%;background:var(--text);border:none;cursor:pointer}.slider-auto-hint{position:fixed;font-size:var(--type-ui-size, .75rem);color:var(--text);background:var(--bg-elevated, var(--surface));border:1px solid var(--border);border-radius:var(--radius, 6px);padding:var(--spacing-01, 4px) var(--spacing-03, 8px);pointer-events:none;z-index:1000;white-space:nowrap;animation:hint-fade var(--dur-hint, 3s) forwards}@keyframes hint-fade{0%{opacity:1}60%{opacity:1}to{opacity:0}}.slider-row--diamond input[type=range]::-webkit-slider-thumb{width:12px;height:12px;border-radius:2px;background:var(--marker-default, var(--accent, var(--text)));transform:rotate(45deg);box-shadow:0 0 0 1px var(--bg);margin-top:-5px}.slider-row--diamond input[type=range]::-moz-range-thumb{width:12px;height:12px;border-radius:2px;background:var(--marker-default, var(--accent, var(--text)));transform:rotate(45deg);box-shadow:0 0 0 1px var(--bg)}.slider-ref{position:absolute;top:12px;width:8px;height:8px;margin-left:-4px;border-radius:1px;background:var(--text-muted);opacity:.28;transform:translateY(-50%) rotate(45deg);pointer-events:none;z-index:0}.slider-row--skeletal input[type=range]::-webkit-slider-thumb{width:10px;height:10px;margin-top:-4px}.slider-row--skeletal input[type=range]::-moz-range-thumb{width:10px;height:10px}.slider-suffix{font-size:var(--type-ui-size, .75rem);color:var(--text-muted);font-feature-settings:"tnum";margin-left:-3px;pointer-events:none}.slider-suffix--hidden{visibility:hidden}.slider-row--track{position:relative;gap:0}.slider-row--track .slider-track-wrap{position:absolute;inset:0;margin:0;padding:0}.slider-row--track .slider-track-wrap input[type=range]{width:100%;height:100%;margin:0;opacity:0;cursor:ew-resize;touch-action:pan-y}.slider-row--track .slider-track-wrap input[type=range]:disabled{cursor:default}.slider-row--track .slider-label{position:relative;z-index:1;pointer-events:none;min-height:32px;padding:0 var(--spacing-04, 12px);border-radius:var(--radius, 6px);corner-shape:superellipse(var(--corner-k, 1.2));background:linear-gradient(to right,var(--surface-hi) 0 var(--pct, 0%),transparent var(--pct, 0%) 100%),var(--surface);border:1px solid var(--border)}.slider-row--track .slider-number,.slider-row--track .slider-step,.slider-row--track .slider-auto{pointer-events:auto}.slider-row--track .slider-track-wrap input[type=range]:focus-visible{outline:2px solid var(--accent, currentColor);outline-offset:2px;border-radius:var(--radius, 6px)}.slider-number::selection{background:var(--accent, currentColor);color:var(--bg, var(--surface))}.slider-row--track .slider-label{user-select:none}.slider-row--track .slider-number{user-select:text}@media(pointer:coarse){.slider-row--track{min-height:48px;justify-content:center}.slider-row--track .slider-label{min-height:32px;transition:min-height var(--dur-fast, .12s) ease}.slider-row--track .slider-track-wrap{top:3px;bottom:5px}.slider-row--track .slider-label-left{padding-bottom:0}.slider-row--track.slider-row--engaged .slider-label{min-height:48px}.slider-row--track.slider-row--engaged .slider-track-wrap{top:0;bottom:0}}@media(pointer:coarse)and (prefers-reduced-motion:reduce){.slider-row--track .slider-label{transition:none}}.slider-row--track .slider-number{padding:0;width:auto;field-sizing:content;min-width:2ch;max-width:14ch}.slider-row--track .slider-label{padding-right:0}.slider-row--track .slider-step-btn{width:12px}@media(pointer:coarse){.slider-row--track .slider-step-btn{width:40px}.slider-row--track .slider-value{padding-right:var(--spacing-02, 8px)}}.slider-row--track .slider-suffix{color:var(--text-muted)}.slider-row--track .slider-label:before{content:"";position:absolute;inset:0;border-radius:inherit;background:linear-gradient(to right,var(--border) 0 var(--locked-pct, 0%),transparent var(--locked-pct, 0%) 100%);opacity:.55;pointer-events:none}.slider-row--track .slider-ref{z-index:2;top:auto;bottom:0;width:0;height:0;--ref-w: 10px;margin-left:calc(var(--ref-w) / -2);border-radius:0;transform:none;background:none;border-left:calc(var(--ref-w) / 2) solid transparent;border-right:calc(var(--ref-w) / 2) solid transparent;border-bottom:calc(var(--ref-w) / 2) solid rgba(var(--text-rgb, 232, 232, 232),.55);border-top:0;opacity:1}.slider-row--track .slider-label{cursor:ew-resize}.slider-row--track.slider-row--off .slider-label{cursor:default}}@font-face{font-family:Material Symbols Outlined;font-style:normal;font-weight:100 700;font-display:block;src:url(fonts/MaterialSymbolsOutlined.woff2) format("woff2")}@property --icon-hdr{syntax: "<number>"; inherits: false; initial-value: 0;}@layer wm.icon{.wm-icon{font-family:Material Symbols Outlined;font-weight:400;font-style:normal;line-height:1;letter-spacing:normal;text-transform:none;white-space:nowrap;word-wrap:normal;direction:ltr;-webkit-font-feature-settings:"liga";font-feature-settings:"liga";-webkit-font-smoothing:antialiased;display:inline-flex;align-items:center;justify-content:center;flex:0 0 auto;vertical-align:middle;user-select:none;background:none;border:0;border-radius:0;padding:0;--icon-opsz: 20;--icon-fill: 0;--icon-wght: 300;--icon-grad: 50;font-variation-settings:"FILL" var(--icon-fill),"wght" var(--icon-wght),"GRAD" var(--icon-grad),"opsz" var(--icon-opsz);color:rgba(var(--text-rgb, 232, 232, 232),var(--ink-faint, .38));--icon-dur: 90ms;transition:font-variation-settings var(--icon-dur) ease,color var(--icon-dur) ease,--icon-hdr var(--icon-dur) ease}@media(prefers-color-scheme:light){:root:not([data-theme=dark]) .wm-icon{--icon-grad: 100}:root:not([data-theme=dark]) .wm-icon--off{--icon-grad: 100}:root:not([data-theme=dark]) .wm-icon--active,:root:not([data-theme=dark]) .active>.wm-icon,:root:not([data-theme=dark]) .active>*>.wm-icon{--icon-grad: 100}}:root[data-theme=light] .wm-icon{--icon-grad: 100}:root[data-theme=light] .wm-icon--off{--icon-grad: 100}:root[data-theme=light] .wm-icon--active,:root[data-theme=light] .active>.wm-icon,:root[data-theme=light] .active>*>.wm-icon{--icon-grad: 100}:root[data-theme=dark] .wm-icon{--icon-grad: 50}:root[data-theme=dark] .wm-icon--off{--icon-grad: 50}:root[data-theme=dark] .wm-icon--active,:root[data-theme=dark] .active>.wm-icon,:root[data-theme=dark] .active>*>.wm-icon{--icon-grad: 75}.wm-icon--off{--icon-wght: 300;color:rgba(var(--text-rgb, 232, 232, 232),var(--ink-faint, .38))}.wm-icon--active,.active>.wm-icon,.active>*>.wm-icon{--icon-grad: 75;--icon-hdr: 1;color:transparent;background-image:linear-gradient(rgba(var(--text-rgb, 232, 232, 232),calc(1 - var(--icon-hdr))),rgba(var(--text-rgb, 232, 232, 232),calc(1 - var(--icon-hdr)))),url(data:image/avif;base64,AAAAIGZ0eXBhdmlmAAAAAE1pUHJhdmlmbWlhZm1pZjEAAAFebWV0YQAAAAAAAAAhaGRscgAAAAAAAAAAcGljdAAAAAAAAAAAAAAAAAAAAAAkZGluZgAAABxkcmVmAAAAAAAAAAEAAAAMdXJsIAAAAAEAAAAOcGl0bQAAAAAAAQAAADhpaW5mAAAAAAACAAAAFWluZmUCAAAAAAEAAGF2MDEAAAAAFWluZmUCAAABAAIAAEV4aWYAAAAAGmlyZWYAAAAAAAAADmNkc2MAAgABAAEAAACBaXBycAAAAGBpcGNvAAAAE2NvbHJuY2x4AAkAEAABgAAAAAxjbGxpA+gAQAAAABRpc3BlAAAAAAAAAGQAAABkAAAACWlyb3QAAAAAEHBpeGkAAAAAAwoKCgAAAAxhdjFDgQBMAAAAABlpcG1hAAAAAAAAAAEAAQaBAgMFhoQAAAAsaWxvYwAAAABEAAACAAEAAAABAAAB0AAAADcAAgAAAAEAAAGOAAAAQgAAAAFtZGF0AAAAAAAAAIkAAAAGRXhpZgAATU0AKgAAAAgAAYdpAAQAAAABAAAAGgAAAAAAAqACAAQAAAABAAAAZKADAAQAAAABAAAAZAAAAAASAAoNAAAAAzY8Z//ChIgAwjIkEAGEgAYYYYi0VMregO56Wg+x6xnwsfoJWaYWX85G+ibLVJ6A);background-size:100% 100%;background-repeat:no-repeat;-webkit-background-clip:text;background-clip:text;dynamic-range-limit:no-limit}@media(prefers-color-scheme:light){:root:not([data-theme=dark]) .wm-icon--active,:root:not([data-theme=dark]) .active>.wm-icon,:root:not([data-theme=dark]) .active>*>.wm-icon{--icon-hdr: 0;color:rgba(var(--text-rgb, 232, 232, 232),var(--ink-full, 1));background-image:none;-webkit-background-clip:border-box;background-clip:border-box;dynamic-range-limit:standard}}:root[data-theme=light] .wm-icon--active,:root[data-theme=light] .active>.wm-icon,:root[data-theme=light] .active>*>.wm-icon{--icon-hdr: 0;color:rgba(var(--text-rgb, 232, 232, 232),var(--ink-full, 1));background-image:none;-webkit-background-clip:border-box;background-clip:border-box;dynamic-range-limit:standard}.wm-icon-btn:not(.active):hover .wm-icon:not(.wm-icon--off):not(.wm-icon--active),.wm-icon-btn:not(.active):focus-visible .wm-icon:not(.wm-icon--off):not(.wm-icon--active),.fit-align-btn:not(.active):hover .wm-icon:not(.wm-icon--off):not(.wm-icon--active),.fit-align-btn:not(.active):focus-visible .wm-icon:not(.wm-icon--off):not(.wm-icon--active),.align-btn:not(.active):hover .wm-icon:not(.wm-icon--off):not(.wm-icon--active),.align-btn:not(.active):focus-visible .wm-icon:not(.wm-icon--off):not(.wm-icon--active),.mobile-tab:not(.active):hover .wm-icon:not(.wm-icon--off):not(.wm-icon--active),.mobile-sub-btn:not(.active):hover .wm-icon:not(.wm-icon--off):not(.wm-icon--active),.mode-btn:not(.active):hover .wm-icon:not(.wm-icon--off):not(.wm-icon--active),.wm-icon:not(.wm-icon--off):not(.wm-icon--active):not(:where(.active) *):hover{--icon-grad: 100;color:rgba(var(--text-rgb, 232, 232, 232),var(--ink-quiet, .62))}@media(prefers-color-scheme:light){:root:not([data-theme=dark]) .wm-icon-btn:not(.active):hover .wm-icon:not(.wm-icon--off):not(.wm-icon--active),:root:not([data-theme=dark]) .fit-align-btn:not(.active):hover .wm-icon:not(.wm-icon--off):not(.wm-icon--active),:root:not([data-theme=dark]) .align-btn:not(.active):hover .wm-icon:not(.wm-icon--off):not(.wm-icon--active),:root:not([data-theme=dark]) .mobile-tab:not(.active):hover .wm-icon:not(.wm-icon--off):not(.wm-icon--active),:root:not([data-theme=dark]) .mode-btn:not(.active):hover .wm-icon:not(.wm-icon--off):not(.wm-icon--active),:root:not([data-theme=dark]) .wm-icon:not(.wm-icon--off):not(.wm-icon--active):not(:where(.active) *):hover{--icon-grad: 150}}:root[data-theme=light] .wm-icon-btn:not(.active):hover .wm-icon:not(.wm-icon--off):not(.wm-icon--active),:root[data-theme=light] .fit-align-btn:not(.active):hover .wm-icon:not(.wm-icon--off):not(.wm-icon--active),:root[data-theme=light] .align-btn:not(.active):hover .wm-icon:not(.wm-icon--off):not(.wm-icon--active),:root[data-theme=light] .mobile-tab:not(.active):hover .wm-icon:not(.wm-icon--off):not(.wm-icon--active),:root[data-theme=light] .mode-btn:not(.active):hover .wm-icon:not(.wm-icon--off):not(.wm-icon--active),:root[data-theme=light] .wm-icon:not(.wm-icon--off):not(.wm-icon--active):not(:where(.active) *):hover{--icon-grad: 150}:root[data-theme=dark] .wm-icon-btn:not(.active):hover .wm-icon:not(.wm-icon--off):not(.wm-icon--active),:root[data-theme=dark] .fit-align-btn:not(.active):hover .wm-icon:not(.wm-icon--off):not(.wm-icon--active),:root[data-theme=dark] .align-btn:not(.active):hover .wm-icon:not(.wm-icon--off):not(.wm-icon--active),:root[data-theme=dark] .mobile-tab:not(.active):hover .wm-icon:not(.wm-icon--off):not(.wm-icon--active),:root[data-theme=dark] .mode-btn:not(.active):hover .wm-icon:not(.wm-icon--off):not(.wm-icon--active),:root[data-theme=dark] .wm-icon:not(.wm-icon--off):not(.wm-icon--active):not(:where(.active) *):hover{--icon-grad: 100}.wm-icon-btn{display:inline-flex;align-items:center;justify-content:center;padding:var(--icon-btn-pad, var(--spacing-02, 6px));margin:0;background:none;border:0;border-radius:0;color:inherit;cursor:pointer;-webkit-tap-highlight-color:transparent}.wm-icon-btn:focus{outline:none}.wm-icon-btn:focus-visible{outline:2px solid var(--accent, currentColor);outline-offset:2px}@media(pointer:coarse){.wm-icon-btn{min-width:44px;min-height:44px}}@media(prefers-reduced-motion:reduce){.wm-icon{transition:none}}}.ui-seg{display:inline-flex;gap:var(--hair, 1px);padding:var(--nudge, 2px);background:var(--bg);border:1px solid var(--muted, rgba(255, 255, 255, .42));border-radius:999px;corner-shape:superellipse(var(--corner-k, 1.2))}.ui-seg>button{font-family:var(--ui-font, inherit);font-size:var(--type-micro-size, .5625rem);line-height:var(--type-micro-lead, 12px);letter-spacing:0;color:var(--muted, rgba(255, 255, 255, .42));background:none;border:none;border-radius:999px;corner-shape:superellipse(var(--corner-k, 1.2));padding:var(--nudge, 2px) var(--spacing-02, 6px);white-space:nowrap;cursor:pointer;transition:background var(--dur-fast, .14s),color var(--dur-fast, .14s)}.ui-seg>button:hover:not(.active){color:var(--ink, #fff)}.ui-seg>button:active{background:var(--muted, rgba(255, 255, 255, .42))}.ui-seg>button.active{background:var(--ink, #fff);color:var(--bg)}@layer wm.controls{.wm-theme{display:inline-flex;align-items:center;gap:var(--spacing-01, 4px)}}
+@layer wm.controls{.wm-chevron,.slider-step-btn svg,.triplet-step-btn svg{stroke-width:var(--chevron-stroke, 1.15);transition:stroke-width var(--icon-dur, 90ms) ease}.slider-row:hover .slider-step-btn svg,.slider-row:focus-within .slider-step-btn svg,.triplet-f:hover .triplet-step-btn svg,.triplet-f:focus-within .triplet-step-btn svg,.triplet-row:hover .triplet-step-btn svg,.instance-select-wrap:hover .wm-chevron,button:hover>.wm-chevron{stroke-width:calc(var(--chevron-stroke, 1.15) * 1.17)}.wm-chevron.chev-left{transform:rotate(90deg)}.wm-chevron.chev-right{transform:rotate(-90deg)}@media(prefers-reduced-motion:reduce){.slider-step-btn svg,.triplet-step-btn svg{transition:none}}}@layer wm.controls{.slider-row{display:flex;flex-direction:column;gap:3px}.slider-row--off{opacity:.4}.slider-label{display:flex;align-items:center;justify-content:space-between;gap:6px;font-size:var(--type-ui-size, .75rem);line-height:var(--type-ui-lead, 15px)}.slider-label-left{display:flex;align-items:baseline;gap:var(--spacing-01, 4px);flex:1 1 auto;min-width:0;overflow:visible;padding-bottom:var(--nudge, 2px)}.slider-label-text{font-size:var(--type-ui-size, .75rem);color:var(--text-muted);font-family:var(--ui-font, system-ui, sans-serif);white-space:nowrap;overflow:visible;text-overflow:clip}.slider-label-name{white-space:nowrap}.slider-label-text--tagged{min-width:var(--axis-label-w, 105px);flex:0 0 auto;display:inline-flex;align-items:baseline;gap:var(--spacing-01, 4px)}.slider-tag{font-size:var(--type-micro-size, .5625rem);color:var(--text-muted);font-family:var(--ui-font, system-ui, sans-serif);letter-spacing:0;flex-shrink:0;font-feature-settings:"tnum"}.slider-range{color:var(--text-dim);font-variant-numeric:tabular-nums;white-space:nowrap}.slider-value{display:flex;align-items:baseline;gap:var(--spacing-01, 4px);flex-shrink:0}.slider-number{font-family:var(--ui-font, system-ui, sans-serif);font-size:var(--type-ui-size, .75rem);color:var(--text);background:transparent;border:none;border-radius:0;text-align:right;width:auto;field-sizing:content;min-width:2ch;max-width:14ch;padding:var(--nudge, 2px) 0;font-feature-settings:"tnum";color-scheme:inherit;text-decoration:underline;text-decoration-thickness:1px;text-underline-offset:2px;text-decoration-color:var(--text-muted, currentColor)}.slider-number:focus,.slider-row:focus-within .slider-number{outline:none;color:var(--accent, currentColor);text-decoration-color:var(--accent, currentColor);text-decoration-thickness:2px}.slider-row--boxed .slider-number{background:var(--bg-elevated, var(--surface));border:1px solid var(--border);border-radius:var(--radius, 6px);corner-shape:superellipse(var(--corner-k, 1.2));padding:4px 6px;text-decoration:none}.slider-row--boxed .slider-number:focus{border-color:var(--text-muted)}.slider-auto{font:inherit;font-size:10.5px;line-height:1;letter-spacing:0;margin-left:var(--spacing-02, 6px);padding:2px 0;border:0;background:none;color:var(--text-dim, var(--text-muted));cursor:pointer;display:inline-flex;align-items:baseline;gap:.28em;vertical-align:baseline;flex-shrink:0;transition:color var(--dur-fast, .12s) ease}.slider-auto:hover{color:var(--text-muted, var(--text))}.slider-auto--on{color:var(--ok, #00a01e)}.slider-auto:focus-visible{outline:2px solid var(--accent, currentColor);outline-offset:2px}.slider-auto-dot{font-size:.7em;position:relative;top:-1px}.slider-auto-word{text-transform:uppercase;letter-spacing:normal}@media(pointer:coarse){.slider-auto{padding:6px 0}}.slider-step{display:inline-flex;flex-direction:column;margin-left:var(--nudge, 2px);opacity:0;transition:opacity var(--dur-fast, .12s);position:absolute;justify-content:center}.slider-value{position:relative;padding-right:calc(1.75 * var(--type-ui-size, .75rem))}.slider-suffix,.slider-step{position:absolute;right:calc(.21 * var(--type-ui-size, .75rem));top:50%;transform:translateY(-50%)}.slider-row:hover .slider-step,.slider-row:focus-within .slider-step{opacity:1}.slider-row:hover .slider-suffix,.slider-row:focus-within .slider-suffix{opacity:0}.slider-suffix{transition:opacity var(--dur-fast, .12s)}.slider-step-btn{padding:0;border:0;background:none;color:var(--text-muted);cursor:pointer;width:16px;height:12px;display:grid;place-items:center;position:relative;border-radius:999px;corner-shape:superellipse(var(--corner-k, 1.2))}.slider-step-btn svg{display:block}.slider-step-btn:hover{color:var(--text)}.slider-step-btn:focus-visible{outline:1px solid var(--accent, currentColor)}.slider-step-btn:before{content:"";position:absolute;inset:0;background-image:url(data:image/avif;base64,AAAAIGZ0eXBhdmlmAAAAAE1pUHJhdmlmbWlhZm1pZjEAAAFebWV0YQAAAAAAAAAhaGRscgAAAAAAAAAAcGljdAAAAAAAAAAAAAAAAAAAAAAkZGluZgAAABxkcmVmAAAAAAAAAAEAAAAMdXJsIAAAAAEAAAAOcGl0bQAAAAAAAQAAADhpaW5mAAAAAAACAAAAFWluZmUCAAAAAAEAAGF2MDEAAAAAFWluZmUCAAABAAIAAEV4aWYAAAAAGmlyZWYAAAAAAAAADmNkc2MAAgABAAEAAACBaXBycAAAAGBpcGNvAAAAE2NvbHJuY2x4AAkAEAABgAAAAAxjbGxpA+gAQAAAABRpc3BlAAAAAAAAAGQAAABkAAAACWlyb3QAAAAAEHBpeGkAAAAAAwoKCgAAAAxhdjFDgQBMAAAAABlpcG1hAAAAAAAAAAEAAQaBAgMFhoQAAAAsaWxvYwAAAABEAAACAAEAAAABAAAB0AAAADcAAgAAAAEAAAGOAAAAQgAAAAFtZGF0AAAAAAAAAIkAAAAGRXhpZgAATU0AKgAAAAgAAYdpAAQAAAABAAAAGgAAAAAAAqACAAQAAAABAAAAZKADAAQAAAABAAAAZAAAAAASAAoNAAAAAzY8Z//ChIgAwjIkEAGEgAYYYYi0VMregO56Wg+x6xnwsfoJWaYWX85G+ibLVJ6A);background-size:100% 100%;background-repeat:no-repeat;dynamic-range-limit:no-limit;mask-repeat:no-repeat;mask-position:center;mask-size:10px 6px;-webkit-mask-repeat:no-repeat;-webkit-mask-position:center;-webkit-mask-size:10px 6px;opacity:0;transition:opacity calc(var(--dur-fast, .12s) * 2) ease-out;pointer-events:none}.slider-step-btn:first-child:before{mask-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 10 6'%3E%3Cpath d='M1 4.38 5 1.62 9 4.38' fill='none' stroke='%23fff' stroke-width='1.35' stroke-linecap='round' stroke-linejoin='miter' stroke-miterlimit='4'/%3E%3C/svg%3E");-webkit-mask-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 10 6'%3E%3Cpath d='M1 4.38 5 1.62 9 4.38' fill='none' stroke='%23fff' stroke-width='1.35' stroke-linecap='round' stroke-linejoin='miter' stroke-miterlimit='4'/%3E%3C/svg%3E")}.slider-step-btn+.slider-step-btn:before{mask-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 10 6'%3E%3Cpath d='M1 1.62 5 4.38 9 1.62' fill='none' stroke='%23fff' stroke-width='1.35' stroke-linecap='round' stroke-linejoin='miter' stroke-miterlimit='4'/%3E%3C/svg%3E");-webkit-mask-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 10 6'%3E%3Cpath d='M1 1.62 5 4.38 9 1.62' fill='none' stroke='%23fff' stroke-width='1.35' stroke-linecap='round' stroke-linejoin='miter' stroke-miterlimit='4'/%3E%3C/svg%3E")}.slider-step-btn:active:before{opacity:1;transition:none}@media(pointer:coarse){input.slider-number,.slider-row--track input.slider-number{padding:12px 8px;margin:-12px -8px;position:relative;z-index:2}.slider-step{opacity:1;position:static;transform:none}.slider-suffix{position:static;transform:none}.slider-value{padding-right:var(--spacing-02, 8px);align-items:center}.slider-suffix{order:1}.slider-step{order:2}.slider-row:hover .slider-suffix,.slider-row:focus-within .slider-suffix{opacity:1}.slider-step-btn{width:40px;height:16px;padding-block:3px;margin-block:-3px}.slider-step-btn:first-child{align-items:end}.slider-step-btn+.slider-step-btn{align-items:start}}@media(prefers-reduced-motion:reduce){.slider-step-btn:before{transition:none}}.slider-number:disabled{cursor:default}.slider-track-wrap{position:relative}.slider-track-wrap input[type=range]{-webkit-appearance:none;appearance:none;width:100%;height:max(14px,var(--dial-track-h, 24px));background:transparent;cursor:pointer;margin:0;display:block}.slider-track-wrap input[type=range]::-webkit-slider-runnable-track{height:2px;background:linear-gradient(to right,var(--border) 0%,var(--border) var(--locked-pct, 100%),var(--track-empty, var(--surface-hi)) var(--locked-pct, 100%),var(--track-empty, var(--surface-hi)) 100%);border-radius:1px}.slider-track-wrap input[type=range]::-webkit-slider-thumb{-webkit-appearance:none;width:var(--dial-thumb, 14px);height:var(--dial-thumb, 14px);border-radius:50%;background:var(--text);cursor:pointer;margin-top:calc((2px - var(--dial-thumb, 14px)) / 2)}.slider-track-wrap input[type=range]::-moz-range-track{height:2px;background:linear-gradient(to right,var(--border) 0%,var(--border) var(--locked-pct, 100%),var(--track-empty, var(--surface-hi)) var(--locked-pct, 100%),var(--track-empty, var(--surface-hi)) 100%);border-radius:1px}.slider-track-wrap input[type=range]::-moz-range-thumb{width:var(--dial-thumb, 14px);height:var(--dial-thumb, 14px);border-radius:50%;background:var(--text);border:none;cursor:pointer}.slider-auto-hint{position:fixed;font-size:var(--type-ui-size, .75rem);color:var(--text);background:var(--bg-elevated, var(--surface));border:1px solid var(--border);border-radius:var(--radius, 6px);padding:var(--spacing-01, 4px) var(--spacing-03, 8px);pointer-events:none;z-index:1000;white-space:nowrap;animation:hint-fade var(--dur-hint, 3s) forwards}@keyframes hint-fade{0%{opacity:1}60%{opacity:1}to{opacity:0}}.slider-row--diamond input[type=range]::-webkit-slider-thumb{width:12px;height:12px;border-radius:2px;background:var(--marker-default, var(--accent, var(--text)));transform:rotate(45deg);box-shadow:0 0 0 1px var(--bg);margin-top:-5px}.slider-row--diamond input[type=range]::-moz-range-thumb{width:12px;height:12px;border-radius:2px;background:var(--marker-default, var(--accent, var(--text)));transform:rotate(45deg);box-shadow:0 0 0 1px var(--bg)}.slider-ref{position:absolute;top:12px;width:8px;height:8px;margin-left:-4px;border-radius:1px;background:var(--text-muted);opacity:.28;transform:translateY(-50%) rotate(45deg);pointer-events:none;z-index:0}.slider-row--skeletal input[type=range]::-webkit-slider-thumb{width:10px;height:10px;margin-top:-4px}.slider-row--skeletal input[type=range]::-moz-range-thumb{width:10px;height:10px}.slider-suffix{font-size:var(--type-ui-size, .75rem);color:var(--text-muted);font-feature-settings:"tnum";margin-left:-3px;pointer-events:none}.slider-suffix--hidden{visibility:hidden}.slider-row--track{position:relative;gap:0}.slider-row--track .slider-track-wrap{position:absolute;inset:0;margin:0;padding:0}.slider-row--track .slider-track-wrap input[type=range]{width:100%;height:100%;margin:0;opacity:0;cursor:ew-resize;touch-action:pan-y}.slider-row--track .slider-track-wrap input[type=range]:disabled{cursor:default}.slider-row--track .slider-label{position:relative;z-index:1;pointer-events:none;min-height:32px;padding:0 var(--spacing-04, 12px);border-radius:var(--radius, 6px);corner-shape:superellipse(var(--corner-k, 1.2));background:linear-gradient(to right,var(--surface-hi) 0 var(--pct, 0%),transparent var(--pct, 0%) 100%),var(--surface);border:1px solid var(--border)}.slider-row--track .slider-number,.slider-row--track .slider-step,.slider-row--track .slider-auto{pointer-events:auto}.slider-row--track .slider-track-wrap input[type=range]:focus-visible{outline:2px solid var(--accent, currentColor);outline-offset:2px;border-radius:var(--radius, 6px)}.slider-number::selection{background:var(--accent, currentColor);color:var(--bg, var(--surface))}.slider-row--track .slider-label{user-select:none}.slider-row--track .slider-number{user-select:text}@media(pointer:coarse){.slider-row--track{min-height:48px;justify-content:center}.slider-row--track .slider-label{min-height:32px;transition:min-height var(--dur-fast, .12s) ease}.slider-row--track .slider-track-wrap{top:3px;bottom:5px}.slider-row--track .slider-label-left{padding-bottom:0}.slider-row--track.slider-row--engaged .slider-label{min-height:48px}.slider-row--track.slider-row--engaged .slider-track-wrap{top:0;bottom:0}}@media(pointer:coarse)and (prefers-reduced-motion:reduce){.slider-row--track .slider-label{transition:none}}.slider-row--track .slider-number{padding:0;width:auto;field-sizing:content;min-width:2ch;max-width:14ch}.slider-row--track .slider-label{padding-right:0}.slider-row--track .slider-step-btn{width:12px}@media(pointer:coarse){.slider-row--track .slider-step-btn{width:40px}.slider-row--track .slider-value{padding-right:var(--spacing-02, 8px)}}.slider-row--track .slider-suffix{color:var(--text-muted)}.slider-row--track .slider-label:before{content:"";position:absolute;inset:0;border-radius:inherit;background:linear-gradient(to right,var(--border) 0 var(--locked-pct, 0%),transparent var(--locked-pct, 0%) 100%);opacity:.55;pointer-events:none}.slider-row--track .slider-ref{z-index:2;top:auto;bottom:0;width:0;height:0;--ref-w: 10px;margin-left:calc(var(--ref-w) / -2);border-radius:0;transform:none;background:none;border-left:calc(var(--ref-w) / 2) solid transparent;border-right:calc(var(--ref-w) / 2) solid transparent;border-bottom:calc(var(--ref-w) / 2) solid rgba(var(--text-rgb, 232, 232, 232),.55);border-top:0;opacity:1}.slider-row--track .slider-label{cursor:ew-resize}.slider-row--track.slider-row--off .slider-label{cursor:default}}@font-face{font-family:Material Symbols Outlined;font-style:normal;font-weight:100 700;font-display:block;src:url(fonts/MaterialSymbolsOutlined.woff2?v=89) format("woff2")}@property --icon-hdr{syntax: "<number>"; inherits: false; initial-value: 0;}@layer wm.icon{.wm-icon{font-family:Material Symbols Outlined;font-weight:400;font-style:normal;line-height:1;letter-spacing:normal;text-transform:none;white-space:nowrap;word-wrap:normal;direction:ltr;-webkit-font-feature-settings:"liga";font-feature-settings:"liga";-webkit-font-smoothing:antialiased;display:inline-flex;align-items:center;justify-content:center;flex:0 0 auto;vertical-align:middle;user-select:none;background:none;border:0;border-radius:0;padding:0;--icon-opsz: 20;--icon-fill: 0;--icon-wght: 300;--icon-grad: 50;font-variation-settings:"FILL" var(--icon-fill),"wght" var(--icon-wght),"GRAD" var(--icon-grad),"opsz" var(--icon-opsz);color:rgba(var(--text-rgb, 232, 232, 232),var(--ink-faint, .38));--icon-dur: 90ms;transition:font-variation-settings var(--icon-dur) ease,color var(--icon-dur) ease,--icon-hdr var(--icon-dur) ease}@media(prefers-color-scheme:light){:root:not([data-theme=dark]) .wm-icon{--icon-grad: 100}:root:not([data-theme=dark]) .wm-icon--off{--icon-grad: 100}:root:not([data-theme=dark]) .wm-icon--active,:root:not([data-theme=dark]) .active>.wm-icon,:root:not([data-theme=dark]) .active>*>.wm-icon{--icon-grad: 100}}:root[data-theme=light] .wm-icon{--icon-grad: 100}:root[data-theme=light] .wm-icon--off{--icon-grad: 100}:root[data-theme=light] .wm-icon--active,:root[data-theme=light] .active>.wm-icon,:root[data-theme=light] .active>*>.wm-icon{--icon-grad: 100}:root[data-theme=dark] .wm-icon{--icon-grad: 50}:root[data-theme=dark] .wm-icon--off{--icon-grad: 50}:root[data-theme=dark] .wm-icon--active,:root[data-theme=dark] .active>.wm-icon,:root[data-theme=dark] .active>*>.wm-icon{--icon-grad: 75}.wm-icon--off{--icon-wght: 300;color:rgba(var(--text-rgb, 232, 232, 232),var(--ink-faint, .38))}.wm-icon--active,.active>.wm-icon,.active>*>.wm-icon{--icon-grad: 75;--icon-hdr: 1;color:transparent;background-image:linear-gradient(rgba(var(--text-rgb, 232, 232, 232),calc(1 - var(--icon-hdr))),rgba(var(--text-rgb, 232, 232, 232),calc(1 - var(--icon-hdr)))),url(data:image/avif;base64,AAAAIGZ0eXBhdmlmAAAAAE1pUHJhdmlmbWlhZm1pZjEAAAFebWV0YQAAAAAAAAAhaGRscgAAAAAAAAAAcGljdAAAAAAAAAAAAAAAAAAAAAAkZGluZgAAABxkcmVmAAAAAAAAAAEAAAAMdXJsIAAAAAEAAAAOcGl0bQAAAAAAAQAAADhpaW5mAAAAAAACAAAAFWluZmUCAAAAAAEAAGF2MDEAAAAAFWluZmUCAAABAAIAAEV4aWYAAAAAGmlyZWYAAAAAAAAADmNkc2MAAgABAAEAAACBaXBycAAAAGBpcGNvAAAAE2NvbHJuY2x4AAkAEAABgAAAAAxjbGxpA+gAQAAAABRpc3BlAAAAAAAAAGQAAABkAAAACWlyb3QAAAAAEHBpeGkAAAAAAwoKCgAAAAxhdjFDgQBMAAAAABlpcG1hAAAAAAAAAAEAAQaBAgMFhoQAAAAsaWxvYwAAAABEAAACAAEAAAABAAAB0AAAADcAAgAAAAEAAAGOAAAAQgAAAAFtZGF0AAAAAAAAAIkAAAAGRXhpZgAATU0AKgAAAAgAAYdpAAQAAAABAAAAGgAAAAAAAqACAAQAAAABAAAAZKADAAQAAAABAAAAZAAAAAASAAoNAAAAAzY8Z//ChIgAwjIkEAGEgAYYYYi0VMregO56Wg+x6xnwsfoJWaYWX85G+ibLVJ6A);background-size:100% 100%;background-repeat:no-repeat;-webkit-background-clip:text;background-clip:text;dynamic-range-limit:no-limit}@media(prefers-color-scheme:light){:root:not([data-theme=dark]) .wm-icon--active,:root:not([data-theme=dark]) .active>.wm-icon,:root:not([data-theme=dark]) .active>*>.wm-icon{--icon-hdr: 0;color:rgba(var(--text-rgb, 232, 232, 232),var(--ink-full, 1));background-image:none;-webkit-background-clip:border-box;background-clip:border-box;dynamic-range-limit:standard}}:root[data-theme=light] .wm-icon--active,:root[data-theme=light] .active>.wm-icon,:root[data-theme=light] .active>*>.wm-icon{--icon-hdr: 0;color:rgba(var(--text-rgb, 232, 232, 232),var(--ink-full, 1));background-image:none;-webkit-background-clip:border-box;background-clip:border-box;dynamic-range-limit:standard}.wm-icon-btn:not(.active):hover .wm-icon:not(.wm-icon--off):not(.wm-icon--active),.wm-icon-btn:not(.active):focus-visible .wm-icon:not(.wm-icon--off):not(.wm-icon--active),.fit-align-btn:not(.active):hover .wm-icon:not(.wm-icon--off):not(.wm-icon--active),.fit-align-btn:not(.active):focus-visible .wm-icon:not(.wm-icon--off):not(.wm-icon--active),.align-btn:not(.active):hover .wm-icon:not(.wm-icon--off):not(.wm-icon--active),.align-btn:not(.active):focus-visible .wm-icon:not(.wm-icon--off):not(.wm-icon--active),.mobile-tab:not(.active):hover .wm-icon:not(.wm-icon--off):not(.wm-icon--active),.mobile-sub-btn:not(.active):hover .wm-icon:not(.wm-icon--off):not(.wm-icon--active),.mode-btn:not(.active):hover .wm-icon:not(.wm-icon--off):not(.wm-icon--active),.wm-icon:not(.wm-icon--off):not(.wm-icon--active):not(:where(.active) *):hover{--icon-grad: 100;color:rgba(var(--text-rgb, 232, 232, 232),var(--ink-quiet, .62))}@media(prefers-color-scheme:light){:root:not([data-theme=dark]) .wm-icon-btn:not(.active):hover .wm-icon:not(.wm-icon--off):not(.wm-icon--active),:root:not([data-theme=dark]) .fit-align-btn:not(.active):hover .wm-icon:not(.wm-icon--off):not(.wm-icon--active),:root:not([data-theme=dark]) .align-btn:not(.active):hover .wm-icon:not(.wm-icon--off):not(.wm-icon--active),:root:not([data-theme=dark]) .mobile-tab:not(.active):hover .wm-icon:not(.wm-icon--off):not(.wm-icon--active),:root:not([data-theme=dark]) .mode-btn:not(.active):hover .wm-icon:not(.wm-icon--off):not(.wm-icon--active),:root:not([data-theme=dark]) .wm-icon:not(.wm-icon--off):not(.wm-icon--active):not(:where(.active) *):hover{--icon-grad: 150}}:root[data-theme=light] .wm-icon-btn:not(.active):hover .wm-icon:not(.wm-icon--off):not(.wm-icon--active),:root[data-theme=light] .fit-align-btn:not(.active):hover .wm-icon:not(.wm-icon--off):not(.wm-icon--active),:root[data-theme=light] .align-btn:not(.active):hover .wm-icon:not(.wm-icon--off):not(.wm-icon--active),:root[data-theme=light] .mobile-tab:not(.active):hover .wm-icon:not(.wm-icon--off):not(.wm-icon--active),:root[data-theme=light] .mode-btn:not(.active):hover .wm-icon:not(.wm-icon--off):not(.wm-icon--active),:root[data-theme=light] .wm-icon:not(.wm-icon--off):not(.wm-icon--active):not(:where(.active) *):hover{--icon-grad: 150}:root[data-theme=dark] .wm-icon-btn:not(.active):hover .wm-icon:not(.wm-icon--off):not(.wm-icon--active),:root[data-theme=dark] .fit-align-btn:not(.active):hover .wm-icon:not(.wm-icon--off):not(.wm-icon--active),:root[data-theme=dark] .align-btn:not(.active):hover .wm-icon:not(.wm-icon--off):not(.wm-icon--active),:root[data-theme=dark] .mobile-tab:not(.active):hover .wm-icon:not(.wm-icon--off):not(.wm-icon--active),:root[data-theme=dark] .mode-btn:not(.active):hover .wm-icon:not(.wm-icon--off):not(.wm-icon--active),:root[data-theme=dark] .wm-icon:not(.wm-icon--off):not(.wm-icon--active):not(:where(.active) *):hover{--icon-grad: 100}.wm-icon-btn{display:inline-flex;align-items:center;justify-content:center;padding:var(--icon-btn-pad, var(--spacing-02, 6px));margin:0;background:none;border:0;border-radius:0;color:inherit;cursor:pointer;-webkit-tap-highlight-color:transparent}.wm-icon-btn:focus{outline:none}.wm-icon-btn:focus-visible{outline:2px solid var(--accent, currentColor);outline-offset:2px}@media(pointer:coarse){.wm-icon-btn{min-width:44px;min-height:44px}}@media(prefers-reduced-motion:reduce){.wm-icon{transition:none}}}.ui-seg{display:inline-flex;gap:var(--hair, 1px);padding:var(--nudge, 2px);background:var(--bg);border:1px solid var(--muted, rgba(255, 255, 255, .42));border-radius:999px;corner-shape:superellipse(var(--corner-k, 1.2))}.ui-seg>button{font-family:var(--ui-font, inherit);font-size:var(--type-micro-size, .5625rem);line-height:var(--type-micro-lead, 12px);letter-spacing:0;color:var(--muted, rgba(255, 255, 255, .42));background:none;border:none;border-radius:999px;corner-shape:superellipse(var(--corner-k, 1.2));padding:var(--nudge, 2px) var(--spacing-02, 6px);white-space:nowrap;cursor:pointer;transition:background var(--dur-fast, .14s),color var(--dur-fast, .14s)}.ui-seg>button:hover:not(.active){color:var(--ink, #fff)}.ui-seg>button:active{background:var(--muted, rgba(255, 255, 255, .42))}.ui-seg>button.active{background:var(--ink, #fff);color:var(--bg)}@layer wm.controls{.wm-theme{display:inline-flex;align-items:center;gap:var(--spacing-01, 4px)}}
 
 /* ============================================================================
    opsz-proofer
@@ -461,6 +669,13 @@ input[type="range"]::-moz-range-thumb { corner-shape: round; }
  *
  * lint-tokens runs over this file, so every padding is a --pad-* step and every
  * font-size is a --type-* role.
+ *
+ * THE GRID (wm-primitives GRID.md; build.py injects grid.css, gridSnap.js rides beside the
+ * page). The page's margin is --grid-margin, and its words sit on the 3px line: the bar's
+ * labels, the panel heads, the calibration, the ladder's rail, the note. Leadings are the
+ * roles', vertical space is whole units, and lint-tokens holds this file to both (`lines`
+ * in .tokenlint.json). The proof grid and the ladder are stages -- data-nosnap in the
+ * page, linesSkip in the lint -- because their type is the user's, not the house's.
  */
 
   /* -- the app's palette. Values are the house standalone-page block. -- */
@@ -542,16 +757,28 @@ input[type="range"]::-moz-range-thumb { corner-shape: round; }
 
   /* -- header rail -- */
 
+  /* On the house columns (.wm-grid, the page margin either side): the name in the first
+     six of 24 (in five it broke onto two lines), the fields from the seventh -- the same
+     column line the panel captions and the note start on. Below 1024 the name takes the row and the fields go under it.
+     Top-aligned, so every label in the bar shares one line; they were bottom-aligned to
+     controls of four heights and sat on four. Each field is label 15 + 6 + a 27 control:
+     48, sixteen units, and so is the name (30 + 3 + 15). The rule is an inset shadow, so
+     it costs no height and the panel under it starts on a line. */
   .bar {
     position: sticky; top: 0; z-index: 40;
     background: var(--surface-1);
-    border-bottom: 1px solid var(--border);
-    display: flex; flex-wrap: wrap; align-items: flex-end;
+    box-shadow: inset 0 -1px 0 var(--border);
+    align-items: start; row-gap: var(--spacing-04);
+    padding-block: var(--spacing-04);
+  }
+  .bar > .brand { --span: 6; --span-md: 12; }
+  .bar-fields {
+    --start: 7; --span: 18; --span-md: 12;
+    display: flex; flex-wrap: wrap; align-items: flex-start;
     gap: var(--spacing-04) var(--spacing-06);
-    padding: var(--spacing-04) var(--spacing-05);
   }
 
-  .brand { display: flex; flex-direction: column; gap: var(--hair); margin-right: var(--spacing-01); }
+  .brand { display: flex; flex-direction: column; gap: 3px; margin-right: var(--spacing-01); }
 
   .field { display: flex; flex-direction: column; gap: var(--spacing-02); }
 
@@ -563,7 +790,8 @@ input[type="range"]::-moz-range-thumb { corner-shape: round; }
     background: var(--surface-2);
     border: 1px solid var(--border);
     border-radius: var(--radius);
-    padding: var(--spacing-01) var(--spacing-03);
+    height: 27px;   /* the house control height, nine units (TYPOGRAPHY.md, "Height follows the type") */
+    padding: 0 var(--spacing-03);
   }
   input[type="text"]:not(.slider-number):focus-visible,
   button:focus-visible, summary:focus-visible {
@@ -590,7 +818,7 @@ input[type="range"]::-moz-range-thumb { corner-shape: round; }
   .ghost {
     font-family: var(--ui-font); color: rgba(var(--text-rgb), var(--ink-quiet));
     background: var(--surface-2); border: 1px solid var(--border);
-    border-radius: var(--radius); padding: var(--spacing-02) var(--spacing-04); cursor: pointer;
+    border-radius: var(--radius); height: 27px; padding: 0 var(--spacing-04); cursor: pointer;
     transition: color var(--dur-fast);
   }
   .ghost:hover { color: rgba(var(--text-rgb), var(--ink-full)); }
@@ -598,18 +826,29 @@ input[type="range"]::-moz-range-thumb { corner-shape: round; }
   /* The AxisSlider markup this page uses is styled by shared/src/AxisSlider.css,
      injected by build.py. The primitive sets no width -- it takes the width of
      whatever rail holds it -- so the two rails here give it one. */
-  .axis-rail { display: flex; gap: var(--spacing-06); align-items: flex-end; }
+  .axis-rail { display: flex; gap: var(--spacing-06); align-items: flex-start; }
+  /* Components move whole (GRID.md, --snap-unit): a dial's name, value and track are one
+     row, and so is the pill. Nothing inside either is put on the line by itself. */
+  .slider-host, .ui-seg { --snap-unit: 1; }
   .axis-rail .slider-host,
   .rail .slider-host,
   .calib-body .slider-host { width: 184px; }
 
   /* -- panels -- */
 
-  .panel { padding: var(--spacing-05) var(--spacing-05) var(--spacing-01); }
-  .panel + .panel { border-top: 1px solid var(--border-subtle); }
-  .panel-head { display: flex; align-items: baseline; gap: var(--spacing-04); flex-wrap: wrap; margin-bottom: var(--spacing-04); }
-  .panel-head h2 { margin: 0; }
-  .panel-head p { margin: 0; max-width: 64ch; }
+  .panel { padding: var(--spacing-06) var(--grid-margin, var(--spacing-05)) 0; }
+  .panel + .panel { box-shadow: inset 0 1px 0 var(--border-subtle); }
+
+  /* The heads are on the columns: the heading in the first six of 24 (three of 12), its
+     caption from the seventh (the fourth), so both captions -- and the note at the foot --
+     start on one column line instead of wherever their heading happened to end. The two
+     share a first baseline (.wm-baselines). One column of both on a phone. */
+  .panel-head { margin-bottom: var(--spacing-04); row-gap: var(--spacing-02); align-items: start; }
+  .panel-head h2 { margin: 0; --span: 6; --span-md: 3; }
+  .panel-head p, .tail .note { margin: 0; max-width: 64ch; --start: 7; --span: 12; --start-md: 4; --span-md: 9; }
+  @media (max-width: 599px) {
+    .panel-head h2, .panel-head p, .tail .note, .ladder-wrap > .stage, .ladder-wrap > .rail { --start-md: 1; --span-md: 12; }
+  }
 
   /* -- proof grid -- */
 
@@ -680,9 +919,12 @@ input[type="range"]::-moz-range-thumb { corner-shape: round; }
 
   /* -- shape ladder -- */
 
-  .ladder-wrap { display: flex; gap: var(--spacing-06); align-items: flex-start; flex-wrap: wrap; }
+  /* The ladder and its rail on the columns: the stage in 19 of 24 (8 of 12), the rail in
+     the last 5 (4); one above the other on a phone. */
+  .ladder-wrap { row-gap: var(--spacing-06); align-items: start; }
   .stage {
-    position: relative; flex: 1 1 520px; min-width: 300px;
+    --span: 19; --span-md: 8;
+    position: relative;
     border: 1px solid var(--border-subtle); border-radius: var(--radius);
     background: var(--surface-1); overflow: auto; padding: var(--spacing-06);
   }
@@ -706,11 +948,13 @@ input[type="range"]::-moz-range-thumb { corner-shape: round; }
   .stack-row .tag { width: 48px; flex: none; text-align: right; color: rgba(var(--text-rgb), var(--ink-faint)); }
   .stack-row .spec { padding: 0; line-height: 1.08; }
 
-  .rail { display: flex; flex-direction: column; gap: var(--spacing-04); flex: 0 0 192px; }
+  .rail { --span: 5; --span-md: 4; display: flex; flex-direction: column; gap: var(--spacing-04); }
+  /* A chip is 4 + 15 + 4 and the gap 1: a row every 24, eight units. font: inherit, or
+     the button's own 13.3px and normal leading came through instead of ui's 12/15. */
   .legend { display: flex; flex-direction: column; gap: var(--hair); }
   .legend .chip {
     display: flex; align-items: center; gap: var(--spacing-03);
-    font-family: var(--ui-font);
+    font: inherit; font-family: var(--ui-font);
     color: rgba(var(--text-rgb), var(--ink-quiet));
     background: transparent; border: 0; border-radius: var(--radius);
     padding: var(--spacing-01) var(--spacing-03); cursor: pointer; text-align: left; width: 100%;
@@ -742,7 +986,8 @@ input[type="range"]::-moz-range-thumb { corner-shape: round; }
     color: rgba(var(--text-rgb), var(--ink-faint));
   }
 
-  .note { max-width: 70ch; padding: var(--spacing-02) var(--spacing-05) var(--spacing-07); color: rgba(var(--text-rgb), var(--ink-quiet)); }
+  .tail { padding: var(--spacing-04) var(--grid-margin, var(--spacing-05)) var(--spacing-06); }
+  .note { color: rgba(var(--text-rgb), var(--ink-quiet)); }
   .note b { font-weight: 400; color: var(--signal); }
 
   .page.dragging { outline: 2px solid var(--signal); outline-offset: -2px; }
@@ -755,13 +1000,18 @@ input[type="range"]::-moz-range-thumb { corner-shape: round; }
 </head>
 <body>
 
-<div class="page t-ui" id="page">
+<!-- One .wm-lines root (wm-primitives GRID.md). On the line: the bar's words, the panel
+     heads, the calibration and the ladder's rail, the note. Stages, data-nosnap: the proof
+     grid and the ladder, whose type is the user's. -->
+<main class="page t-ui wm-lines" id="page">
 
-  <div class="bar">
+  <div class="bar wm-grid">
     <div class="brand">
       <b class="t-title">Optical Size Proofer</b>
       <span class="t-ui ink-quiet" id="fontName">Newsreader</span>
     </div>
+
+    <div class="bar-fields">
 
     <div class="field">
       <label class="t-ui ink-quiet" for="txt">Specimen</label>
@@ -798,10 +1048,11 @@ input[type="range"]::-moz-range-thumb { corner-shape: round; }
       <button type="button" class="ghost t-ui" id="loadBtn">Load .ttf</button>
       <input type="file" id="fileIn" accept=".ttf,.otf,.woff2,.woff" hidden />
     </div>
+    </div>
   </div>
 
   <section class="panel">
-    <div class="panel-head">
+    <div class="panel-head wm-cols wm-baselines">
       <h2 class="t-lede ink-full">Proof grid</h2>
       <p class="t-ui ink-quiet">Every row is a render size; every column pins the optical-size axis at one value. An underlined cell is where the axis value matches the size &mdash; the mapping you get for free. Read down a column to watch one axis value hold up, or fail, across the range.</p>
     </div>
@@ -815,19 +1066,19 @@ input[type="range"]::-moz-range-thumb { corner-shape: round; }
       </div>
     </details>
 
-    <div class="scroller" id="gridScroll">
+    <div class="scroller" id="gridScroll" data-nosnap>
       <table class="grid t-ui readout" id="grid"></table>
     </div>
   </section>
 
   <section class="panel">
-    <div class="panel-head">
+    <div class="panel-head wm-cols wm-baselines">
       <h2 class="t-lede ink-full">Shape ladder</h2>
       <p class="t-ui ink-quiet">Outline shape is a function of the axis alone, so this drops the size dimension and superimposes every sample at one display size. Bracket growth, hairline thinning, and terminal changes read as the spread between contours. Click two values to compare them directly.</p>
     </div>
 
-    <div class="ladder-wrap">
-      <div class="stage" id="stage"></div>
+    <div class="ladder-wrap wm-cols">
+      <div class="stage" id="stage" data-nosnap></div>
       <div class="rail">
         <div class="field">
           <span class="t-ui ink-quiet">View</span>
@@ -842,13 +1093,16 @@ input[type="range"]::-moz-range-thumb { corner-shape: round; }
     </div>
   </section>
 
-  <p class="note t-ui">
-    The <b>auto</b> column is the browser's own mapping, what a reader gets when nobody sets the axis. Every other cell pins it explicitly &mdash; and a pinned axis against a changing size is exactly the deliberate mismatch the type law calls a spent signal rather than a free compensation. Drop any variable font on this page to proof it instead; axes come from <b>fvar</b>.
-  </p>
+  <div class="tail wm-cols">
+    <p class="note t-ui">
+      The <b>auto</b> column is the browser's own mapping, what a reader gets when nobody sets the axis. Every other cell pins it explicitly &mdash; and a pinned axis against a changing size is exactly the deliberate mismatch the type law calls a spent signal rather than a free compensation. Drop any variable font on this page to proof it instead; axes come from <b>fvar</b>.
+    </p>
+  </div>
 
-</div>
+</main>
 
 <script src="dial.js"></script>
+<script src="gridSnap.js" defer></script>
 <script>
 (function () {
   "use strict";

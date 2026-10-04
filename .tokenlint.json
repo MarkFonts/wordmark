@@ -1,13 +1,15 @@
 {
-  "_": "wordmark.nyc joins the house system one law at a time. Today: the line (wm-primitives src/grid.css). The Cal Sans case study's text sits on the 3px grid, so every leading and vertical space in its stylesheet is a whole number of units. linesSkip is the demos' own insides -- the cube, the waterfall, the UI kit, the tester -- which keep their own type and are data-nosnap in the page. Components whose own height is set in units (pills, slider rows) keep their insides too.",
+  "_": "wordmark.nyc joins the house system one law at a time. Today: the line (wm-primitives src/grid.css). The Cal Sans case study and the homepage sit on the 3px grid, so every leading and vertical space in their stylesheets is a whole number of units. linesSkip is the demos' own insides -- the cube, the waterfall, the UI kit, the tester; on the homepage the recomposing headline and the dek, which keep their own type and are data-nosnap in the page, and the footer letterbox, a canvas outside main. Components whose own height is set in units (pills, the hero pill, slider rows) keep their insides too.",
   "roots": [
-    "css/case.css"
+    "css/case.css",
+    "css/main.css"
   ],
   "only": [
     "lines"
   ],
   "lines": [
-    "css/case.css"
+    "css/case.css",
+    "css/main.css"
   ],
-  "linesSkip": "\\.(cube|vlab|vm|ds-|tie|ukit|hello|d-fall|d-track|tt-|deck|switch|bk|cs-nav|cs-links|look-dot|code|pill|coss|ui-)|input|::-|@keyframes|^(from|to|\\d+%)"
+  "linesSkip": "\\.(cube|vlab|vm|ds-|tie|ukit|hello|d-fall|d-track|tt-|deck|switch|bk|cs-nav|cs-links|look-dot|code|pill|coss|ui-)|input|::-|@keyframes|^(from|to|\\d+%)|#(flapjack-text|fj-headline|dek-header|footer-letterbox)|\\.(fj-|hero-pill)"
 }
