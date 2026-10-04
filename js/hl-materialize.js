@@ -394,7 +394,8 @@ window.hlMaterialize = (function () {
           return t > T3 + 0.3;
         },
         mid: function () { return T1 + DUR * (fx.midAt || 0.5); },
-        relayout: function () { content.layout(); fit(ctl, u, fx, eng); if (fx.setup) fx.setup(ctx); ink = inkOf(card); }
+        relayout: function () { content.layout(); fit(ctl, u, fx, eng); if (fx.setup) fx.setup(ctx); ink = inkOf(card); },
+        svg: svg, plainG: u.plainG   /* for a caller that carries on after the logo lands */
       };
     };
   }

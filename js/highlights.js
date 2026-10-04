@@ -179,15 +179,76 @@
     if (document.fonts && document.fonts.ready) document.fonts.ready.then(relay);
   })();
 
-  /* ── 2 · day one: Cal.com reads as rings ──────────────────────────────────────────────
+  /* ── 2 · day one: Cal.com reads as rings, in every weight ────────────────────────────
      Mark's pick (round 5, D logo): hairline rings in the signal through C, a, c, o and both arches of m draw
-     on first; then Cal.com condenses out of a faint haze while the rings draw back off. */
+     on first; Cal.com condenses out of a faint haze as they draw off. Then the logo runs through the family as
+     one design: a light haze hands it from the drawn logo to live Cal Sans, it travels weight 400-700 and optical
+     size 8-45 (a small readout says where), and a haze hands it back to the drawn logo. */
   (function () {
     var card = document.getElementById('hl-two'); if (!card || !window.hlMaterialize) return;
     var stage = card.querySelector('.hl-stage');
     var piece = window.hlMaterialize.logo(stage, card, { blur: 31, grain: 0.35, spread: 43 });
-    player(card, piece.run, { duration: 2.0 + 1.1 + 0.3 });
-    stage.addEventListener('hl:relayout', function () { piece.relayout(); snapStage(stage); });
+    var svg = piece.svg, NS = 'http://www.w3.org/2000/svg', plainBox = piece.plainG.parentNode;
+    /* the haze, a light one, for the two hand-offs */
+    var defs = el('defs', {}, svg), f = el('filter', { id: 'hl2-haze', x: '-10%', y: '-30%', width: '120%', height: '160%', 'color-interpolation-filters': 'sRGB' }, defs);
+    var hb = el('feGaussianBlur', { in: 'SourceGraphic', stdDeviation: 0, result: 'soft' }, f);
+    el('feTurbulence', { type: 'fractalNoise', baseFrequency: 0.8, numOctaves: 1, seed: 7, result: 'noise' }, f);
+    el('feColorMatrix', { in: 'noise', type: 'matrix', values: '0 0 0 0 0.5  0 0 0 0 0.5  0 0 0 0 0.5  0 0 0 0 1', result: 'grain' }, f);
+    var hg = el('feComposite', { in: 'grain', in2: 'soft', operator: 'arithmetic', k1: 0, k2: 0, k3: 1, k4: 0, result: 'mixed' }, f);
+    el('feComposite', { in: 'mixed', in2: 'soft', operator: 'in', result: 'clip' }, f);
+    var ha = el('feFuncA', { type: 'linear', slope: 1 }, el('feComponentTransfer', { in: 'clip' }, f));
+    var wrap = el('g', {}, svg); svg.insertBefore(wrap, plainBox); wrap.appendChild(plainBox);
+    /* the live logo: Cal Sans at the instance nearest the drawn one, sized to its width, on its baseline */
+    var BASE = { opsz: 45, GEOM: 50, wght: 650 };   /* GEOM 50 draws the logo's round a; at the logo's width, 650 matches its ink to 0.2% */
+    var text = el('text', { 'font-family': "'CalSans', sans-serif", fill: 'currentColor', y: 396, style: 'display:none' }, wrap);
+    text.textContent = 'Cal.com';
+    function vs(o, g, w) { return "'opsz' " + o.toFixed(2) + ", 'GEOM' " + g.toFixed(2) + ", 'wght' " + w.toFixed(2); }
+    /* the logo keeps its width through the run: each frame the size is re-fitted so the advance width is the drawn
+       logo's (a light opsz is wider, a heavy one narrower), so every instance reads as the same logo, same span */
+    var TW = 0;
+    function fitWidth(settings) {
+      text.style.fontVariationSettings = settings; text.setAttribute('font-size', 400);
+      var L = 0; try { L = text.getComputedTextLength(); } catch (e) {}
+      if (L > 0 && TW > 0) { var fs = 400 * TW / L; text.setAttribute('font-size', fs.toFixed(2)); text.setAttribute('x', (-0.012 * fs).toFixed(2)); }
+    }
+    function size() {
+      var shown = text.style.display; text.style.display = '';
+      text.style.fontVariationSettings = vs(BASE.opsz, BASE.GEOM, BASE.wght); text.setAttribute('font-size', 400);
+      var L = 0; try { L = text.getComputedTextLength(); } catch (e) {}
+      if (L > 0) TW = 1954 / 0.965;
+      fitWidth(vs(BASE.opsz, BASE.GEOM, BASE.wght));
+      text.style.display = shown;
+    }
+    size();
+    if (document.fonts && document.fonts.ready) document.fonts.ready.then(size);
+    var readout = el('text', { x: 1954, y: 482, 'text-anchor': 'end', 'font-family': "'CalSans', sans-serif", 'font-size': 40, fill: 'currentColor', opacity: 0, style: "font-variation-settings: 'opsz' 10, 'GEOM' 25, 'wght' 500; font-feature-settings: 'tnum' 1" }, svg);
+    svg.setAttribute('viewBox', '-20 -20 ' + (1954 + 40) + ' 510');
+    var LAND = 3.4, H1 = 3.7, HT = 0.9, M0 = H1 + HT * 0.5, M1 = M0 + 4.6, H2 = M1, END = H2 + HT + 0.2;
+    function bell(t, t0) { var u = (t - t0) / HT; if (u <= 0 || u >= 1) return 0; return u < 0.4 ? Math.sin(Math.PI / 2 * u / 0.4) : Math.cos(Math.PI / 2 * (u - 0.4) / 0.6); }
+    function haze(h) {
+      if (h < 0.002) { wrap.removeAttribute('filter'); return; }
+      hb.setAttribute('stdDeviation', (14 * Math.pow(h, 1.7)).toFixed(2));
+      var g = 0.15 * Math.pow(h, 1.4); hg.setAttribute('k1', (2 * g).toFixed(3)); hg.setAttribute('k3', (1 - g).toFixed(3));
+      ha.setAttribute('slope', (1 - 0.15 * h).toFixed(3)); wrap.setAttribute('filter', 'url(#hl2-haze)');
+    }
+    player(card, function (t) {
+      piece.run(t >= 1e8 ? t : Math.min(t, LAND + 0.01));
+      if (t >= 1e8 || t < H1) { text.style.display = 'none'; plainBox.style.removeProperty('visibility'); haze(0); readout.setAttribute('opacity', 0); return t >= 1e8 || false; }
+      /* live text between the two hand-offs (each at its haze's thickest point) */
+      var live = t >= H1 + HT * 0.4 && t < H2 + HT * 0.4;
+      text.style.display = live ? '' : 'none'; plainBox.style.visibility = live ? 'hidden' : '';
+      haze(Math.max(bell(t, H1), bell(t, H2)));
+      /* the run through the family: weight down to 400, up to 700, home; optical size down to 8 and home,
+         a quarter turn behind; both eased in and out so it starts and ends at rest */
+      var u = Math.max(0, Math.min(1, (t - M0) / (M1 - M0))), env = Math.sin(Math.PI * u);
+      var w = BASE.wght + env * (u < 0.5 ? (400 - BASE.wght) * Math.sin(Math.PI * u * 2) : (700 - BASE.wght) * Math.sin(Math.PI * (u - 0.5) * 2));
+      var o = BASE.opsz + (8 - BASE.opsz) * Math.pow(Math.sin(Math.PI * u), 2);
+      if (live) fitWidth(vs(o, BASE.GEOM, w));
+      readout.textContent = 'wght ' + Math.round(w) + '  ·  opsz ' + Math.round(o);
+      readout.setAttribute('opacity', (0.55 * Math.min(1, Math.max(0, (t - M0) / 0.4), Math.max(0, (M1 - t) / 0.4))).toFixed(3));
+      return t > END;
+    }, { duration: END });
+    stage.addEventListener('hl:relayout', function () { piece.relayout(); size(); snapStage(stage); });
   })();
 
   /* ── 3 · six axes, one file, added as Cal.com grew ─────────────────────────────────────
