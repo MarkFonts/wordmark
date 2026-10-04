@@ -36,7 +36,7 @@
 <link rel="stylesheet" href="../shared/src/grid.css">
 <link rel="stylesheet" href="../shared/src/dialHandle.css">
 <link rel="stylesheet" href="../shared/src/chip.css">
-<link rel="stylesheet" href="../css/case.css?v=83">
+<link rel="stylesheet" href="../css/case.css?v=87">
 </head>
 <body>
 
@@ -62,7 +62,7 @@
 <main class="wm-lines">
 
 <!-- hero ───────────────────────────────────────────────── -->
-<header class="cs-hero wrap">
+<header class="cs-hero wm-grid">   <!-- a margined grid, so the hero artwork can break to the window edges (shared/src/grid.css, GRID.md) -->
   <p class="label">Cal Sans for Cal.com</p>
   <h1>The family Cal.com keeps</h1>
   <div class="hero-cols wm-baselines">
@@ -72,7 +72,7 @@
       <p class="byline"><time datetime="2026-09-29">Sep 29, 2026</time> &middot; Mark Davis</p>
     </div>
   </div>
-  <div class="hero-word-box" data-nosnap id="hero-thermal" role="img" aria-label="The Calendso logo heats into Cal.com" title="Tap to replay">
+  <div class="hero-word-box wm-break" data-nosnap id="hero-thermal" role="img" aria-label="The Calendso logo heats into Cal.com" title="Tap to replay">
 <svg class="hero-thermal" viewBox="0 -110 1954 640" aria-label="Calendso becomes Cal.com" focusable="false">
   <defs>
     <!-- a stripe that never stops: white, black, white, repeating, slid by script -->
@@ -469,24 +469,24 @@
       <p class="made-cap made-cap--lead"><strong>Tools built on the way.</strong> Not for want of features, for want of fewer: a proofer with the client&rsquo;s own UI as its preview tabs and two optical sizes side by side in one paragraph panel, and nothing in the way. Four tools came out of that.</p>
       <div class="tools">
         <a class="tool tool--shot made-theme" href="../font-proofer/calcom/calsans/">
-          <img class="for-light" src="img/proofer-ui-light.webp" width="2000" height="1305" loading="lazy" alt="font-proofer showing the Cal.com component board">
-          <img class="for-dark" src="img/proofer-ui-dark.webp" width="2000" height="1305" loading="lazy" alt="font-proofer showing the Cal.com component board, dark">
+          <img class="for-light" src="img/proofer-ui-light.webp" width="2000" height="1305" data-shot="mac" style="--shot-scale: .643" loading="lazy" alt="font-proofer showing the Cal.com component board">
+          <img class="for-dark" src="img/proofer-ui-dark.webp" width="2000" height="1305" data-shot="mac" style="--shot-scale: .643" loading="lazy" alt="font-proofer showing the Cal.com component board, dark">
           <span class="tool-name">font-proofer <span class="arrow">&#x2197;</span></span>
           <span class="tool-text">The font in Cal.com&rsquo;s real screens as preview tabs: booking pages, the app, the component board, and a paragraph panel that sets two optical sizes side by side.</span>
         </a>
         <div class="tool tool--shot">
-          <a href="../recalsans/"><img src="img/recal.webp" width="2000" height="1305" loading="lazy" alt="ReCal Sans, the builder, with geometric form, optical size and weight controls"></a>
+          <a href="../recalsans/"><img src="img/recal.webp" width="2000" height="1305" data-shot="mac" style="--shot-scale: .643" loading="lazy" alt="ReCal Sans, the builder, with geometric form, optical size and weight controls"></a>
           <a class="tool-name" href="../recalsans/">ReCal <span class="arrow">&#x2197;</span></a>
           <span class="tool-text">Pick the defaults, bake them in, and download your own cut of Cal Sans from the browser. After DJR&rsquo;s <a href="https://input.djr.com/download/" target="_blank" rel="noopener">Input downloader</a> and Belleve Invis&rsquo;s <a href="https://github.com/be5invis/Iosevka" target="_blank" rel="noopener">Iosevka</a>.</span>
         </div>
         <div class="tool tool--shot made-theme">
-          <img class="for-light" src="img/kernpare-light.webp" width="2000" height="1305" loading="lazy" alt="Kernpare: one kerning pair across all eight masters, with its curve across the weights and sizes">
-          <img class="for-dark" src="img/kernpare-dark.webp" width="2000" height="1305" loading="lazy" alt="Kernpare: one kerning pair across all eight masters, dark">
+          <img class="for-light" src="img/kernpare-light.webp" width="2000" height="1305" data-shot="mac" style="--shot-scale: .643" loading="lazy" alt="Kernpare: one kerning pair across all eight masters, with its curve across the weights and sizes">
+          <img class="for-dark" src="img/kernpare-dark.webp" width="2000" height="1305" data-shot="mac" style="--shot-scale: .643" loading="lazy" alt="Kernpare: one kerning pair across all eight masters, dark">
           <span class="tool-name">kernpare</span>
           <span class="tool-text">Every kerning pair across all eight masters at once, roman and italic optionally linked, with the curve a value takes from text to display. After Adobe&rsquo;s <a href="https://github.com/adobe-type-tools/kernalytics-rf-ext" target="_blank" rel="noopener">Kernalytics</a>, MIT.</span>
         </div>
         <a class="tool tool--shot" href="https://github.com/calcom/sans/tree/main/scripts" target="_blank" rel="noopener">
-          <img src="img/calbuild.webp" width="1666" height="1790" loading="lazy" alt="Terminal: calbuild validating 8 masters, compiling the variable font and instancing 384 static styles">
+          <img src="img/calbuild.webp" width="1666" height="1790" data-shot="mac" loading="lazy" alt="Terminal: calbuild validating 8 masters, compiling the variable font and instancing 384 static styles">
           <span class="tool-name">calbuild <span class="arrow">&#x2197;</span></span>
           <span class="tool-text">The build, start to finish: metrics, validation, the variable font, the statics, the packages for Google Fonts, npm and jsDelivr. In the Cal Sans repo, under scripts.</span>
         </a>

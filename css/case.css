@@ -761,6 +761,22 @@ a.code:hover .where { color: var(--signal); }
 .mb-scroll img { height: auto; object-fit: unset; border-radius: 0; background: none !important; }
 .mb-scroll:focus-visible { outline: 1.5px solid var(--signal); outline-offset: 4px; border-radius: 4px; }
 .tool--shot > img { aspect-ratio: 4 / 3; object-fit: contain; width: 100%; height: auto; }
+/* a macOS window shot sits as its window: the shared [data-shot="mac"] rule cuts the drop shadow out of the
+   layout, so the 4:3 contain box would only shrink it again */
+/* the shared rule (shared/src/grid.css) restated unlayered for the tool shots: this page's own `width: 100%` on
+   them and its margin reset both beat the layered original. The shadow is cut out of the layout, so the window's
+   edge, not the image's, sits on the column. */
+.tools img[data-shot="mac"][style*="--shot-w"] {
+  --_shot-k: calc(100% / (var(--shot-w) - (var(--shot-mac-l) + var(--shot-mac-r)) * var(--shot-scale)));
+  display: block; max-width: none; height: auto; aspect-ratio: auto; object-fit: fill;
+  width: calc(var(--_shot-k) * var(--shot-w));
+  margin: calc(var(--_shot-k) * var(--shot-mac-t) * var(--shot-scale) * -1) calc(var(--_shot-k) * var(--shot-mac-r) * var(--shot-scale) * -1) calc(var(--_shot-k) * var(--shot-mac-b) * var(--shot-scale) * -1) calc(var(--_shot-k) * var(--shot-mac-l) * var(--shot-scale) * -1);   /* token-lint: allow -- the shadow's measured size, cut out of the layout; not spacing */
+}
+main.wm-lines { overflow-x: clip; }
+/* the page's unlayered reset (margin: 0; padding: 0 on everything) beats the layered grid rules, as it did the
+   chip's padding: the hero's grid margin and its breaker's pull to the window edge, stated again unlayered */
+.cs-hero.wm-grid { padding-inline: var(--grid-margin); }
+.cs-hero > .wm-break { margin-inline: calc(-1 * var(--grid-margin)); }   /* the shots' shadows and the hero breaker never scroll the page sideways */
 /* window captures carry their own alpha and shadow; nothing behind them */
 .mb--shot .mb-media img, .tool--shot > img { background: none !important; border-radius: 0; }
 @media (min-width: 861px) {
