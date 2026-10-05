@@ -748,7 +748,7 @@ a.code:hover .where { color: var(--signal); }
 .num b {
   --wght: 640; --geom: 50;
   display: block;
-  font-size: clamp(40px, 5.2vw, 80px);   /* five across: 3,000 has to fit a 228px column at 1440 */
+  font-size: clamp(40px, 5.2vw, 80px);   /* the scale holds: six numbers sit as two rows of three, so 13,362 has a third of the page */
   --lh: round(nearest, 1em, var(--bl)); line-height: var(--lh);
 }
 .num span { display: block; margin-top: 9px; font-size: 14px; color: var(--text-muted); }
@@ -1122,11 +1122,12 @@ a.tool-name { color: inherit; text-decoration: none; }
 .tester { padding: var(--grid-gutter) calc((100vw - 2 * var(--grid-margin) - (var(--grid-cols) - 1) * var(--grid-gutter)) / var(--grid-cols) + var(--grid-gutter)); }
 
 @media (min-width: 681px) {
-  .nums > * { grid-column: span 3; }
+  .nums > * { grid-column: span 4; }   /* 12 columns: six numbers as two rows of three */
   .tools > * { grid-column: span 6; }
 }
 @media (min-width: 681px) and (max-width: 1023px) { .nums { row-gap: 33px; } }
 @media (max-width: 680px) { .nums > * { grid-column: span 6; } }
+@media (max-width: 380px) { .num b { font-size: 36px; } }   /* two across at 360: 402,680 overran its half by 1px at 40 */
 
 @media (min-width: 861px) {
   /* 12 columns: 7 | 5 and 5 | 7, the old 7fr/5fr exactly */
@@ -1147,8 +1148,7 @@ a.tool-name { color: inherit; text-decoration: none; }
   .look-demo { grid-column: 6 / span 7; }
 }
 @media (min-width: 1024px) {
-  .nums { grid-template-columns: repeat(5, minmax(0, 1fr)); }
-  .nums > * { grid-column: auto; }
+  .nums > * { grid-column: span 8; }   /* two rows of three on the page's 24 columns: six across at this scale would need 209px of a 186px sixth at 1440 */
   /* 24 columns: the hero is 13 | skip | 10; text beside a picture is 9 | skip | 14, keeping
      the wide gap those sections had; side-by-side cards are 10 | 14 on the gutter */
   .hero-cols > :first-child { grid-column: 1 / span 13; }
