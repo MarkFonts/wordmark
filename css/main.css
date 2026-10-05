@@ -55,7 +55,14 @@
   font-display: swap;
 }
 
-*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; font-feature-settings: 'dlig' 0, 'ss20' 0, 'calt' 0, 'liga' 0; font-variant-ligatures: no-common-ligatures no-discretionary-ligatures no-contextual; }
+/* THE RESET, IN A LAYER BELOW THE SHARED ONES. index.html declares `@layer reset;` before any
+   sheet, so this layer comes first and every shared layer (wm.color, wm.icon, wm.controls,
+   wm.grid) beats it. Unlayered, it beat them all: it zeroed .wm-grid's margin (the work rows
+   restated it), and it would have zeroed a breaker's negative margin too. Everything this page
+   writes itself is unlayered and still beats it, as before. */
+@layer reset {
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; font-feature-settings: 'dlig' 0, 'ss20' 0, 'calt' 0, 'liga' 0; font-variant-ligatures: no-common-ligatures no-discretionary-ligatures no-contextual; }
+}
 
 .ss19 { font-feature-settings: 'ss19' 1; }
 
@@ -102,9 +109,12 @@ body {
 }
 
 /* ═══ HERO ═════════════════════════════════════════════ */
+/* The hero is a BREAKER (index.html: a .hero-grid.wm-grid holding #hero.wm-break, data-nosnap):
+   grid.css pulls its box out to both window edges, so the comet and the headline run edge to
+   edge by the house rule, and it has no inner padding (a stage). No width here: a percentage
+   width on a breaker resolves against the margined column area and would undo the pull. */
 #hero {
   display: grid;
-  width: 100%;
   overflow: hidden;
 }
 
@@ -216,7 +226,8 @@ body {
   flex-direction: column;
   align-items: center;
   gap: 15px;
-  padding: 33px 24px 60px;
+  /* the CTA's sides at the page margin: the hero box breaks to the window, its words do not */
+  padding: 33px var(--grid-margin) 60px;
 }
 
 .hero-cta {
@@ -304,6 +315,10 @@ body {
 /* The control itself is the house ThemeSwitch, `marks` look (shared/src/themeSwitch.css,
    wired by theme.js). What stays here is placement: a fixed affordance that recedes. */
 #theme-toggle {
+  /* the icon buttons as they have always looked here: 20px marks, no hit padding. icon.css
+     pads .wm-icon-btn 6px through this knob; the unlayered reset used to zero that by
+     accident, and now that the reset sits below the shared layers the page says it on purpose */
+  --icon-btn-pad: 0px;
   position: fixed;
   top: 20px;
   right: 20px;
@@ -320,13 +335,16 @@ body {
    headline and the figure's caption share a first baseline. Phone: one column, the figure
    above the copy. From 681: copy | caption | image, the old 3fr 1fr 4fr on whole columns --
    on 24, copy 1-8, a column skipped (gutter + column + gutter, the 72px gap it had at 1440),
-   caption 10-12, image 13-24; on 12, copy 1-5, caption 6-7, image 8-12, and below 768
-   copy 1-6, caption 7-8, image 9-12. The copy takes the extra columns because the case-study
-   pill is 264px and does not wrap: at four columns it ran into the caption. */
+   caption 10-13, image 14-24; on 12, copy 1-5, caption 6-8, image 9-12, and below 768
+   copy 1-6, caption 7-9, image 10-12. The copy takes the extra columns because the case-study
+   pill is 264px and does not wrap: at four columns it ran into the caption.
+   THE IMAGE IS A RIGHT BREAKER (Mark, 2026-10-04: "full-width heroes, work images, and
+   highlight reel are the breakers"). The figure is .wm-break--right, so its box runs from its
+   column line to the window edge; the margin it gains went to the caption (one more column:
+   4 of 24, 3 of 12, it wrapped to ~15 lines in 3) and the image takes the rest, keeping its
+   4:3 box so no picture is cropped more than it was, only drawn larger. On a phone the image
+   is full width above the copy and breaks BOTH edges (below). */
 .work-item {
-  /* restated: grid.css gives .wm-grid the margin inside its layer, and the universal
-     reset at the top of this file is unlayered, so it zeroed it */
-  padding-inline: var(--grid-margin);
   row-gap: 24px;
   align-items: start;
 }
@@ -340,7 +358,7 @@ body {
   .work-item {
     min-height: round(up, 100vh, var(--bl));
     row-gap: round(nearest, clamp(32px, 5vw, 80px), var(--bl));
-    --copy: 8; --fig: 15; --cap: 3;
+    --copy: 8; --fig: 15; --cap: 4;
   }
   .work-item > .work-copy { --start: 1; --span: var(--copy); --start-md: 1; --span-md: 5; }
   .work-item > .work-fig  { --start: 10; --span: var(--fig); --start-md: 6; --span-md: 7; }
@@ -350,7 +368,7 @@ body {
      rule then brings it down the last few px onto the caption's line. */
   .work-headline { margin-top: round(down, calc(var(--fig-first) - 0.87em), var(--bl)); }
 }
-@media (min-width: 681px) and (max-width: 1023px) { .work-item { --cap: 2; } }
+@media (min-width: 681px) and (max-width: 1023px) { .work-item { --cap: 3; } }
 @media (min-width: 681px) and (max-width: 767px) {
   .work-item > .work-copy, .closing > .portrait-track, .closing > footer { --span-md: 6; }
   .work-item > .work-fig { --start-md: 7; --span-md: 6; }
@@ -439,8 +457,21 @@ body {
   display: flex;
   flex-direction: column;
   order: -1;         /* figure above copy in single-col grid */
-  width: 100%;
+  /* no width: a breaker is as wide as its columns plus the margin it pulls in (a 100% would be
+     the columns alone, and the pull would shift it instead of widening it) */
   overflow: visible; /* rule must escape work-img upward on mobile */
+}
+/* The figure breaks right (grid.css .wm-break--right). grid.css pads a non-stage breaker back
+   in by the margin so its TEXT stays at the margin; this one's only text is the caption, at
+   its LEFT, columns away from the right edge, so the bleeding side is all picture: no pad.
+   (The figure cannot be data-nosnap itself -- the caption is on the line and meets the
+   headline -- so .work-img carries the flag instead.) */
+.work-item > .work-fig.wm-break--right { padding-inline-end: 0; }
+/* Phone: the image is full width above the copy, so it breaks both edges (.wm-break's pull,
+   restated here because the class on the figure is the right-only one). The caption keeps its
+   indent from the image's corner dot, so its text sits 35.5px in, inside the 20px margin. */
+@media (max-width: 680px) {
+  .work-item > .work-fig.wm-break--right { margin-inline: calc(-1 * var(--grid-margin)); }
 }
 
 /* mobile: figcaption above image — text indented past the rule + gap */
@@ -478,7 +509,11 @@ body {
 
   /* the caption is --cap columns and the gutter after them; the image the rest of the
      figure. padding-top puts text below the rule line (42px, fourteen units) */
-  .work-fig { --cap-w: calc(var(--cap) * (var(--grid-col) + var(--grid-gutter))); }
+  /* One column is measured here, not taken from grid.css's --grid-col: that one subtracts the
+     margin from 100cqw, but cqw is the container's CONTENT box, which has lost the margin
+     already, so it came out 8px short per column at 1440 (20.2 for 28.6) and the image sat 25px
+     left of its column line. 100cqw here is .work-item's column area. */
+  .work-fig { --cap-w: calc(var(--cap) * ((100cqw - (var(--grid-cols) - 1) * var(--grid-gutter)) / var(--grid-cols) + var(--grid-gutter))); }
   .work-figcaption {
     display: block;
     flex: 0 0 var(--cap-w);
@@ -596,6 +631,35 @@ body {
   object-fit: cover;
   border-radius: var(--r);
 }
+/* A breaker keeps no rounded corner on the side that runs into the window: square on the
+   right from 681 (the left keeps the radius, on its column line), square all round on a
+   phone, where both sides run out. */
+@media (min-width: 681px) {
+  .work-img, .work-img img.fill { border-radius: var(--r) 0 0 var(--r); }
+}
+@media (max-width: 680px) {
+  .work-img, .work-img img.fill { border-radius: 0; }
+}
+
+/* The Cal.com UI screenshot is framed, so its dark (or light) app chrome does not dissolve into
+   the page ground (Mark, 2026-10-04). Default: a 1px rule at 50% grey -- rgb(128 128 128), the
+   same mid-grey on both grounds -- drawn inside the image's own box (no shift), following its
+   radius, and only on the sides that do not run to the window: top, left and bottom from 681,
+   top and bottom on a phone. Alternative: add .work-img--shadow to the same element for a #000
+   dispersed drop shadow instead of the rule. */
+.work-img--framed::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  z-index: 1;   /* over the image, under the corner dot (2) and its rule (3) */
+  border: 1px solid rgb(128 128 128);
+  border-right-width: 0;
+  border-radius: inherit;
+  pointer-events: none;
+}
+@media (max-width: 680px) { .work-img--framed::after { border-left-width: 0; } }
+.work-img--framed.work-img--shadow::after { display: none; }
+.work-img--shadow { box-shadow: 0 24px 60px rgba(0, 0, 0, 0.35); }
 
 /* theme-switching image pair (cal-ui)
    Specificity must beat .work-img img.fill (0,1,1) so use (0,2,1) */
