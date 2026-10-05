@@ -750,6 +750,7 @@ a.code:hover .where { color: var(--signal); }
   display: block;
   font-size: clamp(40px, 5.2vw, 80px);   /* the scale holds: six numbers sit as two rows of three, so 13,362 has a third of the page */
   --lh: round(nearest, 1em, var(--bl)); line-height: var(--lh);
+  font-feature-settings: 'tnum' 1;   /* tabular, so the count-up never jitters (case.js) */
 }
 .num span { display: block; margin-top: 9px; font-size: 14px; color: var(--text-muted); }
 @media (min-width: 681px) { .nums { grid-template-columns: repeat(4, 1fr); gap: round(nearest, clamp(20px, 3vw, 40px), var(--bl)); } }
