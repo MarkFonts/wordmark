@@ -22,13 +22,17 @@
   gtag('js', new Date());
   gtag('config', 'G-MZ4M1P8P1P');
 </script>
+<!-- the layer order, before any sheet: the page's reset (css/main.css, @layer reset) sits BELOW
+     the shared layers (wm.color, wm.icon, wm.controls, wm.grid), so its margin: 0 / padding: 0
+     no longer wipes the grid's margin, its breakers' pull or the controls' padding -->
+<style>@layer reset;</style>
 <link rel="stylesheet" href="shared/src/color.css">
 <link rel="stylesheet" href="shared/src/corners.css">
 <link rel="stylesheet" href="shared/src/motion.css">
 <link rel="stylesheet" href="shared/src/icon.css">
 <link rel="stylesheet" href="shared/src/themeSwitch.css">
 <link rel="stylesheet" href="shared/src/grid.css">
-<link rel="stylesheet" href="css/main.css?v=48">
+<link rel="stylesheet" href="css/main.css?v=49">
 </head>
 <body>
 
@@ -85,7 +89,11 @@
 <main class="wm-lines">
 
 <!-- hero ───────────────────────────────────────────────── -->
-<section id="hero" data-nosnap>
+<!-- a margined grid holding one breaker: the hero's box (artwork, canvases) runs edge to edge by
+     the same rule as every other breaker (shared/src/grid.css .wm-break, GRID.md), its CTA stays
+     inside the margin -->
+<div class="hero-grid wm-grid">
+<section id="hero" class="wm-break" data-nosnap>
   <canvas id="flapjack-canvas" aria-hidden="true"></canvas>
   <div id="flapjack-text" aria-label="WORDMARK">
     <!-- one canvas per wave — z-index slots them between letters -->
@@ -106,6 +114,7 @@
     </div>
   </div>
 </section>
+</div>
 
 <!-- dek ────────────────────────────────────────────────── -->
 <section id="dek">
@@ -164,12 +173,12 @@
       <h2 class="work-headline">Brands tell unique stories with letters that fit.</h2>
       <p class="para" lang="en">Brands may share typefaces. None of them should sound alike. The difference is in the choices, the ones you can point to and the ones you only feel.</p>
     </div>
-    <figure class="work-fig">
+    <figure class="work-fig wm-break--right">
       <figcaption class="work-figcaption">
         <div class="fig-header" aria-hidden="true"></div>
         <h3 class="fig-text">Typography for the National Museum of Women in the Arts&rsquo; remodel: illuminated signage, with creative direction by Sandrine Nugue Studio.</h3>
       </figcaption>
-      <div class="work-img">
+      <div class="work-img" data-nosnap>
         <div class="work-shape" aria-hidden="true"></div>
         <div class="fig-rule" aria-hidden="true"></div>
         <img class="fill" src="links/pngs/national-museum.jpg" alt="National Museum logotype" style="object-position: left center">
@@ -181,12 +190,12 @@
       <h2 class="work-headline">Get expert help with your mark, or start fresh. Work with people who live to make your letters sing.</h2>
       <p class="para" lang="en">The logo&shy;type is the most es&shy;sen&shy;tial form of brand com&shy;mu&shy;ni&shy;ca&shy;tion. It must work at six pix&shy;els and at sixty feet. We craft type meticu&shy;lous&shy;ly by hand, ad&shy;just&shy;ing let&shy;ters and spac&shy;ing un&shy;til it looks like it was al&shy;ways there.</p>
     </div>
-    <figure class="work-fig">
+    <figure class="work-fig wm-break--right">
       <figcaption class="work-figcaption">
         <div class="fig-header" aria-hidden="true"></div>
         <h3 class="fig-text">Logotype exploration and variable type engineering for the Nike FLYEASE wordmark, with Timothy Luke.</h3>
       </figcaption>
-      <div class="work-img">
+      <div class="work-img" data-nosnap>
         <div class="work-shape" aria-hidden="true"></div>
         <div class="fig-rule" aria-hidden="true"></div>
         <img class="fill" src="links/pngs/nike-flyease.jpg" alt="Nike FlyEase logotype">
@@ -199,12 +208,12 @@
       <p class="para" lang="en">Var&shy;i&shy;able fonts are the 30-year-old font for&shy;mat, re&shy;built for ev&shy;ery screen. We tune them by hand, axis by axis, so your type holds at any size.</p>
       <p class="work-cta"><a class="pill" href="/calsans/">Explore Cal Sans <span class="arrow" aria-hidden="true">&rarr;</span></a><a class="pill pill--ghost" href="https://cal.com/font" target="_blank" rel="noopener">Get Cal Sans <span class="arrow" aria-hidden="true">&#x2197;</span></a></p>
     </div>
-    <figure class="work-fig">
+    <figure class="work-fig wm-break--right">
       <figcaption class="work-figcaption">
         <div class="fig-header" aria-hidden="true"></div>
         <h3 class="fig-text">A bespoke replacement for open-source Inter, built inside Cal.com&rsquo;s product and engineering teams: six variable axes tuned to their Tailwind type scale, so every heading and label speaks in one voice.</h3>
       </figcaption>
-      <div class="work-img">
+      <div class="work-img work-img--framed" data-nosnap>   <!-- framed: a 50% grey rule; add work-img--shadow for a #000 drop shadow instead -->
         <div class="work-shape" aria-hidden="true"></div>
         <div class="fig-rule" aria-hidden="true"></div>
         <img class="fill theme-img--dark" src="links/pngs/cal-ui-dark.png" alt="CalSansUI variable font" style="object-position: left center">
@@ -220,12 +229,12 @@
       <h2 class="work-headline">Consistency holds when the rules are explicit.</h2>
       <p class="para" lang="en">We audit how your type behaves across web, print, and motion, then write the guidelines that make the right choice the easy one. Even where your logo never appears.</p>
     </div>
-    <figure class="work-fig">
+    <figure class="work-fig wm-break--right">
       <figcaption class="work-figcaption">
         <div class="fig-header" aria-hidden="true"></div>
         <h3 class="fig-text"><a href="https://nymzo.world/" target="_blank">NYMZO</a> is a challenger brand in luxury chess. Otherward brought in WORDMARK to take the logotype to global launch and product readiness.</h3>
       </figcaption>
-      <div class="work-img">
+      <div class="work-img" data-nosnap>
         <div class="work-shape" aria-hidden="true"></div>
         <div class="fig-rule" aria-hidden="true"></div>
         <img class="fill" src="links/pngs/nymzo-2.png" alt="NYMZO logotype">
