@@ -406,21 +406,11 @@ body {
 .pill .arrow { position: relative; top: 0.02em; transition: transform 0.2s; }
 .pill:hover .arrow { transform: translateX(0.15em); }
 
-.learn-more {
-  font-variation-settings: 'wght' 400;
-  font-size: 15px;
-  --lh: round(nearest, 1.72em, var(--bl)); line-height: var(--lh);
-  color: var(--text-muted);
-  max-width: 38ch;
-  margin-top: 24px;
-}
-.learn-more a {
-  color: var(--text);
-  text-decoration: underline;
-  text-underline-offset: 3px;
-  transition: color 0.12s;
-}
-.learn-more a:hover { color: var(--text-muted); }
+/* the second call, as Apple pairs them: the same pill, outlined. The ring is an inset shadow, so both pills
+   are exactly the same height on the line */
+.work-cta { align-items: center; flex-wrap: wrap; gap: 12px 12px; }
+.pill--ghost { color: var(--text); background: transparent; box-shadow: inset 0 0 0 1.5px var(--text); }
+.pill--ghost:hover { opacity: 1; background: color-mix(in oklab, var(--text) 8%, transparent); }
 
 /* figure wrapper — takes the right-column slot, handles sticky + slide-in */
 /* ── figcaption layout tokens ───────────────────────────────────── */
