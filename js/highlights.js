@@ -180,8 +180,10 @@
     };
     var piece = M.sentence(stage, card, cast, { blur: 30, grain: 1, spread: 44 });
     var P = piece.plan(), dur = (P.lateAt + 1.3 + 0.3) / SPEED;
-    player(card, function (t) { return piece.run(t * SPEED); }, { duration: dur });
-    function relay() { piece.relayout(); snapStage(stage); }
+    var lastT = 0;   /* the frame on screen: a relayout rebuilds the sentence, so it is drawn again (a phone's
+                        address bar fires resize on scroll, which left the period back beside "one") */
+    player(card, function (t) { lastT = t * SPEED; return piece.run(lastT); }, { duration: dur });
+    function relay() { piece.relayout(); if (lastT) piece.run(lastT); snapStage(stage); }
     stage.addEventListener('hl:relayout', relay);
     if (document.fonts && document.fonts.ready) document.fonts.ready.then(relay);
   })();
@@ -234,8 +236,9 @@
     }
     var said = '';
     svg.setAttribute('viewBox', '-20 -20 ' + (1954 + 40) + ' 510');
-    var LAND = 3.4, M0 = 3.7, M1 = M0 + 4.6, END = M1 + 0.3;
-    player(card, function (t) {
+    var LAND = 3.4, M0 = 3.7, M1 = M0 + 4.6, END = M1 + 0.3, lastT = 0;
+    function frame(t) {
+      lastT = t;
       piece.run(t >= 1e8 ? t : Math.min(t, LAND + 0.01));
       var live = t >= LAND;   /* the drawn logo hands over with no dissolve: the font sits exactly on it */
       text.style.display = live ? '' : 'none'; plainBox.style.visibility = live ? 'hidden' : '';
@@ -248,8 +251,9 @@
       var line = [['wght', Math.round(w)], ['opsz', Math.round(o)], ['GEOM', BASE.GEOM], ['YTAS', BASE.YTAS]], key = JSON.stringify(line);
       if (key !== said) { say(line); said = key; }
       return t > END;   /* and it holds on the font */
-    }, { duration: END });
-    stage.addEventListener('hl:relayout', function () { piece.relayout(); measure(); snapStage(stage); });
+    }
+    player(card, frame, { duration: END });
+    stage.addEventListener('hl:relayout', function () { piece.relayout(); measure(); if (lastT) { said = null; frame(lastT); } snapStage(stage); });   /* the frame on screen, drawn again */
   })();
 
   /* ── 3 · six axes, one file, added as Cal.com grew ─────────────────────────────────────
