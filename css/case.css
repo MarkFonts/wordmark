@@ -303,6 +303,13 @@ section[id] { scroll-margin-top: var(--nav-h); }
 .axes .wm-hd-name { line-height: 12px; }
 .axes .wm-hd-pill { box-shadow: 0 0 0 3px var(--surface); }
 @media (max-width: 599px) { .axes { gap: 6px; } }
+/* phones: six 43px columns. The lozenge's text is 16px so Safari does not zoom on focus (dialHandle.css), which made
+   it 45-66px wide and the column's entry mask cut its ends. Drawn at 0.72 (11.5px visual) on 8px sides it is <= 42px.
+   The scale sits inside the transform after the centring translate, so the pill stays centred on its rail. */
+@media (max-width: 599px) {
+  .axes .wm-hd-pill { padding-inline: 8px; transform: translate(-50%, -50%) scale(0.72); }
+  .axes .wm-hd-pill input { font-size: 16px; }
+}
 /* a dial arrives wiped in from the foot of its rail (--enter 0..1, from the script) */
 .axes .ax-in { --e: calc(var(--enter, 1) * 114%); mask-image: linear-gradient(to top, #000 calc(var(--e) - 14%), transparent var(--e)); -webkit-mask-image: linear-gradient(to top, #000 calc(var(--e) - 14%), transparent var(--e)); }   /* at --enter 0 the whole dial is hidden, pill included; at 1 the mask has left the box */
 .axes-wrap.is-live .ax-reset { opacity: 0; pointer-events: none; }   /* nothing to reset while an axis drifts */
@@ -314,6 +321,11 @@ section[id] { scroll-margin-top: var(--nav-h); }
 .hl-stage--count .hl-fig { pointer-events: none; -webkit-user-select: none; user-select: none; }   /* the figures and icons only float: the posts under them still hover and click, and nothing selects */
 .hl-figb { display: flex; flex-direction: column; }
 .hl-figb .hl-icon { margin-bottom: 3px; filter: drop-shadow(0 27px 54px rgba(0, 0, 0, var(--fig-shade, 0.55))); }   /* a few pixels above its figure, on the same shade */
+/* the two figures always share a line: "1.4M 12.6K" plus its gap is 5.39em, so the size caps at 18% of the stage
+   (at 390 the stage is 290 and 64px wrapped 12.6K under 1.4M); the marks shrink with them, never past 72 */
+.hl-stage--count { container-type: inline-size; }
+.hl-stage--count .hl-fig { font-size: min(var(--hl-size, clamp(64px, 8vw, 112px)), 18cqi); }
+.hl-figb .hl-icon { font-size: min(72px, 1.125em); width: 1em; height: 1em; }
 :root[data-theme="light"] .hl-stage--count .hl-fig { --fig-shade: 0.16; }
 @media (prefers-color-scheme: light) { :root:not([data-theme="dark"]) .hl-stage--count .hl-fig { --fig-shade: 0.16; } }
 /* the reel fills the stage behind the figures: five rows of tiles in date order, the full-height
