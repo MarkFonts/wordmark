@@ -408,9 +408,16 @@ body {
 
 /* the second call, as Apple pairs them: the same pill, outlined. The ring is an inset shadow, so both pills
    are exactly the same height on the line */
-.work-cta { align-items: center; flex-wrap: wrap; gap: 12px 12px; }
+.work-cta { gap: 12px; }
 .pill--ghost { color: var(--text); background: transparent; box-shadow: inset 0 0 0 1.5px var(--text); }
 .pill--ghost:hover { opacity: 1; background: color-mix(in oklab, var(--text) 8%, transparent); }
+/* the pair is always two equal pills, each as wide as the wider one: a max-content grid of two 1fr tracks
+   resolves 1fr to the widest pill. They stack when the column cannot hold two of the widest (2 x 169 + 12 =
+   350px for "Explore Cal Sans"; re-measure if a label changes) */
+.work-copy { container-type: inline-size; }
+.work-cta { display: grid; grid-template-columns: 1fr 1fr; width: max-content; max-width: 100%; }
+.work-cta > .pill { justify-content: center; }
+@container (max-width: 349px) { .work-cta { grid-template-columns: 1fr; } }
 
 /* figure wrapper — takes the right-column slot, handles sticky + slide-in */
 /* ── figcaption layout tokens ───────────────────────────────────── */
