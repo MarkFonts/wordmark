@@ -417,3 +417,37 @@
     });
   });
 })();
+
+/* the numbers row counts up once, the first time it is on screen: card 4's curve (1.8 s, ease out), a step
+   left to right. Each figure keeps its own format all the way up (13,362 with its comma, 1.6k with its
+   decimal). The markup holds the real figures; without the observer, or with reduced motion, they stay put. */
+(function () {
+  var nums = document.querySelector('.nums'); if (!nums || !('IntersectionObserver' in window)) return;
+  if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) return;
+  var figs = Array.prototype.slice.call(nums.querySelectorAll('.num b')).map(function (b) {
+    var txt = b.textContent.trim(), m = txt.match(/^([\d,]*\.?\d+)(\D*)$/); if (!m) return null;
+    var dec = (m[1].split('.')[1] || '').length, comma = m[1].indexOf(',') >= 0;
+    return { b: b, end: txt, to: parseFloat(m[1].replace(/,/g, '')), dec: dec, comma: comma, unit: m[2] };
+  }).filter(Boolean);
+  function fmt(f, v) {
+    var s = v.toFixed(f.dec);
+    if (f.comma) s = s.replace(/\B(?=(\d{3})+(?!\d))/g, ',');
+    return s + f.unit;
+  }
+  figs.forEach(function (f) { f.b.setAttribute('aria-label', f.end); f.b.textContent = fmt(f, 0); });
+  var T = 1800, STEP = 120;
+  function run() {
+    var t0 = performance.now();
+    (function frame(now) {
+      var done = true;
+      figs.forEach(function (f, i) {
+        var k = Math.max(0, Math.min(1, (now - t0 - i * STEP) / T)), e = 1 - Math.pow(1 - k, 3);
+        f.b.textContent = k >= 1 ? f.end : fmt(f, f.to * e);
+        if (k < 1) done = false;
+      });
+      if (!done) requestAnimationFrame(frame);
+    })(t0);
+  }
+  var io = new IntersectionObserver(function (es) { if (es[0].isIntersecting) { io.disconnect(); run(); } }, { threshold: 0.4 });
+  io.observe(nums);
+})();
