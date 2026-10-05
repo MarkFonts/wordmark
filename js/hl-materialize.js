@@ -231,6 +231,16 @@ window.hlMaterialize = (function () {
       var w = 0; try { w = meas.getComputedTextLength(); } catch (e) {}
       return w > 0 ? w : text.length * size * 0.55;
     }
+    /* a pair's kern, from HTML text: WebKit leaves kerning out of an SVG text's computed length (0 for y. where
+       Chromium and HTML both give -14 at 200), so iPhones set the period unkerned */
+    var kspan = null;
+    function kern(a, b, fam, size, vs) {
+      if (!kspan) { kspan = document.createElement('span'); kspan.setAttribute('aria-hidden', 'true'); kspan.style.cssText = 'position:absolute;left:-9999px;top:0;visibility:hidden;white-space:pre;font-kerning:normal;font-feature-settings:normal'; document.body.appendChild(kspan); }
+      kspan.style.fontFamily = fam; kspan.style.fontSize = size + 'px'; kspan.style.fontWeight = wt(fam); kspan.style.fontVariationSettings = vs || 'normal';
+      function w(t) { kspan.textContent = t; return kspan.getBoundingClientRect().width; }
+      var k = w(a + b) - w(a) - w(b);
+      return isFinite(k) ? k : 0;
+    }
     function setWord(parent, text, fam, size, vs) { var t = word(parent, text, fam, size, vs); t.setAttribute('font-weight', wt(fam)); return t; }
     function hangs(w) { return /^[.,;:!?]/.test(w); }
     for (var i = 0; i < (perWord ? words.length : 1); i++) units.push(unit());
@@ -247,7 +257,7 @@ window.hlMaterialize = (function () {
         var vs = C.lineVS[Math.min(ln, C.lineVS.length - 1)], wb = measure(w, FAM[2], size, vs);
         if (hangs(w) && x > 0) {   /* hangs on the word before, at the font's own kern for that pair (y. in "family.") */
           var pw = words[i - 1];
-          x += measure(pw + w, FAM[2], size, vs) - measure(pw, FAM[2], size, vs) - wb - gap;
+          x += kern(pw.slice(-1), w.charAt(0), FAM[2], size, vs) - gap;
         }
         else if (x + wb > maxW && x > 0) { x = 0; y += lh; ln++; vs = C.lineVS[Math.min(ln, C.lineVS.length - 1)]; wb = measure(w, FAM[2], size, vs); }
         var tb = setWord(u.shape, w, FAM[2], size, vs); tb.setAttribute('x', x); tb.setAttribute('y', y);
