@@ -41,7 +41,7 @@
   font-style: normal;
   font-display: swap;
 }
-*:not(.wm-chip, .wm-hd-pill), *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }   /* the chip and the dial's lozenge keep their primitives' padding: an unlayered reset beats a layer */
+:where(*:not(.wm-chip, .wm-hd-pill)), *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }   /* the chip and the dial's lozenge keep their primitives' padding: an unlayered reset beats a layer. :where() holds it at zero specificity: bare, the :not() counted as a class and zeroed every single-class padding loaded before it (the UI kit's cards, fields and buttons, 2026-10-04) */
 .wm-chip, .wm-hd-pill { box-sizing: border-box; margin: 0; }
 
 /* Axes ride custom properties so a parent can move one without restating the rest.
