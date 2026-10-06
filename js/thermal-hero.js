@@ -7,15 +7,18 @@ const $=id=>document.getElementById(id);
 const stage=document.getElementById('hero-thermal');if(!stage)return;
 // phones get the piece as a video with alpha, rendered from this same chain at 60fps: the filters are too much for
 // a phone live, and the only thing the theme changes is the ink it drains to, so there is one file per theme.
+// Safari on a desktop gets it too, at twice the size: WebKit draws SVG filters on the CPU, and on a Retina laptop the
+// live chain ran at about 5 fps (2026-10-05). Chrome and the rest keep the live chain.
 const video=stage.querySelector('.hero-video');
-if(video&&window.matchMedia&&window.matchMedia('(pointer: coarse)').matches&&window.__t==null){
-  const ua=navigator.userAgent,webkit=/iPhone|iPad|iPod/.test(ua)||(/AppleWebKit/.test(ua)&&!/Chrome|Chromium|Android/.test(ua));
+const ua=navigator.userAgent,webkit=/iPhone|iPad|iPod/.test(ua)||(/AppleWebKit/.test(ua)&&!/Chrome|Chromium|Android|Edg|OPR/.test(ua));
+const coarse0=window.matchMedia&&window.matchMedia('(pointer: coarse)').matches,desk=webkit&&!coarse0;
+if(video&&(coarse0||desk)&&window.__t==null){
   const ok=webkit?video.canPlayType('video/mp4; codecs="hvc1"'):video.canPlayType('video/webm; codecs="vp9"');
   if(ok){
     const theme=()=>{const t=document.documentElement.dataset.theme;return t==='light'||t==='dark'?t:(matchMedia('(prefers-color-scheme: light)').matches?'light':'dark')};
     let played=false,cur='';
     const load=()=>{const th=theme();if(th===cur)return;cur=th;
-      video.poster='img/hero-'+th+'.png';video.src='img/hero-'+th+(webkit?'.mov':'.webm');video.load();
+      const sz=desk?'-desktop':'';video.poster='img/hero-'+th+sz+'.png';video.src='img/hero-'+th+sz+(webkit?'.mov':'.webm');video.load();
       if(played)video.addEventListener('loadedmetadata',()=>{video.currentTime=Math.max(0,video.duration-0.05)},{once:true});};
     load();stage.classList.add('is-video');
     new MutationObserver(load).observe(document.documentElement,{attributes:true,attributeFilter:['data-theme']});
@@ -65,6 +68,11 @@ if(coarse){                                                            // phones
   stage.querySelectorAll('feGaussianBlur[result="halo0"]').forEach(n=>n.setAttribute('stdDeviation','13'));
   stage.querySelectorAll('#material feGaussianBlur').forEach(n=>n.setAttribute('stdDeviation','18'));
 }
+const defs=stage.querySelector('.hero-thermal > defs');
+// and while the hero is out of view its svg is hidden outright: even finished, with every filtered layer and the defs
+// out, Safari still spent 200 ms a frame on it whenever the highlights below moved. Hiding it keeps its box.
+const art=stage.querySelector('.hero-thermal');
+if(art&&'IntersectionObserver' in window)new IntersectionObserver(es=>{for(const e of es)art.style.visibility=e.isIntersecting?'':'hidden'}).observe(stage);
 function frame(now){
   if(coarse&&window.__t==null&&(skip=(skip+1)%3)){requestAnimationFrame(frame);return;}   // phones: the filters at a third of the rate
   let t=armed?(now-t0)/1000:0;if(!playing)t=(LEAD+total)/SPEED;if(window.__t!=null)t=window.__t;
@@ -85,6 +93,17 @@ function frame(now){
   $('B').setAttribute('opacity',(t<e2?0:(t<e5?1:1-lin(t,e5,e5+0.3))).toFixed(3));
   $('F').setAttribute('opacity',0);
   $('B0').style.display=t>=e5-0.3?'':'none';
+  // a filtered layer nobody can see still costs: Safari re-ran these chains on the CPU whenever anything else on the
+  // page moved, long after the hero had finished (1.5 s frames under the highlights, 2026-10-05). So a layer is out of
+  // rendering whenever it shows nothing: A before it fades in and once the piece is over, B outside its run, F always.
+  // It is each layer's masked parent that goes: an empty group under a mask still drew its 2200 x 880 mask.
+  // And the defs go too whenever none of those layers is showing: Safari kept re-running the hidden filters and
+  // masks they define (the defs alone cost a 1-2 s frame under the highlights); they come back on a replay.
+  const over=t>=e5+0.3,aOn=!(cross===0||over),bOn=!(t<e2||over);
+  $('A').parentNode.style.display=aOn?'':'none';
+  $('B').parentNode.style.display=bOn?'':'none';
+  $('F').parentNode.style.display='none';
+  defs.style.display=aOn||bOn?'':'none';
   if(armed&&(t<total+0.1*SPEED||!playing)||window.__t!=null)requestAnimationFrame(frame);
 }
 requestAnimationFrame(frame);
