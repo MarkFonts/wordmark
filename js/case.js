@@ -212,7 +212,10 @@
       /* and a touch stands in for the mouse: touch a virtual master and it is picked at once, moving the whole family
          it ties to as hovering it does on a desktop; touch it again, or tap nothing, and it lets go */
       var tapped = false, tapDown = null, tapIdx = -1, pickT0 = 0, PICK = 1400;
-      function letGo() { tapped = false; tapIdx = -1; mouse = null; inf.forEach(function (v, i) { inf[i] = 0; }); }
+      /* letting go eases every axis back over REL ms: the master that was picked keeps its pick point until it is home */
+      var relT0 = 0, relFrom = null, relIdx = -1, REL = 100;
+      function release(idx) { relFrom = inf.slice(); relT0 = performance.now(); relIdx = idx; }
+      function letGo() { var was = tapIdx; tapped = false; tapIdx = -1; if (was < 0) mouse = null; release(was); }
       /* which virtual master a touch lands on: inside the ring around its label (the GEOM master's reach spans most
          of the stage), and the point in stage coordinates */
       function hitAt(cx, cy) {
@@ -267,6 +270,7 @@
           edges.forEach(function (e) { e.el.style.opacity = 0.14 + 0.5 * (near[e.a] + near[e.b]) / 2; });
         }
         var reach = Math.min(sr.width, sr.height) * 0.7;
+        var relU = relT0 ? Math.min(1, (performance.now() - relT0) / REL) : -1;
         vms.forEach(function (a, i) {
           var ar = a.getBoundingClientRect(), ax = ar.left + ar.width / 2 - sr.left, ay = ar.top + ar.height / 2 - sr.top;   /* the rings' centre: the whole master */
           /* influence: on a mouse, how close the pointer has come; eased so it breathes rather than snaps */
@@ -276,6 +280,7 @@
           /* a picked master sweeps its family over PICK ms, eased, so the forms are seen moving along the axis (Cal
              Sans Flex's whole point) rather than landing at once */
           if (tapped && i === tapIdx) { var u = Math.min(1, (performance.now() - pickT0) / PICK); inf[i] = u < 0.5 ? 4 * u * u * u : 1 - Math.pow(-2 * u + 2, 3) / 2; }
+          else if (relU >= 0) inf[i] = relFrom[i] * (1 - relU) * (1 - relU);   /* easing out, home in REL ms */
           a.style.setProperty('--inf', inf[i].toFixed(3));
           var best = null, bd = Infinity;
           links[i].idx.forEach(function (j, n) {
@@ -290,7 +295,7 @@
           /* holding pulls only the nearest corner, so only its tie lights; the rest stay at their resting strength */
           if (!fine && !tapped) links[i].ties.forEach(function (t, n) { if (pts[links[i].idx[n]] !== best) t.style.opacity = (+t.style.opacity * 0.3 / (0.3 + 0.7 * inf[i])).toFixed(3); });
           var axis = a.dataset.axis, to = parseFloat(a.dataset.to);
-          if (fine || tapped) {
+          if (fine || tapped || i === relIdx) {
             /* a virtual master moves the whole family it ties to, as it does in the file: every tied corner
                takes the influence, the near ones a little ahead of the far ones */
             var target = AX[axis] + (to - AX[axis]) * inf[i];
@@ -299,7 +304,7 @@
                  crossing it lands on 0 (a short run-in so nothing jumps), and the way in to the ring climbs to 100 */
               var rIn = parseFloat(a.style.getPropertyValue('--ring-in')) || 40, band = 24, rOut = reachOf[i] - band, lo = 0;
               target = md >= rOut + band ? AX[axis] : md >= rOut ? AX[axis] + (lo - AX[axis]) * (1 - (md - rOut) / band) : md <= rIn ? to : lo + (to - lo) * (1 - (md - rIn) / (rOut - rIn));
-              if (tapped) target = AX[axis] + (target - AX[axis]) * inf[i];   /* a touch pick sweeps there, so Flex's C's are seen interpolating */
+              if (tapped || i === relIdx) target = AX[axis] + (target - AX[axis]) * inf[i];   /* a touch pick sweeps there, so Flex's C's are seen interpolating */
             }
             links[i].idx.forEach(function (j) { var p = pts[j], d = Math.hypot(p.x - ax, p.y - ay), w = 0.85 + 0.15 * Math.max(0, 1 - d / reach); p.add[axis] = AX[axis] + (target - AX[axis]) * w; if (axis === 'opsz') { p.micro = inf[i] * w; p.microOn = inf[i] >= 0.85; } });
           } else {
@@ -309,6 +314,7 @@
             best.add[axis] = AX[axis] + (to - AX[axis]) * kk; if (axis === 'opsz') { best.micro = kk; best.microOn = kk >= 0.85; }
           }
         });
+        if (relU >= 1) { relT0 = 0; relFrom = null; if (relIdx >= 0 && !tapped) mouse = null; relIdx = -1; }
         pts.forEach(function (p, i) {
           var extra = Object.keys(p.add).map(function (k) { return "'" + k + "' " + p.add[k].toFixed(1); }).join(', ');
           p.g.style.fontVariationSettings = p.g.dataset.base + (extra ? ', ' + extra : '');
@@ -356,8 +362,8 @@
           /* a touch on a master picks it at once; a touch anywhere else holds (unless a master is picked) */
           var h = hitAt(e.clientX, e.clientY);
           tapDown = { x: e.clientX, y: e.clientY, t: performance.now(), hit: h.i, was: tapIdx };
-          if (h.i >= 0 && h.i !== tapIdx) { tapped = true; tapIdx = h.i; mouse = h.p; touchUntil = 0; pickT0 = performance.now(); inf.forEach(function (v, i) { if (i !== h.i) inf[i] = 0; }); }   /* one master at a time: the last one drops at once */
-          else if (h.i < 0 && !tapped) touchUntil = Infinity;
+          if (h.i >= 0 && h.i !== tapIdx) { relT0 = 0; relIdx = -1; tapped = true; tapIdx = h.i; mouse = h.p; touchUntil = 0; pickT0 = performance.now(); inf.forEach(function (v, i) { if (i !== h.i) inf[i] = 0; }); }   /* one master at a time: the last one drops at once */
+          else if (h.i < 0 && !tapped) { relT0 = 0; relIdx = -1; touchUntil = Infinity; }
         }
         ptrs[e.pointerId] = { x: e.clientX, y: e.clientY };
         var ids = Object.keys(ptrs);
@@ -390,7 +396,7 @@
           if (tapDown.hit < 0 ? tapped : tapDown.hit === tapDown.was) letGo();
         }
         tapDown = null;
-        delete ptrs[e.pointerId]; if (!Object.keys(ptrs).length) { drag = null; pinch = null; twist = null; stage.classList.remove('is-grabbing'); if (touchUntil === Infinity) { touchUntil = 0; if (!tapped) inf.forEach(function (v, i) { inf[i] = 0; }); } } }   /* a hold lets go the moment the finger lifts */
+        delete ptrs[e.pointerId]; if (!Object.keys(ptrs).length) { drag = null; pinch = null; twist = null; stage.classList.remove('is-grabbing'); if (touchUntil === Infinity) { touchUntil = 0; if (!tapped) release(-1); } } }   /* a hold lets go the moment the finger lifts, easing back */
       stage.addEventListener('pointerup', up); stage.addEventListener('pointercancel', up);
       stage.addEventListener('wheel', function (e) {
         if (!e.ctrlKey && Math.abs(e.deltaY) < 1) return;
