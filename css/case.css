@@ -245,6 +245,11 @@ section[id] { scroll-margin-top: var(--nav-h); }
 }
 .hl-stage { position: relative; min-height: 120px; }
 .hl-stage svg { display: block; width: 100%; height: auto; overflow: visible; }
+/* the Safari fog (js/hl-materialize.js thermalLite): each word's fog its own composited box, so the blur runs on the GPU */
+.hl-stage .hm-lite { position: absolute; pointer-events: none; }
+.hl-stage .hm-lite .hm-defs { position: absolute; width: 0; height: 0; }
+.hl-stage .hm-word, .hl-stage .hm-layer { position: absolute; inset: 0; }
+.hl-stage svg.hm-fog { position: absolute; width: auto; height: auto; overflow: visible; will-change: filter, opacity; transform: translateZ(0); }
 /* Replay, bottom right of every highlight card: the cube's control, the house restart icon and the word */
 .hl > .hl-text { position: relative; padding-inline-end: 96px; }   /* the caption keeps clear of it */
 /* lives inside .hl-text and sits on the caption's last line: same size and line as .hl-cap, bottom of the
@@ -839,13 +844,13 @@ main.wm-lines { overflow-x: clip; }
 .ds-o path { fill: var(--text); }
 .ds-faint { opacity: 0.45; }
 .ds-mvp { fill: var(--signal); }
-.ds-tag { fill: var(--text); font-size: 13px; font-family: 'CalSans', sans-serif; font-variation-settings: 'wght' 640, 'GEOM' 25, 'opsz' 14; }
 /* the label pairs never read under 10px: below the width where 13 units is 10px on screen (the SVG fills the panel,
    800 units across), each pair scales up about its own top centre; atan2 divides the two lengths into a number */
 .ds { --ds-s: max(1, tan(atan2(calc(10px * 800 / 13), 100cqi))); }
 .ds-grid { transform-box: fill-box; transform-origin: 50% 0; scale: var(--ds-s); }
 /* MVP sits under a pair, so it grows with it and steps down by what the pair (33 units tall) gained */
 .ds-mvp { transform-box: fill-box; transform-origin: 50% 0; scale: var(--ds-s); translate: 0 calc((var(--ds-s) - 1) * 33px); }
+.ds-tag { fill: var(--text); font-size: 13px; font-family: 'CalSans', sans-serif; font-variation-settings: 'wght' 640, 'GEOM' 25, 'opsz' 14; }
 .ds-val { fill: var(--text-muted); font-size: 13px; font-family: 'CalSans', sans-serif; font-feature-settings: 'tnum' 1; }
 .ds-v1 { font-family: 'CalSans1', 'CalSans', sans-serif; font-size: 64px; fill: var(--text); font-variation-settings: normal; }
 .ds-ax line { stroke: var(--text-dim); stroke-width: 1.2; }

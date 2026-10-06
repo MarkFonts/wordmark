@@ -68,8 +68,10 @@ window.hlMaterialize = (function () {
     el('feGaussianBlur', { in: src, stdDeviation: 26, result: 'halo0' }, col);
     var halo = el('feColorMatrix', { in: 'halo0', type: 'matrix', values: '0.5 0 0 0 0  0 0.5 0 0 0  0 0 0.5 0 0  0 0 0 0.9 0', result: 'halo' }, col);
     el('feComposite', { in: soft, in2: 'halo', operator: 'over', result: 'body' }, col);
-    var noise = el('feTurbulence', { type: 'fractalNoise', baseFrequency: 0.8, numOctaves: 1, seed: 7, result: 'noise' }, col);
-    el('feColorMatrix', { in: 'noise', type: 'matrix', values: '0 0 0 0 0.5  0 0 0 0 0.5  0 0 0 0 0.5  0 0 0 0 1', result: 'grainBase' }, col);
+    /* the grain's base is a flat 0.5 grey: its matrix keeps no channel of its input, so the fractal noise it was
+       fed (generated every frame, one of the slowest primitives Safari draws on the CPU) never reached a pixel */
+    var noise = null;
+    el('feColorMatrix', { in: 'SourceGraphic', type: 'matrix', values: '0 0 0 0 0.5  0 0 0 0 0.5  0 0 0 0 0.5  0 0 0 0 1', result: 'grainBase' }, col);
     var grain = el('feComposite', { in: 'grainBase', in2: 'body', operator: 'arithmetic', k1: 0, k2: 0, k3: 1, k4: 0, result: 'mixed' }, col);
     /* the fog floor: a blur of 120 spreads a white shape so thin that alpha-from-luminance is nothing. While a piece
        is in its fog these two gains (slope g, clamped) lift the body's light and its alpha; at g = 1 they are identity */
@@ -165,6 +167,86 @@ window.hlMaterialize = (function () {
     ctl.set(8, 0.5, TABLE, 1, 1);
     return ctl;
   }
+
+  /* ── the Safari path ──────────────────────────────────────────────────────────────────
+     WebKit draws SVG filters on the CPU (its Core Image path ships switched off). On a Retina screen at slideshow size a
+     word's fog is ~5 million pixels through the chain: 300-700 ms a frame in Safari (2026-10-06). So in Safari a word's
+     fog is one small HTML-level layer -- the same live word, through <use> -- under a CSS filter, blur(B0 q^1.7)
+     brightness(white to ink), at the opacity FOG_T(e), which Safari composites on the GPU. FOG_T is the closest
+     pixel-for-pixel match to the full chain ("homepage", blur 30, grain 1). Same API as thermal(), same timeline, same
+     crisp ends; the halo, the reach cut and the material pass are left out. ?hm=lite / ?hm=full force either path. */
+  var LITE = (function () {
+    var m = /[?&]hm=(lite|full)/.exec(location.search); if (m) return m[1] === 'lite';
+    var ua = navigator.userAgent;
+    return (/AppleWebKit/.test(ua) && !/Chrome|Chromium|Edg|OPR|Android/.test(ua)) || /CriOS|FxiOS|EdgiOS/.test(ua);
+  })();
+  var FOG_T = [0, 0.022, 0.036, 0.063, 0.101, 0.198, 0.294, 0.417, 0.578, 0.743, 1];
+  function fogOp(e) {
+    var x = Math.max(0, Math.min(1, e)) * 10, i = Math.min(9, Math.floor(x)), f = x - i;
+    return FOG_T[i] + (FOG_T[i + 1] - FOG_T[i]) * f;
+  }
+  function liteWrap(svg) {
+    var stage = svg.parentNode, wrap = svg._lite;
+    if (wrap) return wrap;
+    wrap = svg._lite = document.createElement('div'); wrap.className = 'hm-lite'; wrap.setAttribute('aria-hidden', 'true');
+    wrap._defs = el('defs', {}, el('svg', { width: 0, height: 0, class: 'hm-defs' }, wrap));
+    stage.appendChild(wrap);
+    wrap._k = 1;
+    /* the layer sits exactly over the svg's content box, and maps user units the way the svg does: the viewBox fitted
+       whole and centred (preserveAspectRatio's default), since a slideshow stage is not the drawing's shape. k is css
+       px per user unit; ox, oy where the viewBox's corner lands */
+    wrap.puts = [];
+    wrap.place = function () {
+      var cs = getComputedStyle(svg), pl = parseFloat(cs.paddingLeft) || 0, pt = parseFloat(cs.paddingTop) || 0;
+      var w = svg.clientWidth - pl - (parseFloat(cs.paddingRight) || 0), h = svg.clientHeight - pt - (parseFloat(cs.paddingBottom) || 0);
+      var sr = svg.getBoundingClientRect(), pr = stage.getBoundingClientRect(), z = stage.offsetWidth ? pr.width / stage.offsetWidth : 1;
+      wrap.style.left = ((sr.left - pr.left) / z + pl) + 'px'; wrap.style.top = ((sr.top - pr.top) / z + pt) + 'px';
+      wrap.style.width = w + 'px'; wrap.style.height = h + 'px';
+      var vb = svg.viewBox.baseVal; wrap._vb = vb;
+      wrap._k = vb && vb.width && vb.height ? Math.min(w / vb.width, h / vb.height) : 1;
+      wrap._ox = vb ? (w - vb.width * wrap._k) / 2 : 0; wrap._oy = vb ? (h - vb.height * wrap._k) / 2 : 0;
+      wrap.puts.forEach(function (f) { f(); });
+    };
+    if ('MutationObserver' in window) new MutationObserver(function () { wrap.place(); }).observe(svg, { attributes: true, attributeFilter: ['viewBox'] });
+    if ('ResizeObserver' in window) new ResizeObserver(function () { wrap.place(); }).observe(svg);
+    return wrap;
+  }
+  function thermalLite(svg, id, box) {
+    var wrap = liteWrap(svg), n = 0, fogs = [], last = '';
+    function put(f, b) {
+      var vb = wrap._vb || svg.viewBox.baseVal, k = wrap._k;
+      f.setAttribute('viewBox', b.x.toFixed(1) + ' ' + b.y.toFixed(1) + ' ' + b.w.toFixed(1) + ' ' + b.h.toFixed(1));
+      f.style.left = (wrap._ox + (b.x - vb.x) * k) + 'px'; f.style.top = (wrap._oy + (b.y - vb.y) * k) + 'px';
+      f.style.width = (b.w * k) + 'px'; f.style.height = (b.h * k) + 'px';
+    }
+    wrap.puts.push(function () { fogs.forEach(function (x) { put(x, box); }); last = ''; });
+    var ctl = {
+      hots: [], plains: [], mts: [], n: 0, matOn: true,
+      material: function () {}, lead: function () {}, gain: function () {}, set: function () {}, drain: function () {}, reach: function () {},
+      hot: function (shape) {
+        var g = el('g', { id: id + 'h' + (++n) }, wrap._defs); g.appendChild(shape);
+        var outer = document.createElement('div'); outer.className = 'hm-word'; wrap.appendChild(outer); ctl.hots.push(outer);
+        var layer = document.createElement('div'); layer.className = 'hm-layer'; outer.appendChild(layer);
+        var f = el('svg', { class: 'hm-fog', preserveAspectRatio: 'none', 'aria-hidden': 'true' }, layer);
+        el('use', { href: '#' + g.id }, f); fogs.push(f);
+        wrap.place();
+        return layer;
+      },
+      free: function (node) { var o = el('g', {}, svg); o.appendChild(node); return o; },
+      plain: function (node) { var p = el('g', { fill: 'currentColor', style: 'display:none' }, svg); p.appendChild(node); ctl.plains.push(p); return p; },
+      finish: function (on) { ctl.hots.forEach(function (x) { x.style.display = on ? 'none' : ''; }); ctl.plains.forEach(function (p) { p.style.display = on ? '' : 'none'; }); },
+      region: function (b) { box = b; wrap.place(); },
+      cond: function (e, ink, B0) {
+        var bl = B0 * Math.pow(1 - e, 1.7) * wrap._k, op = fogOp(e);
+        var L = 0.2126 * ink[0] + 0.7152 * ink[1] + 0.0722 * ink[2], c = (1 + (L - 1) * e).toFixed(3);   /* white to ink */
+        var key = bl.toFixed(2) + op.toFixed(3) + c;
+        if (key === last) return; last = key;
+        fogs.forEach(function (f) { f.style.filter = 'blur(' + bl.toFixed(2) + 'px) brightness(' + c + ')'; f.style.opacity = op.toFixed(3); });
+      }
+    };
+    return ctl;
+  }
+  var therm = LITE ? thermalLite : thermal;
 
   /* ── content: the sentence, the logo. Each gives `units` (one, or one per word / glyph), every unit
      a hot shape, a cold node, a plain node and its extent; the variant wires units to engines. ── */
@@ -320,7 +402,9 @@ window.hlMaterialize = (function () {
   }
   function makeLogo(svg, perGlyph) {
     var units = [], strokes = [];
-    var stroke = { fill: 'none', stroke: 'currentColor', 'stroke-width': 3, 'vector-effect': 'non-scaling-stroke' };
+    /* 3 px on screen, set from the stage's scale (ringWidth), not by non-scaling-stroke: that also measures the dashes
+       in screen pixels, so on a large Retina slide a ring outgrew the dash meant to erase it and stayed up */
+    var stroke = { fill: 'none', stroke: 'currentColor', 'stroke-width': 3 };
     if (PATHS) {
       var n = perGlyph ? PATHS.length : 1;
       for (var i = 0; i < n; i++) units.push(unit());
@@ -364,17 +448,26 @@ window.hlMaterialize = (function () {
   /* one engine, one pass; `eng` are the engine's knobs, `freeze` a number or a function of the extent */
   function fit(ctl, u, fx, eng) {
     var m = 4 * (fx.blur || 120) + 120 + (eng && eng.displace ? 120 : 0);   /* four sigmas plus the halo: the fog never meets the region edge */
+    /* with a reach the fog is cut 4.5 reach-sigmas past the letters (the cut's alpha is under 1/255 beyond that), plus
+       40 for ink past the word's box, so the region need go no further: a filter costs by its area, and Safari pays it
+       on the CPU. Frame for frame identical to the old margin (checked 2026-10-06) */
+    if (fx.spread != null && fx.spread < 240) m = Math.min(m, Math.ceil(4.5 * Math.max(0.5, fx.spread / 1.5)) + 40);
     ctl.region({ x: u.x0 - m, y: u.y0 - m, w: (u.x1 - u.x0) + 2 * m, h: (u.y1 - u.y0) + 2 * m });
   }
   function bigBox(kind) { return kind === 'logo' ? { x: -600, y: -700, w: W + 1200, h: 1900 } : { x: -600, y: -700, w: W + 1200, h: 2200 }; }
   function materialize(kind, eng, fx) {
     fx = fx || {};
     return function (stage, card) {
-      var svg = stageSvg(stage, kind), ctl = thermal(svg, uid(), bigBox(kind), eng), content = make(svg, kind, false), u = content.units[0];
+      var svg = stageSvg(stage, kind), ctl = therm(svg, uid(), bigBox(kind), eng), content = make(svg, kind, false), u = content.units[0];
       var hot = ctl.hot(u.shape), outer = hot.parentNode;
       var cold = ctl.free(u.coldG);
       ctl.plain(u.plainG);
       if (content.strokes) content.strokes.forEach(function (s) { s.el.style.stroke = 'var(--signal)'; });   /* the real card's rings, in the signal */
+      function ringWidth() {
+        var vb = svg.viewBox.baseVal, w = svg.clientWidth;
+        if (content.strokes && vb && vb.width && w) content.strokes.forEach(function (s) { s.el.setAttribute('stroke-width', (3 * vb.width / w).toFixed(2)); });
+      }
+      ringWidth();
       var extra = el('g', {}, svg);
       content.layout(); fit(ctl, u, fx, eng);
       var logo = kind === 'logo';
@@ -391,6 +484,9 @@ window.hlMaterialize = (function () {
         (content.strokes || []).forEach(function (s, i) {
           var din = t >= 1e8 ? 1 : ease(lin(t, i * 0.12, i * 0.12 + 1.0)), dout = t >= 1e8 ? 1 : ease(lin(t, T1 + i * 0.06, T1 + 0.6 + i * 0.06));   /* the rings leave as the fog gathers, before the logo condenses */
           s.el.setAttribute('stroke-dashoffset', (s.len * (1 - din) - s.len * dout).toFixed(1));
+          /* and out of rendering when there is nothing of it: Safari kept painting the last arc it drew after the
+             dash offset alone moved on, so a ring "erased" by its dash stayed up over the logo (2026-10-06) */
+          s.el.style.visibility = din <= 0 || dout >= 1 ? 'hidden' : '';
         });
       }
       return {
@@ -407,7 +503,7 @@ window.hlMaterialize = (function () {
           return t > T3 + 0.3;
         },
         mid: function () { return T1 + DUR * (fx.midAt || 0.5); },
-        relayout: function () { content.layout(); fit(ctl, u, fx, eng); if (fx.setup) fx.setup(ctx); ink = inkOf(card); },
+        relayout: function () { content.layout(); fit(ctl, u, fx, eng); if (fx.setup) fx.setup(ctx); ink = inkOf(card); ringWidth(); },
         svg: svg, plainG: u.plainG   /* for a caller that carries on after the logo lands */
       };
     };
@@ -419,7 +515,7 @@ window.hlMaterialize = (function () {
     return function (stage, card) {
       var kind = 'sentence', svg = stageSvg(stage, kind), content = makeSentence(svg, true, true, C), ink = inkOf(card);
       var ws = content.units.map(function (u, i) {
-        var ctl = thermal(svg, uid(), bigBox(kind), eng);
+        var ctl = therm(svg, uid(), bigBox(kind), eng);
         var holder = el('g', {}), hot = ctl.hot(holder); holder.appendChild(u.shape);
         var mixedPlain = ctl.free(u.coldG);
         ctl.plain(u.plainG);
