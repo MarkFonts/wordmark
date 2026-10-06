@@ -451,3 +451,25 @@
   var io = new IntersectionObserver(function (es) { if (es[0].isIntersecting) { io.disconnect(); run(); } }, { threshold: 0.4 });
   io.observe(nums);
 })();
+
+/* the 2022 figure's label pairs never read under 10px: the svg fills its panel, 800 units across, so below 615 px a
+   13-unit label is under 10 px on screen and each pair scales up about its own top centre; an MVP under a pair grows
+   with it and steps down by what the pair (33 units tall) gained. As svg transforms from here, not CSS: Safari resolved
+   container units inside the svg against the wrong box (scale 7.7) and ignored transform-origin on text (2026-10-06). */
+(function () {
+  var figs = document.querySelectorAll('svg.ds'); if (!figs.length) return;
+  function fit() {
+    figs.forEach(function (svg) {
+      var w = svg.getBoundingClientRect().width; if (!w) return;
+      var s = Math.max(1, 10 * 800 / 13 / w);
+      svg.querySelectorAll('.ds-grid, .ds-mvp').forEach(function (el) {
+        var b = el._box || (el._box = el.getBBox()), cx = b.x + b.width / 2, dy = el.classList.contains('ds-mvp') ? (s - 1) * 33 : 0;
+        if (s === 1) el.removeAttribute('transform');
+        else el.setAttribute('transform', 'translate(' + cx.toFixed(2) + ' ' + (b.y + dy).toFixed(2) + ') scale(' + s.toFixed(4) + ') translate(' + (-cx).toFixed(2) + ' ' + (-b.y).toFixed(2) + ')');
+      });
+    });
+  }
+  fit();
+  if (document.fonts && document.fonts.ready) document.fonts.ready.then(function () { figs.forEach(function (svg) { svg.querySelectorAll('.ds-grid, .ds-mvp').forEach(function (el) { el._box = null; }); }); fit(); });
+  if ('ResizeObserver' in window) { var ro = new ResizeObserver(fit); figs.forEach(function (svg) { ro.observe(svg); }); }
+})();
