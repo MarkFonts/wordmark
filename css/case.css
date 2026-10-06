@@ -826,6 +826,15 @@ main.wm-lines { overflow-x: clip; }
 }
 :root[data-theme="dark"] .made-theme .for-light { display: none; }
 :root[data-theme="dark"] .made-theme .for-dark { display: block; }
+/* and for the tool shots, as specifically as the window-shot rule above (.tools img[data-shot][style]), whose
+   display: block otherwise showed both, light and dark stacked */
+.tools .made-theme > img.for-dark[data-shot] { display: none; }
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) .tools .made-theme > img.for-light[data-shot] { display: none; }
+  :root:not([data-theme="light"]) .tools .made-theme > img.for-dark[data-shot] { display: block; }
+}
+:root[data-theme="dark"] .tools .made-theme > img.for-light[data-shot] { display: none; }
+:root[data-theme="dark"] .tools .made-theme > img.for-dark[data-shot] { display: block; }
 
 /* the designspace, drawn live: each master is the real glyph at its coordinates */
 .ds-panels { display: grid; gap: clamp(16px, 2vw, 24px); }
@@ -845,12 +854,7 @@ main.wm-lines { overflow-x: clip; }
 .ds-o path { fill: var(--text); }
 .ds-faint { opacity: 0.45; }
 .ds-mvp { fill: var(--signal); }
-/* the label pairs never read under 10px: below the width where 13 units is 10px on screen (the SVG fills the panel,
-   800 units across), each pair scales up about its own top centre; atan2 divides the two lengths into a number */
-.ds { --ds-s: max(1, tan(atan2(calc(10px * 800 / 13), 100cqi))); }
-.ds-grid { transform-box: fill-box; transform-origin: 50% 0; scale: var(--ds-s); }
-/* MVP sits under a pair, so it grows with it and steps down by what the pair (33 units tall) gained */
-.ds-mvp { transform-box: fill-box; transform-origin: 50% 0; scale: var(--ds-s); translate: 0 calc((var(--ds-s) - 1) * 33px); }
+/* the label pairs never read under 10px: case.js scales each pair (and the MVP under it) as an svg transform */
 .ds-tag { fill: var(--text); font-size: 13px; font-family: 'CalSans', sans-serif; font-variation-settings: 'wght' 640, 'GEOM' 25, 'opsz' 14; }
 .ds-val { fill: var(--text-muted); font-size: 13px; font-family: 'CalSans', sans-serif; font-feature-settings: 'tnum' 1; }
 .ds-v1 { font-family: 'CalSans1', 'CalSans', sans-serif; font-size: 64px; fill: var(--text); font-variation-settings: normal; }
@@ -860,6 +864,8 @@ main.wm-lines { overflow-x: clip; }
    the corners and billboarded so they face you while it turns. In view they arrive one by one. */
 .cube-stage { --s: 215px; height: 500px; perspective: 1200px; display: grid; place-items: center; position: relative; touch-action: none; cursor: grab; user-select: none; overflow: hidden; border-radius: var(--r-card); }
 .cube-stage.is-grabbing { cursor: grabbing; }
+/* iOS starts a text selection on a long press, which cancels the hold: no selection, no callout, anywhere on the stage */
+.cube-stage, .cube-stage * { -webkit-user-select: none; user-select: none; -webkit-touch-callout: none; }
 @media (max-width: 560px) { .cube-stage { --s: 135px; height: 360px; } }
 .cube { position: relative; width: 0; height: 0; transform-style: preserve-3d; transform: rotateX(-16deg) rotateY(-32deg); }
 .cube .e { position: absolute; left: calc(var(--s) / -2); top: -0.75px; width: var(--s); height: 1.5px; background: var(--text-dim); opacity: 0.55; transition: opacity 900ms ease; }
@@ -909,6 +915,9 @@ main.wm-lines { overflow-x: clip; }
 .vm[data-arc]::after { display: block; }
 .vm b { font-size: 28px; line-height: 1; white-space: nowrap; font-family: 'CalSans', sans-serif; font-optical-sizing: none; color: var(--text); }
 @media (max-width: 560px) { .vm b { font-size: 18px; } }
+/* on a phone the eight corners keep their names only: their six-value grids at a readable size pile into each other
+   on a 135-unit cube. The four virtual masters, at the stage corners, keep theirs */
+@media (max-width: 560px) { .cube .v .vlab { display: none; } }
 .cube-hint { flex-basis: 100%; }
 .cube-switches { flex-basis: 100%; display: flex; flex-wrap: wrap; gap: 8px 24px; margin-top: 4px; }
 /* the virtual masters can be switched off: no ties, no pull; the corners sit at their own masters */
