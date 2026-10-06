@@ -117,7 +117,10 @@
   .vidbadge{position:absolute;left:10px;bottom:10px;font-size:11px;font-weight:700;font-family:var(--mono);
     background:rgba(0,0,0,.72);color:#fff;border-radius:999px;padding:4px 11px}
   .card .top{display:flex;align-items:baseline;justify-content:space-between;gap:8px}
-  .card h3{margin:0;font-size:19px;letter-spacing:-.02em}
+  .card h3{margin:0;font-size:19px;letter-spacing:-.02em;line-height:1.25}
+  /* Breaks are frozen to the display face by freezeTitles(); the <br> it writes in is
+     the only break the title is allowed, so hovering can never rewrap the card. */
+  .card h3 br{content:""}
   .card:hover h3{font-family:var(--spec, inherit);font-weight:400}
   .status{font-size:11px;font-weight:700;font-family:var(--mono);padding:3px 9px;border-radius:999px;white-space:nowrap}
   .status.live{color:var(--live);border:1px solid var(--live)}
@@ -555,6 +558,39 @@ const TOOLS=[
 
 const grid=document.getElementById('grid');
 function esc(s){return s.replace(/&/g,'&amp;').replace(/</g,'&lt;')}
+/* ── Frozen headlines ───────────────────────────────────────────────────────
+   A card title sits in Reddit Sans and swaps to its own display face on hover.
+   The display faces are wider, so the title rewrapped under the cursor and every
+   row below it jumped. So: measure each title IN its display face, write that
+   face's line breaks into the markup as <br>, and reserve its line count. The
+   resting state now already stands at the hover state's size, and the swap moves
+   nothing. Breaks are the widest face's, so the narrower one always fits.        */
+let FACESREADY=false;
+function ensureSpecFonts(){
+  if(FACESREADY||!(document.fonts&&document.fonts.load))return Promise.resolve();
+  const fams=[...new Set(TOOLS.map(t=>t.spec.split(',')[0]))];
+  return Promise.all(fams.map(f=>document.fonts.load('400 19px '+f).catch(()=>{})))
+    .then(()=>{FACESREADY=true});
+}
+function freezeTitles(){
+  for(const h of document.querySelectorAll('.card h3')){
+    if(!h.dataset.txt)h.dataset.txt=h.textContent;
+    const words=h.dataset.txt.split(' ');
+    if(words.length<2){h.textContent=h.dataset.txt;continue;}
+    h.innerHTML=words.map(w=>'<span>'+esc(w)+'</span>').join(' ');
+    h.style.fontFamily=getComputedStyle(h.closest('.card')).getPropertyValue('--spec');
+    h.style.fontWeight='400';
+    const lines=[];let top=null;
+    for(const s of h.querySelectorAll('span')){
+      const t=Math.round(s.offsetTop);
+      if(t!==top){lines.push([]);top=t;}
+      lines[lines.length-1].push(s.textContent);
+    }
+    h.style.fontFamily='';h.style.fontWeight='';
+    h.innerHTML=lines.map(l=>esc(l.join(' '))).join('<br>');
+    h.style.minHeight=(lines.length*parseFloat(getComputedStyle(h).lineHeight)).toFixed(2)+'px';
+  }
+}
 function render(){
   const q=(document.getElementById('q').value||'').toLowerCase();
   const f=document.querySelector('.chipbtn[aria-pressed="true"]').dataset.f;
@@ -597,6 +633,7 @@ function render(){
     grid.appendChild(el);
   }
   if(!shown)grid.innerHTML='<p style="grid-column:1/-1;text-align:center;color:var(--ink2)">No choosers match. Incredible — you have found a gap in the market. Do not fill it.</p>';
+  ensureSpecFonts().then(freezeTitles);
 }
 document.getElementById('q').addEventListener('input',render);
 document.querySelectorAll('.chipbtn').forEach(b=>b.addEventListener('click',()=>{
@@ -631,7 +668,7 @@ function applyFace(){const n=FACES[ci];
 }
 applyFace();
 headblock.addEventListener('click',()=>{considered++;ci=(ci+1)%FACES.length;applyFace();});
-let rzt;addEventListener('resize',()=>{clearTimeout(rzt);rzt=setTimeout(fitLines,80);});
+let rzt;addEventListener('resize',()=>{clearTimeout(rzt);rzt=setTimeout(()=>{fitLines();freezeTitles();},80);});
 if(document.fonts&&document.fonts.ready){document.fonts.ready.then(fitLines);}
 
 
