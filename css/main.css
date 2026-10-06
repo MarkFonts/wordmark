@@ -367,6 +367,11 @@ body {
      its half-leading plus ascent at 1.08, --fig-first is the caption's); gridSnap's row
      rule then brings it down the last few px onto the caption's line. */
   .work-headline { margin-top: round(down, calc(var(--fig-first) - 0.87em), var(--bl)); }
+  /* Side by side the copy is on the caption's 24: the body takes 24 (1.6em at 15px) instead of 27,
+     and the headline's own margin goes, so the body's first baseline is one 24 line below the
+     headline's last (the lead rule rounds a 36px headline to 48 against the 14/24 caption). */
+  .work-copy .work-headline { margin-bottom: 0; }
+  .work-copy .para { --lh: round(nearest, 1.6em, var(--bl)); line-height: var(--lh); }   /* 24, eight units */
 }
 @media (min-width: 681px) and (max-width: 1023px) { .work-item { --cap: 3; } }
 @media (min-width: 681px) and (max-width: 767px) {
