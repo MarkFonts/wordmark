@@ -10,10 +10,11 @@
   font-display: swap;
   /* v2: opsz 8–45 (14) | GEOM 0–100 (25) | wght 400–700 | YTAS 1440–1600 | SHRP 0–100 | ital 0–1 */
 }
-/* Cal Sans Flex, from wm-primitives: the geometric alternates interpolate along GEOM, for the Futura demo */
+/* Cal Sans Flex, from wm-primitives: true HOI — the geometric alternates blend along GEOM on curved
+   paths, carried by three hidden helper axes avar2 drives from GEOM. For the Futura demo and the cube. */
 @font-face {
   font-family: 'CalSansFlex';
-  src: url('../shared/fonts/CalSansFlexVF.woff2') format('woff2');
+  src: url('../shared/fonts/CalSansFlexVF.woff2?v=2010hoi') format('woff2');
   font-weight: 400 700;
   font-style: normal;
   font-display: swap;
