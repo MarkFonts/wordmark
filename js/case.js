@@ -211,7 +211,7 @@
       var fine = !(window.matchMedia && window.matchMedia('(pointer: coarse)').matches), mouse = null, inf = vms.map(function () { return 0; }), touchUntil = 0;
       /* and a touch stands in for the mouse: touch a virtual master and it is picked at once, moving the whole family
          it ties to as hovering it does on a desktop; touch it again, or tap nothing, and it lets go */
-      var tapped = false, tapDown = null, tapIdx = -1;
+      var tapped = false, tapDown = null, tapIdx = -1, pickT0 = 0, PICK = 1400;
       function letGo() { tapped = false; tapIdx = -1; mouse = null; inf.forEach(function (v, i) { inf[i] = 0; }); }
       /* which virtual master a touch lands on: inside the ring around its label (the GEOM master's reach spans most
          of the stage), and the point in stage coordinates */
@@ -273,6 +273,9 @@
           var md = mouse ? Math.hypot(mouse.x - ax, mouse.y - ay) : Infinity;
           var want = !pull ? 0 : tapped ? (i === tapIdx ? 1 : 0) : !fine ? (performance.now() < touchUntil ? 1 : 0) : mouse ? Math.max(0, Math.min(1, 1 - md / reachOf[i])) : 0;
           inf[i] += (want - inf[i]) * 0.15; if (Math.abs(want - inf[i]) < 0.002) inf[i] = want;
+          /* a picked master sweeps its family over PICK ms, eased, so the forms are seen moving along the axis (Cal
+             Sans Flex's whole point) rather than landing at once */
+          if (tapped && i === tapIdx) { var u = Math.min(1, (performance.now() - pickT0) / PICK); inf[i] = u < 0.5 ? 4 * u * u * u : 1 - Math.pow(-2 * u + 2, 3) / 2; }
           a.style.setProperty('--inf', inf[i].toFixed(3));
           var best = null, bd = Infinity;
           links[i].idx.forEach(function (j, n) {
@@ -296,6 +299,7 @@
                  crossing it lands on 0 (a short run-in so nothing jumps), and the way in to the ring climbs to 100 */
               var rIn = parseFloat(a.style.getPropertyValue('--ring-in')) || 40, band = 24, rOut = reachOf[i] - band, lo = 0;
               target = md >= rOut + band ? AX[axis] : md >= rOut ? AX[axis] + (lo - AX[axis]) * (1 - (md - rOut) / band) : md <= rIn ? to : lo + (to - lo) * (1 - (md - rIn) / (rOut - rIn));
+              if (tapped) target = AX[axis] + (target - AX[axis]) * inf[i];   /* a touch pick sweeps there, so Flex's C's are seen interpolating */
             }
             links[i].idx.forEach(function (j) { var p = pts[j], d = Math.hypot(p.x - ax, p.y - ay), w = 0.85 + 0.15 * Math.max(0, 1 - d / reach); p.add[axis] = AX[axis] + (target - AX[axis]) * w; if (axis === 'opsz') { p.micro = inf[i] * w; p.microOn = inf[i] >= 0.85; } });
           } else {
@@ -352,7 +356,7 @@
           /* a touch on a master picks it at once; a touch anywhere else holds (unless a master is picked) */
           var h = hitAt(e.clientX, e.clientY);
           tapDown = { x: e.clientX, y: e.clientY, t: performance.now(), hit: h.i, was: tapIdx };
-          if (h.i >= 0 && h.i !== tapIdx) { tapped = true; tapIdx = h.i; mouse = h.p; touchUntil = 0; inf.forEach(function (v, i) { if (i !== h.i) inf[i] = 0; }); }   /* one master at a time: the last one drops at once */
+          if (h.i >= 0 && h.i !== tapIdx) { tapped = true; tapIdx = h.i; mouse = h.p; touchUntil = 0; pickT0 = performance.now(); inf.forEach(function (v, i) { if (i !== h.i) inf[i] = 0; }); }   /* one master at a time: the last one drops at once */
           else if (h.i < 0 && !tapped) touchUntil = Infinity;
         }
         ptrs[e.pointerId] = { x: e.clientX, y: e.clientY };
