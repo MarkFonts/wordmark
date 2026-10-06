@@ -913,6 +913,9 @@ main.wm-lines { overflow-x: clip; }
 .vm[data-arc]::after { display: block; }
 .vm b { font-size: 28px; line-height: 1; white-space: nowrap; font-family: 'CalSans', sans-serif; font-optical-sizing: none; color: var(--text); }
 @media (max-width: 560px) { .vm b { font-size: 18px; } }
+/* on a phone the eight corners keep their names only: their six-value grids at a readable size pile into each other
+   on a 135-unit cube. The four virtual masters, at the stage corners, keep theirs */
+@media (max-width: 560px) { .cube .v .vlab { display: none; } }
 .cube-hint { flex-basis: 100%; }
 .cube-switches { flex-basis: 100%; display: flex; flex-wrap: wrap; gap: 8px 24px; margin-top: 4px; }
 /* the virtual masters can be switched off: no ties, no pull; the corners sit at their own masters */

@@ -205,9 +205,10 @@
       /* the two switches under the stage: the virtual masters' pull, and the Flex cut */
       var pull = true;
       /* with a mouse, a virtual master's influence is how near the pointer is to it, shown by the ring
-         around it; the pull it exerts and its ties follow. Fingers can't hover, so touch keeps the
-         geometric pull. */
-      var fine = !(window.matchMedia && window.matchMedia('(pointer: coarse)').matches), mouse = null, inf = vms.map(function () { return 0; });
+         around it; the pull it exerts and its ties follow. Fingers can't hover, so on touch the geometric
+         pull comes up while a finger is on the cube and for a moment after (touchUntil); at rest the cube is
+         calm, no rings lit and no corners pulled (2026-10-06: all of it lit at once read as noise on a phone). */
+      var fine = !(window.matchMedia && window.matchMedia('(pointer: coarse)').matches), mouse = null, inf = vms.map(function () { return 0; }), touchUntil = 0;
       var RING = 150;
       /* each master's ring: as large as the stage lets it be without touching an edge; the GEOM master's arc
          is the reach of its influence, 60% of the stage's width, and the stage crops it */
@@ -257,7 +258,7 @@
           var ar = a.getBoundingClientRect(), ax = ar.left + ar.width / 2 - sr.left, ay = ar.top + ar.height / 2 - sr.top;   /* the rings' centre: the whole master */
           /* influence: on a mouse, how close the pointer has come; eased so it breathes rather than snaps */
           var md = mouse ? Math.hypot(mouse.x - ax, mouse.y - ay) : Infinity;
-          var want = !pull ? 0 : !fine ? 1 : mouse ? Math.max(0, Math.min(1, 1 - md / reachOf[i])) : 0;
+          var want = !pull ? 0 : !fine ? (performance.now() < touchUntil ? 1 : 0) : mouse ? Math.max(0, Math.min(1, 1 - md / reachOf[i])) : 0;
           inf[i] += (want - inf[i]) * 0.15; if (Math.abs(want - inf[i]) < 0.002) inf[i] = want;
           a.style.setProperty('--inf', inf[i].toFixed(3));
           var best = null, bd = Infinity;
@@ -331,6 +332,7 @@
       /* hands */
       var ptrs = {};
       stage.addEventListener('pointerdown', function (e) {
+        if (e.pointerType !== 'mouse') touchUntil = Infinity;
         ptrs[e.pointerId] = { x: e.clientX, y: e.clientY };
         var ids = Object.keys(ptrs);
         if (ids.length === 1) { drag = { x: e.clientX, y: e.clientY }; stage.classList.add('is-grabbing'); stage.setPointerCapture(e.pointerId); }
@@ -356,7 +358,7 @@
         }
       });
       stage.addEventListener('pointerleave', function () { mouse = null; });
-      function up(e) { delete ptrs[e.pointerId]; if (!Object.keys(ptrs).length) { drag = null; pinch = null; twist = null; stage.classList.remove('is-grabbing'); } }
+      function up(e) { delete ptrs[e.pointerId]; if (!Object.keys(ptrs).length) { drag = null; pinch = null; twist = null; stage.classList.remove('is-grabbing'); if (touchUntil === Infinity) touchUntil = performance.now() + 1500; } }
       stage.addEventListener('pointerup', up); stage.addEventListener('pointercancel', up);
       stage.addEventListener('wheel', function (e) {
         if (!e.ctrlKey && Math.abs(e.deltaY) < 1) return;
@@ -452,24 +454,38 @@
   io.observe(nums);
 })();
 
-/* the 2022 figure's label pairs never read under 10px: the svg fills its panel, 800 units across, so below 615 px a
-   13-unit label is under 10 px on screen and each pair scales up about its own top centre; an MVP under a pair grows
-   with it and steps down by what the pair (33 units tall) gained. As svg transforms from here, not CSS: Safari resolved
-   container units inside the svg against the wrong box (scale 7.7) and ignored transform-origin on text (2026-10-06). */
+/* the 2022 figure's labels never read under 10px: the svg fills its panel, 800 units across, so on a narrow panel a
+   13-unit label pair scales up about its own top centre, an MVP under a pair grows with it and steps down by what the
+   pair (33 units tall) gained, the 16-unit axis names scale about their top left, and "Text masters" moves below the
+   lowest MVP, the drawing growing to fit. As svg transforms from here, not CSS: Safari resolved container units
+   inside the svg against the wrong box (scale 7.7) and ignored transform-origin on text (2026-10-06). */
 (function () {
   var figs = document.querySelectorAll('svg.ds'); if (!figs.length) return;
+  function box(el) { return el._box || (el._box = el.getBBox()); }
+  function place(el, ox, oy, s, dy) {
+    if (s === 1 && !dy) el.removeAttribute('transform');
+    else el.setAttribute('transform', 'translate(' + ox.toFixed(2) + ' ' + (oy + dy).toFixed(2) + ') scale(' + s.toFixed(4) + ') translate(' + (-ox).toFixed(2) + ' ' + (-oy).toFixed(2) + ')');
+  }
   function fit() {
     figs.forEach(function (svg) {
       var w = svg.getBoundingClientRect().width; if (!w) return;
-      var s = Math.max(1, 10 * 800 / 13 / w);
+      var vb = svg._vb || (svg._vb = svg.getAttribute('viewBox').split(/\s+/).map(Number));
+      var s = Math.max(1, 10 * 800 / 13 / w), sa = Math.max(1, 10 * 800 / 16 / w), low = 0;
       svg.querySelectorAll('.ds-grid, .ds-mvp').forEach(function (el) {
-        var b = el._box || (el._box = el.getBBox()), cx = b.x + b.width / 2, dy = el.classList.contains('ds-mvp') ? (s - 1) * 33 : 0;
-        if (s === 1) el.removeAttribute('transform');
-        else el.setAttribute('transform', 'translate(' + cx.toFixed(2) + ' ' + (b.y + dy).toFixed(2) + ') scale(' + s.toFixed(4) + ') translate(' + (-cx).toFixed(2) + ' ' + (-b.y).toFixed(2) + ')');
+        var b = box(el), mvp = el.classList.contains('ds-mvp'), dy = mvp ? (s - 1) * 33 : 0;
+        place(el, b.x + b.width / 2, b.y, s, dy);
+        low = Math.max(low, b.y + dy + b.height * s);
       });
+      var ax = svg.querySelectorAll('.ds-ax text'), h = vb[3];
+      ax.forEach(function (el, i) {
+        var b = box(el), dy = i === ax.length - 1 ? Math.max(0, low + 12 - b.y) : 0;
+        place(el, b.x, b.y, sa, dy);
+        h = Math.max(h, b.y + dy + b.height * sa + 8 - vb[1]);
+      });
+      svg.setAttribute('viewBox', vb[0] + ' ' + vb[1] + ' ' + vb[2] + ' ' + h.toFixed(1));
     });
   }
   fit();
-  if (document.fonts && document.fonts.ready) document.fonts.ready.then(function () { figs.forEach(function (svg) { svg.querySelectorAll('.ds-grid, .ds-mvp').forEach(function (el) { el._box = null; }); }); fit(); });
+  if (document.fonts && document.fonts.ready) document.fonts.ready.then(function () { figs.forEach(function (svg) { svg.querySelectorAll('.ds-grid, .ds-mvp, .ds-ax text').forEach(function (el) { el._box = null; }); }); fit(); });
   if ('ResizeObserver' in window) { var ro = new ResizeObserver(fit); figs.forEach(function (svg) { ro.observe(svg); }); }
 })();
