@@ -209,10 +209,17 @@
          pull comes up while a finger is on the cube and goes the moment it lifts (touchUntil); at rest the cube is
          calm, no rings lit and no corners pulled (2026-10-06: all of it lit at once read as noise on a phone). */
       var fine = !(window.matchMedia && window.matchMedia('(pointer: coarse)').matches), mouse = null, inf = vms.map(function () { return 0; }), touchUntil = 0;
-      /* and a tap stands in for the mouse: tap a virtual master and it moves the whole family it ties to, as
-         hovering it does on a desktop, until a tap lands somewhere else (a tap on nothing lets go) */
+      /* and a touch stands in for the mouse: touch a virtual master and it is picked at once, moving the whole family
+         it ties to as hovering it does on a desktop; touch it again, or tap nothing, and it lets go */
       var tapped = false, tapDown = null, tapIdx = -1;
       function letGo() { tapped = false; tapIdx = -1; mouse = null; inf.forEach(function (v, i) { inf[i] = 0; }); }
+      /* which virtual master a touch lands on: inside the ring around its label (the GEOM master's reach spans most
+         of the stage), and the point in stage coordinates */
+      function hitAt(cx, cy) {
+        var r = stage.getBoundingClientRect(), p = { x: cx - r.left, y: cy - r.top }, hit = -1;
+        vms.forEach(function (a, i) { var ar = a.getBoundingClientRect(), rIn = parseFloat(a.style.getPropertyValue('--ring-in')) || 50; if (hit < 0 && Math.hypot(p.x - (ar.left + ar.width / 2 - r.left), p.y - (ar.top + ar.height / 2 - r.top)) < rIn) hit = i; });
+        return { i: hit, p: p };
+      }
       /* a tap anywhere off the cube lets go too */
       document.addEventListener('pointerdown', function (e) { if (tapped && e.pointerType !== 'mouse' && !stage.contains(e.target)) letGo(); }, { passive: true });
       var RING = 150;
@@ -264,7 +271,7 @@
           var ar = a.getBoundingClientRect(), ax = ar.left + ar.width / 2 - sr.left, ay = ar.top + ar.height / 2 - sr.top;   /* the rings' centre: the whole master */
           /* influence: on a mouse, how close the pointer has come; eased so it breathes rather than snaps */
           var md = mouse ? Math.hypot(mouse.x - ax, mouse.y - ay) : Infinity;
-          var want = !pull ? 0 : tapped ? Math.max(0, Math.min(1, 1 - md / reachOf[i])) : !fine ? (performance.now() < touchUntil ? 1 : 0) : mouse ? Math.max(0, Math.min(1, 1 - md / reachOf[i])) : 0;
+          var want = !pull ? 0 : tapped ? (i === tapIdx ? 1 : 0) : !fine ? (performance.now() < touchUntil ? 1 : 0) : mouse ? Math.max(0, Math.min(1, 1 - md / reachOf[i])) : 0;
           inf[i] += (want - inf[i]) * 0.15; if (Math.abs(want - inf[i]) < 0.002) inf[i] = want;
           a.style.setProperty('--inf', inf[i].toFixed(3));
           var best = null, bd = Infinity;
@@ -341,7 +348,13 @@
       /* hands */
       var ptrs = {};
       stage.addEventListener('pointerdown', function (e) {
-        if (e.pointerType !== 'mouse') { if (!tapped) touchUntil = Infinity; tapDown = { x: e.clientX, y: e.clientY, t: performance.now() }; }
+        if (e.pointerType !== 'mouse') {
+          /* a touch on a master picks it at once; a touch anywhere else holds (unless a master is picked) */
+          var h = hitAt(e.clientX, e.clientY);
+          tapDown = { x: e.clientX, y: e.clientY, t: performance.now(), hit: h.i, was: tapIdx };
+          if (h.i >= 0 && h.i !== tapIdx) { tapped = true; tapIdx = h.i; mouse = h.p; touchUntil = 0; inf.forEach(function (v, i) { if (i !== h.i) inf[i] = 0; }); }   /* one master at a time: the last one drops at once */
+          else if (h.i < 0 && !tapped) touchUntil = Infinity;
+        }
         ptrs[e.pointerId] = { x: e.clientX, y: e.clientY };
         var ids = Object.keys(ptrs);
         if (ids.length === 1) { drag = { x: e.clientX, y: e.clientY }; stage.classList.add('is-grabbing'); stage.setPointerCapture(e.pointerId); }
@@ -368,14 +381,9 @@
       });
       stage.addEventListener('pointerleave', function (e) { if (e.pointerType === 'mouse') mouse = null; });   /* a finger leaves on every lift */
       function up(e) {
+        /* a tap on nothing, or on the master already picked, lets go at once, as a lift does */
         if (e.pointerType !== 'mouse' && tapDown && Math.hypot(e.clientX - tapDown.x, e.clientY - tapDown.y) < 16 && performance.now() - tapDown.t < 500) {
-          var r = stage.getBoundingClientRect(), p = { x: e.clientX - r.left, y: e.clientY - r.top };
-          /* on a master: inside the ring around its label (the GEOM master's reach spans most of the stage) */
-          var hit = -1;
-          vms.forEach(function (a, i) { var ar = a.getBoundingClientRect(), rIn = parseFloat(a.style.getPropertyValue('--ring-in')) || 50; if (hit < 0 && Math.hypot(p.x - (ar.left + ar.width / 2 - r.left), p.y - (ar.top + ar.height / 2 - r.top)) < rIn) hit = i; });
-          touchUntil = 0;
-          /* a tap on nothing, or on the master already on, lets go at once, as a lift does */
-          if (hit < 0 || hit === tapIdx) letGo(); else { tapped = true; tapIdx = hit; mouse = p; }
+          if (tapDown.hit < 0 ? tapped : tapDown.hit === tapDown.was) letGo();
         }
         tapDown = null;
         delete ptrs[e.pointerId]; if (!Object.keys(ptrs).length) { drag = null; pinch = null; twist = null; stage.classList.remove('is-grabbing'); if (touchUntil === Infinity) { touchUntil = 0; if (!tapped) inf.forEach(function (v, i) { inf[i] = 0; }); } } }   /* a hold lets go the moment the finger lifts */
