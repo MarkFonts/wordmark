@@ -206,9 +206,12 @@
       var pull = true;
       /* with a mouse, a virtual master's influence is how near the pointer is to it, shown by the ring
          around it; the pull it exerts and its ties follow. Fingers can't hover, so on touch the geometric
-         pull comes up while a finger is on the cube and for a moment after (touchUntil); at rest the cube is
+         pull comes up while a finger is on the cube and goes the moment it lifts (touchUntil); at rest the cube is
          calm, no rings lit and no corners pulled (2026-10-06: all of it lit at once read as noise on a phone). */
       var fine = !(window.matchMedia && window.matchMedia('(pointer: coarse)').matches), mouse = null, inf = vms.map(function () { return 0; }), touchUntil = 0;
+      /* and a tap stands in for the mouse: tap a virtual master and it moves the whole family it ties to, as
+         hovering it does on a desktop, until a tap lands somewhere else (a tap on nothing lets go) */
+      var tapped = false, tapDown = null;
       var RING = 150;
       /* each master's ring: as large as the stage lets it be without touching an edge; the GEOM master's arc
          is the reach of its influence, 60% of the stage's width, and the stage crops it */
@@ -258,7 +261,7 @@
           var ar = a.getBoundingClientRect(), ax = ar.left + ar.width / 2 - sr.left, ay = ar.top + ar.height / 2 - sr.top;   /* the rings' centre: the whole master */
           /* influence: on a mouse, how close the pointer has come; eased so it breathes rather than snaps */
           var md = mouse ? Math.hypot(mouse.x - ax, mouse.y - ay) : Infinity;
-          var want = !pull ? 0 : !fine ? (performance.now() < touchUntil ? 1 : 0) : mouse ? Math.max(0, Math.min(1, 1 - md / reachOf[i])) : 0;
+          var want = !pull ? 0 : tapped ? Math.max(0, Math.min(1, 1 - md / reachOf[i])) : !fine ? (performance.now() < touchUntil ? 1 : 0) : mouse ? Math.max(0, Math.min(1, 1 - md / reachOf[i])) : 0;
           inf[i] += (want - inf[i]) * 0.15; if (Math.abs(want - inf[i]) < 0.002) inf[i] = want;
           a.style.setProperty('--inf', inf[i].toFixed(3));
           var best = null, bd = Infinity;
@@ -271,8 +274,10 @@
             if (d < bd) { bd = d; best = p; }
           });
           if (inf[i] <= 0) return;
+          /* holding pulls only the nearest corner, so only its tie lights; the rest stay at their resting strength */
+          if (!fine && !tapped) links[i].ties.forEach(function (t, n) { if (pts[links[i].idx[n]] !== best) t.style.opacity = (+t.style.opacity * 0.3 / (0.3 + 0.7 * inf[i])).toFixed(3); });
           var axis = a.dataset.axis, to = parseFloat(a.dataset.to);
-          if (fine) {
+          if (fine || tapped) {
             /* a virtual master moves the whole family it ties to, as it does in the file: every tied corner
                takes the influence, the near ones a little ahead of the far ones */
             var target = AX[axis] + (to - AX[axis]) * inf[i];
@@ -286,7 +291,8 @@
           } else {
             /* touch has no hover, so the geometry pulls: the nearest corner, full inside the near 40% of reach */
             var k = Math.max(0, Math.min(1, (reach - bd) / (reach * 0.6)));
-            best.add[axis] = AX[axis] + (to - AX[axis]) * k * k; if (axis === 'opsz') { best.micro = k * k; best.microOn = k * k >= 0.85; }
+            var kk = k * k * inf[i];
+            best.add[axis] = AX[axis] + (to - AX[axis]) * kk; if (axis === 'opsz') { best.micro = kk; best.microOn = kk >= 0.85; }
           }
         });
         pts.forEach(function (p, i) {
@@ -332,7 +338,7 @@
       /* hands */
       var ptrs = {};
       stage.addEventListener('pointerdown', function (e) {
-        if (e.pointerType !== 'mouse') touchUntil = Infinity;
+        if (e.pointerType !== 'mouse') { if (!tapped) touchUntil = Infinity; tapDown = { x: e.clientX, y: e.clientY, t: performance.now() }; }
         ptrs[e.pointerId] = { x: e.clientX, y: e.clientY };
         var ids = Object.keys(ptrs);
         if (ids.length === 1) { drag = { x: e.clientX, y: e.clientY }; stage.classList.add('is-grabbing'); stage.setPointerCapture(e.pointerId); }
@@ -357,8 +363,17 @@
           turn(e.clientX - drag.x, e.clientY - drag.y); drag = { x: e.clientX, y: e.clientY };
         }
       });
-      stage.addEventListener('pointerleave', function () { mouse = null; });
-      function up(e) { delete ptrs[e.pointerId]; if (!Object.keys(ptrs).length) { drag = null; pinch = null; twist = null; stage.classList.remove('is-grabbing'); if (touchUntil === Infinity) touchUntil = performance.now() + 1500; } }
+      stage.addEventListener('pointerleave', function (e) { if (e.pointerType === 'mouse') mouse = null; });   /* a finger leaves on every lift */
+      function up(e) {
+        if (e.pointerType !== 'mouse' && tapDown && Math.hypot(e.clientX - tapDown.x, e.clientY - tapDown.y) < 10 && performance.now() - tapDown.t < 400) {
+          var r = stage.getBoundingClientRect(), p = { x: e.clientX - r.left, y: e.clientY - r.top };
+          /* on a master: inside the ring around its label (the GEOM master's reach spans most of the stage) */
+          var on = vms.some(function (a) { var ar = a.getBoundingClientRect(), rIn = parseFloat(a.style.getPropertyValue('--ring-in')) || 50; return Math.hypot(p.x - (ar.left + ar.width / 2 - r.left), p.y - (ar.top + ar.height / 2 - r.top)) < rIn; });
+          tapped = on; mouse = on ? p : null; touchUntil = 0;
+          if (!on) inf.forEach(function (v, i) { inf[i] = 0; });   /* a tap on nothing lets go at once, as a lift does */
+        }
+        tapDown = null;
+        delete ptrs[e.pointerId]; if (!Object.keys(ptrs).length) { drag = null; pinch = null; twist = null; stage.classList.remove('is-grabbing'); if (touchUntil === Infinity) { touchUntil = 0; if (!tapped) inf.forEach(function (v, i) { inf[i] = 0; }); } } }   /* a hold lets go the moment the finger lifts */
       stage.addEventListener('pointerup', up); stage.addEventListener('pointercancel', up);
       stage.addEventListener('wheel', function (e) {
         if (!e.ctrlKey && Math.abs(e.deltaY) < 1) return;
