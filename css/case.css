@@ -750,6 +750,7 @@ a.code:hover .where { color: var(--signal); }
 .demo-switches { display: flex; flex-wrap: wrap; align-items: flex-start; gap: 12px 27px; }
 .demo-foot:has(.demo-switches) { flex-wrap: wrap; row-gap: 12px; }   /* the status span drops under the switches when the row runs out */
 .demo-foot:has(.demo-switches) > span:last-child { white-space: nowrap; margin-left: auto; }
+.demo-read { font-feature-settings: 'tnum' 1; font-variant-numeric: tabular-nums; }   /* the readout holds its width as the switches change it */
 .demo-switches .switch { align-items: flex-start; text-align: left; }   /* a wrapped label keeps its track level with the first line */
 .demo-switches .switch-track { flex: none; margin-top: 2px; }
 .demo-foot .ax { flex: 1; max-width: 360px; grid-template-columns: auto 1fr 2.4em; }
