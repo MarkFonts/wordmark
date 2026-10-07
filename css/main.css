@@ -377,7 +377,7 @@ body {
      baseline offset at 16/24 (12 + 0.3275 x 16 = 17.24); the headline's n lines and its lead
      cancel, so it holds for a headline of any length. Rounded down, so the line nudge
      finishes it downward. */
-  .para { margin-top: round(down, calc(var(--fig-first) - var(--hl-mt) - 17.24px), var(--bl)); }
+  .para { margin-top: round(down, calc(var(--fig-first) - var(--hl-mt) - 17.24px + var(--para-extra, 0px)), var(--bl)); }
 }
 @media (min-width: 681px) and (max-width: 1023px) { .work-item { --cap: 3; } }
 /* Phone: the headline's gap as it was (27 below it), now carried by the body's margin since
@@ -397,7 +397,9 @@ body {
      1024-1151   33/36 + caption 12/18, rule 18
    Each step starts at the width where every row's headline first keeps its lines
    (3/6/3/3; at 1024 the copy is 277.5px and 39 would put "Brands" alone on line 1).
-   681-1023 (12 columns) stays fluid on the 3px line, caption 12/24; a phone keeps 22/24.
+   681-1023  28/30 (title lead) + caption 12/15 (ui), rule 15 -- the headline's lead is twice the
+             caption's here too; the body's margin takes two more lines (--para-extra) so its
+             x-height keeps a step of white under a 30 lead. A phone keeps 22/24.
    "Marks we've made." takes the same sizes at 700. Set on <main> so both can read them. */
 .wm-lines {
   --hl-fs: clamp(22px, calc(7px + 2.64vw), 45px);
@@ -407,6 +409,11 @@ body {
 @media (min-width: 1024px) { .wm-lines { --hl-fs: 33px; --hl-lh: 36px; --cap-lh: 18px; --fig-first: 85px; } }
 @media (min-width: 1152px) { .wm-lines { --hl-fs: 39px; --hl-lh: 42px; --cap-lh: 21px; --fig-first: 85px; } }
 @media (min-width: 1312px) { .wm-lines { --hl-fs: 45px; --hl-lh: 48px; --cap-lh: 24px; --fig-first: 88px; } }
+/* 681-1023, the fourth step: the headline at the title role (28px on its lead 30), the caption at
+   ui (12 on 15), so the headline's lines are the caption's every second line. Its leads are the
+   roles' --lead-* tokens (grid.css). --fig-first is the caption's first baseline measured below
+   the row's top at 12/15; --para-extra is the two lines of white the 30 lead needs for the safe area under it (the body's x-height one step, 24, from the headline's last baseline). */
+@media (min-width: 681px) and (max-width: 1023px) { .wm-lines { --hl-fs: 28px; --hl-lh: var(--lead-title); --cap-lh: var(--lead-ui); --fig-first: 82px; --para-extra: 6px; } }
 .work-headline {
   font-family: 'CalSans', sans-serif;
   font-weight: 600;
@@ -419,6 +426,7 @@ body {
 }
 
 /* The steps' leads as N x 3px (the lint reads these; --hl-lh / --cap-lh above still carry the offsets). */
+@media (min-width: 681px) and (max-width: 1023px) { .work-headline { --lh: var(--lead-title); } }
 @media (min-width: 1024px) { .work-headline { --lh: 36px; } }
 @media (min-width: 1152px) { .work-headline { --lh: 42px; } }
 @media (min-width: 1312px) { .work-headline { --lh: 48px; } }
@@ -648,6 +656,7 @@ body {
   transition: opacity 0.7s ease 1s,
               transform 0.7s cubic-bezier(0.22, 1, 0.36, 1) 1s;
 }
+@media (min-width: 681px) and (max-width: 1023px) { .fig-text { --lh: var(--lead-ui); } }
 @media (min-width: 1024px) { .fig-text { --lh: 18px; } }
 @media (min-width: 1152px) { .fig-text { --lh: 21px; } }
 @media (min-width: 1312px) { .fig-text { --lh: 24px; } }
@@ -777,6 +786,7 @@ body {
 /* The page's other header takes the work headlines' sizes and steps (--hl-fs, above) at 700
    from 681 (Mark, 2026-10-06). */
 @media (min-width: 681px) { .logos-headline { font-size: var(--hl-fs); --lh: round(nearest, 1.0667em, var(--bl)); } }
+@media (min-width: 681px) and (max-width: 1023px) { .logos-headline { --lh: var(--lead-title); } }
 @media (min-width: 1024px) { .logos-headline { --lh: 36px; } }
 @media (min-width: 1152px) { .logos-headline { --lh: 42px; } }
 @media (min-width: 1312px) { .logos-headline { --lh: 48px; } }
@@ -1006,7 +1016,7 @@ footer {
 /* ═══ MOBILE ════════════════════════════════════════════
    At ≤680px:
    • Canvas words reflow to 2-col × 4-row (WO/RD/MA/RK)
-     via CONFIG override applied in JS
+     via CON82 override applied in JS
    • Work items collapse to single column, caption+rule above image
    • Images become static (position:sticky needs overflow
      parent; single-col flow breaks that contract)
