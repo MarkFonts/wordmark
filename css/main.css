@@ -412,11 +412,16 @@ body {
   font-weight: 600;
   font-variation-settings: 'opsz' 45, 'wght' 600, 'GEOM' 50;
   font-size: var(--hl-fs);
-  --lh: var(--hl-lh); line-height: var(--lh);
+  --lh: round(nearest, 1.0667em, var(--bl)); line-height: var(--lh);   /* = --hl-lh: fluid below 1024, the step's N x 3px (just below) from there */
   color: var(--text);
   margin-bottom: 0;
   text-wrap: balance;
 }
+
+/* The steps' leads as N x 3px (the lint reads these; --hl-lh / --cap-lh above still carry the offsets). */
+@media (min-width: 1024px) { .work-headline { --lh: 36px; } }
+@media (min-width: 1152px) { .work-headline { --lh: 42px; } }
+@media (min-width: 1312px) { .work-headline { --lh: 48px; } }
 
 .para {
   font-variation-settings: 'wght' 400;
@@ -635,7 +640,7 @@ body {
   font-family: 'CalSans', sans-serif;
   font-variation-settings: 'wght' 400;
   font-size: 12px;
-  --lh: var(--cap-lh, 24px); line-height: var(--lh);   /* 12 on the caption's step (18/21/24); phone 10/18, below */
+  --lh: 24px; line-height: var(--lh);   /* 12 on the caption's step (18/21/24, set below); phone 10/18, below */
   color: var(--text-muted);
   font-weight: 400;
   opacity: 0;
@@ -643,6 +648,9 @@ body {
   transition: opacity 0.7s ease 1s,
               transform 0.7s cubic-bezier(0.22, 1, 0.36, 1) 1s;
 }
+@media (min-width: 1024px) { .fig-text { --lh: 18px; } }
+@media (min-width: 1152px) { .fig-text { --lh: 21px; } }
+@media (min-width: 1312px) { .fig-text { --lh: 24px; } }
 .work-fig.visible .fig-text { opacity: 1; transform: translateX(0); }
 .fig-text a { color: var(--text-muted); text-decoration: underline; text-underline-offset: 3px; }
 
@@ -768,7 +776,10 @@ body {
 }
 /* The page's other header takes the work headlines' sizes and steps (--hl-fs, above) at 700
    from 681 (Mark, 2026-10-06). */
-@media (min-width: 681px) { .logos-headline { font-size: var(--hl-fs); --lh: var(--hl-lh); } }
+@media (min-width: 681px) { .logos-headline { font-size: var(--hl-fs); --lh: round(nearest, 1.0667em, var(--bl)); } }
+@media (min-width: 1024px) { .logos-headline { --lh: 36px; } }
+@media (min-width: 1152px) { .logos-headline { --lh: 42px; } }
+@media (min-width: 1312px) { .logos-headline { --lh: 48px; } }
 .track-wrap { overflow: hidden; width: 100%; cursor: grab; }
 .track-wrap:active { cursor: grabbing; }
 .track {
