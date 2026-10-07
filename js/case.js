@@ -454,6 +454,13 @@
       var on = sw.getAttribute('aria-checked') !== 'true';
       sw.setAttribute('aria-checked', on);
       target.classList.toggle(sw.dataset.class || 'is-on', on);
+      /* the readout at the right of the foot, if the demo has one: the axis values the switches set */
+      var read = document.getElementById(target.id + '-read');
+      if (read) {
+        var g = read.querySelector('[data-axis="geom"]'), s = read.querySelector('[data-axis="shrp"]');
+        if (g) g.textContent = target.classList.contains('is-on') ? '100' : '25';
+        if (s) s.textContent = target.classList.contains('is-shrp') ? '100' : '0';
+      }
     });
   });
 })();
