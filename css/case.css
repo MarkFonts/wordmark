@@ -636,10 +636,11 @@ a.code:hover .where { color: var(--signal); }
 /* Cal Sans Flex: the switch slides GEOM 25 to 100 linearly; Flex interpolates the alternates */
 .d-futura {
   font-family: 'CalSansFlex', 'CalSans', sans-serif;
-  font-variation-settings: 'wght' 600, 'GEOM' 25;
+  font-variation-settings: 'wght' 600, 'GEOM' 25, 'SHRP' var(--shrp, 0);
   transition: font-variation-settings 1.2s linear;
 }
-.d-futura.is-on { font-variation-settings: 'wght' 600, 'GEOM' 100; }
+.d-futura.is-on { font-variation-settings: 'wght' 600, 'GEOM' 100, 'SHRP' var(--shrp, 0); }
+.d-futura.is-shrp { --shrp: 100; }   /* the SHRP 100 switch: composes with the Futura one */
 @media (prefers-reduced-motion: reduce) { .d-futura { transition: none; } }
 /* hello in 103 languages: three rows running at their own pace, the middle one the other way, with
    each row's list doubled so the loop is seamless; hover holds a row. Rows run to the box edges and
@@ -746,6 +747,7 @@ a.code:hover .where { color: var(--signal); }
   border-radius: 8px;
   background: var(--surface-hi);
 }
+.demo-switches { display: flex; flex-wrap: wrap; align-items: center; gap: 12px 27px; }
 .demo-foot .ax { flex: 1; max-width: 360px; grid-template-columns: auto 1fr 2.4em; }
 
 /* ═══ NUMBERS ═══════════════════════════════════════════ */
