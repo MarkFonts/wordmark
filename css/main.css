@@ -363,32 +363,58 @@ body {
   .work-item > .work-copy { --start: 1; --span: var(--copy); --start-md: 1; --span-md: 5; }
   .work-item > .work-fig  { --start: 10; --span: var(--fig); --start-md: 6; --span-md: 7; }
   .work-copy { padding-bottom: round(nearest, clamp(72px, 10vw, 140px), var(--bl)); }
-  /* The headline sits so its first baseline is a little above the caption's (0.87em is
-     its half-leading plus ascent at 1.08, --fig-first is the caption's); gridSnap's row
-     rule then brings it down the last few px onto the caption's line. */
-  .work-headline { margin-top: round(down, calc(var(--fig-first) - 0.87em), var(--bl)); }
+  /* The headline sits so its first baseline is a little above the caption's: its baseline
+     is its half-leading plus ascent, (lead - 1.145em) / 2 + 0.9em = lead / 2 + 0.3275em
+     (Cal Sans hhea .9 / .245), and --fig-first is the caption's. The 1px keeps it ABOVE
+     when the sum lands on the line exactly (at 700 the browser's whole-px ascent put it a
+     hair below, its nudge took it to the next line and the row pulled the caption down 3);
+     gridSnap's row rule brings it down the last px onto the caption's line. */
+  .work-copy { --hl-mt: round(down, calc(var(--fig-first) - var(--hl-lh) / 2 - 0.3275 * var(--hl-fs) - 1px), var(--bl)); }
+  .work-headline { margin-top: var(--hl-mt); }
+  /* The body's first baseline is two caption lines (48) below the headline's last: the
+     headline's lead is 48 = 2 x 24, so that is the next caption line its natural gap
+     (26px) allows, and it stays on the 24 lines the row shares. The margin is that 48 less
+     what the headline box has below its last baseline and the body's own baseline offset
+     (12 + 0.3275 x 16 = 17.24); with the headline's box top (--hl-mt) the n lines cancel, so
+     it is the same for a headline of any length. Rounded down, so the line nudge finishes
+     it downward. */
+  .para { margin-top: round(down, calc(var(--fig-first) + 48px - var(--hl-mt) - var(--hl-lh) - 17.24px), var(--bl)); }
 }
 @media (min-width: 681px) and (max-width: 1023px) { .work-item { --cap: 3; } }
+/* Phone: the headline's gap as it was (27 below it), now carried by the body's margin since
+   the headline's own margin-bottom is 0. */
+@media (max-width: 680px) { .para { margin-top: 27px; } }
 @media (min-width: 681px) and (max-width: 767px) {
   .work-item > .work-copy, .closing > .portrait-track, .closing > footer { --span-md: 6; }
   .work-item > .work-fig { --start-md: 7; --span-md: 6; }
 }
 
+/* THE WORK ROWS' TYPE (Mark, 2026-10-06, from the captions45 study): headline 45/48 at 600
+   (the display size, semibold), body 16/24 (the body token), caption 12/24 at 400 (the UI
+   size set on the caption's 24). The headline's lead is twice the caption's, so its lines
+   land on caption lines 1, 3, 5. Size: 45 from 1440 down to ~1386 (lead 48 there), 34 at
+   1024, where the 24-column copy is 277.5px and a larger size balances "Brands" alone onto
+   line 1; 22 (today's) on a phone. The lead is 48/45 of the size on the 3px line: 48 at
+   45, 36 at 34, 24 at 22. Set on the row so the body's margin can read them. */
+.work-copy {
+  --hl-fs: clamp(22px, calc(7px + 2.64vw), 45px);
+  --hl-lh: round(nearest, calc(var(--hl-fs) * 1.0667), var(--bl));
+}
 .work-headline {
   font-family: 'CalSans', sans-serif;
-  font-weight: 700;
-  font-variation-settings: 'opsz' 45, 'wght' 700, 'GEOM' 50;
-  font-size: clamp(22px, 2.8vw, 36px);
-  --lh: round(nearest, 1.08em, var(--bl)); line-height: var(--lh);
+  font-weight: 600;
+  font-variation-settings: 'opsz' 45, 'wght' 600, 'GEOM' 50;
+  font-size: var(--hl-fs);
+  --lh: var(--hl-lh); line-height: var(--lh);
   color: var(--text);
-  margin-bottom: 27px;
+  margin-bottom: 0;
   text-wrap: balance;
 }
 
 .para {
   font-variation-settings: 'wght' 400;
-  font-size: 15px;
-  --lh: round(nearest, 1.72em, var(--bl)); line-height: var(--lh);   /* 27, nine units */
+  font-size: 16px;
+  --lh: 24px; line-height: var(--lh);   /* the body token, 16/24 */
   color: var(--text-muted);
   hyphens: auto;
   -webkit-hyphens: auto;
@@ -447,8 +473,9 @@ body {
      starts where the copy's does and the two are one row) */
   --fig-pad: 15px;
   /* where the caption's first baseline lands below the row's top on desktop: 15 + 42 + 12,
-     then half-leading 4 + ascent 13 at 14/24, then the nudge onto the line -- 88, give or
-     take a unit with the row's own position. The headline is set against this. */
+     then half-leading 5 + ascent 11 at 12/24, then the nudge onto the line -- 88 (measured), give or
+     take a unit with the row's own position. The headline, the body and the caption's rule
+     are all set against this. */
   --fig-first: 88px;
 }
 
@@ -524,7 +551,7 @@ body {
     order: 0;
   }
 
-  .fig-text { order: 0; font-size: 14px; }
+  .fig-text { order: 0; }
 
   .fig-header {
     display: block;           /* spacer — empty div, just provides margin-bottom */
@@ -577,14 +604,17 @@ body {
 .work-fig.visible .fig-rule { transform: scaleY(1); }
 
 @media (min-width: 681px) {
-  /* shape shifts down 5px on desktop — override must come after the base .work-shape rule */
-  .work-shape { top: calc(var(--fig-shape-inset) + 12px); }
+  /* The rule and its dot sit ONE CAPTION LINE above the row's first baseline: the rule's
+     1px top edge at --fig-first - 24, the dot centred on it (Mark, 2026-10-06; it was 36
+     above). .work-img starts --fig-pad below the row, so that is its own top. */
+  .work-img { --rule-y: calc(var(--fig-first) - 24px - var(--fig-pad)); }
+  .work-shape { top: calc(var(--rule-y) + 0.5px - var(--fig-shape-size) / 2); }
 
   /* desktop: horizontal rule — reuses fig-rule, now horizontal, extending left from shape.
      figcaption flex:1 and work-img flex:4 → figcaption = 25% of work-img width.
      overflow:visible on work-img lets the rule escape leftward into the figcaption column. */
   .fig-rule {
-    top: calc(var(--fig-shape-inset) + var(--fig-shape-size) / 2 - 0.5px + 12px);
+    top: var(--rule-y);
     left: calc(-1 * var(--cap-w));   /* across the caption's columns to the dot */
     width: calc(var(--cap-w) + var(--fig-shape-inset) + var(--fig-shape-size) / 2);
     height: 1px;
@@ -597,8 +627,8 @@ body {
 .fig-text {
   font-family: 'CalSans', sans-serif;
   font-variation-settings: 'wght' 400;
-  font-size: 14px;
-  --lh: round(nearest, 1.65em, var(--bl)); line-height: var(--lh);   /* 24 at 14, 15 at 10 */
+  font-size: 12px;
+  --lh: 24px; line-height: var(--lh);   /* 12/24: the UI size set on the caption's 24 (phone: 10/18, below) */
   color: var(--text-muted);
   font-weight: 400;
   opacity: 0;
@@ -726,9 +756,12 @@ body {
   font-weight: 700;
   font-variation-settings: 'opsz' 45, 'wght' 700, 'GEOM' 50;
   font-size: clamp(20px, 2.6vw, 32px);
-  --lh: round(nearest, 1.15em, var(--bl)); line-height: var(--lh);   /* about what normal was, on the unit */
+  --lh: round(nearest, 1.15em, var(--bl)); line-height: var(--lh);   /* phone: 20/24, as it was */
   color: var(--text);
 }
+/* The page's headers are 45/48 at 700 from 681 (Mark, 2026-10-06), the work rows' size at
+   the logo's weight. */
+@media (min-width: 681px) { .logos-headline { font-size: 45px; --lh: 48px; } }
 .track-wrap { overflow: hidden; width: 100%; cursor: grab; }
 .track-wrap:active { cursor: grabbing; }
 .track {
@@ -966,7 +999,7 @@ footer {
   #contact-link { padding-left: 0; }
   .work-img { width: 100%; order: 1; }  /* caption+rule above, image below */
   .work-figcaption { order: -1; }       /* ensure caption is above image */
-  .fig-text { font-size: 10px; }
+  .fig-text { font-size: 10px; --lh: round(nearest, 1.65em, var(--bl)); }   /* the phone's caption as it was: 10/18 */
   .work-copy { padding-bottom: round(nearest, clamp(48px, 8vw, 80px), var(--bl)); }
   .footer-links a:last-child { text-align: left; }
   #logos { padding-top: 57px; }
