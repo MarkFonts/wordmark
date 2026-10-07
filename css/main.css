@@ -371,14 +371,13 @@ body {
      gridSnap's row rule brings it down the last px onto the caption's line. */
   .work-copy { --hl-mt: round(down, calc(var(--fig-first) - var(--hl-lh) / 2 - 0.3275 * var(--hl-fs) - 1px), var(--bl)); }
   .work-headline { margin-top: var(--hl-mt); }
-  /* The body's first baseline is two caption lines (48) below the headline's last: the
-     headline's lead is 48 = 2 x 24, so that is the next caption line its natural gap
-     (26px) allows, and it stays on the 24 lines the row shares. The margin is that 48 less
-     what the headline box has below its last baseline and the body's own baseline offset
-     (12 + 0.3275 x 16 = 17.24); with the headline's box top (--hl-mt) the n lines cancel, so
-     it is the same for a headline of any length. Rounded down, so the line nudge finishes
-     it downward. */
-  .para { margin-top: round(down, calc(var(--fig-first) + 48px - var(--hl-mt) - var(--hl-lh) - 17.24px), var(--bl)); }
+  /* The body's first baseline is one headline lead below the headline's last: two caption
+     lines at every step, the next caption line its natural gap allows. The margin is the
+     caption's first baseline less the headline's box top (--hl-mt) and the body's own
+     baseline offset at 16/24 (12 + 0.3275 x 16 = 17.24); the headline's n lines and its lead
+     cancel, so it holds for a headline of any length. Rounded down, so the line nudge
+     finishes it downward. */
+  .para { margin-top: round(down, calc(var(--fig-first) - var(--hl-mt) - 17.24px), var(--bl)); }
 }
 @media (min-width: 681px) and (max-width: 1023px) { .work-item { --cap: 3; } }
 /* Phone: the headline's gap as it was (27 below it), now carried by the body's margin since
@@ -389,17 +388,25 @@ body {
   .work-item > .work-fig { --start-md: 7; --span-md: 6; }
 }
 
-/* THE WORK ROWS' TYPE (Mark, 2026-10-06, from the captions45 study): headline 45/48 at 600
-   (the display size, semibold), body 16/24 (the body token), caption 12/24 at 400 (the UI
-   size set on the caption's 24). The headline's lead is twice the caption's, so its lines
-   land on caption lines 1, 3, 5. Size: 45 from 1440 down to ~1386 (lead 48 there), 34 at
-   1024, where the 24-column copy is 277.5px and a larger size balances "Brands" alone onto
-   line 1; 22 (today's) on a phone. The lead is 48/45 of the size on the 3px line: 48 at
-   45, 36 at 34, 24 at 22. Set on the row so the body's margin can read them. */
-.work-copy {
+/* THE HEADERS' TYPE (Mark, 2026-10-06, from the captions45 study). Work rows: headline at
+   600, body 16/24 (the body token), caption 12 at 400. The headline's lead is twice the
+   caption's, so its lines land on caption lines 1, 3, 5 -- and the headline STEPS with the
+   column, the caption's lead stepping with it, rather than sizing fluidly:
+     1312 up     45/48 + caption 12/24, rule 24 above the first baseline
+     1152-1311   39/42 + caption 12/21, rule 21
+     1024-1151   33/36 + caption 12/18, rule 18
+   Each step starts at the width where every row's headline first keeps its lines
+   (3/6/3/3; at 1024 the copy is 277.5px and 39 would put "Brands" alone on line 1).
+   681-1023 (12 columns) stays fluid on the 3px line, caption 12/24; a phone keeps 22/24.
+   "Marks we've made." takes the same sizes at 700. Set on <main> so both can read them. */
+.wm-lines {
   --hl-fs: clamp(22px, calc(7px + 2.64vw), 45px);
   --hl-lh: round(nearest, calc(var(--hl-fs) * 1.0667), var(--bl));
+  --cap-lh: 24px;
 }
+@media (min-width: 1024px) { .wm-lines { --hl-fs: 33px; --hl-lh: 36px; --cap-lh: 18px; --fig-first: 85px; } }
+@media (min-width: 1152px) { .wm-lines { --hl-fs: 39px; --hl-lh: 42px; --cap-lh: 21px; --fig-first: 85px; } }
+@media (min-width: 1312px) { .wm-lines { --hl-fs: 45px; --hl-lh: 48px; --cap-lh: 24px; --fig-first: 88px; } }
 .work-headline {
   font-family: 'CalSans', sans-serif;
   font-weight: 600;
@@ -473,7 +480,7 @@ body {
      starts where the copy's does and the two are one row) */
   --fig-pad: 15px;
   /* where the caption's first baseline lands below the row's top on desktop: 15 + 42 + 12,
-     then half-leading 5 + ascent 11 at 12/24, then the nudge onto the line -- 88 (measured), give or
+     then half-leading 5 + ascent 11 at 12/24, then the nudge onto the line -- 88 (measured; 85 at the 12/21 and 12/18 steps, set there), give or
      take a unit with the row's own position. The headline, the body and the caption's rule
      are all set against this. */
   --fig-first: 88px;
@@ -605,9 +612,9 @@ body {
 
 @media (min-width: 681px) {
   /* The rule and its dot sit ONE CAPTION LINE above the row's first baseline: the rule's
-     1px top edge at --fig-first - 24, the dot centred on it (Mark, 2026-10-06; it was 36
-     above). .work-img starts --fig-pad below the row, so that is its own top. */
-  .work-img { --rule-y: calc(var(--fig-first) - 24px - var(--fig-pad)); }
+     1px top edge at --fig-first - --cap-lh (24, 21 or 18 with the step), the dot centred on
+     it (Mark, 2026-10-06; it was 36 above). .work-img starts --fig-pad below the row, so that is its own top. */
+  .work-img { --rule-y: calc(var(--fig-first) - var(--cap-lh) - var(--fig-pad)); }
   .work-shape { top: calc(var(--rule-y) + 0.5px - var(--fig-shape-size) / 2); }
 
   /* desktop: horizontal rule — reuses fig-rule, now horizontal, extending left from shape.
@@ -628,7 +635,7 @@ body {
   font-family: 'CalSans', sans-serif;
   font-variation-settings: 'wght' 400;
   font-size: 12px;
-  --lh: 24px; line-height: var(--lh);   /* 12/24: the UI size set on the caption's 24 (phone: 10/18, below) */
+  --lh: var(--cap-lh, 24px); line-height: var(--lh);   /* 12 on the caption's step (18/21/24); phone 10/18, below */
   color: var(--text-muted);
   font-weight: 400;
   opacity: 0;
@@ -759,9 +766,9 @@ body {
   --lh: round(nearest, 1.15em, var(--bl)); line-height: var(--lh);   /* phone: 20/24, as it was */
   color: var(--text);
 }
-/* The page's headers are 45/48 at 700 from 681 (Mark, 2026-10-06), the work rows' size at
-   the logo's weight. */
-@media (min-width: 681px) { .logos-headline { font-size: 45px; --lh: 48px; } }
+/* The page's other header takes the work headlines' sizes and steps (--hl-fs, above) at 700
+   from 681 (Mark, 2026-10-06). */
+@media (min-width: 681px) { .logos-headline { font-size: var(--hl-fs); --lh: var(--hl-lh); } }
 .track-wrap { overflow: hidden; width: 100%; cursor: grab; }
 .track-wrap:active { cursor: grabbing; }
 .track {
