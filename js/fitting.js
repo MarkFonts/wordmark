@@ -44,6 +44,9 @@ function refit() {
   if (!width || width === lastWidth) return
   lastWidth = width
   paras.forEach(fit)
+  // The rows it just wrote are new text blocks: let gridSnap measure them now rather than
+  // wait for a resize that a same-height refit never causes.
+  window.wmGridSnap?.()
 }
 
 // Measuring before the face loads fits the fallback and never re-fits.
