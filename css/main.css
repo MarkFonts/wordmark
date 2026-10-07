@@ -397,8 +397,8 @@ body {
      1024-1151   33/36 + caption 12/18, rule 18
    Each step starts at the width where every row's headline first keeps its lines
    (3/6/3/3; at 1024 the copy is 277.5px and 39 would put "Brands" alone on line 1).
-   681-1023  26/30 (title) + caption 12/15 (ui), rule 15 -- the headline's lead is twice the
-             caption's here too; the body's margin takes one more line (--para-extra) so its
+   681-1023  28/30 (title lead) + caption 12/15 (ui), rule 15 -- the headline's lead is twice the
+             caption's here too; the body's margin takes two more lines (--para-extra) so its
              x-height keeps a step of white under a 30 lead. A phone keeps 22/24.
    "Marks we've made." takes the same sizes at 700. Set on <main> so both can read them. */
 .wm-lines {
@@ -409,11 +409,11 @@ body {
 @media (min-width: 1024px) { .wm-lines { --hl-fs: 33px; --hl-lh: 36px; --cap-lh: 18px; --fig-first: 85px; } }
 @media (min-width: 1152px) { .wm-lines { --hl-fs: 39px; --hl-lh: 42px; --cap-lh: 21px; --fig-first: 85px; } }
 @media (min-width: 1312px) { .wm-lines { --hl-fs: 45px; --hl-lh: 48px; --cap-lh: 24px; --fig-first: 88px; } }
-/* 681-1023, the fourth step: the headline at the title role (26px on its lead 30), the caption at
+/* 681-1023, the fourth step: the headline at the title role (28px on its lead 30), the caption at
    ui (12 on 15), so the headline's lines are the caption's every second line. Its leads are the
    roles' --lead-* tokens (grid.css). --fig-first is the caption's first baseline measured below
-   the row's top at 12/15; --para-extra is the one line of white the 30 lead needs for the safe area under it (the body's x-height one step, 24, from the headline's last baseline). */
-@media (min-width: 681px) and (max-width: 1023px) { .wm-lines { --hl-fs: 26px; --hl-lh: var(--lead-title); --cap-lh: var(--lead-ui); --fig-first: 85px; --para-extra: 3px; } }
+   the row's top at 12/15; --para-extra is the two lines of white the 30 lead needs for the safe area under it (the body's x-height one step, 24, from the headline's last baseline). */
+@media (min-width: 681px) and (max-width: 1023px) { .wm-lines { --hl-fs: 28px; --hl-lh: var(--lead-title); --cap-lh: var(--lead-ui); --fig-first: 82px; --para-extra: 6px; } }
 .work-headline {
   font-family: 'CalSans', sans-serif;
   font-weight: 600;
@@ -1016,7 +1016,7 @@ footer {
 /* ═══ MOBILE ════════════════════════════════════════════
    At ≤680px:
    • Canvas words reflow to 2-col × 4-row (WO/RD/MA/RK)
-     via CON85 override applied in JS
+     via CON82 override applied in JS
    • Work items collapse to single column, caption+rule above image
    • Images become static (position:sticky needs overflow
      parent; single-col flow breaks that contract)
