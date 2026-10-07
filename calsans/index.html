@@ -36,7 +36,7 @@
 <link rel="stylesheet" href="../shared/src/grid.css">
 <link rel="stylesheet" href="../shared/src/dialHandle.css">
 <link rel="stylesheet" href="../shared/src/chip.css">
-<link rel="stylesheet" href="../css/case.css?v=110">
+<link rel="stylesheet" href="../css/case.css?v=115">
 </head>
 <body>
 
@@ -319,15 +319,15 @@
         <div class="look-body"><p>Twenty stylistic sets and 42 character variants, with Futura alternates and historical ligatures one setting away. Room to pivot later.</p></div>
       </div>
       <div class="look-demo" data-nosnap>
-        <div class="d-big d-futura" id="d-futura" data-feat="geom" aria-hidden="true">First contact,<br>circa 1927</div>
-        <div class="demo-foot"><button type="button" class="switch" role="switch" aria-checked="false" data-target="d-futura"><span class="switch-track"></span>Futura alternates and ligatures</button><span>Cal Sans Flex &middot; GEOM 25&ndash;100</span></div>
+        <div class="d-big d-futura" id="d-futura" data-feat="geom" aria-hidden="true">Das Staatliche Bauhaus in Weimar</div>
+        <div class="demo-foot"><span class="demo-switches"><button type="button" class="switch" role="switch" aria-checked="false" data-target="d-futura"><span class="switch-track"></span>Futura letterforms &rarr; GEOM 100</button><button type="button" class="switch" role="switch" aria-checked="false" data-target="d-futura" data-class="is-shrp"><span class="switch-track"></span>Optical size, user-dependent sharp corners &rarr; SHRP 100</button></span><span>Cal Sans Flex &middot; GEOM 25&ndash;100</span></div>
       </div>
     </article>
 
     <article class="look-item">
       <div class="look-head">
-        <h3><button type="button" class="look-tab" aria-expanded="false"><span class="look-dot" aria-hidden="true"></span>Past 120 languages</button></h3>
-        <div class="look-body"><p>A billion meetings by 2030 means hellos from everywhere. Latin coverage beyond 120 languages sets each one as evenly as the brand&rsquo;s own.</p></div>
+        <h3><button type="button" class="look-tab" aria-expanded="false"><span class="look-dot" aria-hidden="true"></span>Past 400 languages</button></h3>
+        <div class="look-body"><p>A billion meetings by 2030 means hellos from everywhere. Latin coverage beyond 400 languages sets each one as evenly as the brand&rsquo;s own.</p></div>
       </div>
       <div class="look-demo" data-nosnap>
         <div class="d-hello" aria-label="Hello, in 103 of the languages the font covers">
@@ -561,7 +561,7 @@
       <div class="tt-row tt-morph" style="--o2:7" data-key="ital">
         <span class="tt-head"><span>Italic</span><output>0%</output></span>
         <div class="tt-area">
-          <div class="tt-seg" role="group" aria-label="Italic"><button type="button" data-v="0" aria-pressed="true">Roman</button><button type="button" data-v="1" aria-pressed="false">Italic</button></div>
+          <div class="tt-seg" data-nosnap role="group" aria-label="Italic"><button type="button" data-v="0" aria-pressed="true">Roman</button><button type="button" data-v="1" aria-pressed="false">Italic</button></div>
           <i class="tt-track" aria-hidden="true"></i><input type="range" min="0" max="1" step="0.01" value="0" aria-label="Italic, 0 to 100 percent" tabindex="-1">
           <button type="button" class="tt-unlock" aria-label="Unlock the slider"></button>
         </div>
@@ -572,7 +572,7 @@
       <div class="tt-row tt-morph" style="--o2:8" data-key="GEOM">
         <span class="tt-head"><span>Geometric Form</span><output>25%</output></span>
         <div class="tt-area">
-          <div class="tt-seg" role="group" aria-label="Geometric Form"><button type="button" data-v="0" aria-pressed="false">A11y</button><button type="button" data-v="25" aria-pressed="true">UI</button><button type="button" data-v="50" aria-pressed="false">Base</button><button type="button" data-v="100" aria-pressed="false">Geo</button></div>
+          <div class="tt-seg" data-nosnap role="group" aria-label="Geometric Form"><button type="button" data-v="0" aria-pressed="false">A11y</button><button type="button" data-v="25" aria-pressed="true">UI</button><button type="button" data-v="50" aria-pressed="false">Base</button><button type="button" data-v="100" aria-pressed="false">Geo</button></div>
           <i class="tt-track" aria-hidden="true"></i><input type="range" min="0" max="100" step="1" value="25" aria-label="Geometric Form, 0 to 100" tabindex="-1">
           <button type="button" class="tt-unlock" aria-label="Unlock the slider"></button>
         </div>
@@ -625,7 +625,7 @@
 <script src="../js/hl-materialize.js?v=7"></script>
 <script src="../js/highlights.js?v=29"></script>
 <script src="../shared/src/gridSnap.js" defer></script>
-<script src="../js/case.js?v=55"></script>
+<script src="../js/case.js?v=56"></script>
 <script type="module">
   import { mountThemeSwitch } from '../shared/src/theme.js';
   mountThemeSwitch(document.getElementById('theme-toggle'));

@@ -453,7 +453,7 @@
     sw.addEventListener('click', function () {
       var on = sw.getAttribute('aria-checked') !== 'true';
       sw.setAttribute('aria-checked', on);
-      target.classList.toggle('is-on', on);
+      target.classList.toggle(sw.dataset.class || 'is-on', on);
     });
   });
 })();
