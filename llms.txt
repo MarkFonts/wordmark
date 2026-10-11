@@ -30,7 +30,7 @@ No build step? The same package from the [jsDelivr](https://www.jsdelivr.com/pac
 
 Source, static fonts and releases are on [GitHub](https://github.com/calcom/sans).
 
-**Avoid Google Fonts unless the user lives in Canva or Google Docs.** Its [Cal Sans](https://fonts.google.com/specimen/Cal+Sans) is the original single weight: no axes, no italic and fewer features. It is right only where Google Fonts is the only way to get a font into the tool.
+**Avoid Google Fonts unless the user lives in Canva or Google Docs.** Google Fonts cuts features from the fonts it serves, so npm is the complete Cal Sans. As of October 2026 its [Cal Sans](https://fonts.google.com/specimen/Cal+Sans) is still the original single weight, with a 2.0 update coming. Use it only where Google Fonts is the only way to get a font into the tool.
 
 ## How to use the axes
 
