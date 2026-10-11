@@ -1,10 +1,48 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!-- Public, hand-maintained URLs. The recalsans landing pages live in their own
      generated sitemap (recalsans/sitemap.xml), indexed by sitemap.xml.
-     Font-proofer client proofs are intentionally NOT listed — they are per-client
-     links and may be confidential. Add specific ones here only when public. -->
-<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
-  <url><loc>https://wordmark.nyc/</loc><changefreq>monthly</changefreq><priority>1.0</priority></url>
-  <url><loc>https://wordmark.nyc/calsans/</loc><changefreq>monthly</changefreq></url>
-  <url><loc>https://wordmark.nyc/font-proofer/</loc><changefreq>monthly</changefreq></url>
+     Font-proofer client proofs are intentionally NOT listed: they are per-client
+     links and may be confidential. Add specific ones here only when public
+     (calcom/calsans is linked from the case study, so it is).
+     Google reads <lastmod> and ignores changefreq/priority: bump lastmod to the
+     date of a real content change, never on every deploy. -->
+<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9"
+        xmlns:image="http://www.google.com/schemas/sitemap-image/1.1">
+  <url>
+    <loc>https://wordmark.nyc/</loc>
+    <lastmod>2026-10-06</lastmod>
+  </url>
+  <url>
+    <loc>https://wordmark.nyc/calsans/</loc>
+    <lastmod>2026-10-10</lastmod>
+    <image:image>
+      <image:loc>https://wordmark.nyc/calsans/og.png</image:loc>
+    </image:image>
+  </url>
+  <url>
+    <loc>https://wordmark.nyc/font-proofer/</loc>
+    <lastmod>2026-10-09</lastmod>
+  </url>
+  <url>
+    <loc>https://wordmark.nyc/font-proofer/calcom/calsans/</loc>
+    <lastmod>2026-10-09</lastmod>
+  </url>
+  <url>
+    <loc>https://wordmark.nyc/opsz-proofer/</loc>
+    <lastmod>2026-10-09</lastmod>
+  </url>
+  <url>
+    <loc>https://wordmark.nyc/gliffdiff/</loc>
+    <lastmod>2026-10-09</lastmod>
+  </url>
+  <url>
+    <loc>https://wordmark.nyc/fontchooserchooser/</loc>
+    <lastmod>2026-10-06</lastmod>
+  </url>
+  <!-- Missing from the generated recalsans/sitemap.xml; listed here until ReCal's
+       generator adds it. A URL in two sitemaps is harmless. -->
+  <url>
+    <loc>https://wordmark.nyc/recalsans/geom/</loc>
+    <lastmod>2026-08-14</lastmod>
+  </url>
 </urlset>
