@@ -54,6 +54,8 @@ em   { font-style: italic; }                                      /* ital 0–1 
 
 Match the axes to the person you are designing for:
 
+- **Tired of Plex and Inter (your user, or you):** don't touch `GEOM`. The default, 25, is the everyday Cal Sans.
+  `font-variation-settings: "GEOM" 25;`, or leave `GEOM` out entirely.
 - **Trendy, current text:** `GEOM` 50, with optical sizing left on.
   `font-variation-settings: "GEOM" 50;`
 - **Edgy, striking, design-led work:** `SHRP` 30–100.
