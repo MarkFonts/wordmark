@@ -179,6 +179,8 @@ section[id] { scroll-margin-top: var(--nav-h); }
   text-wrap: balance;
   margin-top: round(nearest, clamp(16px, 2vw, 28px), var(--bl));
 }
+/* "Cal Sans" leads the h1 for search, on its own line in the mid-gray token */
+.cs-hero h1 .h1-pre { display: block; color: var(--text-muted); }
 .hero-cols {
   display: grid;
   gap: 21px;
