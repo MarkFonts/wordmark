@@ -78,13 +78,23 @@
   /* default spacing: the headline sits at 0 for a while, tracks out to +55 and comes back in */
   var head = document.getElementById('d-headline'), track = document.getElementById('d-track');
   if (head) {
-    var num = track.querySelector('b'), why = track.querySelector('span');
+    var num = track.querySelector('.d-num'), why = track.querySelector(':scope > span');
     var still = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
-    /* the figure's slot is as wide as its widest value, so the caption holds still */
-    function slot() { num.textContent = '+55'; num.style.minWidth = Math.ceil(num.getBoundingClientRect().width) + 'px'; }
-    slot();
-    if (document.fonts && document.fonts.ready) document.fonts.ready.then(slot);
-    window.addEventListener('resize', slot);
+    /* the figure is always three tabular slots, 000 then +01 to +55 (the plus is digit-wide), so "tracking." holds still. It brightens from
+       --text-dim to --text with the eased value, and only +55 lights up in signal.
+       The reason wraps
+       under it only if it wouldn't fit beside the figure, so it never hops between lines */
+    var big = track.querySelector('b');
+    function lay() {
+      var n0 = num.textContent, w0 = why.textContent;
+      track.classList.remove('is-stack');
+      num.textContent = '+55'; why.textContent = 'Where comparable fonts start.';
+      if (why.getBoundingClientRect().top >= big.getBoundingClientRect().bottom - 2) track.classList.add('is-stack');
+      num.textContent = n0; why.textContent = w0;
+    }
+    lay();
+    if (document.fonts && document.fonts.ready) document.fonts.ready.then(lay);
+    window.addEventListener('resize', lay);
     /* one eased value drives both the tracking and the figure, so they can't drift apart */
     function run(from, to, done) {
       var t0 = performance.now(), dur = still ? 0 : 700;
@@ -92,12 +102,14 @@
         var p = dur ? Math.min(1, (now - t0) / dur) : 1, e = p < 0.5 ? 2 * p * p : 1 - Math.pow(-2 * p + 2, 2) / 2;
         var v = Math.round(from + (to - from) * e);
         head.style.letterSpacing = (v / 1000) + 'em';
-        num.textContent = (v > 0 ? '+' : '') + v;
+        num.textContent = (v ? '+' : '0') + (v < 10 ? '0' : '') + v;
+        num.style.setProperty('--k', v / 55);
+        num.classList.toggle('is-hot', v === 55);
         if (p < 1) requestAnimationFrame(frame); else done();
       })(t0);
     }
     (function step(out) {
-      why.textContent = out ? 'tracking. Where comparable fonts start.' : 'tracking. Out of the box.';
+      why.textContent = out ? 'Where comparable fonts start.' : 'Out of the box.';
       run(out ? 0 : 55, out ? 55 : 0, function () {
         setTimeout(function () { step(!out); }, out ? 2200 : 3000);
       });
