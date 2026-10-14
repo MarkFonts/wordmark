@@ -462,7 +462,7 @@ window.hlMaterialize = (function () {
       var hot = ctl.hot(u.shape), outer = hot.parentNode;
       var cold = ctl.free(u.coldG);
       ctl.plain(u.plainG);
-      if (content.strokes) content.strokes.forEach(function (s) { s.el.style.stroke = 'var(--signal)'; });   /* the real card's rings, in the signal */
+      if (content.strokes) content.strokes.forEach(function (s) { s.el.style.stroke = 'var(--signal-ink)'; });   /* the real card's rings, in the signal ink */
       function ringWidth() {
         var vb = svg.viewBox.baseVal, w = svg.clientWidth;
         if (content.strokes && vb && vb.width && w) content.strokes.forEach(function (s) { s.el.setAttribute('stroke-width', (3 * vb.width / w).toFixed(2)); });

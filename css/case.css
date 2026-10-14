@@ -60,17 +60,16 @@
   --ui-font: 'CalSans', sans-serif;   /* the chrome face for every primitive (dials, chips, switches): never the platform's */
   --ui-fvs: 'opsz' 10, 'GEOM' 25;
   --text-rgb: 232, 232, 232;
-  --signal: #eeff41;
-  --signal: color(display-p3 0.9333 1 0.2549);
+  /* --signal (fills) and --signal-ink (text, rules, rings) come from shared/src/color.css, light and dark */
 }
 /* color-scheme follows the page's theme, not the OS: the browser's own parts (scrollbars, form controls)
    were drawn light-scheme in the dark theme -- a black bar on the statics sheet, or a white track */
 :root { color-scheme: dark; }
 @media (prefers-color-scheme: light) {
-  :root:not([data-theme="dark"]) { --text-rgb: 22, 22, 22; --bg: #f5faff; --signal: #5c6b00; color-scheme: light; }
+  :root:not([data-theme="dark"]) { --text-rgb: 22, 22, 22; --bg: #f5faff; color-scheme: light; }
 }
 :root[data-theme="dark"]  { --text-rgb: 232, 232, 232; color-scheme: dark; }
-:root[data-theme="light"] { --text-rgb: 22, 22, 22; --bg: #f5faff; --signal: #5c6b00; color-scheme: light; }
+:root[data-theme="light"] { --text-rgb: 22, 22, 22; --bg: #f5faff; color-scheme: light; }
 
 html { scroll-behavior: smooth; overflow-x: clip; }
 @media (prefers-reduced-motion: reduce) { html { scroll-behavior: auto; } }
@@ -259,7 +258,7 @@ section[id] { scroll-margin-top: var(--nav-h); }
    caption, right of the card's content. .hl .hl-replay outranks the page's button:not(.wm-chip) reset, which otherwise paints it --text */
 .hl .hl-replay { position: absolute; right: 0; bottom: 0; display: flex; align-items: center; gap: 6px; font-size: 14px; --lh: 21px; line-height: var(--lh); color: var(--text-muted); cursor: pointer; transition: color 0.15s; }
 .hl .hl-replay:hover { color: var(--text); }
-.hl .hl-replay:focus-visible { outline: 1.5px solid var(--signal); outline-offset: 3px; border-radius: 6px; }
+.hl .hl-replay:focus-visible { outline: 1.5px solid var(--signal-ink); outline-offset: 3px; border-radius: 6px; }
 /* the icon white, the word gray; the ring's centre (12,13 on the 24 grid) sits on the word's cap middle,
    and the spin turns about that centre, so the ring stays put and only the arrowhead travels */
 .hl .hl-replay .wm-icon { color: var(--text); translate: 0 -1px; transform-origin: 50% 54.1667%; }
@@ -410,7 +409,7 @@ section[id] { scroll-margin-top: var(--nav-h); }
 .hl-play { width: 36px; }
 .hl-bar .hl-arrow { display: inline-flex; align-items: center; justify-content: center; width: 36px; height: 36px; border-radius: 999px; background: var(--surface); color: var(--text); }
 .hl-bar .hl-arrow:hover { background: var(--surface-hi); }
-.hl-arrow:focus-visible { outline: 1.5px solid var(--signal); outline-offset: 3px; }
+.hl-arrow:focus-visible { outline: 1.5px solid var(--signal-ink); outline-offset: 3px; }
 .hl-arrow-sys { font-family: -apple-system, BlinkMacSystemFont, system-ui, sans-serif; font-size: 18px; --lh: 18px; line-height: var(--lh); }   /* until the icon face spells the chevrons */
 .hl-dots { display: flex; align-items: center; gap: 0; height: 36px; padding: 0 9px; border-radius: 999px; background: var(--surface); }
 /* a dot is a period you can click: a 24px target around a 6px mark; the current one stretches to a dash */
@@ -419,7 +418,7 @@ section[id] { scroll-margin-top: var(--nav-h); }
 .hl-bar .hl-dot:hover::after { background: var(--text-muted); }
 .hl-bar .hl-dot.on { width: 36px; }
 .hl-bar .hl-dot.on::after { width: 30px; background: var(--text); }
-.hl-play:focus-visible, .hl-dot:focus-visible { outline: 1.5px solid var(--signal); outline-offset: 3px; }
+.hl-play:focus-visible, .hl-dot:focus-visible { outline: 1.5px solid var(--signal-ink); outline-offset: 3px; }
 
 /* the three places to get the font, under the close */
 /* every range on the page (the tester, the UI kit's GEOM): a 2px track in --border, a 14px ink thumb, the signal on hover */
@@ -445,7 +444,7 @@ input[type="range"]::-moz-range-thumb { width: 14px; height: 14px; border: 0; bo
 input[type="range"]:hover::-webkit-slider-thumb,
 input[type="range"]:active::-webkit-slider-thumb { background: var(--signal); transform: scale(1.15); }
 input[type="range"]:hover::-moz-range-thumb { background: var(--signal); }
-input[type="range"]:focus-visible { outline: 1.5px solid var(--signal); outline-offset: 4px; border-radius: 4px; }
+input[type="range"]:focus-visible { outline: 1.5px solid var(--signal-ink); outline-offset: 4px; border-radius: 4px; }
 
 .get-list { display: grid; gap: 9px; }
 .get-list--close { margin-top: 24px; max-width: 520px; }
@@ -466,7 +465,7 @@ input[type="range"]:focus-visible { outline: 1.5px solid var(--signal); outline-
 }
 .code span:first-child { overflow: hidden; text-overflow: ellipsis; }
 .code .where { color: var(--text-dim); flex: none; }
-a.code:hover .where { color: var(--signal); }
+a.code:hover .where { color: var(--signal-ink); }
 
 @media (min-width: 861px) {
   .hl-grid { grid-template-columns: 5fr 7fr; }
@@ -561,7 +560,7 @@ a.code:hover .where { color: var(--signal); }
   .look-item:last-child .look-head { border-bottom: 1px solid var(--border); }
   .look-tab { cursor: pointer; color: var(--text-dim); transition: color var(--dur-med, 240ms); }
   .look-tab:hover { color: var(--text-muted); }
-  .look-tab:focus-visible { outline: 1.5px solid var(--signal); outline-offset: 4px; border-radius: 4px; }
+  .look-tab:focus-visible { outline: 1.5px solid var(--signal-ink); outline-offset: 4px; border-radius: 4px; }
   .look-dot { background: currentColor; transition: background var(--dur-med, 240ms); }
   .look-body {
     display: grid;
@@ -608,13 +607,13 @@ a.code:hover .where { color: var(--signal); }
   letter-spacing: 0;
   text-wrap: balance;
   outline: none;
-  caret-color: var(--signal);
+  caret-color: var(--signal-ink);
 }
 /* the readout, big enough to catch: the figure in the headline's face, the reason beside it */
 .d-track { flex: 1; display: flex; align-items: baseline; align-content: flex-start; flex-wrap: wrap; gap: 0 14px; margin-top: 9px; }
 .d-track b { --wght: 600; font-size: clamp(32px, 4vw, 56px); --lh: round(nearest, 1em, var(--bl)); line-height: var(--lh); font-feature-settings: 'tnum' 1; white-space: nowrap; }
 .d-track .d-num { color: color-mix(in oklab, var(--text) calc(var(--k, 0) * 100%), var(--text-dim)); }
-.d-track .d-num.is-hot { color: var(--signal); }
+.d-track .d-num.is-hot { color: var(--signal-ink); }
 .d-track.is-stack > span { flex-basis: 100%; }
 .d-track > span { font-size: clamp(14px, 1.3vw, 17px); color: var(--text-muted); }
 /* the Tailwind scale up to 9xl; case.js shortens each row's words to what fits */
@@ -716,7 +715,7 @@ a.code:hover .where { color: var(--signal); }
 }
 .switch[aria-checked="true"] .switch-track { background: var(--signal); }
 .switch[aria-checked="true"] .switch-track::after { transform: translateX(16px); background: var(--bg); }
-.switch:focus-visible { outline: 1.5px solid var(--signal); outline-offset: 4px; border-radius: 4px; }
+.switch:focus-visible { outline: 1.5px solid var(--signal-ink); outline-offset: 4px; border-radius: 4px; }
 
 /* a booking card set entirely in the face, so GEOM has an interface to act on */
 .bk {
@@ -807,7 +806,7 @@ a.code:hover .where { color: var(--signal); }
 /* the statics sheet: the whole catalogue in the same box, scrolling, fading out at the bottom */
 .mb-scroll { display: block; overflow-y: auto; scrollbar-width: thin; scrollbar-color: rgba(var(--text-rgb), 0.28) transparent; mask-image: linear-gradient(#000 calc(100% - 72px), transparent); padding-bottom: 72px; }
 .mb-scroll img { height: auto; object-fit: unset; border-radius: 0; background: none !important; }
-.mb-scroll:focus-visible { outline: 1.5px solid var(--signal); outline-offset: 4px; border-radius: 4px; }
+.mb-scroll:focus-visible { outline: 1.5px solid var(--signal-ink); outline-offset: 4px; border-radius: 4px; }
 .tool--shot > img { aspect-ratio: 4 / 3; object-fit: contain; width: 100%; height: auto; }
 /* a macOS window shot sits as its window: the shared [data-shot="mac"] rule cuts the drop shadow out of the
    layout, so the 4:3 contain box would only shrink it again */
@@ -865,7 +864,7 @@ main.wm-lines { overflow-x: clip; }
 /* the 2022 panel: the proposed masters are the slide's own outlines, dotted; the current master is Cal Sans 1 */
 .ds-o path { fill: var(--text); }
 .ds-faint { opacity: 0.45; }
-.ds-mvp { fill: var(--signal); }
+.ds-mvp { fill: var(--signal-ink); }
 /* the label pairs never read under 10px: case.js scales each pair (and the MVP under it) as an svg transform */
 .ds-tag { fill: var(--text); font-size: 13px; font-family: 'CalSans', sans-serif; font-variation-settings: 'wght' 640, 'GEOM' 25, 'opsz' 14; }
 .ds-val { fill: var(--text-muted); font-size: 13px; font-family: 'CalSans', sans-serif; font-feature-settings: 'tnum' 1; }
@@ -898,7 +897,7 @@ main.wm-lines { overflow-x: clip; }
    13/800 of the panel's width; a corner's sits about 0.81 deep in the perspective at rest, so it starts that much larger */
 .vm .vlab { font-size: max(10px, calc(100cqi * 13 / 800)); gap: 0.17em 0.67em; }
 .cube .v .vlab { font-size: max(calc(10px / 0.81), calc(100cqi * 13 / 800 / 0.81)); gap: 0.17em 0.67em; }
-.vlab .hot, .vlab .hot i { color: var(--signal); }   /* the axis a virtual master moves, lit; on a corner, the axis being pulled */
+.vlab .hot, .vlab .hot i { color: var(--signal-ink); }   /* the axis a virtual master moves, lit; on a corner, the axis being pulled */
 .vlab i { font-style: normal; --wght: 640; color: var(--text); }
 .vlab-v { font-size: max(10px, calc(100cqi * 15 / 800)); letter-spacing: 0.08em; text-transform: uppercase; color: var(--text-dim); }
 @media (max-width: 560px) { .cube .v > span { width: 100px; margin: -27px 0 0 -50px; } .cube .v b { font-size: 25px; } }
@@ -1035,7 +1034,7 @@ a.tool-name { color: inherit; text-decoration: none; }
   font-optical-sizing: none;
   font-variation-settings: 'wght' var(--tt-wght, 400), 'GEOM' var(--tt-geom, 25), 'opsz' var(--tt-opsz, 45), 'YTAS' var(--tt-ytas, 1440), 'SHRP' var(--tt-shrp, 0), 'ital' var(--tt-ital, 0);
   color: var(--text); text-align: center; background: transparent; border: 0; outline: none; resize: none; overflow: auto;
-  caret-color: var(--signal);
+  caret-color: var(--signal-ink);
 }
 .tt-controls { display: grid; grid-template-columns: repeat(2, minmax(0, 150px)); justify-content: center; column-gap: clamp(24px, 4cqi, 40px); row-gap: 33px; padding: 8px 0 16px; }
 .tt-row { display: flex; flex-direction: column; gap: var(--spacing-02, 6px); min-width: 0; order: var(--o2); }
