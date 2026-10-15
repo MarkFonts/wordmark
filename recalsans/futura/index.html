@@ -36,8 +36,8 @@ gtag('config', 'G-MZ4M1P8P1P');
 </script>
 <!-- Boot the app frozen into this page's preset (initial state only — fully editable) -->
 <script>window.__RECAL_BOOT = {"scene":"paragraph","pitch":{"title":"Tuned toward Futura","paragraphs":["Fully geometric — tall ascenders, sharp terminals, the circles-first construction Futura defined in 1927. Everything here is live: drag the axes, edit this text, then download the font with your settings baked in. Free under the OFL."]},"preset":"Futura","compare":{"label":"Futura PT","family":"'futura-pt', sans-serif","wghtRange":[400,700],"italic":true,"heavy":{"from":700,"family":"'futura-pt-bold', sans-serif","weight":700},"headingWght":600,"css":"https://use.typekit.net/nsz1oha.css"}};</script>
-<script type="module" crossorigin src="/recalsans/assets/index-D--bPuxS.js"></script>
-<link rel="stylesheet" crossorigin href="/recalsans/assets/index-CN8zw_8b.css">
+<script type="module" crossorigin src="/recalsans/assets/index-YB9VYRoj.js"></script>
+<link rel="stylesheet" crossorigin href="/recalsans/assets/index-Bg_aa61E.css">
 <link rel="stylesheet" href="/recalsans/grid.css">
 <link rel="stylesheet" href="/recalsans/landing.css">
 <script src="/recalsans/gridSnap.js" defer></script>
@@ -94,10 +94,16 @@ gtag('config', 'G-MZ4M1P8P1P');
        so it reserves its box instead of shifting the text under it.
        THE JPG IS BAKED, SO IT GOES STALE SILENTLY. It is rendered by scripts/render-og-cards.mjs,
        which npm run build does NOT call -- re-run it whenever a preset's axes or freezes change,
-       and commit public/og/*.jpg with them. -->
+       and commit public/og/*.jpg with them.
+       Two <img>s, not <picture>: the theme switch stores its choice on <html data-theme>, which a
+       prefers-color-scheme media query cannot see. landing.css shows the one that matches the theme
+       (the light one is lazy, so it only loads once shown, and is alt="" -- the same card).
+       og:image stays the dark JPG: a share preview has no theme. -->
   <figure class="card-fig">
-    <img src="https://wordmark.nyc/recalsans/og/futura.jpg" width="1200" height="630" fetchpriority="high" decoding="async"
+    <img class="card-img--dark" src="https://wordmark.nyc/recalsans/og/futura.jpg" width="1200" height="630" fetchpriority="high" decoding="async"
          alt="The word Futura set in ReCal Sans, a free open-source variable alternative to Futura.">
+    <img class="card-img--light" src="/recalsans/og/futura-light.jpg" width="1200" height="630" loading="lazy" decoding="async"
+         alt="">
   </figure>
 
   <div class="specimen-grid" data-nosnap aria-label="ReCal Sans specimen, all weights and italics, tuned toward Futura">
