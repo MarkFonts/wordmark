@@ -1,12 +1,11 @@
 /* cta-b.css -- variant B of the homepage CTA A/B test: the Q6 -> N4 accent button at hero size
-   (550 x 110, the big reach), ported from the CTA preview (accentButton.css + q6hero.css, only the
+   (the big reach; its 550 x 110 art scaled to A's box), ported from the CTA preview (accentButton.css + q6hero.css, only the
    rules this one button matches, in their original order). Variant A is the .hero-pill, untouched.
 
    Who sees what: the head script in index.html stamps <html data-gaid="a|b"> (?gaid= overrides,
    then localStorage wm-gaid, then 50/50) and data-gaid-t="dark|light", the resolved theme (the
    site's data-theme can be "auto"); every rule below keys on data-gaid-t, never on data-theme.
-   B shows only at 800px and up -- 550 + the 110 avatar + its gap need 680 plus the page margins
-   (7vw each side), which fit from ~791px. Narrower, a B visitor sees A's pill and keeps the B label.
+   B has A's box at every width, phones included (the host section at the end).
 
    The light is pre-rendered (assets/cta-b/): straight-alpha acid in SDR, opaque PQ planes in HDR
    whose floor is THIS page's ground -- #0f0f0f dark (0.97 nits), #f5faff light (BT.2020 RGB
@@ -392,14 +391,14 @@
 .hero-cta .wm-accent[data-look="q6n4"][data-shape="pill"],
 .hero-cta .wm-accent[data-look="q6n4"][data-shape="pill"]:hover:not(:disabled),
 .hero-cta .wm-accent[data-look="q6n4"][data-shape="pill"]:active:not(:disabled) {
-  --ab-H:110px;
-  inline-size:550px;
-  block-size:110px;
-  padding:0 52px;
+  --ab-H:var(--cta-h);
+  inline-size:var(--cta-w);
+  block-size:var(--cta-h);
+  padding:0;
   border:0;
   border-radius:999px;
   corner-shape:round;
-  font-size:64px;
+  font-size:var(--cta-fs);
   line-height:1;
   font-weight:700;
   font-variation-settings:'opsz' 45,'wght' 700,'GEOM' 50;
@@ -416,11 +415,11 @@
   overflow:hidden;
 }
 .hero-cta .wm-accent[data-look="q6n4"][data-shape="pill"] .wm-accent__face::after {
-  height:20px;
+  height:calc(var(--cta-h) * 20 / 110);
 }
 .hero-cta .wm-accent__fr .wm-accent__sa,
 .hero-cta .wm-accent__fr .wm-accent__sb {
-  background-size:100% 5280px;
+  background-size:100% calc(var(--cta-h) * 48);
 }
 .hero-cta .wm-accent[data-look="q6n4"][data-shape="pill"]::before {
   border-image:none;
@@ -442,9 +441,9 @@
 .hero-cta .wm-accent[data-look="q6n4"][data-shape="pill"],
 .hero-cta .wm-accent[data-look="q6n4"][data-shape="pill"]:hover:not(:disabled),
 .hero-cta .wm-accent[data-look="q6n4"][data-shape="pill"]:active:not(:disabled) {
-  --ab-mt:33.333px;
-  --ab-mx:133.333px;
-  --ab-mb:253.333px;
+  --ab-mt:round(nearest, calc(var(--cta-h) * 33.333 / 110), 1px);
+  --ab-mx:round(nearest, calc(var(--cta-w) * 133.333 / 550), 1px);
+  --ab-mb:round(nearest, calc(var(--cta-h) * 253.333 / 110), 1px);
 }
 :root[data-gaid-t="light"] .hero-cta .wm-accent[data-look="q6n4"][data-shape="pill"]::before {
   background:url("../assets/cta-b/sdr-light-spill.avif") 0 0 / 100% 100% no-repeat;
@@ -480,9 +479,9 @@
 :root[data-gaid-t="light"] .hero-cta .wm-accent[data-look="q6n4"][data-shape="pill"],
 :root[data-gaid-t="light"] .hero-cta .wm-accent[data-look="q6n4"][data-shape="pill"]:hover:not(:disabled),
 :root[data-gaid-t="light"] .hero-cta .wm-accent[data-look="q6n4"][data-shape="pill"]:active:not(:disabled) {
-  --ab-mt:100.000px;
-  --ab-mx:433.333px;
-  --ab-mb:616.667px;
+  --ab-mt:round(nearest, calc(var(--cta-h) * 100.000 / 110), 1px);
+  --ab-mx:round(nearest, calc(var(--cta-w) * 433.333 / 550), 1px);
+  --ab-mb:round(nearest, calc(var(--cta-h) * 616.667 / 110), 1px);
 }
 @media (dynamic-range: high) {
 :root[data-gaid-t="dark"] .hero-cta .wm-accent[data-look="q6n4"],
@@ -524,13 +523,13 @@
 }
 :root[data-gaid-t="dark"] .hero-cta .wm-accent[data-look="q6n4"] .wm-accent__fr .wm-accent__sa {
   background-image:url("../assets/cta-b/hdr-dark-travel.avif");
-  background-size:100% 5280px;
+  background-size:100% calc(var(--cta-h) * 48);
   -webkit-mask-image:url("../assets/cta-b/hdr-mask-travel.avif");
   mask-image:url("../assets/cta-b/hdr-mask-travel.avif");
   -webkit-mask-repeat:no-repeat;
   mask-repeat:no-repeat;
-  -webkit-mask-size:100% 5280px;
-  mask-size:100% 5280px;
+  -webkit-mask-size:100% calc(var(--cta-h) * 48);
+  mask-size:100% calc(var(--cta-h) * 48);
   -webkit-mask-position:0 calc(var(--ab-fl) * var(--ab-H) * -1);
   mask-position:0 calc(var(--ab-fl) * var(--ab-H) * -1);
 }
@@ -581,13 +580,13 @@
 }
 :root[data-gaid-t="light"] .hero-cta .wm-accent[data-look="q6n4"] .wm-accent__fr .wm-accent__sa {
   background-image:url("../assets/cta-b/hdr-light-travel.avif");
-  background-size:100% 5280px;
+  background-size:100% calc(var(--cta-h) * 48);
   -webkit-mask-image:url("../assets/cta-b/hdr-mask-travel.avif");
   mask-image:url("../assets/cta-b/hdr-mask-travel.avif");
   -webkit-mask-repeat:no-repeat;
   mask-repeat:no-repeat;
-  -webkit-mask-size:100% 5280px;
-  mask-size:100% 5280px;
+  -webkit-mask-size:100% calc(var(--cta-h) * 48);
+  mask-size:100% calc(var(--cta-h) * 48);
   -webkit-mask-position:0 calc(var(--ab-fl) * var(--ab-H) * -1);
   mask-position:0 calc(var(--ab-fl) * var(--ab-H) * -1);
 }
@@ -602,9 +601,9 @@
 :root[data-gaid-t="dark"][data-gaid-t] .hero-cta .wm-accent[data-look="q6n4"][data-shape="pill"],
 :root[data-gaid-t="dark"][data-gaid-t] .hero-cta .wm-accent[data-look="q6n4"][data-shape="pill"]:hover:not(:disabled),
 :root[data-gaid-t="dark"][data-gaid-t] .hero-cta .wm-accent[data-look="q6n4"][data-shape="pill"]:active:not(:disabled) {
-  --ab-mt:33px;
-  --ab-mx:133px;
-  --ab-mb:253px;
+  --ab-mt:round(nearest, calc(var(--cta-h) * 33 / 110), 1px);
+  --ab-mx:round(nearest, calc(var(--cta-w) * 133 / 550), 1px);
+  --ab-mb:round(nearest, calc(var(--cta-h) * 253 / 110), 1px);
 }
 :root[data-gaid-t="dark"][data-gaid-t] .hero-cta .wm-accent[data-look="q6n4"][data-shape="pill"]::before {
   border-image:none;
@@ -613,16 +612,16 @@
   mask-box-image:none;
   opacity:1;
   --ab-g:round(nearest, calc(min(1, var(--ab-p) * 1.5) * 8), 1);
-  background:url("../assets/cta-b/hdr-dark-spill-big.avif") 0 calc(var(--ab-g) * -396px) / 100% 900% no-repeat;
+  background:url("../assets/cta-b/hdr-dark-spill-big.avif") 0 calc(var(--ab-g) * 12.5%) / 100% 900% no-repeat;
   -webkit-mask:url("../assets/cta-b/hdr-mask-spill-big.avif") 0 0 / 100% 100% no-repeat;
   mask:url("../assets/cta-b/hdr-mask-spill-big.avif") 0 0 / 100% 100% no-repeat;
 }
 :root[data-gaid-t="light"][data-gaid-t] .hero-cta .wm-accent[data-look="q6n4"][data-shape="pill"],
 :root[data-gaid-t="light"][data-gaid-t] .hero-cta .wm-accent[data-look="q6n4"][data-shape="pill"]:hover:not(:disabled),
 :root[data-gaid-t="light"][data-gaid-t] .hero-cta .wm-accent[data-look="q6n4"][data-shape="pill"]:active:not(:disabled) {
-  --ab-mt:100px;
-  --ab-mx:433px;
-  --ab-mb:614px;
+  --ab-mt:round(nearest, calc(var(--cta-h) * 100 / 110), 1px);
+  --ab-mx:round(nearest, calc(var(--cta-w) * 433 / 550), 1px);
+  --ab-mb:round(nearest, calc(var(--cta-h) * 614 / 110), 1px);
 }
 :root[data-gaid-t="light"][data-gaid-t] .hero-cta .wm-accent[data-look="q6n4"][data-shape="pill"]::before {
   border-image:none;
@@ -631,39 +630,46 @@
   mask-box-image:none;
   opacity:1;
   --ab-g:round(nearest, calc(min(1, var(--ab-p) * 1.5) * 8), 1);
-  background:url("../assets/cta-b/hdr-light-spill.avif") 0 calc(var(--ab-g) * -824px) / 100% 900% no-repeat;
+  background:url("../assets/cta-b/hdr-light-spill.avif") 0 calc(var(--ab-g) * 12.5%) / 100% 900% no-repeat;
   -webkit-mask:url("../assets/cta-b/hdr-mask-light-spill.avif") 0 0 / 100% 100% no-repeat;
   mask:url("../assets/cta-b/hdr-mask-light-spill.avif") 0 0 / 100% 100% no-repeat;
 }
 }
 
-/* ═══ the host: which look shows, and the page around B ═══ */
-.hero-cta .cta-b { display: none; }
-.hero-cta .cta-b { --ui-font: 'CalSans', sans-serif; text-decoration: none; }
-/* the label fills its 446px box to the pixel in this face too (445px); it must never wrap */
+/* ═══ the host: which look shows, B's size, and the page around B ═══ */
+/* B takes A's box at every width (main.css .hero-pill): A's font size, A's height (1.7em on the 3px
+   unit), and A's width (its label + 0.65em each side came to 8.195em at every size measured). The
+   550 x 110 art is scaled in CSS from these two lengths -- background-size, mask-size, the spill's
+   reach and the sprite's frame step -- never by a transform, which would push the HDR planes through
+   an SDR surface. Frame steps are whole pixels: the height is on the 3px unit and the reaches round. */
+.hero-cta .cta-b {
+  display: none;
+  --ui-font: 'CalSans', sans-serif; text-decoration: none;
+  --cta-fs: clamp(27.5px, 3.75vw, 42.5px);
+  --cta-h: round(nearest, calc(1.7 * var(--cta-fs)), 3px);
+  --cta-w: calc(8.195 * var(--cta-fs));
+}
+/* the label fills its box in this face; it must never wrap */
 .hero-cta .cta-b .wm-accent__lab { white-space: nowrap; }
 :root[data-gaid-t="dark"] .hero-cta .cta-b { --ab-face: #0f0f0f; }   /* the face is the ground, as in the preview: this page's */
 
-@media (min-width: 800px) {
-  :root[data-gaid="b"] .hero-cta { column-gap: 20px; }
-  :root[data-gaid="b"] .hero-cta .hero-pill { display: none; }
-  :root[data-gaid="b"] .hero-cta .cta-b { display: inline-flex; }
-  :root[data-gaid="b"] .hero-cta .hero-avatar { width: 110px; height: 110px; position: relative; z-index: 2; }
+:root[data-gaid="b"] .hero-cta .hero-pill { display: none; }
+:root[data-gaid="b"] .hero-cta .cta-b { display: inline-flex; }
+:root[data-gaid="b"] .hero-cta .hero-avatar { position: relative; z-index: 2; }   /* A's size; above the spill */
 
-  /* the spill runs past the hero's bottom edge and under the dek */
-  :root[data-gaid="b"] #hero { overflow: visible; }
-  :root[data-gaid="b"] #flapjack-canvas,
-  :root[data-gaid="b"] #dek-canvas { background: transparent; }
-  /* above the plane (it is opaque): the headline and the dek's canvas (its guide lines and drawn
-     glyph); #dek-header is already positioned later in the page, so it paints above */
-  :root[data-gaid="b"] #flapjack-text { z-index: 1; }
-  :root[data-gaid="b"] #dek-canvas { position: relative; z-index: 1; }
-}
+/* the spill runs past the hero's bottom edge and under the dek */
+:root[data-gaid="b"] #hero { overflow: visible; }
+:root[data-gaid="b"] #flapjack-canvas,
+:root[data-gaid="b"] #dek-canvas { background: transparent; }
+/* above the plane (it is opaque): the headline and the dek's canvas (its guide lines and drawn
+   glyph); #dek-header is already positioned later in the page, so it paints above */
+:root[data-gaid="b"] #flapjack-text { z-index: 1; }
+:root[data-gaid="b"] #dek-canvas { position: relative; z-index: 1; }
 
-/* the PQ ground: the region the spill can cover (the top of the page to the dek's bottom; js/cta-ab.js
-   measures it), so the planes' edges meet their own floor */
+/* the PQ ground: the region the spill can cover (the top of the page to the dek's bottom, or the
+   spill's bottom if lower; js/cta-ab.js measures it), so the planes' edges meet their own floor */
 .cta-b-ground { display: none; }
-@media (min-width: 800px) and (dynamic-range: high) {
+@media (dynamic-range: high) {
   :root[data-gaid="b"] .cta-b-ground {
     display: block; position: absolute; z-index: -1; left: 0; right: 0; top: 0;
     height: var(--cta-b-ground-h, 1400px); pointer-events: none; dynamic-range-limit: no-limit;

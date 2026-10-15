@@ -2,8 +2,9 @@
      cta_view   once, when the shown CTA is at least half on screen
      cta_click  on a click on either look (beacon transport: the link opens a new tab, but a beacon
                 survives the page going away either way)
-   Both carry variant (a|b, the assignment), rendered (a|b, the look actually shown: under 800px a B
-   visitor gets A's pill), and hdr (yes|no). The user property cta_variant is set in the head.
+   Both carry variant (a|b, the assignment), rendered (a|b, the look actually on screen: today always
+   the variant, since B has A's box at every width; kept so a future fallback stays measurable), and
+   hdr (yes|no). The user property cta_variant is set in the head.
    GA blocked or absent: gtag is the head's dataLayer shim, or a local one; nothing here throws. */
 (function () {
   var d = document.documentElement, v = d.getAttribute('data-gaid');
@@ -13,7 +14,7 @@
     if (typeof window.gtag === 'function') { window.gtag.apply(window, arguments); return; }
     window.dataLayer = window.dataLayer || []; window.dataLayer.push(arguments);
   };
-  function rendered() { return v === 'b' && mm('(min-width: 800px)') ? 'b' : 'a'; }
+  function rendered() { var e = document.querySelector('.hero-cta .cta-b'); return e && e.getClientRects().length ? 'b' : 'a'; }
   function params(extra) {
     var p = { variant: v, rendered: rendered(), hdr: mm('(dynamic-range: high)') ? 'yes' : 'no' };
     for (var k in extra) p[k] = extra[k];
@@ -39,12 +40,12 @@
   }
 
   // B's PQ ground covers the page from the top to the dek's bottom, or to the spill's own bottom when
-  // that is lower (it reaches 617px below the button in light), so no plane edge meets the sRGB page
+  // that is lower (in light it reaches 5.6 button heights below the button), so no plane edge meets the sRGB page
   var dek = document.getElementById('dek');
   function ground() {
     var y = window.scrollY, h = 0;
     if (dek) h = dek.getBoundingClientRect().bottom + y;
-    if (accent && accent.getClientRects().length) h = Math.max(h, accent.getBoundingClientRect().bottom + y + 640);
+    if (accent && accent.getClientRects().length) h = Math.max(h, accent.getBoundingClientRect().bottom + y + accent.offsetHeight * 6);
     if (h) d.style.setProperty('--cta-b-ground-h', Math.ceil(h) + 'px');
   }
   if (v === 'b') {
