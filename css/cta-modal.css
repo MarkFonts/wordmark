@@ -86,11 +86,30 @@ html.cta-modal-lock body { position: fixed; left: 0; right: 0; overflow: hidden;
   .cta-modal.is-open { animation: none; }
 }
 
-/* After a booking the CTA reads “Talk soon!” (no arrow) in both looks. The two labels share one grid
-   cell and the hidden one keeps its room, so the box never changes size and B's art never shifts; B's
-   label keeps its HDR field (background-clip: text clips whichever label is visible). */
+/* After a booking the CTA is no longer a button: just the words Talk soon! in the label's own type (font,
+   size, weight, baseline), in the page ink, in both looks -- not clickable, no hover, default cursor. The
+   button's box stays reserved (the two labels share one grid cell, the hidden one keeps its room), so
+   nothing moves, the headshot included. The words are centered on the page, not in the button: the row
+   (headshot + 10px + button) is centered, so the button's center sits half a headshot-plus-gap right of
+   the page's, and the words step back by exactly that. The headshot is 1.7em of the CTA size, on the 3px
+   unit (main.css .hero-avatar). Clearance to the headshot is ~0.9em + 5px at every width. */
 .cta-labels { display: inline-grid; justify-items: center; align-items: center; }
 .cta-labels > span { grid-area: 1 / 1; }
 .cta-booked { visibility: hidden; }
 :root[data-booked="yes"] .cta-label { visibility: hidden; }
-:root[data-booked="yes"] .cta-booked { visibility: visible; }
+:root[data-booked="yes"] .cta-booked {
+  visibility: visible; position: relative;
+  left: calc(-0.5 * (round(nearest, calc(1.7 * clamp(27.5px, 3.75vw, 42.5px)), 3px) + 10px));
+}
+/* A: no pill */
+:root[data-booked="yes"] .hero-cta .hero-pill,
+:root[data-booked="yes"] .hero-cta .hero-pill:hover {
+  background: none; color: var(--text); pointer-events: none; cursor: default;
+}
+/* B: no face, no light, no HDR field -- the page ink (and so no HDR layer is left on screen) */
+:root[data-booked="yes"] .hero-cta .cta-b { pointer-events: none; cursor: default; }
+:root[data-booked="yes"] .hero-cta .cta-b::before,
+:root[data-booked="yes"] .hero-cta .cta-b .wm-accent__face { display: none; }
+:root[data-booked="yes"] .hero-cta .cta-b.wm-accent[data-look="q6n4"][data-shape="pill"]:not(:disabled) .wm-accent__lab {
+  background: none; color: var(--text); -webkit-text-fill-color: var(--text);
+}

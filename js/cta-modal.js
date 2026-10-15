@@ -50,7 +50,7 @@
     cal('on', { action: 'linkFailed', callback: function () { state = 'failed'; if (open) fallback(); } });
     cal('on', { action: 'bookingSuccessfulV2', callback: function (e) {
       var data = (e && e.detail && e.detail.data) || {};
-      // the CTA will read “Talk soon!”: stored now, applied in place when the dialog closes
+      // the CTA becomes the words Talk soon!: stored now, applied in place when the dialog closes
       booked = true; try { localStorage.setItem('wm-booked', 'yes'); } catch (err) {}
       cta.send('event', 'cta_booking', cta.params({ booking_status: typeof data.status === 'string' ? data.status : 'unknown' }));
     } });
@@ -168,10 +168,11 @@
     modal.classList.add('is-preloading');   // closed = hidden off-screen again, so a re-render can still lay out
     hide();
     if (booked) root.setAttribute('data-booked', 'yes');
+    syncBooked();
     unlock();
     if (pushed && !fromPop) { restoreY = lockY; history.back(); }   // the popstate it fires is ours: see below
     pushed = false;
-    if (opener) opener.focus({ preventScroll: true });
+    if (opener && !isBooked()) opener.focus({ preventScroll: true });   // booked: the CTA is no longer a control
   }
   function fallback() {
     var url = plainLink(opener);
@@ -186,11 +187,23 @@
   links.forEach(function (el) {
     ['pointerenter', 'focus', 'touchstart'].forEach(function (t) { el.addEventListener(t, load, { once: true, passive: true }); });
     el.addEventListener('click', function (e) {
+      if (isBooked()) { e.preventDefault(); return; }   // booked: the words are not a control (no modal, no link)
       if (e.defaultPrevented || e.button !== 0 || e.metaKey || e.ctrlKey || e.shiftKey || e.altKey) return;   // a new tab, as asked
       e.preventDefault();
       openModal(el);
     });
   });
+  // booked (now, or on an earlier visit): the CTA reads Talk soon! and is not a control -- out of the tab
+  // order and announced as disabled (css/cta-modal.css draws it)
+  function isBooked() { return root.getAttribute('data-booked') === 'yes'; }
+  function syncBooked() {
+    links.forEach(function (a) {
+      if (isBooked()) { a.setAttribute('aria-disabled', 'true'); a.setAttribute('tabindex', '-1'); }
+      else { a.removeAttribute('aria-disabled'); a.removeAttribute('tabindex'); }
+    });
+  }
+  syncBooked();
+
   function idle() { if ('requestIdleCallback' in window) requestIdleCallback(preload, { timeout: 3000 }); else setTimeout(preload, 1500); }
   if (d.readyState === 'complete') idle(); else window.addEventListener('load', idle, { once: true });
   window.addEventListener('resize', place);
