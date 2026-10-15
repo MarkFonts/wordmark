@@ -28,6 +28,8 @@
   if (!v) { try { var s = localStorage.getItem(K); if (s === 'a' || s === 'b') v = s; } catch (e) {} }
   if (!v) { v = Math.random() < 0.5 ? 'a' : 'b'; try { localStorage.setItem(K, v); } catch (e) {} }
   d.setAttribute('data-gaid', v);
+  // a visitor who has booked (js/cta-modal.js stores it) sees the words Talk soon! in place of the CTA (css/cta-modal.css)
+  try { if (localStorage.getItem('wm-booked') === 'yes') d.setAttribute('data-booked', 'yes'); } catch (e) {}
   var mq = window.matchMedia ? matchMedia('(prefers-color-scheme: light)') : null;
   function theme() { var t = d.getAttribute('data-theme'); d.setAttribute('data-gaid-t', t === 'light' || t === 'dark' ? t : (mq && mq.matches ? 'light' : 'dark')); }
   theme();
@@ -55,7 +57,7 @@
 <link rel="stylesheet" href="shared/src/grid.css">
 <link rel="stylesheet" href="css/main.css?v=55">
 <link rel="stylesheet" href="css/cta-b.css?v=3">
-<link rel="stylesheet" href="css/cta-modal.css?v=2">
+<link rel="stylesheet" href="css/cta-modal.css?v=6">
 </head>
 <body>
 <div class="cta-b-ground" aria-hidden="true"></div>
@@ -134,9 +136,9 @@
     <!-- headline now lives in #flapjack-text above; this row is just the CTA -->
     <div class="hero-cta">
       <div class="hero-avatar"><img src="mark-davis.png" alt="Mark Davis"></div>
-      <a class="hero-pill" href="https://cal.com/davis/design-briefing?overlayCalendar=true" target="_blank" rel="noopener">Let&rsquo;s talk type&thinsp;<span class="hero-pill-arrow">&#x2197;</span></a>
+      <a class="hero-pill" href="https://cal.com/davis/design-briefing?overlayCalendar=true" target="_blank" rel="noopener"><span class="cta-labels"><span class="cta-label">Let&rsquo;s talk type&thinsp;<span class="hero-pill-arrow">&#x2197;</span></span><span class="cta-booked">Talk soon!</span></span></a>
       <!-- variant B (css/cta-b.css): shown only to data-gaid="b", at A's size -->
-      <a class="wm-accent cta-b" data-look="q6n4" data-shape="pill" href="https://cal.com/davis/design-briefing?overlayCalendar=true" target="_blank" rel="noopener"><i class="wm-accent__face" aria-hidden="true"><i class="wm-accent__tone"></i><i class="wm-accent__spr"><i class="wm-accent__fr"><i class="wm-accent__sa"></i><i class="wm-accent__sb"></i></i></i></i><span class="wm-accent__lab">Let&rsquo;s talk type <span class="arrow">&#x2197;</span></span></a>
+      <a class="wm-accent cta-b" data-look="q6n4" data-shape="pill" href="https://cal.com/davis/design-briefing?overlayCalendar=true" target="_blank" rel="noopener"><i class="wm-accent__face" aria-hidden="true"><i class="wm-accent__tone"></i><i class="wm-accent__spr"><i class="wm-accent__fr"><i class="wm-accent__sa"></i><i class="wm-accent__sb"></i></i></i></i><span class="wm-accent__lab"><span class="cta-labels"><span class="cta-label">Let&rsquo;s talk type <span class="arrow">&#x2197;</span></span><span class="cta-booked">Talk soon!</span></span></span></a>
     </div>
   </div>
 </section>
@@ -318,8 +320,8 @@
 <script src="js/dek.js"></script>
 <script src="js/letterbox.js?v=7"></script>
 <script src="js/site.js?v=13"></script>
-<script src="js/cta-ab.js?v=6"></script>
-<script src="js/cta-modal.js?v=2"></script>
+<script src="js/cta-ab.js?v=7"></script>
+<script src="js/cta-modal.js?v=7"></script>
 <script type="module">
   import { mountThemeSwitch } from './shared/src/theme.js';
   mountThemeSwitch(document.getElementById('theme-toggle'));

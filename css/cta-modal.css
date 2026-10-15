@@ -1,6 +1,7 @@
 /* cta-modal.css -- the booking modal both homepage CTAs open (js/cta-modal.js): a full-viewport tint
-   over the page, Cal.com's inline embed in a panel. Desktop: a large centered panel with the tint
-   around it. Phones: the panel fills the screen. The page behind is inert and its scroll is locked.
+   over the page and Cal.com's inline embed on it, with a floating close x. Desktop: Cal's booker at its
+   own size, centered on the tint. Phones: it fills the screen. The page behind is inert and its scroll
+   is locked.
 
    The tint sits ABOVE variant B's HDR button and is never its ancestor; nothing here adds a
    transform or an opacity to anything that holds B. The fade is on the modal itself. */
@@ -10,51 +11,67 @@
   overscroll-behavior: contain;
 }
 .cta-modal.is-open { display: grid; place-items: center; }
+/* desktop and tablet: the booker is placed over the CTA it came from (js/cta-modal.js sets --cta-modal-top:
+   centered on the button, kept 24px inside the viewport), not centered in the window */
+@media (min-width: 641px) {
+  .cta-modal.is-open.is-placed { place-items: start center; }
+  .cta-modal.is-placed .cta-modal__panel { margin-top: var(--cta-modal-top, 24px); }
+}
+/* preloading (js/cta-modal.js): laid out at full size so the embed renders, but off-screen, unpainted
+   and unreachable (the script also makes it inert and aria-hidden) */
+.cta-modal.is-preloading:not(.is-open) {
+  display: grid; place-items: center; visibility: hidden; pointer-events: none;
+  left: -200vw; right: 200vw;
+}
 .cta-modal__tint {
   position: absolute; inset: 0;
   background: rgb(0 0 0 / .62);
   touch-action: none;                 /* no pan or rubber-band through the tint */
 }
 :root[data-gaid-t="light"] .cta-modal__tint { background: rgb(22 22 22 / .45); }
+/* No panel of ours: Cal's booker sits straight on the tint at its own size (the inline embed posts its
+   height and the iframe takes it), centered, scrolling inside only when taller than the screen. The
+   side gutters (72px) keep the floating x clear of the booker. */
 .cta-modal__panel {
   position: relative;
+  width: min(1120px, calc(100vw - 144px));
+  max-height: calc(100dvh - 48px);
   display: flex; flex-direction: column;
-  width: min(1120px, calc(100vw - 64px));
-  height: min(860px, calc(100dvh - 64px));
-  background: var(--bg); color: var(--text);
-  border-radius: 18px; corner-shape: superellipse(1.4);
-  overflow: hidden;
-  box-shadow: 0 24px 80px rgb(0 0 0 / .35);
 }
-.cta-modal__bar {
-  flex: none;
-  display: flex; align-items: center; justify-content: flex-end;
-  padding: 8px 12px;
-  border-bottom: 1px solid rgba(var(--text-rgb), .12);
-}
-.cta-modal__close {
-  all: unset; box-sizing: border-box; cursor: pointer;
-  display: grid; place-items: center; width: 36px; height: 36px; border-radius: 50%;
-  color: inherit;
-}
-.cta-modal__close:hover { background: rgba(var(--text-rgb), .1); }
-.cta-modal__close:focus-visible { outline: 2px solid currentColor; outline-offset: 2px; }
-.cta-modal__close svg { width: 18px; height: 18px; display: block; }
 .cta-modal__body {
-  position: relative; flex: 1; min-height: 0;
+  position: relative; min-height: 0;
   overflow-y: auto; overscroll-behavior: contain; -webkit-overflow-scrolling: touch;
+  scrollbar-width: thin;
 }
-.cta-modal__cal { min-height: 100%; }
+.cta-modal__cal { min-height: 120px; }
 .cta-modal__status {
   position: absolute; inset: 0; display: grid; place-items: center;
-  font-family: 'CalSans', -apple-system, sans-serif; font-size: 15px; opacity: .6;
+  font-family: 'CalSans', -apple-system, sans-serif; font-size: 15px; color: #fff; opacity: .75;
   pointer-events: none;
 }
 .cta-modal.is-ready .cta-modal__status { display: none; }
 
-/* phones: the booking UI fills the screen */
+/* the x: floating at the viewport's top-right, over the tint; a 44px hit area */
+.cta-modal__close {
+  all: unset; box-sizing: border-box; cursor: pointer;
+  position: fixed; top: 12px; right: 12px; z-index: 2;
+  display: grid; place-items: center; width: 44px; height: 44px; border-radius: 50%;
+  color: #fff; background: rgb(0 0 0 / .35);
+}
+.cta-modal__close:hover { background: rgb(0 0 0 / .55); }
+.cta-modal__close:focus-visible { outline: 2px solid #fff; outline-offset: 2px; }
+.cta-modal__close svg { width: 18px; height: 18px; display: block; }
+
+/* phones: the booking UI fills the screen, on Cal's own ground (the embed's page is transparent, so the
+   ground is Cal's booker colour per theme, painted here); the x keeps a strip clear above it */
 @media (max-width: 640px) {
-  .cta-modal__panel { width: 100vw; height: 100dvh; border-radius: 0; box-shadow: none; }
+  .cta-modal__panel { width: 100vw; height: 100dvh; max-height: none; padding-top: 56px; box-sizing: border-box; background: #ffffff; }
+  :root[data-gaid-t="dark"] .cta-modal__panel { background: #101010; }
+  .cta-modal__body { flex: 1; }
+  .cta-modal__close { color: var(--text); background: transparent; }
+  .cta-modal__close:hover { background: rgba(var(--text-rgb), .1); }
+  .cta-modal__close:focus-visible { outline-color: currentColor; }
+  .cta-modal__status { color: var(--text); }
 }
 
 /* the page behind, while open: pinned in place (iOS Safari will not rubber-band a fixed body);
@@ -67,4 +84,32 @@ html.cta-modal-lock body { position: fixed; left: 0; right: 0; overflow: hidden;
 @keyframes cta-modal-in { from { opacity: 0; } to { opacity: 1; } }
 @media (prefers-reduced-motion: reduce) {
   .cta-modal.is-open { animation: none; }
+}
+
+/* After a booking the CTA is no longer a button: just the words Talk soon! in the label's own type (font,
+   size, weight, baseline), in the page ink, in both looks -- not clickable, no hover, default cursor. The
+   button's box stays reserved (the two labels share one grid cell, the hidden one keeps its room), so
+   nothing moves, the headshot included. The words are centered on the page, not in the button: the row
+   (headshot + 10px + button) is centered, so the button's center sits half a headshot-plus-gap right of
+   the page's, and the words step back by exactly that. The headshot is 1.7em of the CTA size, on the 3px
+   unit (main.css .hero-avatar). Clearance to the headshot is ~0.9em + 5px at every width. */
+.cta-labels { display: inline-grid; justify-items: center; align-items: center; }
+.cta-labels > span { grid-area: 1 / 1; }
+.cta-booked { visibility: hidden; }
+:root[data-booked="yes"] .cta-label { visibility: hidden; }
+:root[data-booked="yes"] .cta-booked {
+  visibility: visible; position: relative;
+  left: calc(-0.5 * (round(nearest, calc(1.7 * clamp(27.5px, 3.75vw, 42.5px)), 3px) + 10px));
+}
+/* A: no pill */
+:root[data-booked="yes"] .hero-cta .hero-pill,
+:root[data-booked="yes"] .hero-cta .hero-pill:hover {
+  background: none; color: var(--text); pointer-events: none; cursor: default;
+}
+/* B: no face, no light, no HDR field -- the page ink (and so no HDR layer is left on screen) */
+:root[data-booked="yes"] .hero-cta .cta-b { pointer-events: none; cursor: default; }
+:root[data-booked="yes"] .hero-cta .cta-b::before,
+:root[data-booked="yes"] .hero-cta .cta-b .wm-accent__face { display: none; }
+:root[data-booked="yes"] .hero-cta .cta-b.wm-accent[data-look="q6n4"][data-shape="pill"]:not(:disabled) .wm-accent__lab {
+  background: none; color: var(--text); -webkit-text-fill-color: var(--text);
 }

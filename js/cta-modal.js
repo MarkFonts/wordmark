@@ -2,8 +2,11 @@
    design briefing in a full-viewport dialog (css/cta-modal.css), carrying the same UTM params as the
    links (js/cta-ab.js).
 
-   - Cal.com's official embed snippet, loaded lazily: first hover, focus or touch on a CTA, or the
-     click itself. The homepage's load cost does not change.
+   - Preloaded: once the page has loaded and the browser is idle, embed.js loads and the booking UI
+     renders inside the dialog while it is still hidden (off-screen, visibility: hidden, inert,
+     aria-hidden), so a click only reveals it. Cal's own preload/prerender is modal-only (for an
+     inline embed it fetches assets and nothing more), so the inline embed is simply mounted early.
+     A hover, focus or touch on a CTA, or the click itself, still starts it if idle never came.
    - A plain click opens the modal; a modifier or middle click keeps the link's new tab.
    - If embed.js fails to load (blocked) or has not loaded 2.5s after the click, the plain link
      opens in a new tab instead (in this tab if the browser blocks the popup): a click never dies.
@@ -24,7 +27,7 @@
   var UTM = { utm_source: 'wordmark.nyc', utm_medium: 'homepage_cta', utm_campaign: 'booking_ab_2610', utm_content: v === 'b' ? 'glassybut' : 'gradientbut' };
   var DEBUG = /[?&]caldebug=1\b/.test(location.search);
   var state = 'idle';            // idle -> loading -> loaded | failed
-  var script = null, mounted = false, modal = null, opener = null, open = false, fallbackTimer = 0, lockY = 0, pushed = false, restoreY = -1;
+  var booked = false, script = null, mounted = false, mountedTheme = '', mounts = 0, modal = null, opener = null, open = false, fallbackTimer = 0, lockY = 0, pushed = false, restoreY = -1;
 
   function theme() { return root.getAttribute('data-gaid-t') === 'light' ? 'light' : 'dark'; }
   function plainLink(from) { return (from || links[0]).href; }   // the UTM-tagged link cta-ab.js wrote
@@ -44,19 +47,25 @@
     var cal = window.Cal.ns[NS];
     cal('ui', { theme: theme(), hideEventTypeDetails: false, layout: 'month_view' });
     cal('on', { action: 'linkReady', callback: function () { if (modal) modal.classList.add('is-ready'); } });
-    cal('on', { action: 'linkFailed', callback: function () { if (open) fallback(); } });
+    cal('on', { action: 'linkFailed', callback: function () { state = 'failed'; if (open) fallback(); } });
     cal('on', { action: 'bookingSuccessfulV2', callback: function (e) {
       var data = (e && e.detail && e.detail.data) || {};
+      // the CTA becomes the words Talk soon!: stored now, applied in place when the dialog closes
+      booked = true; try { localStorage.setItem('wm-booked', 'yes'); } catch (err) {}
       cta.send('event', 'cta_booking', cta.params({ booking_status: typeof data.status === 'string' ? data.status : 'unknown' }));
     } });
     if (DEBUG) cal('on', { action: '*', callback: function (e) { console.log('[cal embed]', e.detail && e.detail.type, JSON.stringify(e.detail && e.detail.data)); } });
   }
   function mount() {
     if (mounted) return;
-    mounted = true;
-    var cfg = { theme: theme(), layout: 'month_view', overlayCalendar: 'true' };
+    mounted = true; mountedTheme = theme();
+    var cfg = { theme: mountedTheme, layout: 'month_view', overlayCalendar: 'true' };
     for (var k in UTM) cfg[k] = UTM[k];
-    window.Cal.ns[NS]('inline', { elementOrSelector: '#cta-modal-cal', calLink: CAL_LINK, config: cfg });
+    // a fresh target each time: a re-render (theme change) never reuses the old iframe's element
+    var host = d.getElementById('cta-modal-cal'), target = d.createElement('div');
+    target.id = 'cta-modal-cal-' + (++mounts);
+    host.textContent = ''; host.appendChild(target);
+    window.Cal.ns[NS]('inline', { elementOrSelector: '#' + target.id, calLink: CAL_LINK, config: cfg });
   }
 
   // ── the dialog ───────────────────────────────────────────────────────────────────────────────────
@@ -67,17 +76,54 @@
     modal.innerHTML =
       '<div class="cta-modal__tint" data-close></div>' +
       '<div class="cta-modal__panel" role="dialog" aria-modal="true" aria-label="Book a design briefing">' +
-        '<div class="cta-modal__bar">' +
-          '<button type="button" class="cta-modal__close" aria-label="Close" data-close>' +
-            '<svg viewBox="0 0 18 18" aria-hidden="true"><path d="M3 3l12 12M15 3L3 15" stroke="currentColor" stroke-width="1.75" stroke-linecap="round"/></svg>' +
-          '</button>' +
-        '</div>' +
+        '<button type="button" class="cta-modal__close" aria-label="Close" data-close>' +
+          '<svg viewBox="0 0 18 18" aria-hidden="true"><path d="M3 3l12 12M15 3L3 15" stroke="currentColor" stroke-width="1.75" stroke-linecap="round"/></svg>' +
+        '</button>' +
         '<div class="cta-modal__body"><div class="cta-modal__status" aria-hidden="true">Loading the calendar…</div><div id="cta-modal-cal" class="cta-modal__cal"></div></div>' +
       '</div>';
+    hide();
     d.body.appendChild(modal);
-    modal.addEventListener('click', function (e) { if (e.target.closest('[data-close]')) close(); });
-    // iOS: no scroll chaining from the tint or the bar to the page behind
+    // the tint closes it, and so does any of our own empty space around the booker (the panel and its
+    // scroller); a click inside Cal's iframe never reaches this page
+    modal.addEventListener('click', function (e) {
+      if (e.target.closest('[data-close]') || e.target.classList.contains('cta-modal__panel') || e.target.classList.contains('cta-modal__body') || e.target.id === 'cta-modal-cal') close();
+    });
+    // iOS: no scroll chaining from the tint to the page behind
     modal.addEventListener('touchmove', function (e) { if (!e.target.closest('.cta-modal__body')) e.preventDefault(); }, { passive: false });
+  }
+
+  // closed (and while preloading): out of the tab order and the accessibility tree
+  function hide() { modal.inert = true; modal.setAttribute('aria-hidden', 'true'); }
+  function show() { modal.inert = false; modal.removeAttribute('aria-hidden'); }
+
+  // the preload: embed.js, then the inline embed mounted in the hidden dialog. Fires no GA event.
+  function preload() {
+    if (open || state === 'failed') return;
+    build(); load();
+    if (!mounted) { modal.classList.add('is-preloading'); mount(); }
+  }
+
+  // Cal's 'ui' { theme } does not restyle a live inline embed (tested), so a theme change re-renders it:
+  // at once if the dialog is closed (hidden, like the preload), so it is ready again before the click
+  function remount() {
+    mounted = false;
+    if (modal) modal.classList.remove('is-ready');
+    mount();
+  }
+  new MutationObserver(function () { if (mounted && !open && theme() !== mountedTheme) remount(); })
+    .observe(root, { attributes: true, attributeFilter: ['data-gaid-t'] });
+
+  // desktop and tablet: the booker over the CTA it was opened from -- centered on the button, kept 24px inside
+  // the viewport; re-placed when its height changes (each booker step has its own). Phones: full screen.
+  var placeRO = null;
+  function place() {
+    if (!open || !opener) return;
+    if (window.innerWidth <= 640) { modal.classList.remove('is-placed'); return; }
+    var panel = modal.querySelector('.cta-modal__panel'), ph = panel.offsetHeight, vh = window.innerHeight;
+    var r = opener.getBoundingClientRect(), mid = r.top + r.height / 2;
+    var top = Math.round(Math.max(24, Math.min(mid - ph / 2, vh - 24 - ph)));
+    modal.style.setProperty('--cta-modal-top', top + 'px');
+    modal.classList.add('is-placed');
   }
 
   function lock() {
@@ -99,13 +145,17 @@
     if (open) return;
     opener = from; open = true;
     build(); load();
-    window.Cal.ns[NS]('ui', { theme: theme() });
+    if (mounted && theme() !== mountedTheme) remount();   // the theme changed while closed and the re-render has not run
     mount();
+    modal.classList.remove('is-preloading');
+    show();
     // the history entry first: the browser stores the page's scroll with the entry it leaves, and Back
     // (ours on close, or the visitor's) restores it -- it must be the real scroll, not the pinned 0
     try { history.pushState({ wmBooking: 1 }, ''); pushed = true; } catch (e) { pushed = false; }
     lock();
     modal.classList.add('is-open');
+    place();
+    if (!placeRO && 'ResizeObserver' in window) { placeRO = new ResizeObserver(place); placeRO.observe(modal.querySelector('.cta-modal__panel')); }
     modal.querySelector('.cta-modal__close').focus();
     cta.send('event', 'cta_modal_open', cta.params({}));
     if (state === 'failed') fallback();
@@ -115,10 +165,14 @@
     if (!open) return;
     open = false; clearTimeout(fallbackTimer);
     modal.classList.remove('is-open');
+    modal.classList.add('is-preloading');   // closed = hidden off-screen again, so a re-render can still lay out
+    hide();
+    if (booked) root.setAttribute('data-booked', 'yes');
+    syncBooked();
     unlock();
     if (pushed && !fromPop) { restoreY = lockY; history.back(); }   // the popstate it fires is ours: see below
     pushed = false;
-    if (opener) opener.focus({ preventScroll: true });
+    if (opener && !isBooked()) opener.focus({ preventScroll: true });   // booked: the CTA is no longer a control
   }
   function fallback() {
     var url = plainLink(opener);
@@ -133,11 +187,26 @@
   links.forEach(function (el) {
     ['pointerenter', 'focus', 'touchstart'].forEach(function (t) { el.addEventListener(t, load, { once: true, passive: true }); });
     el.addEventListener('click', function (e) {
+      if (isBooked()) { e.preventDefault(); return; }   // booked: the words are not a control (no modal, no link)
       if (e.defaultPrevented || e.button !== 0 || e.metaKey || e.ctrlKey || e.shiftKey || e.altKey) return;   // a new tab, as asked
       e.preventDefault();
       openModal(el);
     });
   });
+  // booked (now, or on an earlier visit): the CTA reads Talk soon! and is not a control -- out of the tab
+  // order and announced as disabled (css/cta-modal.css draws it)
+  function isBooked() { return root.getAttribute('data-booked') === 'yes'; }
+  function syncBooked() {
+    links.forEach(function (a) {
+      if (isBooked()) { a.setAttribute('aria-disabled', 'true'); a.setAttribute('tabindex', '-1'); }
+      else { a.removeAttribute('aria-disabled'); a.removeAttribute('tabindex'); }
+    });
+  }
+  syncBooked();
+
+  function idle() { if ('requestIdleCallback' in window) requestIdleCallback(preload, { timeout: 3000 }); else setTimeout(preload, 1500); }
+  if (d.readyState === 'complete') idle(); else window.addEventListener('load', idle, { once: true });
+  window.addEventListener('resize', place);
   d.addEventListener('keydown', function (e) { if (open && e.key === 'Escape') { e.preventDefault(); close(); } });
   window.addEventListener('popstate', function () {
     if (open) { close(true); return; }
