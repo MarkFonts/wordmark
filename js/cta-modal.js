@@ -66,10 +66,8 @@
     modal.className = 'cta-modal';
     modal.innerHTML =
       '<div class="cta-modal__tint" data-close></div>' +
-      '<div class="cta-modal__panel" role="dialog" aria-modal="true" aria-labelledby="cta-modal-title">' +
+      '<div class="cta-modal__panel" role="dialog" aria-modal="true" aria-label="Book a design briefing">' +
         '<div class="cta-modal__bar">' +
-          '<h2 class="cta-modal__title" id="cta-modal-title">Book a design briefing</h2>' +
-          '<a class="cta-modal__tab" target="_blank" rel="noopener">Open in a new tab</a>' +
           '<button type="button" class="cta-modal__close" aria-label="Close" data-close>' +
             '<svg viewBox="0 0 18 18" aria-hidden="true"><path d="M3 3l12 12M15 3L3 15" stroke="currentColor" stroke-width="1.75" stroke-linecap="round"/></svg>' +
           '</button>' +
@@ -78,7 +76,6 @@
       '</div>';
     d.body.appendChild(modal);
     modal.addEventListener('click', function (e) { if (e.target.closest('[data-close]')) close(); });
-    modal.querySelector('.cta-modal__tab').addEventListener('click', function () { close(); });
     // iOS: no scroll chaining from the tint or the bar to the page behind
     modal.addEventListener('touchmove', function (e) { if (!e.target.closest('.cta-modal__body')) e.preventDefault(); }, { passive: false });
   }
@@ -102,7 +99,6 @@
     if (open) return;
     opener = from; open = true;
     build(); load();
-    modal.querySelector('.cta-modal__tab').href = plainLink(from);
     window.Cal.ns[NS]('ui', { theme: theme() });
     mount();
     // the history entry first: the browser stores the page's scroll with the entry it leaves, and Back
