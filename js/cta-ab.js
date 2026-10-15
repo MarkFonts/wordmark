@@ -23,16 +23,17 @@
 
   var pill = document.querySelector('.hero-cta .hero-pill'), accent = document.querySelector('.hero-cta .cta-b');
 
-  // the booking carries the variant: Cal.com stores UTM params on each booking (utm_content = a|b).
-  // The static href stays plain https://cal.com/davis, so a visitor without JS still gets there.
+  // the booking carries the variant: Cal.com stores UTM params on each booking. utm_content names the
+  // look in words that still read months later (a = pill, b = hdr); GA's variant stays a|b. The static
+  // href is the plain event link, so a visitor without JS still gets there.
   [pill, accent].forEach(function (el) {
     if (!el) return;
     try {
       var u = new URL(el.href);
       u.searchParams.set('utm_source', 'wordmark.nyc');
       u.searchParams.set('utm_medium', 'homepage_cta');
-      u.searchParams.set('utm_campaign', 'booking_ab');
-      u.searchParams.set('utm_content', v);
+      u.searchParams.set('utm_campaign', 'booking_ab_2610');
+      u.searchParams.set('utm_content', v === 'b' ? 'hdr' : 'pill');
       el.href = u.toString();
     } catch (e) {}
   });
