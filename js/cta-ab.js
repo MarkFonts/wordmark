@@ -2,7 +2,8 @@
      cta_view   once, when the shown CTA is at least half on screen
      cta_click  on a click on either look (beacon transport: the link opens a new tab, but a beacon
                 survives the page going away either way)
-   Both carry variant (a|b, the assignment), rendered (a|b, the look actually on screen: today always
+   Both carry booked (yes|no: this visitor has booked before, so their clicks can be filtered out),
+   variant (a|b, the assignment), rendered (a|b, the look actually on screen: today always
    the variant, since B has A's box at every width; kept so a future fallback stays measurable), and
    hdr (yes|no). The user property cta_variant is set in the head.
    GA blocked or absent: gtag is the head's dataLayer shim, or a local one; nothing here throws. */
@@ -16,7 +17,7 @@
   };
   function rendered() { var e = document.querySelector('.hero-cta .cta-b'); return e && e.getClientRects().length ? 'b' : 'a'; }
   function params(extra) {
-    var p = { variant: v, rendered: rendered(), hdr: mm('(dynamic-range: high)') ? 'yes' : 'no' };
+    var p = { variant: v, rendered: rendered(), hdr: mm('(dynamic-range: high)') ? 'yes' : 'no', booked: d.getAttribute('data-booked') === 'yes' ? 'yes' : 'no' };
     for (var k in extra) p[k] = extra[k];
     return p;
   }

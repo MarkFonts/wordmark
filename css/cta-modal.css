@@ -11,6 +11,12 @@
   overscroll-behavior: contain;
 }
 .cta-modal.is-open { display: grid; place-items: center; }
+/* desktop and tablet: the booker is placed over the CTA it came from (js/cta-modal.js sets --cta-modal-top:
+   centered on the button, kept 24px inside the viewport), not centered in the window */
+@media (min-width: 641px) {
+  .cta-modal.is-open.is-placed { place-items: start center; }
+  .cta-modal.is-placed .cta-modal__panel { margin-top: var(--cta-modal-top, 24px); }
+}
 /* preloading (js/cta-modal.js): laid out at full size so the embed renders, but off-screen, unpainted
    and unreachable (the script also makes it inert and aria-hidden) */
 .cta-modal.is-preloading:not(.is-open) {
@@ -79,3 +85,12 @@ html.cta-modal-lock body { position: fixed; left: 0; right: 0; overflow: hidden;
 @media (prefers-reduced-motion: reduce) {
   .cta-modal.is-open { animation: none; }
 }
+
+/* After a booking the CTA reads “Talk soon!” (no arrow) in both looks. The two labels share one grid
+   cell and the hidden one keeps its room, so the box never changes size and B's art never shifts; B's
+   label keeps its HDR field (background-clip: text clips whichever label is visible). */
+.cta-labels { display: inline-grid; justify-items: center; align-items: center; }
+.cta-labels > span { grid-area: 1 / 1; }
+.cta-booked { visibility: hidden; }
+:root[data-booked="yes"] .cta-label { visibility: hidden; }
+:root[data-booked="yes"] .cta-booked { visibility: visible; }

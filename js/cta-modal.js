@@ -27,7 +27,7 @@
   var UTM = { utm_source: 'wordmark.nyc', utm_medium: 'homepage_cta', utm_campaign: 'booking_ab_2610', utm_content: v === 'b' ? 'glassybut' : 'gradientbut' };
   var DEBUG = /[?&]caldebug=1\b/.test(location.search);
   var state = 'idle';            // idle -> loading -> loaded | failed
-  var script = null, mounted = false, mountedTheme = '', mounts = 0, modal = null, opener = null, open = false, fallbackTimer = 0, lockY = 0, pushed = false, restoreY = -1;
+  var booked = false, script = null, mounted = false, mountedTheme = '', mounts = 0, modal = null, opener = null, open = false, fallbackTimer = 0, lockY = 0, pushed = false, restoreY = -1;
 
   function theme() { return root.getAttribute('data-gaid-t') === 'light' ? 'light' : 'dark'; }
   function plainLink(from) { return (from || links[0]).href; }   // the UTM-tagged link cta-ab.js wrote
@@ -50,6 +50,8 @@
     cal('on', { action: 'linkFailed', callback: function () { state = 'failed'; if (open) fallback(); } });
     cal('on', { action: 'bookingSuccessfulV2', callback: function (e) {
       var data = (e && e.detail && e.detail.data) || {};
+      // the CTA will read “Talk soon!”: stored now, applied in place when the dialog closes
+      booked = true; try { localStorage.setItem('wm-booked', 'yes'); } catch (err) {}
       cta.send('event', 'cta_booking', cta.params({ booking_status: typeof data.status === 'string' ? data.status : 'unknown' }));
     } });
     if (DEBUG) cal('on', { action: '*', callback: function (e) { console.log('[cal embed]', e.detail && e.detail.type, JSON.stringify(e.detail && e.detail.data)); } });
@@ -111,6 +113,19 @@
   new MutationObserver(function () { if (mounted && !open && theme() !== mountedTheme) remount(); })
     .observe(root, { attributes: true, attributeFilter: ['data-gaid-t'] });
 
+  // desktop and tablet: the booker over the CTA it was opened from -- centered on the button, kept 24px inside
+  // the viewport; re-placed when its height changes (each booker step has its own). Phones: full screen.
+  var placeRO = null;
+  function place() {
+    if (!open || !opener) return;
+    if (window.innerWidth <= 640) { modal.classList.remove('is-placed'); return; }
+    var panel = modal.querySelector('.cta-modal__panel'), ph = panel.offsetHeight, vh = window.innerHeight;
+    var r = opener.getBoundingClientRect(), mid = r.top + r.height / 2;
+    var top = Math.round(Math.max(24, Math.min(mid - ph / 2, vh - 24 - ph)));
+    modal.style.setProperty('--cta-modal-top', top + 'px');
+    modal.classList.add('is-placed');
+  }
+
   function lock() {
     lockY = window.scrollY;
     var gutter = window.innerWidth - root.clientWidth;          // the scrollbar about to go away
@@ -139,6 +154,8 @@
     try { history.pushState({ wmBooking: 1 }, ''); pushed = true; } catch (e) { pushed = false; }
     lock();
     modal.classList.add('is-open');
+    place();
+    if (!placeRO && 'ResizeObserver' in window) { placeRO = new ResizeObserver(place); placeRO.observe(modal.querySelector('.cta-modal__panel')); }
     modal.querySelector('.cta-modal__close').focus();
     cta.send('event', 'cta_modal_open', cta.params({}));
     if (state === 'failed') fallback();
@@ -150,6 +167,7 @@
     modal.classList.remove('is-open');
     modal.classList.add('is-preloading');   // closed = hidden off-screen again, so a re-render can still lay out
     hide();
+    if (booked) root.setAttribute('data-booked', 'yes');
     unlock();
     if (pushed && !fromPop) { restoreY = lockY; history.back(); }   // the popstate it fires is ours: see below
     pushed = false;
@@ -175,6 +193,7 @@
   });
   function idle() { if ('requestIdleCallback' in window) requestIdleCallback(preload, { timeout: 3000 }); else setTimeout(preload, 1500); }
   if (d.readyState === 'complete') idle(); else window.addEventListener('load', idle, { once: true });
+  window.addEventListener('resize', place);
   d.addEventListener('keydown', function (e) { if (open && e.key === 'Escape') { e.preventDefault(); close(); } });
   window.addEventListener('popstate', function () {
     if (open) { close(true); return; }
