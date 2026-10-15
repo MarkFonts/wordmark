@@ -1,0 +1,70 @@
+/* cta-modal.css -- the booking modal both homepage CTAs open (js/cta-modal.js): a full-viewport tint
+   over the page, Cal.com's inline embed in a panel. Desktop: a large centered panel with the tint
+   around it. Phones: the panel fills the screen. The page behind is inert and its scroll is locked.
+
+   The tint sits ABOVE variant B's HDR button and is never its ancestor; nothing here adds a
+   transform or an opacity to anything that holds B. The fade is on the modal itself. */
+.cta-modal {
+  position: fixed; inset: 0; z-index: 1000;
+  display: none;
+  overscroll-behavior: contain;
+}
+.cta-modal.is-open { display: grid; place-items: center; }
+.cta-modal__tint {
+  position: absolute; inset: 0;
+  background: rgb(0 0 0 / .62);
+  touch-action: none;                 /* no pan or rubber-band through the tint */
+}
+:root[data-gaid-t="light"] .cta-modal__tint { background: rgb(22 22 22 / .45); }
+.cta-modal__panel {
+  position: relative;
+  display: flex; flex-direction: column;
+  width: min(1120px, calc(100vw - 64px));
+  height: min(860px, calc(100dvh - 64px));
+  background: var(--bg); color: var(--text);
+  border-radius: 18px; corner-shape: superellipse(1.4);
+  overflow: hidden;
+  box-shadow: 0 24px 80px rgb(0 0 0 / .35);
+}
+.cta-modal__bar {
+  flex: none;
+  display: flex; align-items: center; justify-content: flex-end;
+  padding: 8px 12px;
+  border-bottom: 1px solid rgba(var(--text-rgb), .12);
+}
+.cta-modal__close {
+  all: unset; box-sizing: border-box; cursor: pointer;
+  display: grid; place-items: center; width: 36px; height: 36px; border-radius: 50%;
+  color: inherit;
+}
+.cta-modal__close:hover { background: rgba(var(--text-rgb), .1); }
+.cta-modal__close:focus-visible { outline: 2px solid currentColor; outline-offset: 2px; }
+.cta-modal__close svg { width: 18px; height: 18px; display: block; }
+.cta-modal__body {
+  position: relative; flex: 1; min-height: 0;
+  overflow-y: auto; overscroll-behavior: contain; -webkit-overflow-scrolling: touch;
+}
+.cta-modal__cal { min-height: 100%; }
+.cta-modal__status {
+  position: absolute; inset: 0; display: grid; place-items: center;
+  font-family: 'CalSans', -apple-system, sans-serif; font-size: 15px; opacity: .6;
+  pointer-events: none;
+}
+.cta-modal.is-ready .cta-modal__status { display: none; }
+
+/* phones: the booking UI fills the screen */
+@media (max-width: 640px) {
+  .cta-modal__panel { width: 100vw; height: 100dvh; border-radius: 0; box-shadow: none; }
+}
+
+/* the page behind, while open: pinned in place (iOS Safari will not rubber-band a fixed body);
+   js/cta-modal.js sets top to -scrollY (and pads the scrollbar's width back where scrollbar-gutter is unsupported) */
+html.cta-modal-lock { scroll-behavior: auto; scrollbar-gutter: stable; }   /* the page does not shift when its scrollbar goes */
+html.cta-modal-lock body { position: fixed; left: 0; right: 0; overflow: hidden; }
+
+/* the fade, and none for reduced motion */
+.cta-modal.is-open { animation: cta-modal-in .18s ease-out; }
+@keyframes cta-modal-in { from { opacity: 0; } to { opacity: 1; } }
+@media (prefers-reduced-motion: reduce) {
+  .cta-modal.is-open { animation: none; }
+}

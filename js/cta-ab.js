@@ -42,6 +42,9 @@
     if (el) el.addEventListener('click', function () { send('event', 'cta_click', params({ transport_type: 'beacon' })); });
   });
 
+  // the booking modal (js/cta-modal.js) sends its events through these, with the same params
+  window.wmCta = { variant: v, params: params, send: send };
+
   // cta_view: whichever look is displayed when it first crosses half visible
   var viewed = false;
   if ('IntersectionObserver' in window) {
