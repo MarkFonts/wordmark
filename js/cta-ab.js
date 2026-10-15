@@ -31,7 +31,7 @@
       var u = new URL(el.href);
       u.searchParams.set('utm_source', 'wordmark.nyc');
       u.searchParams.set('utm_medium', 'homepage_cta');
-      u.searchParams.set('utm_campaign', 'cta_ab');
+      u.searchParams.set('utm_campaign', 'booking_ab');
       u.searchParams.set('utm_content', v);
       el.href = u.toString();
     } catch (e) {}
