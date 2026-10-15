@@ -17,6 +17,10 @@
    The spill flows past the hero, under the dek: #hero's clip is lifted for B, the two canvases'
    grounds go transparent, and the headline and the dek canvas are raised above the plane. */
 
+/* the one registered number the whole light is driven by: registered, it interpolates across the
+   .65s transition and the frames step through; unregistered, it would jump 0 -> 1 */
+@property --ab-p { syntax: "<number>"; inherits: true; initial-value: 0; }
+
 .hero-cta .wm-accent {
   font-family:var(--ui-font);
 }
