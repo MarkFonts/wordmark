@@ -3,6 +3,7 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
+<script>(function(){var t='auto';try{var v=localStorage.getItem('wm-theme');if(v==='light'||v==='dark'||v==='auto')t=v}catch(e){}document.documentElement.dataset.theme=t})();</script>
 <title>ReCal Sans — a tunable variable alternative to Poppins</title>
 <meta name="description" content="Poppins is already free — so the reason to switch is control. ReCal Sans is a variable font you tune in the browser: a geometric axis, a real optical-size axis, and your own defaults baked into the file you download.">
 <link rel="canonical" href="https://wordmark.nyc/recalsans/poppins/">
@@ -35,8 +36,8 @@ gtag('config', 'G-MZ4M1P8P1P');
 </script>
 <!-- Boot the app frozen into this page's preset (initial state only — fully editable) -->
 <script>window.__RECAL_BOOT = {"scene":"paragraph","pitch":{"title":"Tuned toward Poppins","paragraphs":["The geometric axis raised toward the circular, monolinear feel Poppins is loved for — and a real optical-size axis Poppins doesn’t have. Everything here is live: drag the axes, edit this text, press compare to see it in Poppins itself, then download the font with your settings baked in."]},"preset":"Poppins","compare":{"label":"Poppins","family":"'Poppins', sans-serif","wghtRange":[400,700],"italic":true,"css":"https://fonts.googleapis.com/css2?family=Poppins:ital,wght@0,400;0,500;0,600;0,700;1,400;1,700&display=swap"}};</script>
-<script type="module" crossorigin src="/recalsans/assets/index-BjvYacwx.js"></script>
-<link rel="stylesheet" crossorigin href="/recalsans/assets/index-ByUDIEH5.css">
+<script type="module" crossorigin src="/recalsans/assets/index-CrhGKsut.js"></script>
+<link rel="stylesheet" crossorigin href="/recalsans/assets/index-BF9Rob_0.css">
 <link rel="stylesheet" href="/recalsans/grid.css">
 <link rel="stylesheet" href="/recalsans/landing.css">
 <script src="/recalsans/gridSnap.js" defer></script>
@@ -80,7 +81,9 @@ gtag('config', 'G-MZ4M1P8P1P');
 <main class="seo-below wm-lines" id="about">
 <article class="wrap wm-grid">
 <div class="seo-col">
-  <div class="live-note">▲ Live above, already set to Poppins. <a href="#top" onclick="scrollTo({top:0,behavior:'smooth'});return false">Back to the tool</a></div>
+  <div class="live-note"><span>▲ Live above, already set to Poppins. <a href="#top" onclick="scrollTo({top:0,behavior:'smooth'});return false">Back to the tool</a></span>
+    <div class="wm-theme" id="theme-switch" role="group" aria-label="Colour scheme"><button type="button" data-mode="auto" aria-pressed="false" aria-label="Auto colour scheme" title="Follow the system setting" class="wm-icon-btn"><span class="wm-icon material-symbols-outlined wm-icon--rest" style="font-size:20px;--icon-opsz:20;--icon-fill:0" aria-hidden="true" translate="no">brightness_auto</span></button><button type="button" data-mode="light" aria-pressed="false" aria-label="Light colour scheme" title="Force the light palette" class="wm-icon-btn"><span class="wm-icon material-symbols-outlined wm-icon--rest" style="font-size:20px;--icon-opsz:20;--icon-fill:0" aria-hidden="true" translate="no">light_mode</span></button><button type="button" data-mode="dark" aria-pressed="false" aria-label="Dark colour scheme" title="Force the dark palette" class="wm-icon-btn"><span class="wm-icon material-symbols-outlined wm-icon--rest" style="font-size:20px;--icon-opsz:20;--icon-fill:0" aria-hidden="true" translate="no">dark_mode</span></button></div>
+  </div>
   <nav class="crumb"><a href="https://wordmark.nyc/">WORDMARK</a> › <a href="/recalsans/">ReCal Sans</a> › Poppins alternative</nav>
 
   <h1>A tunable, variable alternative to Poppins</h1>
@@ -176,12 +179,17 @@ gtag('config', 'G-MZ4M1P8P1P');
     largeFontFamily: "'CalSansSEO', system-ui, sans-serif",
     fillFontFamily:  "'CalSansSEO', system-ui, sans-serif",
     fillSize: 10, widthFraction: 0.98, minFillSize: 6, bleedTop: 180,
-    ink: '#e8e8e8',
-    signal: 'color(display-p3 0.9333 1 0.2549)',
+    // custom property NAMES, read live: the letterbox follows the theme (ink and the signal, acid in dark and #557b00 in light)
+    ink: '--text',
+    signal: '--signal-acid',
     colorSpace: 'display-p3',
     speckle: { share: 1 / 6, groups: 5 },
   })
   if (lb) document.fonts?.ready.then(lb.init) ?? lb.init()
+</script>
+<script type="module">
+  import { mountThemeSwitch } from '/recalsans/theme.js'
+  mountThemeSwitch(document.getElementById('theme-switch'))
 </script>
 </body>
 </html>

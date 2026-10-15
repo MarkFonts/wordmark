@@ -3,6 +3,7 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
+<script>(function(){var t='auto';try{var v=localStorage.getItem('wm-theme');if(v==='light'||v==='dark'||v==='auto')t=v}catch(e){}document.documentElement.dataset.theme=t})();</script>
 <title>ReCal Sans — a free variable alternative to Circular</title>
 <meta name="description" content="ReCal Sans is a free, open-source variable geometric sans you can tune in the browser and download. If you use Circular, this is a customizable, OFL alternative with a friendlier license and a real optical-size axis.">
 <link rel="canonical" href="https://wordmark.nyc/recalsans/circular/">
@@ -35,8 +36,8 @@ gtag('config', 'G-MZ4M1P8P1P');
 </script>
 <!-- Boot the app frozen into this page's preset (initial state only — fully editable) -->
 <script>window.__RECAL_BOOT = {"scene":"paragraph","pitch":{"title":"Tuned toward Circular","paragraphs":["A warm geometric register — the rounded, friendly construction Circular sold to a decade of brands, without the license. Everything here is live: drag the axes, edit this text, then download the font with your settings baked in. Free under the OFL."]},"preset":"Circular","compare":{"label":"Circular","family":"sans-serif","italic":false,"svg":"/recalsans/compare/circular.svg"}};</script>
-<script type="module" crossorigin src="/recalsans/assets/index-BjvYacwx.js"></script>
-<link rel="stylesheet" crossorigin href="/recalsans/assets/index-ByUDIEH5.css">
+<script type="module" crossorigin src="/recalsans/assets/index-CrhGKsut.js"></script>
+<link rel="stylesheet" crossorigin href="/recalsans/assets/index-BF9Rob_0.css">
 <link rel="stylesheet" href="/recalsans/grid.css">
 <link rel="stylesheet" href="/recalsans/landing.css">
 <script src="/recalsans/gridSnap.js" defer></script>
@@ -80,7 +81,9 @@ gtag('config', 'G-MZ4M1P8P1P');
 <main class="seo-below wm-lines" id="about">
 <article class="wrap wm-grid">
 <div class="seo-col">
-  <div class="live-note">▲ Live above, already set to Circular. <a href="#top" onclick="scrollTo({top:0,behavior:'smooth'});return false">Back to the tool</a></div>
+  <div class="live-note"><span>▲ Live above, already set to Circular. <a href="#top" onclick="scrollTo({top:0,behavior:'smooth'});return false">Back to the tool</a></span>
+    <div class="wm-theme" id="theme-switch" role="group" aria-label="Colour scheme"><button type="button" data-mode="auto" aria-pressed="false" aria-label="Auto colour scheme" title="Follow the system setting" class="wm-icon-btn"><span class="wm-icon material-symbols-outlined wm-icon--rest" style="font-size:20px;--icon-opsz:20;--icon-fill:0" aria-hidden="true" translate="no">brightness_auto</span></button><button type="button" data-mode="light" aria-pressed="false" aria-label="Light colour scheme" title="Force the light palette" class="wm-icon-btn"><span class="wm-icon material-symbols-outlined wm-icon--rest" style="font-size:20px;--icon-opsz:20;--icon-fill:0" aria-hidden="true" translate="no">light_mode</span></button><button type="button" data-mode="dark" aria-pressed="false" aria-label="Dark colour scheme" title="Force the dark palette" class="wm-icon-btn"><span class="wm-icon material-symbols-outlined wm-icon--rest" style="font-size:20px;--icon-opsz:20;--icon-fill:0" aria-hidden="true" translate="no">dark_mode</span></button></div>
+  </div>
   <nav class="crumb"><a href="https://wordmark.nyc/">WORDMARK</a> › <a href="/recalsans/">ReCal Sans</a> › Circular alternative</nav>
 
   <h1>A free, tunable alternative to Circular</h1>
@@ -176,12 +179,17 @@ gtag('config', 'G-MZ4M1P8P1P');
     largeFontFamily: "'CalSansSEO', system-ui, sans-serif",
     fillFontFamily:  "'CalSansSEO', system-ui, sans-serif",
     fillSize: 10, widthFraction: 0.98, minFillSize: 6, bleedTop: 180,
-    ink: '#e8e8e8',
-    signal: 'color(display-p3 0.9333 1 0.2549)',
+    // custom property NAMES, read live: the letterbox follows the theme (ink and the signal, acid in dark and #557b00 in light)
+    ink: '--text',
+    signal: '--signal-acid',
     colorSpace: 'display-p3',
     speckle: { share: 1 / 6, groups: 5 },
   })
   if (lb) document.fonts?.ready.then(lb.init) ?? lb.init()
+</script>
+<script type="module">
+  import { mountThemeSwitch } from '/recalsans/theme.js'
+  mountThemeSwitch(document.getElementById('theme-switch'))
 </script>
 </body>
 </html>
