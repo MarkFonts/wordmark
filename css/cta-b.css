@@ -1,0 +1,669 @@
+/* cta-b.css -- variant B of the homepage CTA A/B test: the Q6 -> N4 accent button at hero size
+   (550 x 110, the big reach), ported from the CTA preview (accentButton.css + q6hero.css, only the
+   rules this one button matches, in their original order). Variant A is the .hero-pill, untouched.
+
+   Who sees what: the head script in index.html stamps <html data-gaid="a|b"> (?gaid= overrides,
+   then localStorage wm-gaid, then 50/50) and data-gaid-t="dark|light", the resolved theme (the
+   site's data-theme can be "auto"); every rule below keys on data-gaid-t, never on data-theme.
+   B shows only at 800px and up -- 550 + the 110 avatar + its gap need 680 plus the page margins
+   (7vw each side), which fit from ~791px. Narrower, a B visitor sees A's pill and keeps the B label.
+
+   The light is pre-rendered (assets/cta-b/): straight-alpha acid in SDR, opaque PQ planes in HDR
+   whose floor is THIS page's ground -- #0f0f0f dark (0.97 nits), #f5faff light (BT.2020 RGB
+   190.7 / 195.3 / 203.7 nits) -- every side even, MaxCLL the true peak. Under HDR the ground under the
+   planes is the matching PQ swatch (.cta-b-ground), so their edges meet their own floor. Nothing
+   HDR, or above it, has a transform, an opacity below 1, or will-change.
+
+   The spill flows past the hero, under the dek: #hero's clip is lifted for B, the two canvases'
+   grounds go transparent, and the headline and the dek canvas are raised above the plane. */
+
+.hero-cta .wm-accent {
+  font-family:var(--ui-font);
+}
+.hero-cta .arrow {
+  font-variation-settings:'wght' 700;
+  position:relative;
+  top:.08em;
+}
+.wm-accent[data-look="q6n4"] .wm-accent__lab {
+  position:relative;
+  z-index:2;
+}
+.hero-cta .wm-accent__lab {
+  display:block;
+  padding-block:.2em;
+  margin-block:-.2em;
+}
+.wm-accent {
+  --ab-acid: #eeff41;
+  --ab-acid: color(display-p3 0.9333 1 0.2549);
+  --ab-apple: #96d500;
+  --ab-apple: color(display-p3 0.6240 0.8394 0);
+  --ab-face: var(--surface);
+  --ab-ink: color-mix(in oklab, var(--ab-acid) 22%, white);
+  --ab-off-ink: #8a8a8a;
+  --ab-off-line: rgba(255, 255, 255, .09);
+  --ab-fade-top: 100vh;
+  --ab-fade-right: 100vw;
+  --ab-fade-bottom: 100vh;
+  --ab-fade-left: 100vw;
+  --ab-fade-soft: 16px;
+  --ab-b0: calc(var(--ab-mt) - var(--ab-fade-top));
+  --ab-b1: calc(100% - var(--ab-mb) + var(--ab-fade-bottom));
+  --ab-b2: calc(var(--ab-mx) - var(--ab-fade-left));
+  --ab-b3: calc(100% - var(--ab-mx) + var(--ab-fade-right));
+  --ab-bs: var(--ab-fade-soft);
+  --ab-bound: linear-gradient(180deg, transparent var(--ab-b0), rgba(0, 0, 0, .05) calc(var(--ab-b0) + var(--ab-bs) * .25), rgba(0, 0, 0, .22) calc(var(--ab-b0) + var(--ab-bs) * .5), rgba(0, 0, 0, .6) calc(var(--ab-b0) + var(--ab-bs) * .75), #000 calc(var(--ab-b0) + var(--ab-bs)), #000 calc(var(--ab-b1) - var(--ab-bs)), rgba(0, 0, 0, .6) calc(var(--ab-b1) - var(--ab-bs) * .75), rgba(0, 0, 0, .22) calc(var(--ab-b1) - var(--ab-bs) * .5), rgba(0, 0, 0, .05) calc(var(--ab-b1) - var(--ab-bs) * .25), transparent var(--ab-b1)), linear-gradient(90deg, transparent var(--ab-b2), rgba(0, 0, 0, .05) calc(var(--ab-b2) + var(--ab-bs) * .25), rgba(0, 0, 0, .22) calc(var(--ab-b2) + var(--ab-bs) * .5), rgba(0, 0, 0, .6) calc(var(--ab-b2) + var(--ab-bs) * .75), #000 calc(var(--ab-b2) + var(--ab-bs)), #000 calc(var(--ab-b3) - var(--ab-bs)), rgba(0, 0, 0, .6) calc(var(--ab-b3) - var(--ab-bs) * .75), rgba(0, 0, 0, .22) calc(var(--ab-b3) - var(--ab-bs) * .5), rgba(0, 0, 0, .05) calc(var(--ab-b3) - var(--ab-bs) * .25), transparent var(--ab-b3));
+  position: relative;
+  isolation: isolate;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: var(--spacing-02, 6px);
+  box-sizing: border-box;
+  margin: 0;
+  border: 1px solid transparent;
+  font-family: var(--ui-font);
+  font-size: var(--type-ui-size, .75rem);
+  cursor: pointer;
+  -webkit-tap-highlight-color: transparent;
+}
+.wm-accent[data-shape="pill"] {
+  padding: 0 16px;
+  border-radius: 999px;
+  corner-shape: round;
+  font-weight: 700;
+}
+.wm-accent[data-look="q6n4"],
+.wm-accent[data-look="q6n4"]:hover:not(:disabled),
+.wm-accent[data-look="q6n4"]:active:not(:disabled) {
+  --ab-p: 0;
+  --ab-H: 32px;
+  --ab-XS: 26px;
+  --ab-NF: 47;
+  --ab-N0: 8;
+  --ab-N1: 30;
+  --ab-N2: 8;
+  --ab-q: clamp(0, calc(var(--ab-p) / .4), 1);
+  --ab-z: clamp(0, calc((var(--ab-p) - .8) / .2), 1);
+  --ab-f: calc(clamp(0, calc((var(--ab-p) - .3) / .1), 1) * var(--ab-N0) + clamp(0, calc((var(--ab-p) - .4) / .4), 1) * var(--ab-N1) + var(--ab-z) * var(--ab-N2));
+  --ab-fl: round(down, var(--ab-f), 1);
+  --ab-mt: 10px;
+  --ab-mb: 52px;
+  --ab-mx: 40px;
+  --ab-inkp: color-mix(in srgb, #c9cdb6 calc((1 - min(1, var(--ab-p) * 1.6)) * 100%), oklch(0.84 0.13 116));
+  background: none;
+  box-shadow: none;
+  filter: none;
+  color: var(--ab-inkp);
+  transition: --ab-p .65s cubic-bezier(.45, 0, .2, 1), transform .08s ease;
+}
+.wm-accent[data-look="q6n4"]:hover:not(:disabled),
+.wm-accent[data-look="q6n4"]:active:not(:disabled) {
+  --ab-p: 1;
+  transform: none;
+}
+.wm-accent[data-look="q6n4"]:active:not(:disabled) {
+  transform: translateY(1px);
+}
+.wm-accent[data-look="q6n4"]::before {
+  content: "";
+  position: absolute;
+  z-index: -2;
+  pointer-events: none;
+  inset: calc(-1px - var(--ab-mt)) calc(-1px - var(--ab-mx)) calc(-1px - var(--ab-mb));
+  opacity: max(0, calc(1 - var(--ab-p) * 1.5));
+}
+.wm-accent[data-look="q6n4"][data-shape="pill"]::before {
+  -webkit-mask-image: var(--ab-bound);
+  mask-image: var(--ab-bound);
+  -webkit-mask-composite: source-in;
+  mask-composite: intersect;
+}
+.wm-accent__face {
+  position: absolute;
+  inset: -1px;
+  z-index: -1;
+  pointer-events: none;
+  border-radius: inherit;
+  corner-shape: inherit;
+  overflow: hidden;
+  isolation: isolate;
+  background: var(--ab-face);
+}
+.wm-accent__tone {
+  position: absolute;
+  inset: 0;
+  border-radius: inherit;
+  background: var(--ab-face);
+  box-shadow: inset 0 0 0 1px rgba(255, 255, 255, .1);
+  opacity: max(0, calc(1 - var(--ab-p) * 1.6));
+}
+.wm-accent__spr {
+  position: absolute;
+  inset: 0;
+  isolation: isolate;
+  --ab-ov: 3px;
+  container-type: inline-size;
+}
+.wm-accent__sa {
+  background-position: 0 calc(var(--ab-fl) * var(--ab-H) * -1);
+  opacity: calc(1 - (var(--ab-f) - var(--ab-fl)));
+}
+.wm-accent__sb {
+  background-position: 0 calc((var(--ab-fl) + 1) * var(--ab-H) * -1);
+  opacity: calc(var(--ab-f) - var(--ab-fl));
+}
+.wm-accent__face::after {
+  content: "";
+  position: absolute;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  height: 5px;
+  pointer-events: none;
+  opacity: calc(.9 - clamp(0, calc((var(--ab-p) - .3) / .3), 1) * .7);
+}
+.wm-accent[data-look="q6n4"][data-shape="pill"],
+.wm-accent[data-look="q6n4"][data-shape="pill"]:hover:not(:disabled),
+.wm-accent[data-look="q6n4"][data-shape="pill"]:active:not(:disabled) {
+  --ab-H: 33px;
+  border: 0;
+  inline-size: 227px;
+  block-size: 33px;
+  padding: 0 16px;
+  line-height: 15px;
+}
+.wm-accent[data-look="q6n4"][data-shape="pill"]::before {
+  inset: calc(var(--ab-mt) * -1) calc(var(--ab-mx) * -1) calc(var(--ab-mb) * -1);
+  border: 0 solid transparent;
+}
+.wm-accent[data-shape="pill"] .wm-accent__face {
+  inset: 0;
+  background: var(--ab-face);
+}
+.wm-accent[data-shape="pill"] .wm-accent__tone {
+  background: linear-gradient(180deg, #171717, #0c0c0c);
+  box-shadow: inset 0 0 0 1px rgba(255, 255, 255, .1);
+  opacity: max(0, calc(1 - var(--ab-p) * 1.6));
+}
+.wm-accent__fr {
+  position: absolute;
+  inset: 0;
+  isolation: isolate;
+  --ab-f: calc(var(--ab-p) * 47);
+  --ab-fl: round(down, var(--ab-f), 1);
+}
+.wm-accent__fr .wm-accent__sa,
+.wm-accent__fr .wm-accent__sb {
+  position: absolute;
+  inset: 0;
+  background-repeat: no-repeat;
+  background-size: 100% 1584px;
+  mix-blend-mode: plus-lighter;
+  will-change: background-position, opacity;
+}
+.wm-accent[data-shape="pill"] .wm-accent__face::after {
+  height: 6px;
+  opacity: max(.2, calc(.9 - var(--ab-p) * 1.2));
+}
+.wm-accent[data-look="q6n4"] .wm-accent__lab {
+  position: relative;
+  --ab-mp: calc((1 - min(1, var(--ab-p) * 1.6)) * 100%);
+  background: linear-gradient(180deg, color-mix(in srgb, oklch(0.95 0.06 112) var(--ab-mp), oklch(0.84 0.13 116)), color-mix(in srgb, #b8b8b3 var(--ab-mp), oklch(0.84 0.13 116)));
+  -webkit-background-clip: text;
+  background-clip: text;
+  color: transparent;
+  -webkit-text-fill-color: transparent;
+}
+:root[data-gaid-t="light"] .wm-accent[data-look="q6n4"] {
+  --ab-off-ink: var(--text-dim, rgba(22, 22, 22, .42));
+  --ab-off-line: var(--border, rgba(22, 22, 22, .16));
+  --ab-rest1: color-mix(in srgb, var(--surface, #ffffff) 90%, var(--text, #161616));
+  --ab-rest2: color-mix(in srgb, var(--surface, #ffffff) 64%, var(--text, #161616));
+}
+:root[data-gaid-t="light"] .wm-accent[data-look="q6n4"],
+:root[data-gaid-t="light"] .wm-accent[data-look="q6n4"]:hover:not(:disabled),
+:root[data-gaid-t="light"] .wm-accent[data-look="q6n4"]:active:not(:disabled) {
+  --ab-inkp: color-mix(in srgb, var(--ab-rest1) calc((1 - min(1, var(--ab-p) * 1.6)) * 100%), var(--ab-apple));
+}
+:root[data-gaid-t="light"] .wm-accent[data-look="q6n4"][data-shape="pill"],
+:root[data-gaid-t="light"] .wm-accent[data-look="q6n4"][data-shape="pill"]:hover:not(:disabled),
+:root[data-gaid-t="light"] .wm-accent[data-look="q6n4"][data-shape="pill"]:active:not(:disabled) {
+  --ab-mb: 76px;
+}
+:root[data-gaid-t="light"] .wm-accent[data-look="q6n4"] .wm-accent__face {
+  background: #161616;
+}
+:root[data-gaid-t="light"] .wm-accent[data-look="q6n4"] .wm-accent__tone {
+  background: #161616;
+  box-shadow: inset 0 0 0 1px color-mix(in srgb, var(--bg, #f4f4f4) 10%, transparent);
+}
+:root[data-gaid-t="light"] .wm-accent[data-look="q6n4"][data-shape="pill"]::before {
+  border-image-source: url("../assets/cta-b/accent-q6n4-light-spill-pill.avif");
+}
+:root[data-gaid-t="light"] .wm-accent[data-look="q6n4"] .wm-accent__fr .wm-accent__sa,
+:root[data-gaid-t="light"] .wm-accent[data-look="q6n4"] .wm-accent__fr .wm-accent__sb {
+  background-image: url("../assets/cta-b/accent-q6n4-light-travel-pill.avif");
+}
+:root[data-gaid-t="light"] .wm-accent[data-look="q6n4"] .wm-accent__lab {
+  background: linear-gradient(180deg, color-mix(in srgb, var(--ab-rest1) var(--ab-mp), var(--ab-apple)), color-mix(in srgb, var(--ab-rest2) var(--ab-mp), var(--ab-apple)));
+  -webkit-background-clip: text;
+  background-clip: text;
+}
+@media (dynamic-range: high) {
+:root[data-gaid-t="dark"] .wm-accent[data-look="q6n4"][data-shape="pill"],
+:root[data-gaid-t="dark"] .wm-accent[data-look="q6n4"][data-shape="pill"]:hover:not(:disabled),
+:root[data-gaid-t="dark"] .wm-accent[data-look="q6n4"][data-shape="pill"]:active:not(:disabled) {
+  --ab-mb: 52px;
+}
+:root[data-gaid-t="dark"] .wm-accent[data-look="q6n4"],
+:root[data-gaid-t="dark"] .wm-accent[data-look="q6n4"]:hover:not(:disabled),
+:root[data-gaid-t="dark"] .wm-accent[data-look="q6n4"]:active:not(:disabled) {
+  dynamic-range-limit: no-limit;
+  transform: none;
+  transition: --ab-p .65s cubic-bezier(.45, 0, .2, 1), top .08s ease;
+}
+:root[data-gaid-t="dark"] .wm-accent[data-look="q6n4"]:active:not(:disabled) {
+  top: 1px;
+}
+:root[data-gaid-t="dark"] .wm-accent[data-look="q6n4"]::before {
+  opacity: 1;
+  --ab-g: round(nearest, calc(min(1, var(--ab-p) * 1.5) * 8), 1);
+}
+:root[data-gaid-t="dark"] .wm-accent[data-look="q6n4"][data-shape="pill"]::before {
+  border-image-slice: calc(var(--ab-g) * 190) 148 calc((8 - var(--ab-g)) * 190) 148 fill;
+  border-image-width: 0 74px 0 74px;
+}
+:root[data-gaid-t="dark"] .wm-accent[data-look="q6n4"] .wm-accent__face,
+:root[data-gaid-t="dark"] .wm-accent[data-look="q6n4"] .wm-accent__spr,
+:root[data-gaid-t="dark"] .wm-accent[data-look="q6n4"] .wm-accent__fr {
+  isolation: auto;
+}
+:root[data-gaid-t="dark"] .wm-accent[data-look="q6n4"] .wm-accent__spr,
+:root[data-gaid-t="dark"] .wm-accent[data-look="q6n4"] .wm-accent__fr,
+:root[data-gaid-t="dark"] .wm-accent[data-look="q6n4"] .wm-accent__sa,
+:root[data-gaid-t="dark"] .wm-accent[data-look="q6n4"] .wm-accent__sb {
+  mix-blend-mode: normal;
+  isolation: auto;
+  will-change: auto;
+}
+:root[data-gaid-t="dark"] .wm-accent[data-look="q6n4"] .wm-accent__spr {
+  z-index: 1;
+}
+:root[data-gaid-t="dark"] .wm-accent[data-look="q6n4"] .wm-accent__sa {
+  opacity: 1;
+}
+:root[data-gaid-t="dark"] .wm-accent[data-look="q6n4"] .wm-accent__sb {
+  display: none;
+}
+:root[data-gaid-t="dark"] .wm-accent[data-look="q6n4"] .wm-accent__sa {
+  -webkit-mask-repeat: no-repeat;
+  mask-repeat: no-repeat;
+  -webkit-mask-position: 0 calc(var(--ab-fl) * var(--ab-H) * -1);
+  mask-position: 0 calc(var(--ab-fl) * var(--ab-H) * -1);
+}
+:root[data-gaid-t="dark"] .wm-accent[data-look="q6n4"] .wm-accent__fr .wm-accent__sa {
+  -webkit-mask-size: 100% 1584px;
+  mask-size: 100% 1584px;
+}
+:root[data-gaid-t="dark"] .wm-accent[data-look="q6n4"] .wm-accent__face::after {
+  opacity: 1;
+  --ab-k: round(nearest, calc(clamp(0, (var(--ab-p) - .3) / .3, 1) * 4), 1);
+}
+:root[data-gaid-t="dark"] .wm-accent[data-look="q6n4"][data-shape="pill"] .wm-accent__face::after {
+  display: none;
+}
+:root[data-gaid-t="dark"] .wm-accent[data-look="q6n4"]:not(:disabled) .wm-accent__lab {
+  background-size: 100% 100%, 100% 100%;
+}
+:root[data-gaid-t="light"] .wm-accent[data-look="q6n4"][data-shape="pill"],
+:root[data-gaid-t="light"] .wm-accent[data-look="q6n4"][data-shape="pill"]:hover:not(:disabled),
+:root[data-gaid-t="light"] .wm-accent[data-look="q6n4"][data-shape="pill"]:active:not(:disabled) {
+  --ab-mt: 30px;
+  --ab-mx: 130px;
+  --ab-mb: 185px;
+}
+:root[data-gaid-t="light"] .wm-accent[data-look="q6n4"],
+:root[data-gaid-t="light"] .wm-accent[data-look="q6n4"]:hover:not(:disabled),
+:root[data-gaid-t="light"] .wm-accent[data-look="q6n4"]:active:not(:disabled) {
+  dynamic-range-limit: no-limit;
+  transform: none;
+  transition: --ab-p .65s cubic-bezier(.45, 0, .2, 1), top .08s ease;
+}
+:root[data-gaid-t="light"] .wm-accent[data-look="q6n4"]:active:not(:disabled) {
+  top: 1px;
+}
+:root[data-gaid-t="light"] .wm-accent[data-look="q6n4"]::before {
+  opacity: 1;
+  --ab-g: round(nearest, calc(min(1, var(--ab-p) * 1.5) * 8), 1);
+}
+:root[data-gaid-t="light"] .wm-accent[data-look="q6n4"][data-shape="pill"]::before {
+  border-image-slice: calc(var(--ab-g) * 496) 328 calc((8 - var(--ab-g)) * 496) 328 fill;
+  border-image-width: 0 164px 0 164px;
+}
+:root[data-gaid-t="light"] .wm-accent[data-look="q6n4"] .wm-accent__face,
+:root[data-gaid-t="light"] .wm-accent[data-look="q6n4"] .wm-accent__spr,
+:root[data-gaid-t="light"] .wm-accent[data-look="q6n4"] .wm-accent__fr {
+  isolation: auto;
+}
+:root[data-gaid-t="light"] .wm-accent[data-look="q6n4"] .wm-accent__spr,
+:root[data-gaid-t="light"] .wm-accent[data-look="q6n4"] .wm-accent__fr,
+:root[data-gaid-t="light"] .wm-accent[data-look="q6n4"] .wm-accent__sa,
+:root[data-gaid-t="light"] .wm-accent[data-look="q6n4"] .wm-accent__sb {
+  mix-blend-mode: normal;
+  isolation: auto;
+  will-change: auto;
+}
+:root[data-gaid-t="light"] .wm-accent[data-look="q6n4"] .wm-accent__spr {
+  z-index: 1;
+}
+:root[data-gaid-t="light"] .wm-accent[data-look="q6n4"] .wm-accent__sa {
+  opacity: 1;
+}
+:root[data-gaid-t="light"] .wm-accent[data-look="q6n4"] .wm-accent__sb {
+  display: none;
+}
+:root[data-gaid-t="light"] .wm-accent[data-look="q6n4"] .wm-accent__sa {
+  -webkit-mask-repeat: no-repeat;
+  mask-repeat: no-repeat;
+  -webkit-mask-position: 0 calc(var(--ab-fl) * var(--ab-H) * -1);
+  mask-position: 0 calc(var(--ab-fl) * var(--ab-H) * -1);
+}
+:root[data-gaid-t="light"] .wm-accent[data-look="q6n4"] .wm-accent__fr .wm-accent__sa {
+  -webkit-mask-size: 100% 1584px;
+  mask-size: 100% 1584px;
+}
+:root[data-gaid-t="light"] .wm-accent[data-look="q6n4"] .wm-accent__face::after {
+  opacity: 1;
+  --ab-k: round(nearest, calc(clamp(0, (var(--ab-p) - .3) / .3, 1) * 4), 1);
+}
+:root[data-gaid-t="light"] .wm-accent[data-look="q6n4"][data-shape="pill"] .wm-accent__face::after {
+  display: none;
+}
+:root[data-gaid-t="light"] .wm-accent[data-look="q6n4"]:not(:disabled) .wm-accent__lab {
+  background-size: 100% 100%, 100% 100%;
+}
+}
+.hero-cta .wm-accent[data-look="q6n4"][data-shape="pill"],
+.hero-cta .wm-accent[data-look="q6n4"][data-shape="pill"]:hover:not(:disabled),
+.hero-cta .wm-accent[data-look="q6n4"][data-shape="pill"]:active:not(:disabled) {
+  --ab-H:110px;
+  inline-size:550px;
+  block-size:110px;
+  padding:0 52px;
+  border:0;
+  border-radius:999px;
+  corner-shape:round;
+  font-size:64px;
+  line-height:1;
+  font-weight:700;
+  font-variation-settings:'opsz' 45,'wght' 700,'GEOM' 50;
+}
+.hero-cta .wm-accent[data-look="q6n4"][data-shape="pill"] .arrow {
+  font-variation-settings:'wght' 700;
+  position:relative;
+  top:.08em;
+  margin-left:.06em;
+}
+.hero-cta .wm-accent[data-look="q6n4"][data-shape="pill"] .wm-accent__face {
+  border-radius:999px;
+  corner-shape:round;
+  overflow:hidden;
+}
+.hero-cta .wm-accent[data-look="q6n4"][data-shape="pill"] .wm-accent__face::after {
+  height:20px;
+}
+.hero-cta .wm-accent__fr .wm-accent__sa,
+.hero-cta .wm-accent__fr .wm-accent__sb {
+  background-size:100% 5280px;
+}
+.hero-cta .wm-accent[data-look="q6n4"][data-shape="pill"]::before {
+  border-image:none;
+  padding:0;
+  -webkit-mask-box-image:none;
+  mask-box-image:none;
+}
+.hero-cta .wm-accent[data-look="q6n4"][data-shape="pill"]::before {
+  background:url("../assets/cta-b/sdr-dark-spill-R10.avif") 0 0 / 100% 100% no-repeat;
+}
+.hero-cta .wm-accent[data-look="q6n4"][data-shape="pill"] .wm-accent__face::after {
+  background-image:url("../assets/cta-b/sdr-dark-streak.avif");
+  background-size:100% 100%;
+}
+.hero-cta .wm-accent__fr .wm-accent__sa,
+.hero-cta .wm-accent__fr .wm-accent__sb {
+  background-image:url("../assets/cta-b/sdr-dark-travel.avif");
+}
+.hero-cta .wm-accent[data-look="q6n4"][data-shape="pill"],
+.hero-cta .wm-accent[data-look="q6n4"][data-shape="pill"]:hover:not(:disabled),
+.hero-cta .wm-accent[data-look="q6n4"][data-shape="pill"]:active:not(:disabled) {
+  --ab-mt:33.333px;
+  --ab-mx:133.333px;
+  --ab-mb:253.333px;
+}
+:root[data-gaid-t="light"] .hero-cta .wm-accent[data-look="q6n4"][data-shape="pill"]::before {
+  background:url("../assets/cta-b/sdr-light-spill.avif") 0 0 / 100% 100% no-repeat;
+}
+:root[data-gaid-t="light"] .hero-cta .wm-accent[data-look="q6n4"][data-shape="pill"] .wm-accent__face::after {
+  background-image:url("../assets/cta-b/sdr-light-streak.avif");
+  background-size:100% 100%;
+}
+:root[data-gaid-t="light"] .hero-cta .wm-accent[data-look="q6n4"] {
+  --lt-face:#161616;
+  --lt-line:color-mix(in srgb, #fff 10%, transparent);
+  --lt-ink:var(--signal);
+  --lt-rest1:color-mix(in srgb, #fff 90%, #161616);
+  --lt-rest2:color-mix(in srgb, #fff 64%, #161616);
+}
+:root[data-gaid-t="light"] .hero-cta .wm-accent[data-look="q6n4"] .wm-accent__face {
+  background:var(--lt-face);
+}
+:root[data-gaid-t="light"] .hero-cta .wm-accent[data-look="q6n4"] .wm-accent__tone {
+  background:var(--lt-face);
+  box-shadow:inset 0 0 0 1px var(--lt-line);
+}
+:root[data-gaid-t="light"] .hero-cta .wm-accent[data-look="q6n4"],
+:root[data-gaid-t="light"] .hero-cta .wm-accent[data-look="q6n4"]:hover:not(:disabled),
+:root[data-gaid-t="light"] .hero-cta .wm-accent[data-look="q6n4"]:active:not(:disabled) {
+  --ab-inkp:color-mix(in srgb, var(--lt-rest1) calc((1 - min(1, var(--ab-p) * 1.6)) * 100%), var(--lt-ink));
+}
+:root[data-gaid-t="light"] .hero-cta .wm-accent[data-look="q6n4"] .wm-accent__lab {
+  background:linear-gradient(180deg, color-mix(in srgb, var(--lt-rest1) var(--ab-mp, 0%), var(--lt-ink)), color-mix(in srgb, var(--lt-rest2) var(--ab-mp, 0%), var(--lt-ink)));
+  -webkit-background-clip:text;
+  background-clip:text;
+}
+:root[data-gaid-t="light"] .hero-cta .wm-accent[data-look="q6n4"][data-shape="pill"],
+:root[data-gaid-t="light"] .hero-cta .wm-accent[data-look="q6n4"][data-shape="pill"]:hover:not(:disabled),
+:root[data-gaid-t="light"] .hero-cta .wm-accent[data-look="q6n4"][data-shape="pill"]:active:not(:disabled) {
+  --ab-mt:100.000px;
+  --ab-mx:433.333px;
+  --ab-mb:616.667px;
+}
+@media (dynamic-range: high) {
+:root[data-gaid-t="dark"] .hero-cta .wm-accent[data-look="q6n4"],
+:root[data-gaid-t="dark"] .hero-cta .wm-accent[data-look="q6n4"] *,
+:root[data-gaid-t="dark"] .hero-cta .wm-accent[data-look="q6n4"]::before,
+:root[data-gaid-t="dark"] .hero-cta .wm-accent[data-look="q6n4"]::after {
+  dynamic-range-limit:no-limit;
+}
+:root[data-gaid-t="dark"] .hero-cta .wm-accent[data-look="q6n4"]:active:not(:disabled) {
+  transform:none;
+  top:1px;
+}
+:root[data-gaid-t="dark"] .hero-cta .wm-accent[data-look="q6n4"][data-shape="pill"] .wm-accent__face {
+  background:var(--ab-face, #1a1a1a);
+}
+:root[data-gaid-t="dark"] .hero-cta .wm-accent[data-look="q6n4"] .wm-accent__face,
+:root[data-gaid-t="dark"] .hero-cta .wm-accent[data-look="q6n4"] .wm-accent__spr,
+:root[data-gaid-t="dark"] .hero-cta .wm-accent[data-look="q6n4"] .wm-accent__fr {
+  isolation:auto;
+}
+:root[data-gaid-t="dark"] .hero-cta .wm-accent[data-look="q6n4"] .wm-accent__spr,
+:root[data-gaid-t="dark"] .hero-cta .wm-accent[data-look="q6n4"] .wm-accent__fr,
+:root[data-gaid-t="dark"] .hero-cta .wm-accent[data-look="q6n4"] .wm-accent__sa,
+:root[data-gaid-t="dark"] .hero-cta .wm-accent[data-look="q6n4"] .wm-accent__sb {
+  mix-blend-mode:normal;
+  will-change:auto;
+}
+:root[data-gaid-t="dark"] .hero-cta .wm-accent[data-look="q6n4"] .wm-accent__sa {
+  opacity:1;
+}
+:root[data-gaid-t="dark"] .hero-cta .wm-accent[data-look="q6n4"] .wm-accent__sb {
+  display:none;
+}
+:root[data-gaid-t="dark"] .hero-cta .wm-accent[data-look="q6n4"] .wm-accent__spr {
+  z-index:1;
+}
+:root[data-gaid-t="dark"] .hero-cta .wm-accent[data-look="q6n4"][data-shape="pill"] .wm-accent__face::after {
+  display:none;
+}
+:root[data-gaid-t="dark"] .hero-cta .wm-accent[data-look="q6n4"] .wm-accent__fr .wm-accent__sa {
+  background-image:url("../assets/cta-b/hdr-dark-travel.avif");
+  background-size:100% 5280px;
+  -webkit-mask-image:url("../assets/cta-b/hdr-mask-travel.avif");
+  mask-image:url("../assets/cta-b/hdr-mask-travel.avif");
+  -webkit-mask-repeat:no-repeat;
+  mask-repeat:no-repeat;
+  -webkit-mask-size:100% 5280px;
+  mask-size:100% 5280px;
+  -webkit-mask-position:0 calc(var(--ab-fl) * var(--ab-H) * -1);
+  mask-position:0 calc(var(--ab-fl) * var(--ab-H) * -1);
+}
+:root[data-gaid-t="dark"] .hero-cta .wm-accent[data-look="q6n4"]:not(:disabled) .wm-accent__lab {
+  background-image:linear-gradient(180deg, color-mix(in srgb, oklch(0.95 0.06 112) var(--ab-mp), transparent), color-mix(in srgb, #b8b8b3 var(--ab-mp), transparent)), url("../assets/cta-b/hdr-label.avif");
+  background-size:100% 100%, 100% 100%;
+  -webkit-background-clip:text;
+  background-clip:text;
+  color:transparent;
+  -webkit-text-fill-color:transparent;
+}
+:root[data-gaid-t="light"] .hero-cta .wm-accent[data-look="q6n4"],
+:root[data-gaid-t="light"] .hero-cta .wm-accent[data-look="q6n4"] *,
+:root[data-gaid-t="light"] .hero-cta .wm-accent[data-look="q6n4"]::before,
+:root[data-gaid-t="light"] .hero-cta .wm-accent[data-look="q6n4"]::after {
+  dynamic-range-limit:no-limit;
+}
+:root[data-gaid-t="light"] .hero-cta .wm-accent[data-look="q6n4"]:active:not(:disabled) {
+  transform:none;
+  top:1px;
+}
+:root[data-gaid-t="light"] .hero-cta .wm-accent[data-look="q6n4"][data-shape="pill"] .wm-accent__face {
+  background:#161616;
+}
+:root[data-gaid-t="light"] .hero-cta .wm-accent[data-look="q6n4"] .wm-accent__face,
+:root[data-gaid-t="light"] .hero-cta .wm-accent[data-look="q6n4"] .wm-accent__spr,
+:root[data-gaid-t="light"] .hero-cta .wm-accent[data-look="q6n4"] .wm-accent__fr {
+  isolation:auto;
+}
+:root[data-gaid-t="light"] .hero-cta .wm-accent[data-look="q6n4"] .wm-accent__spr,
+:root[data-gaid-t="light"] .hero-cta .wm-accent[data-look="q6n4"] .wm-accent__fr,
+:root[data-gaid-t="light"] .hero-cta .wm-accent[data-look="q6n4"] .wm-accent__sa,
+:root[data-gaid-t="light"] .hero-cta .wm-accent[data-look="q6n4"] .wm-accent__sb {
+  mix-blend-mode:normal;
+  will-change:auto;
+}
+:root[data-gaid-t="light"] .hero-cta .wm-accent[data-look="q6n4"] .wm-accent__sa {
+  opacity:1;
+}
+:root[data-gaid-t="light"] .hero-cta .wm-accent[data-look="q6n4"] .wm-accent__sb {
+  display:none;
+}
+:root[data-gaid-t="light"] .hero-cta .wm-accent[data-look="q6n4"] .wm-accent__spr {
+  z-index:1;
+}
+:root[data-gaid-t="light"] .hero-cta .wm-accent[data-look="q6n4"][data-shape="pill"] .wm-accent__face::after {
+  display:none;
+}
+:root[data-gaid-t="light"] .hero-cta .wm-accent[data-look="q6n4"] .wm-accent__fr .wm-accent__sa {
+  background-image:url("../assets/cta-b/hdr-light-travel.avif");
+  background-size:100% 5280px;
+  -webkit-mask-image:url("../assets/cta-b/hdr-mask-travel.avif");
+  mask-image:url("../assets/cta-b/hdr-mask-travel.avif");
+  -webkit-mask-repeat:no-repeat;
+  mask-repeat:no-repeat;
+  -webkit-mask-size:100% 5280px;
+  mask-size:100% 5280px;
+  -webkit-mask-position:0 calc(var(--ab-fl) * var(--ab-H) * -1);
+  mask-position:0 calc(var(--ab-fl) * var(--ab-H) * -1);
+}
+:root[data-gaid-t="light"] .hero-cta .wm-accent[data-look="q6n4"]:not(:disabled) .wm-accent__lab {
+  background-image:linear-gradient(180deg, color-mix(in srgb, var(--lt-rest1) var(--ab-mp), transparent), color-mix(in srgb, var(--lt-rest2) var(--ab-mp), transparent)), url("../assets/cta-b/hdr-label.avif");
+  background-size:100% 100%, 100% 100%;
+  -webkit-background-clip:text;
+  background-clip:text;
+  color:transparent;
+  -webkit-text-fill-color:transparent;
+}
+:root[data-gaid-t="dark"][data-gaid-t] .hero-cta .wm-accent[data-look="q6n4"][data-shape="pill"],
+:root[data-gaid-t="dark"][data-gaid-t] .hero-cta .wm-accent[data-look="q6n4"][data-shape="pill"]:hover:not(:disabled),
+:root[data-gaid-t="dark"][data-gaid-t] .hero-cta .wm-accent[data-look="q6n4"][data-shape="pill"]:active:not(:disabled) {
+  --ab-mt:33px;
+  --ab-mx:133px;
+  --ab-mb:253px;
+}
+:root[data-gaid-t="dark"][data-gaid-t] .hero-cta .wm-accent[data-look="q6n4"][data-shape="pill"]::before {
+  border-image:none;
+  padding:0;
+  -webkit-mask-box-image:none;
+  mask-box-image:none;
+  opacity:1;
+  --ab-g:round(nearest, calc(min(1, var(--ab-p) * 1.5) * 8), 1);
+  background:url("../assets/cta-b/hdr-dark-spill-big.avif") 0 calc(var(--ab-g) * -396px) / 100% 900% no-repeat;
+  -webkit-mask:url("../assets/cta-b/hdr-mask-spill-big.avif") 0 0 / 100% 100% no-repeat;
+  mask:url("../assets/cta-b/hdr-mask-spill-big.avif") 0 0 / 100% 100% no-repeat;
+}
+:root[data-gaid-t="light"][data-gaid-t] .hero-cta .wm-accent[data-look="q6n4"][data-shape="pill"],
+:root[data-gaid-t="light"][data-gaid-t] .hero-cta .wm-accent[data-look="q6n4"][data-shape="pill"]:hover:not(:disabled),
+:root[data-gaid-t="light"][data-gaid-t] .hero-cta .wm-accent[data-look="q6n4"][data-shape="pill"]:active:not(:disabled) {
+  --ab-mt:100px;
+  --ab-mx:433px;
+  --ab-mb:614px;
+}
+:root[data-gaid-t="light"][data-gaid-t] .hero-cta .wm-accent[data-look="q6n4"][data-shape="pill"]::before {
+  border-image:none;
+  padding:0;
+  -webkit-mask-box-image:none;
+  mask-box-image:none;
+  opacity:1;
+  --ab-g:round(nearest, calc(min(1, var(--ab-p) * 1.5) * 8), 1);
+  background:url("../assets/cta-b/hdr-light-spill.avif") 0 calc(var(--ab-g) * -824px) / 100% 900% no-repeat;
+  -webkit-mask:url("../assets/cta-b/hdr-mask-light-spill.avif") 0 0 / 100% 100% no-repeat;
+  mask:url("../assets/cta-b/hdr-mask-light-spill.avif") 0 0 / 100% 100% no-repeat;
+}
+}
+
+/* ═══ the host: which look shows, and the page around B ═══ */
+.hero-cta .cta-b { display: none; }
+.hero-cta .cta-b { --ui-font: 'CalSans', sans-serif; text-decoration: none; }
+/* the label fills its 446px box to the pixel in this face too (445px); it must never wrap */
+.hero-cta .cta-b .wm-accent__lab { white-space: nowrap; }
+:root[data-gaid-t="dark"] .hero-cta .cta-b { --ab-face: #0f0f0f; }   /* the face is the ground, as in the preview: this page's */
+
+@media (min-width: 800px) {
+  :root[data-gaid="b"] .hero-cta { column-gap: 20px; }
+  :root[data-gaid="b"] .hero-cta .hero-pill { display: none; }
+  :root[data-gaid="b"] .hero-cta .cta-b { display: inline-flex; }
+  :root[data-gaid="b"] .hero-cta .hero-avatar { width: 110px; height: 110px; position: relative; z-index: 2; }
+
+  /* the spill runs past the hero's bottom edge and under the dek */
+  :root[data-gaid="b"] #hero { overflow: visible; }
+  :root[data-gaid="b"] #flapjack-canvas,
+  :root[data-gaid="b"] #dek-canvas { background: transparent; }
+  /* above the plane (it is opaque): the headline and the dek's canvas (its guide lines and drawn
+     glyph); #dek-header is already positioned later in the page, so it paints above */
+  :root[data-gaid="b"] #flapjack-text { z-index: 1; }
+  :root[data-gaid="b"] #dek-canvas { position: relative; z-index: 1; }
+}
+
+/* the PQ ground: the region the spill can cover (the top of the page to the dek's bottom; js/cta-ab.js
+   measures it), so the planes' edges meet their own floor */
+.cta-b-ground { display: none; }
+@media (min-width: 800px) and (dynamic-range: high) {
+  :root[data-gaid="b"] .cta-b-ground {
+    display: block; position: absolute; z-index: -1; left: 0; right: 0; top: 0;
+    height: var(--cta-b-ground-h, 1400px); pointer-events: none; dynamic-range-limit: no-limit;
+  }
+  :root[data-gaid="b"][data-gaid-t="dark"] .cta-b-ground { background: #0f0f0f url("../assets/cta-b/hdr-ground-dark.avif") 0 0 / 100% 100% no-repeat; }
+  :root[data-gaid="b"][data-gaid-t="light"] .cta-b-ground { background: #f5faff url("../assets/cta-b/hdr-ground-light.avif") 0 0 / 100% 100% no-repeat; }
+}
