@@ -243,7 +243,7 @@ body {
   font-family: 'CalSans', sans-serif;
   font-weight: 700;
   font-variation-settings: 'opsz' 45, 'wght' 700, 'GEOM' 50;
-  font-size: clamp(22px, 3vw, 34px);
+  font-size: clamp(27.5px, 3.75vw, 42.5px);   /* x1.25 (was clamp(22px, 3vw, 34px)): the CTA A/B test, Mark 2026-10-15 */
   line-height: 1;
   /* The pill's HEIGHT is on the unit (1.7em, what 1.1 + 0.22 + 0.38 came to), so the
      avatar beside it can be the same size and a row of it is a line of type. The label
@@ -296,7 +296,7 @@ body {
 /* the pill's own size: the same font-size and the same 1.7em on the unit, so the two are
    one height at every width (they were 58 and 57.8 at 1440, 40 and 40.8 at 800) */
 .hero-avatar {
-  font-size: clamp(22px, 3vw, 34px);
+  font-size: clamp(27.5px, 3.75vw, 42.5px);   /* x1.25 (was clamp(22px, 3vw, 34px)): the CTA A/B test, Mark 2026-10-15 */
   width: round(nearest, 1.7em, var(--bl));
   height: round(nearest, 1.7em, var(--bl));
   border-radius: 50%;
