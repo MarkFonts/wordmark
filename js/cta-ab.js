@@ -22,6 +22,20 @@
   }
 
   var pill = document.querySelector('.hero-cta .hero-pill'), accent = document.querySelector('.hero-cta .cta-b');
+
+  // the booking carries the variant: Cal.com stores UTM params on each booking (utm_content = a|b).
+  // The static href stays plain https://cal.com/davis, so a visitor without JS still gets there.
+  [pill, accent].forEach(function (el) {
+    if (!el) return;
+    try {
+      var u = new URL(el.href);
+      u.searchParams.set('utm_source', 'wordmark.nyc');
+      u.searchParams.set('utm_medium', 'homepage_cta');
+      u.searchParams.set('utm_campaign', 'cta_ab');
+      u.searchParams.set('utm_content', v);
+      el.href = u.toString();
+    } catch (e) {}
+  });
   [pill, accent].forEach(function (el) {
     if (el) el.addEventListener('click', function () { send('event', 'cta_click', params({ transport_type: 'beacon' })); });
   });
