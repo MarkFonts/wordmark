@@ -51,7 +51,9 @@
     cal('on', { action: 'bookingSuccessfulV2', callback: function (e) {
       var data = (e && e.detail && e.detail.data) || {};
       // the CTA becomes the words Talk soon!: stored now, applied in place when the dialog closes
-      booked = true; try { localStorage.setItem('wm-booked', 'yes'); } catch (err) {}
+      booked = bookedUntil(data);
+      try { localStorage.setItem('wm-booked', JSON.stringify({ until: booked })); } catch (err) {}
+      if (DEBUG) console.log('[cal embed] booked until', booked, 'from endTime', JSON.stringify(data.endTime), 'startTime', JSON.stringify(data.startTime));
       cta.send('event', 'cta_booking', cta.params({ booking_status: typeof data.status === 'string' ? data.status : 'unknown' }));
     } });
     if (DEBUG) cal('on', { action: '*', callback: function (e) { console.log('[cal embed]', e.detail && e.detail.type, JSON.stringify(e.detail && e.detail.data)); } });
@@ -167,7 +169,7 @@
     modal.classList.remove('is-open');
     modal.classList.add('is-preloading');   // closed = hidden off-screen again, so a re-render can still lay out
     hide();
-    if (booked) root.setAttribute('data-booked', 'yes');
+    if (booked) { root.setAttribute('data-booked', 'yes'); root.setAttribute('data-booked-until', booked); }
     syncBooked();
     unlock();
     if (pushed && !fromPop) { restoreY = lockY; history.back(); }   // the popstate it fires is ours: see below
@@ -195,6 +197,18 @@
   });
   // booked (now, or on an earlier visit): the CTA reads Talk soon! and is not a control -- out of the tab
   // order and announced as disabled (css/cta-modal.css draws it)
+  // the meeting's end (endTime, else startTime + 60 min, else now + 60 min) + 24h of grace, as ISO. Cal sends
+  // ISO strings; epoch numbers (seconds or ms, or as digit strings) are read too
+  function when(v) {
+    if (v == null || v === '') return NaN;
+    if (typeof v === 'number' || /^\d+$/.test(String(v))) { var n = Number(v); return n < 1e11 ? n * 1000 : n; }
+    return Date.parse(v);
+  }
+  function bookedUntil(data) {
+    var end = when(data.endTime);
+    if (!(end > 0)) { var start = when(data.startTime); end = (start > 0 ? start : Date.now()) + 60 * 60 * 1000; }
+    return new Date(end + 24 * 60 * 60 * 1000).toISOString();
+  }
   function isBooked() { return root.getAttribute('data-booked') === 'yes'; }
   function syncBooked() {
     links.forEach(function (a) {
