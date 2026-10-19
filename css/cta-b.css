@@ -677,3 +677,19 @@
   :root[data-gaid="b"][data-gaid-t="dark"] .cta-b-ground { background: #0f0f0f url("../assets/cta-b/hdr-ground-dark.avif") 0 0 / 100% 100% no-repeat; }
   :root[data-gaid="b"][data-gaid-t="light"] .cta-b-ground { background: #f5faff url("../assets/cta-b/hdr-ground-light.avif") 0 0 / 100% 100% no-repeat; }
 }
+
+/* The arrow is drawn as a mask, not as text. iOS (Chrome and Safari, both WebKit) can leave the ↗
+   unpainted inside the label's background-clip: text, so the label read "Let's talk type" with no arrow.
+   The glyph stays in the markup, hidden, to hold its exact width. The label's own field (the metallic
+   ink, the HDR acid field, and their hover mix) paints a box over it, masked with Cal Sans' ↗ outline
+   (assets/cta-b/arrow.svg, the glyph at wght 700). The box spans the label's height, so the vertical
+   gradient maps exactly as on the text. It is not an ancestor of anything and adds no transform or
+   opacity. */
+.hero-cta .cta-b .arrow { visibility: hidden; }
+.hero-cta .cta-b .wm-accent__lab::after {
+  content: ""; position: absolute; top: 0; bottom: 0; right: 0; width: .618em; pointer-events: none;
+  background: inherit; -webkit-background-clip: border-box; background-clip: border-box;
+  -webkit-mask: url("../assets/cta-b/arrow.svg") 0 .2075em / 100% 1.145em no-repeat;
+  mask: url("../assets/cta-b/arrow.svg") 0 .2075em / 100% 1.145em no-repeat;
+}
+:root[data-booked="yes"] .hero-cta .cta-b .wm-accent__lab::after { display: none; }
