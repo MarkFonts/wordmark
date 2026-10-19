@@ -28,8 +28,17 @@
   if (!v) { try { var s = localStorage.getItem(K); if (s === 'a' || s === 'b') v = s; } catch (e) {} }
   if (!v) { v = Math.random() < 0.5 ? 'a' : 'b'; try { localStorage.setItem(K, v); } catch (e) {} }
   d.setAttribute('data-gaid', v);
-  // a visitor who has booked (js/cta-modal.js stores it) sees the words Talk soon! in place of the CTA (css/cta-modal.css)
-  try { if (localStorage.getItem('wm-booked') === 'yes') d.setAttribute('data-booked', 'yes'); } catch (e) {}
+  // a visitor who has booked (js/cta-modal.js stores {until: meeting end + 24h}) sees the words Talk soon! in
+  // place of the CTA (css/cta-modal.css) until then; after it, or for the old value "yes" or anything
+  // unreadable, the key goes and the button is back
+  try {
+    var bk = localStorage.getItem('wm-booked');
+    if (bk !== null) {
+      var until = NaN; try { var bo = JSON.parse(bk); if (bo && typeof bo === 'object') until = Date.parse(bo.until); } catch (e) {}
+      if (until > Date.now()) { d.setAttribute('data-booked', 'yes'); d.setAttribute('data-booked-until', new Date(until).toISOString()); }
+      else localStorage.removeItem('wm-booked');
+    }
+  } catch (e) {}
   var mq = window.matchMedia ? matchMedia('(prefers-color-scheme: light)') : null;
   function theme() { var t = d.getAttribute('data-theme'); d.setAttribute('data-gaid-t', t === 'light' || t === 'dark' ? t : (mq && mq.matches ? 'light' : 'dark')); }
   theme();
@@ -320,8 +329,8 @@
 <script src="js/dek.js"></script>
 <script src="js/letterbox.js?v=7"></script>
 <script src="js/site.js?v=13"></script>
-<script src="js/cta-ab.js?v=7"></script>
-<script src="js/cta-modal.js?v=7"></script>
+<script src="js/cta-ab.js?v=8"></script>
+<script src="js/cta-modal.js?v=8"></script>
 <script type="module">
   import { mountThemeSwitch } from './shared/src/theme.js';
   mountThemeSwitch(document.getElementById('theme-toggle'));
