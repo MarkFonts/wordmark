@@ -78,6 +78,8 @@
   /* default spacing: the headline sits at 0 for a while, tracks out to +55 and comes back in */
   var head = document.getElementById('d-headline'), track = document.getElementById('d-track');
   if (head) {
+    /* iPhone: tapping into the headline leaves the page where it was (wm-primitives iosFocusGuard); a no-op elsewhere */
+    if (window.iosFocusGuard) window.iosFocusGuard(head, { caret: true });
     var num = track.querySelector('.d-num'), why = track.querySelector(':scope > span');
     var still = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
     /* the figure is always three tabular slots, 000 then +01 to +55 (the plus is digit-wide), so "tracking." holds still. It brightens from
@@ -165,6 +167,7 @@
       ttApply(row);
     });
     ttText.addEventListener('input', ttDirty);
+    if (window.iosFocusGuard) window.iosFocusGuard(ttText);   /* layer 1 only: a textarea */
     ttReset.addEventListener('click', function () {
       ttReset.classList.add('is-spun');
       setTimeout(function () { ttReset.classList.remove('is-spun'); }, 500);
