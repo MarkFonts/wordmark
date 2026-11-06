@@ -1413,6 +1413,11 @@ input[type="range"]::-moz-range-thumb { corner-shape: round; }
 
   /* -- wiring -- */
 
+  /* iPhone: a tap into the Specimen input leaves the page where it was (wm-primitives
+     GESTURES.md section 15). A module copied beside the page; where it can't load, nothing
+     changes. */
+  import("./iosFocusGuard.js").then((m) => m.iosFocusGuard($("txt"))).catch(() => {});
+
   $("txt").addEventListener("input", (e) => {
     state.text = e.target.value || " ";
     renderGrid(); renderLadder();
