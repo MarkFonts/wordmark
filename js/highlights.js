@@ -278,7 +278,7 @@
       var tw = range.getBoundingClientRect().width, box = w.getBoundingClientRect().width;
       if (face) w.dataset.face = face; else delete w.dataset.face; w.style.fontVariationSettings = fvs;
       /* a bento card caps it at 160px; a full-screen slide lets it fill the width, up to a quarter of the screen's height */
-      var cap = w.closest('.hl-grid.is-show') ? Math.max(160, Math.min(320, Math.round(innerHeight * 0.26))) : 160;
+      var cap = w.closest('.hl-grid.is-show') ? Math.max(160, Math.min(320, Math.round((window.wmFrozenInnerHeight || innerHeight) * 0.26))) : 160;
       if (tw > 0 && box > 0) w.style.fontSize = Math.max(40, Math.min(cap, Math.floor(100 * box / tw))) + 'px';
     });
   }

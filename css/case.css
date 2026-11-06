@@ -395,13 +395,14 @@ section[id] { scroll-margin-top: var(--nav-h); }
 
 /* the slideshow: one card at a time, a bar of dots and a play button below */
 .hl-grid.is-show { display: block; }
+/* --frozen-vh, --frozen-svh: set only while an editable is focused on iOS (js/iosViewportFreeze.js). Chrome on iPhone shrinks every viewport unit with the keyboard */
 .hl-grid.is-show > .hl { display: none; }
-.hl-grid.is-show > .hl.is-current { display: flex; min-height: max(60vh, calc(100svh - var(--nav-h) - 72px)); }   /* a slide is the screen, less the nav and the bar */
+.hl-grid.is-show > .hl.is-current { display: flex; min-height: max(calc(60 * var(--frozen-vh, 1vh)), calc(100 * var(--frozen-svh, 1svh) - var(--nav-h) - 72px)); }   /* a slide is the screen, less the nav and the bar */
 /* inside a slide every stage takes the spare height: the sentence and the rings scale up to it, the dials' rails
    grow into it, the census reel fills it */
 .hl-grid.is-show > .hl.is-current .hl-stage { flex: 1 1 auto; min-height: 0; }
 .hl-grid.is-show .hl-stage--sentence, .hl-grid.is-show .hl-stage--rings { display: flex; flex-direction: column; justify-content: center; }
-.hl-grid.is-show .hl-stage--sentence svg, .hl-grid.is-show .hl-stage--rings svg { flex: 1 1 auto; min-height: 0; height: 100%; max-height: 64svh; }
+.hl-grid.is-show .hl-stage--sentence svg, .hl-grid.is-show .hl-stage--rings svg { flex: 1 1 auto; min-height: 0; height: 100%; max-height: calc(64 * var(--frozen-svh, 1svh)); }
 .hl-bar { display: none; align-items: center; justify-content: center; gap: 12px; margin-top: 15px; }
 .is-show .hl-bar { display: flex; }
 /* the bar's buttons, scoped to the bar: the page's unlayered `button` reset would otherwise blank their fills */
@@ -578,7 +579,7 @@ a.code:hover .where { color: var(--signal-ink); }
     position: sticky;
     top: calc(var(--nav-h) + 24px);
     align-self: start;
-    height: min(620px, calc(100vh - var(--nav-h) - 80px));
+    height: min(620px, calc(100 * var(--frozen-vh, 1vh) - var(--nav-h) - 80px));
     min-height: 440px;
     opacity: 0;
     visibility: hidden;
@@ -688,7 +689,7 @@ a.code:hover .where { color: var(--signal-ink); }
 /* the board scrolls inside the demo box, like the proofer's board pans; the bottom edge fades so the next row shows */
 .ukit { flex: 1 1 auto; min-height: 0; overflow-y: auto; scrollbar-width: thin; scrollbar-color: rgba(var(--text-rgb), 0.28) transparent; padding-bottom: 24px;
   mask-image: linear-gradient(#000 calc(100% - 48px), transparent); -webkit-mask-image: linear-gradient(#000 calc(100% - 48px), transparent); }
-@media (max-width: 860px) { .ukit { max-height: 70vh; } }
+@media (max-width: 860px) { .ukit { max-height: calc(70 * var(--frozen-vh, 1vh)); } }
 .ukit .coss-card { background: var(--bg); }
 .ukit:not(.is-on) { font-optical-sizing: none; }
 .ukit:not(.is-on) * { font-variation-settings: 'wght' var(--wght, 400), 'GEOM' var(--geom, 25), 'SHRP' var(--shrp, 0), 'ital' var(--ital, 0), 'opsz' 14; }
