@@ -218,18 +218,11 @@
   var peekY   = 130;   // translateY (px) for the peek
   // full (resting, live position) = translateY(0)
 
-  // find the WORDMARK ink-band top (CSS px) so the shifts align to the letters
+  // the WORDMARK ink-band top (CSS px), so the shifts align to the letters. It is the
+  // engine's topPadVh pad: the canvas can be a WebGPU one (HDR), which has no pixels
+  // to scan and must never be asked for a 2D context.
   function measureShifts() {
-    var wmTop = 155;
-    try {
-      var ctx = canvas.getContext('2d'), dpr = window.devicePixelRatio || 1;
-      var W = canvas.width, H = canvas.height, d = ctx.getImageData(0, 0, W, H).data;
-      for (var y = 0; y < H; y++) {
-        var n = 0, base = y * W * 4;
-        for (var x = 0; x < W; x += 8) { if (d[base + x * 4 + 3] > 60) n++; }
-        if (n > 15) { wmTop = Math.round(y / dpr); break; }
-      }
-    } catch (e) {}
+    var wmTop = Math.round(0.2 * window.innerHeight);   // topPadVh in index.html
     var cvH  = Math.round(canvas.getBoundingClientRect().height);
     var inkH = cvH - wmTop;  // WORDMARK block height
     hiddenY = inkH + 4;      // WORDMARK just below the fold
