@@ -327,13 +327,32 @@
 <script src="js/headline.js?v=22"></script>
 <script src="js/flapjack.js"></script>
 <script src="js/dek.js"></script>
-<script src="js/letterbox.js?v=7"></script>
-<script src="js/site.js?v=13"></script>
+<script src="js/site.js?v=14"></script>
 <script src="js/cta-ab.js?v=8"></script>
 <script src="js/cta-modal.js?v=8"></script>
 <script type="module">
   import { mountThemeSwitch } from './shared/src/theme.js';
   mountThemeSwitch(document.getElementById('theme-toggle'));
+</script>
+<script type="module">
+  import { createLetterbox } from './shared/src/letterbox.js';
+  // The footer letterbox, with the HDR twinkle. site.js reads topPadVh (the anchor) and
+  // the 681px split (the front layer is display:none at 680 and below).
+  var lb = createLetterbox(document.getElementById('lb-footer'), {
+    words:           ['WORDMARK'],
+    largeFontFamily: '"CalSans", -apple-system, sans-serif',
+    fillFontFamily:  '"CalSans", -apple-system, sans-serif',
+    fillSize:        10,
+    widthFraction:   0.98,
+    topPadVh:        0.2,
+    maxWidth:        Infinity,
+    minFillSize:     6,
+    ink:             '--text',
+    layers:          { front: [document.getElementById('lb-footer-front')], groups: 3, speed: 0.0016, minWidth: 681 },
+    pointer:         'window',
+    hdr:             { gain: 1, twinkle: { mode: 'stars', share: 1 / 6, peak: 2.5 } },
+  });
+  document.fonts.ready.then(function () { if (lb) lb.init(); });
 </script>
 <script src="js/carousel.js"></script>
 <script src="js/stickers.js"></script>
