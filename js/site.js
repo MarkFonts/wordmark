@@ -224,6 +224,11 @@
   function measureShifts() {
     var wmTop = Math.round(0.2 * window.innerHeight);   // topPadVh in index.html
     var cvH  = Math.round(canvas.getBoundingClientRect().height);
+    // The shared letterbox sizes its canvas on fonts.ready, and on the GPU path only once
+    // the device is up, so the canvas can still be 0 tall here. Measuring it then makes
+    // hiddenY negative and lifts the whole letterbox into the hero (seen live, 2026-11-07).
+    // Keep the defaults until the canvas has laid out; the ResizeObserver below re-measures.
+    if (cvH <= wmTop) return false;
     var inkH = cvH - wmTop;  // WORDMARK block height
     hiddenY = inkH + 4;      // WORDMARK just below the fold
     peekY   = inkH - PEEK;   // top ~PEEK px showing
@@ -231,6 +236,7 @@
     // the bottom the footer block rests with the full WORDMARK 50px beneath it.
     var room = document.querySelector('.reveal-room');
     if (room) room.style.height = (inkH + 50) + 'px';
+    return true;
   }
 
   function docTop(el) { var y = 0; while (el) { y += el.offsetTop; el = el.offsetParent; } return y; }
@@ -286,8 +292,10 @@
   }
 
   // measureShifts sizes the room first, THEN recalc reads the resulting scrollHeight
-  function init() { measureShifts(); recalc(); }
+  function init() { if (measureShifts()) recalc(); }
   document.fonts.ready.then(function () { setTimeout(init, 500); });
-  window.addEventListener('resize', function () { measureShifts(); recalc(); });
+  // The canvas gets its height when the letterbox lays out, not on a timer: follow it.
+  if (window.ResizeObserver) new ResizeObserver(init).observe(canvas);
+  window.addEventListener('resize', init);
   (function loop() { update(); requestAnimationFrame(loop); }());
 }());
