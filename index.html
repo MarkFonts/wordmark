@@ -46,6 +46,19 @@
   try { new MutationObserver(theme).observe(d, { attributes: true, attributeFilter: ['data-theme'] }); } catch (e) {}
 })();
 </script>
+<!-- does this browser decode JPEG XL? wm-primitives src/jxl.js (#133, #137), inlined so it runs before first
+     paint: decodes a 1 x 1 JXL and on success adds wm-jxl to <html>. Variant B's HDR light keys on it: where it
+     is set, the light is TRANSPARENT JXL (light only, no floor, no mask); elsewhere the opaque AVIF planes and their
+     PQ ground stay exactly as they were (css/cta-b.css). -->
+<script>
+(function () {
+  try {
+    var img = new Image();
+    img.onload = function () { if (img.naturalWidth === 1) document.documentElement.classList.add('wm-jxl'); };
+    img.src = 'data:image/jxl;base64,/woAELCguBAIABAAGABLGIsVggE=';
+  } catch (e) {}
+})();
+</script>
 <script async src="https://www.googletagmanager.com/gtag/js?id=G-MZ4M1P8P1P"></script>
 <script>
   window.dataLayer = window.dataLayer || [];
@@ -65,7 +78,7 @@
 <link rel="stylesheet" href="shared/src/themeSwitch.css">
 <link rel="stylesheet" href="shared/src/grid.css">
 <link rel="stylesheet" href="css/main.css?v=55">
-<link rel="stylesheet" href="css/cta-b.css?v=4">
+<link rel="stylesheet" href="css/cta-b.css?v=5">
 <link rel="stylesheet" href="css/cta-modal.css?v=6">
 </head>
 <body>

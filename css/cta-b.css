@@ -677,3 +677,38 @@
   :root[data-gaid="b"][data-gaid-t="dark"] .cta-b-ground { background: #0f0f0f url("../assets/cta-b/hdr-ground-dark.avif") 0 0 / 100% 100% no-repeat; }
   :root[data-gaid="b"][data-gaid-t="light"] .cta-b-ground { background: #f5faff url("../assets/cta-b/hdr-ground-light.avif") 0 0 / 100% 100% no-repeat; }
 }
+
+/* ═══ HDR in JPEG XL (wm-primitives#137) ═══
+   Where the browser decodes JPEG XL (html.wm-jxl, the probe in index.html's head), B's light is TRANSPARENT: light
+   only, straight alpha, no baked floor and no footprint mask, each file stamped with its true peak (light spill 405,
+   light travel 405, dark spill 390, dark travel 604). The same light as the AVIF planes above (gen_q6_hero2.py at the
+   550 x 110 geometry, the travel with the streak baked in), encoded as #137 does: the color at the peak, with the
+   coverage that lands it on floor + glow over the ground the AVIF plane bakes (the page for the spill, the face for
+   the travel). The spills are ONE color, acid at the peak, with the falloff in alpha alone: taking the bloom's own
+   palette, their tail was a pale 390-nit color at a few percent alpha, which iPhone Safari showed as a grey-teal band.
+   It sits on the sRGB page as it is, so it needs no PQ ground: in Safari the opaque light plane was
+   tone-mapped and its baked 203-nit floor slipped below SDR white, a grey oval on #f5faff. The frames, their stepping
+   and the hero scaling are the AVIF rules' above; only the images change. Without wm-jxl nothing here matches. */
+@media (dynamic-range: high) {
+  :root.wm-jxl[data-gaid-t="dark"][data-gaid-t] .hero-cta .wm-accent[data-look="q6n4"][data-shape="pill"]::before {
+    background-image: url("../assets/cta-b/hdr-jxl-dark-spill-big.jxl");
+    -webkit-mask: none;
+    mask: none;
+  }
+  :root.wm-jxl[data-gaid-t="light"][data-gaid-t] .hero-cta .wm-accent[data-look="q6n4"][data-shape="pill"]::before {
+    background-image: url("../assets/cta-b/hdr-jxl-light-spill.jxl");
+    -webkit-mask: none;
+    mask: none;
+  }
+  :root.wm-jxl[data-gaid-t="dark"] .hero-cta .wm-accent[data-look="q6n4"] .wm-accent__fr .wm-accent__sa {
+    background-image: url("../assets/cta-b/hdr-jxl-dark-travel.jxl");
+    -webkit-mask-image: none;
+    mask-image: none;
+  }
+  :root.wm-jxl[data-gaid-t="light"] .hero-cta .wm-accent[data-look="q6n4"] .wm-accent__fr .wm-accent__sa {
+    background-image: url("../assets/cta-b/hdr-jxl-light-travel.jxl");
+    -webkit-mask-image: none;
+    mask-image: none;
+  }
+  :root.wm-jxl[data-gaid="b"] .cta-b-ground { display: none; }
+}
