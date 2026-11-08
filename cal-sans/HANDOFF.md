@@ -1,6 +1,6 @@
 # Cal Sans case study, handoff from the cloud session
 
-Live at wordmark.nyc/calsans/, main at 1a5833e. Everything below is committed and pushed.
+Live at wordmark.nyc/cal-sans/, main at 1a5833e. Everything below is committed and pushed.
 
 ## The hero transition prototypes
 
@@ -16,7 +16,7 @@ Five options were asked for; four were built and iterated, the fifth ("transitio
 
 The case-study page artifact (pre-site copy): https://claude.ai/artifact/FSANN8i1cFaHzkLxhr4LTH
 
-The thermal hero lives in `calsans/index.html` (the inline SVG) and `js/thermal-hero.js`. On touch screens it runs a lighter chain at a third of the frame rate; masks are cut to the viewBox.
+The thermal hero lives in `cal-sans/index.html` (the inline SVG) and `js/thermal-hero.js`. On touch screens it runs a lighter chain at a third of the frame rate; masks are cut to the viewBox.
 
 ## What shipped on the page, in order
 
@@ -29,13 +29,13 @@ The thermal hero lives in `calsans/index.html` (the inline SVG) and `js/thermal-
 - Releases.
 - Try it: the Framer type tester ported to plain HTML, presets A11y/UI/Base/Geo, unlock morph, reset, link to the full proofer.
 - Close.
-- Open Graph card: `calsans/og.png`, the cube left, two-line headline right, virtuals at the corners.
+- Open Graph card: `cal-sans/og.png`, the cube left, two-line headline right, virtuals at the corners.
 
 ## Files
 
-- `calsans/index.html`, `css/case.css` (v47), `js/case.js` (v25), `js/thermal-hero.js` (v6)
-- `calsans/img/` page images as WebP; `CalStatics.svg` and `-dark.svg` from calcom/sans
-- `calsans/ref/` and `calsans/_handoff/` are gitignored; keep decks and pricing there, never commit them
+- `cal-sans/index.html`, `css/case.css` (v47), `js/case.js` (v25), `js/thermal-hero.js` (v6)
+- `cal-sans/img/` page images as WebP; `CalStatics.svg` and `-dark.svg` from calcom/sans
+- `cal-sans/ref/` and `cal-sans/_handoff/` are gitignored; keep decks and pricing there, never commit them
 - Old commits with the pricing PDFs are still fetchable on GitHub by hash; purging needs GitHub support
 
 ## Open, taste only
