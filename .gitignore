@@ -8,10 +8,13 @@ mockup.jpg
 # Adobe Fonts research is local only
 adobe fonts/
 
-# case-study source decks and pricing are local only; page images go in calsans/img/
+# case-study source decks and pricing are local only; page images go in cal-sans/img/
 calsans/ref/
 calsans/_handoff/
 calsans/ignore/
+cal-sans/ref/
+cal-sans/_handoff/
+cal-sans/ignore/
 
 # Matter is licensed to Cal.com, not to this site: a local copy at fonts/Matter.woff2 shows in the case study, nothing is committed
 fonts/Matter*
