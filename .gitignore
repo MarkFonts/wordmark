@@ -18,3 +18,6 @@ cal-sans/ignore/
 
 # Matter is licensed to Cal.com, not to this site: a local copy at fonts/Matter.woff2 shows in the case study, nothing is committed
 fonts/Matter*
+
+# og:video render scratch (cal-sans/og/render.cjs)
+cal-sans/og/.frames/

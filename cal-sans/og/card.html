@@ -1,0 +1,57 @@
+<!doctype html>
+<!-- Source for cal-sans/og.png and og.mp4: the page's own masters cube (its markup, CSS and case.js), composed
+     beside the og headline at 1200x630. The cube block is copied from index.html; keep them the same.
+     Render: NODE_PATH=<a node_modules with puppeteer> node cal-sans/og/render.cjs  (see that file). -->
+<html lang="en" data-theme="dark"><head><meta charset="utf-8">
+<link rel="stylesheet" href="../../shared/src/color.css">
+<link rel="stylesheet" href="../../shared/src/corners.css">
+<link rel="stylesheet" href="../../shared/src/motion.css">
+<link rel="stylesheet" href="../../shared/src/icon.css">
+<link rel="stylesheet" href="../../css/main.css">
+<link rel="stylesheet" href="../../css/case.css">
+<style>
+*{margin:0;padding:0;box-sizing:border-box}
+html,body{width:1200px;height:630px;overflow:hidden;background:#0f0f0f}
+body{position:relative;font-family:'CalSans',sans-serif;color:#e8e8e8;-webkit-font-smoothing:antialiased}
+.ds-block{position:absolute;left:0;top:0;width:600px;height:630px}
+.ds-panel.ds-panel--now{position:absolute;inset:0;padding:0;background:transparent;border-radius:0;min-width:0;max-width:none;container-type:inline-size}
+.cube-stage{--s:300px;height:630px;width:600px;padding:0 0 70px 60px;overflow:visible;border-radius:0;cursor:none}
+/* the poster puts the virtual masters at the card corners: the right-hand pair move out past the physics box */
+.vm[data-axis="YTAS"],.vm[data-axis="SHRP"]{right:auto;left:1062px}
+.tie{animation-play-state:paused;animation-delay:var(--vt,0s)}
+.copy{position:absolute;left:640px;top:200px;width:540px}
+.eyebrow{font-size:27px;color:rgba(232,232,232,.62);font-variation-settings:'opsz' 32,'wght' 400;letter-spacing:-.005em}
+.head{margin-top:18px;font-size:76px;line-height:.96;letter-spacing:-.028em;font-variation-settings:'opsz' 45,'wght' 600}
+.stats{margin-top:22px;font-size:27px;color:rgba(232,232,232,.62);font-variation-settings:'opsz' 32,'wght' 400;display:flex;gap:26px}
+.stats b{color:#e8e8e8;font-variation-settings:'opsz' 32,'wght' 620;margin-right:.22em}
+.foot{position:absolute;left:412px;bottom:46px;display:flex;align-items:center;gap:14px;font-size:22px}
+.foot .dot{width:12px;height:12px;border-radius:50%;background:#c9ff00;margin-right:4px}
+.foot .brand{letter-spacing:.14em;font-variation-settings:'opsz' 32,'wght' 700;font-size:20px}
+.foot .url{color:rgba(232,232,232,.62);font-variation-settings:'opsz' 32,'wght' 400}
+.cur{position:absolute;left:0;top:0;z-index:99;display:none;pointer-events:none}
+</style></head><body>
+<div class="made-block ds-block is-in is-live is-settled" id="ds-block">
+<div class="ds-panel ds-panel--now" data-nosnap><div class="cube-stage" data-nosnap role="img" aria-label="Eight masters at the corners of a cube: Regular and Bold, optical size 10 and 45, Roman and Italic">
+          <div class="cube">
+            <i class="e ex" style="--y:-1;--z:-1"></i><i class="e ex" style="--y:-1;--z:1"></i><i class="e ex" style="--y:1;--z:-1"></i><i class="e ex" style="--y:1;--z:1"></i><i class="e ey" style="--x:-1;--z:-1"></i><i class="e ey" style="--x:-1;--z:1"></i><i class="e ey" style="--x:1;--z:-1"></i><i class="e ey" style="--x:1;--z:1"></i><i class="e ez" style="--x:-1;--y:-1"></i><i class="e ez" style="--x:-1;--y:1"></i><i class="e ez" style="--x:1;--y:-1"></i><i class="e ez" style="--x:1;--y:1"></i>
+            <div class="v" style="--x:-1;--y:1;--z:1;--d:200ms"><span><b style="font-variation-settings:'opsz' 10,'wght' 400,'ital' 0,'GEOM' 25">Cal v2</b><span class="vlab"><span><i>GEOM</i>25</span><span><i>ital</i>0</span><span><i>opsz</i>10</span><span><i>SHRP</i>0</span><span><i>wght</i>400</span><span><i>YTAS</i>1440</span></span></span></div><div class="v" style="--x:-1;--y:1;--z:-1;--d:380ms"><span><b style="font-variation-settings:'opsz' 10,'wght' 400,'ital' 1,'GEOM' 25">Cal v2</b><span class="vlab"><span><i>GEOM</i>25</span><span><i>ital</i>1</span><span><i>opsz</i>10</span><span><i>SHRP</i>0</span><span><i>wght</i>400</span><span><i>YTAS</i>1440</span></span></span></div><div class="v" style="--x:1;--y:1;--z:1;--d:560ms"><span><b style="font-variation-settings:'opsz' 10,'wght' 700,'ital' 0,'GEOM' 25">Cal v2</b><span class="vlab"><span><i>GEOM</i>25</span><span><i>ital</i>0</span><span><i>opsz</i>10</span><span><i>SHRP</i>0</span><span><i>wght</i>700</span><span><i>YTAS</i>1440</span></span></span></div><div class="v" style="--x:1;--y:1;--z:-1;--d:740ms"><span><b style="font-variation-settings:'opsz' 10,'wght' 700,'ital' 1,'GEOM' 25">Cal v2</b><span class="vlab"><span><i>GEOM</i>25</span><span><i>ital</i>1</span><span><i>opsz</i>10</span><span><i>SHRP</i>0</span><span><i>wght</i>700</span><span><i>YTAS</i>1440</span></span></span></div><div class="v" style="--x:-1;--y:-1;--z:1;--d:920ms"><span><b style="font-variation-settings:'opsz' 45,'wght' 400,'ital' 0,'GEOM' 25">Cal v2</b><span class="vlab"><span><i>GEOM</i>25</span><span><i>ital</i>0</span><span><i>opsz</i>45</span><span><i>SHRP</i>0</span><span><i>wght</i>400</span><span><i>YTAS</i>1440</span></span></span></div><div class="v" style="--x:-1;--y:-1;--z:-1;--d:1100ms"><span><b style="font-variation-settings:'opsz' 45,'wght' 400,'ital' 1,'GEOM' 25">Cal v2</b><span class="vlab"><span><i>GEOM</i>25</span><span><i>ital</i>1</span><span><i>opsz</i>45</span><span><i>SHRP</i>0</span><span><i>wght</i>400</span><span><i>YTAS</i>1440</span></span></span></div><div class="v" style="--x:1;--y:-1;--z:1;--d:1280ms"><span><b style="font-variation-settings:'opsz' 45,'wght' 700,'ital' 0,'GEOM' 25">Cal v2</b><span class="vlab"><span><i>GEOM</i>25</span><span><i>ital</i>0</span><span><i>opsz</i>45</span><span><i>SHRP</i>0</span><span><i>wght</i>700</span><span><i>YTAS</i>1440</span></span></span></div><div class="v" style="--x:1;--y:-1;--z:-1;--d:1460ms"><span><b style="font-variation-settings:'opsz' 45,'wght' 700,'ital' 1,'GEOM' 25">Cal v2</b><span class="vlab"><span><i>GEOM</i>25</span><span><i>ital</i>1</span><span><i>opsz</i>45</span><span><i>SHRP</i>0</span><span><i>wght</i>700</span><span><i>YTAS</i>1440</span></span></span></div>
+          </div>
+          <div class="vm" data-axis="GEOM" data-to="100" data-arc style="left:12px;top:10px"><b style="font-variation-settings:'opsz' 45,'wght' 400,'ital' 0,'GEOM' 100">Cal v2</b><span class="vlab"><span class="hot"><i>GEOM</i>100</span><span><i>ital</i>0</span><span><i>opsz</i>45</span><span><i>SHRP</i>0</span><span><i>wght</i>400</span><span><i>YTAS</i>1440</span></span><span class="vlab-v">virtual</span></div>
+          <div class="vm" data-axis="YTAS" data-to="1600" style="right:12px;top:10px"><b style="font-variation-settings:'opsz' 45,'wght' 400,'ital' 0,'GEOM' 25,'YTAS' 1600">Cal v2</b><span class="vlab"><span><i>GEOM</i>25</span><span><i>ital</i>0</span><span><i>opsz</i>45</span><span><i>SHRP</i>0</span><span><i>wght</i>400</span><span class="hot"><i>YTAS</i>1600</span></span><span class="vlab-v">virtual</span></div>
+          <div class="vm" data-axis="opsz" data-to="8" data-only="opsz10" style="left:12px;bottom:10px"><b style="font-variation-settings:'opsz' 8,'wght' 400,'ital' 0,'GEOM' 25">Cal v2</b><span class="vlab"><span><i>GEOM</i>25</span><span><i>ital</i>0</span><span class="hot"><i>opsz</i>8</span><span><i>SHRP</i>0</span><span><i>wght</i>400</span><span><i>YTAS</i>1440</span></span><span class="vlab-v">semi-virtual</span></div>
+          <div class="vm" data-axis="SHRP" data-to="100" style="right:12px;bottom:10px"><b style="font-variation-settings:'opsz' 45,'wght' 400,'ital' 0,'GEOM' 25,'SHRP' 100">Cal v2</b><span class="vlab"><span><i>GEOM</i>25</span><span><i>ital</i>0</span><span><i>opsz</i>45</span><span class="hot"><i>SHRP</i>100</span><span><i>wght</i>400</span><span><i>YTAS</i>1440</span></span><span class="vlab-v">virtual</span></div>
+        </div>
+        </div>
+</div>
+<div class="copy">
+  <p class="eyebrow">Cal Sans for Cal.com, a case study</p>
+  <p class="head">The one<br>weight of trust.</p>
+  <p class="stats"><span><b>6</b>axes</span><span><b>8</b>masters</span><span><b>384</b>statics</span></p>
+</div>
+<p class="foot"><span class="dot"></span><span class="brand">WORDMARK</span><span class="url">wordmark.nyc/cal-sans</span></p>
+<svg class="cur" id="cur" width="30" height="39" viewBox="0 0 26 34"><path d="M2 2 L2 25 L8.5 19.5 L12.5 28.5 L16.5 26.5 L12.5 18 L21 17.5 Z" fill="#e8e8e8" stroke="#0f0f0f" stroke-width="1.6" stroke-linejoin="round"/></svg>
+<script>
+window.__cursor = (x, y) => { const c = document.getElementById('cur'); if (x == null) { c.style.display = 'none'; return; } c.style.display = 'block'; c.style.left = (x - 2.3) + 'px'; c.style.top = (y - 2.3) + 'px'; };
+</script>
+<script src="../../js/case.js"></script>
+</body></html>
