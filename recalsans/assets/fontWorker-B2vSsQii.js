@@ -1,4 +1,4 @@
-function s(n,t){self.postMessage(n,t??[])}let e=null;async function f(){s({type:"status",message:"Loading Python runtime..."});const{loadPyodide:n}=await import("https://cdn.jsdelivr.net/pyodide/v0.26.4/full/pyodide.mjs");e=await n({indexURL:"https://cdn.jsdelivr.net/pyodide/v0.26.4/full/"}),s({type:"status",message:"Loading fontTools..."}),await e.loadPackage("fonttools"),s({type:"ready"})}self.onmessage=async n=>{const t=n.data;try{if(t.type==="loadFont"){const o=new Uint8Array(t.fontBytes);e.globals.set("_font_bytes_js",o);const a=await e.runPythonAsync(`
+function s(n,t){self.postMessage(n,t??[])}let e=null;async function l(){s({type:"status",message:"Loading Python runtime..."});const{loadPyodide:n}=await import("https://cdn.jsdelivr.net/pyodide/v0.26.4/full/pyodide.mjs");e=await n({indexURL:"https://cdn.jsdelivr.net/pyodide/v0.26.4/full/"}),s({type:"status",message:"Loading fontTools..."}),await e.loadPackage("fonttools"),s({type:"ready"})}self.onmessage=async n=>{const t=n.data;try{if(t.type==="loadFont"){const o=new Uint8Array(t.fontBytes);e.globals.set("_font_bytes_js",o);const a=await e.runPythonAsync(`
 import io, json
 from fontTools.ttLib import TTFont
 
@@ -951,6 +951,13 @@ freeze_opsz = bool(config.get('freezeOpsz', False))
 frozen_opsz = config.get('frozenOpszValue', None)   # opsz to pin to when frozen
 auto_ascender = bool(config.get('autoAscender', False))
 thresh = config.get('thresholds', {})
+# The clamps (unscaled axis units) and the axes pinned at their default. Under auto
+# ascender the grafted avar2 needs opsz and YTAS whole, so those two keep their range.
+limits = config.get('limits') or {}
+frozen_axes = set(config.get('frozenAxes') or [])
+if auto_ascender:
+    limits = {t: v for t, v in limits.items() if t not in ('opsz', 'YTAS')}
+    frozen_axes.discard('YTAS')
 
 _t0 = time.perf_counter()
 buf = io.BytesIO(_font_data)
@@ -992,16 +999,27 @@ for axis in font['fvar'].axes:
         # Done here, in STOCK opsz space and BEFORE the multiplier relabel below, so the
         # two compose: the value is given in the final (multiplier-scaled) space, hence /m.
         # Skipped when freezing outright (freeze pins the axis, default irrelevant).
-        if opsz_default is not None and not (freeze_opsz and not auto_ascender):
-            nd = min(max(float(opsz_default) / opsz_m, axis.minValue), axis.maxValue)
+        if freeze_opsz and not auto_ascender:
+            continue
+        lo, hi = limits.get(tag, (axis.minValue, axis.maxValue))
+        lo = max(float(lo), axis.minValue); hi = min(float(hi), axis.maxValue)
+        nd = axis.defaultValue
+        if opsz_default is not None:
+            nd = float(opsz_default) / opsz_m
+        nd = min(max(nd, lo), hi)
+        if (lo, nd, hi) != (axis.minValue, axis.defaultValue, axis.maxValue):
+            axis_limits[tag] = (lo, nd, hi)
             if nd != axis.defaultValue:
-                axis_limits[tag] = (axis.minValue, nd, axis.maxValue)
                 _opsz_new_default = nd * opsz_m
         continue
+    lo, hi = limits.get(tag, (axis.minValue, axis.maxValue))
+    lo = max(float(lo), axis.minValue); hi = min(float(hi), axis.maxValue)
     nd = float(new_defaults.get(tag, axis.defaultValue))
-    nd = min(max(nd, axis.minValue), axis.maxValue)
-    if nd != axis.defaultValue:
-        axis_limits[tag] = (axis.minValue, nd, axis.maxValue)
+    nd = min(max(nd, lo), hi)
+    if tag in frozen_axes or lo == hi:
+        axis_limits[tag] = nd                      # pinned: the axis leaves the font
+    elif (lo, nd, hi) != (axis.minValue, axis.defaultValue, axis.maxValue):
+        axis_limits[tag] = (lo, nd, hi)            # L4: the clamp is the new range, data outside goes
 
 result = instantiateVariableFont(font, axis_limits, inplace=True) if axis_limits else font
 _t_shift = time.perf_counter()
@@ -1052,6 +1070,35 @@ if vm:
     else:
         _os2.fsSelection &= ~(1 << 7)
 
+# Character set and layout features. 'all' keeps every glyph and skips the subsetter.
+# Features: everything stays unless calt/liga are let go; rclt (the GEOM swaps) always stays.
+_charset = config.get('subsetCharset', 'all')
+_keep_feat = config.get('subsetKeepFeatures', True) is not False
+if _charset in ('latin1', 'latinx') or not _keep_feat:
+    from fontTools import subset as _subset
+    _opts = _subset.Options()
+    _opts.name_IDs = ['*']; _opts.name_languages = ['*']; _opts.notdef_outline = True; _opts.glyph_names = True
+    _opts.layout_features = ['*']
+    _opts.drop_tables = [t for t in _opts.drop_tables if t != 'STAT']
+    if not _keep_feat:
+        _tags = set()
+        for _tbl in ('GSUB', 'GPOS'):
+            if _tbl in result and result[_tbl].table.FeatureList:
+                _tags.update(fr.FeatureTag for fr in result[_tbl].table.FeatureList.FeatureRecord)
+        _opts.layout_features = sorted(_tags - {'calt', 'liga'})
+    _uni = set()
+    if _charset in ('latin1', 'latinx'):
+        _uni.update(range(0x20, 0x100))
+    if _charset == 'latinx':
+        for a, b in ((0x100, 0x250), (0x1E00, 0x1F00), (0x2000, 0x2070), (0x20A0, 0x20D0), (0x2122, 0x2123)):
+            _uni.update(range(a, b))
+    _sub = _subset.Subsetter(options=_opts)
+    if _uni:
+        _sub.populate(unicodes=sorted(_uni))
+    else:
+        _sub.populate(unicodes=sorted(result.getBestCmap().keys()))
+    _sub.subset(result)
+
 # Statics are cut from the font as it stands HERE — defaults shifted, features frozen,
 # vmetrics written — but BEFORE the avar2 graft, so they carry no avar2 at all.
 statics = bool(config.get('statics', False))
@@ -1088,4 +1135,4 @@ _bake_timing = (
 )
 _bake_bytes
 `)).toJs(),i=e.globals.get("_bake_kind")==="zip"?"zip":"ttf";try{s({type:"status",message:String(e.globals.get("_bake_timing")??"")})}catch{}s({type:"fontResult",ttf:a.buffer,kind:i,id:t.id},[a.buffer])}}catch(o){const a=String(o),i=a.includes("Traceback")?a.trim().split(`
-`).pop()??a:a;s({type:"error",message:i})}};f().catch(n=>{s({type:"error",message:`Worker init failed: ${n}`})});
+`).pop()??a:a;s({type:"error",message:i})}};l().catch(n=>{s({type:"error",message:`Worker init failed: ${n}`})});
