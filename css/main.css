@@ -85,7 +85,7 @@
 .hero-avatar, .work-shape { corner-shape: round; }
 
 /* --text-rgb is the host's to set per theme (icon.css builds its inks from it). The same
-   two inks as shared/src/color.css: #e8e8e8 dark, #161616 light. Light --bg is font-proofer's
+   two inks as shared/src/color.css: #e8e8e8 dark, #161616 light. Light --bg is Wordproof's
    icy blue (#f5faff) instead of the ramp's neutral #f4f4f4; dark stays on the house ramp. */
 :root { --text-rgb: 232, 232, 232; }
 @media (prefers-color-scheme: light) {
