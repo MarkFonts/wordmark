@@ -1,0 +1,28 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>About WORDMARK — Mark Davis, type design studio in Brooklyn</title>
+<link rel="icon" type="image/svg+xml" href="../favicon.svg?v=2">
+<!-- The about A/B test's assigner. /about/ sends each visitor to one of two pages, sticky:
+     ?abid=d|e overrides (and is stored), else the stored wm-abid, else 50/50.
+       d.html = studio (the page about WORDMARK)   e.html = person (the page about Mark Davis)
+     The query string and hash are carried over. Both pages carry the canonical /about/ and report
+     to GA themselves (ab.js); this page has no canonical and no GA of its own.
+     Names are separate from the homepage CTA test (wm-gaid). -->
+<script>
+(function () {
+  var K = 'wm-abid', v = null;
+  try { var q = new URLSearchParams(location.search).get('abid'); if (q === 'd' || q === 'e') v = q; } catch (e) {}
+  if (!v) { try { var s = localStorage.getItem(K); if (s === 'd' || s === 'e') v = s; } catch (e) {} }
+  if (!v) v = Math.random() < 0.5 ? 'd' : 'e';
+  try { localStorage.setItem(K, v); } catch (e) {}
+  location.replace(v + '.html' + location.search + location.hash);
+})();
+</script>
+</head>
+<body>
+<noscript><p><a href="d.html">About WORDMARK</a></p></noscript>
+</body>
+</html>

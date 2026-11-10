@@ -1,0 +1,251 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="auto">
+<head>
+<!-- ENTRY FROM THE HOMEPAGE (not wired; index.html is not edited): the right-side nav/map glyph (a small fixed square-grid button at the right edge, vertically below the theme toggle), opening a menu whose "About" item points at /about/. -->
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<link rel="icon" type="image/svg+xml" href="../favicon.svg?v=2">
+<!-- stamp the stored theme before first paint (the homepage's head script, verbatim) -->
+<script>try{var t=localStorage.getItem('wm-theme');if(t)document.documentElement.dataset.theme=t}catch(e){}</script>
+<!-- the about A/B test (studio = d.html, person = e.html), before first paint: this page stamps its own
+     letter on <html data-abid> and stores it (wm-abid) so /about/ keeps showing it; ?abid=d|e
+     names the other page -> go there. Separate names from the homepage CTA test (wm-gaid). -->
+<script>
+(function () {
+  var d = document.documentElement, K = 'wm-abid', page = 'e', q = null;
+  try { q = new URLSearchParams(location.search).get('abid'); } catch (e) {}
+  if ((q === 'd' || q === 'e') && q !== page) {
+    try { localStorage.setItem(K, q); } catch (e) {}
+    location.replace(q + '.html' + location.search + location.hash);
+    return;
+  }
+  try { localStorage.setItem(K, page); } catch (e) {}
+  d.setAttribute('data-abid', page);
+})();
+</script>
+<script async src="https://www.googletagmanager.com/gtag/js?id=G-MZ4M1P8P1P"></script>
+<script>
+  window.dataLayer = window.dataLayer || [];
+  function gtag(){dataLayer.push(arguments);}
+  gtag('js', new Date());
+  gtag('set', 'user_properties', { about_variant: document.documentElement.getAttribute('data-abid') === 'e' ? 'person' : 'studio' });
+  gtag('config', 'G-MZ4M1P8P1P');
+</script>
+<link rel="canonical" href="https://wordmark.nyc/about/">
+<!-- the homepage's layer order: main.css's reset sits below the shared layers -->
+<style>@layer reset;</style>
+<link rel="stylesheet" href="../shared/src/color.css">
+<link rel="stylesheet" href="../shared/src/corners.css">
+<link rel="stylesheet" href="../shared/src/motion.css">
+<link rel="stylesheet" href="../shared/src/icon.css">
+<link rel="stylesheet" href="../shared/src/themeSwitch.css">
+<link rel="stylesheet" href="../shared/src/grid.css">
+<link rel="stylesheet" href="../shared/src/type.css">
+<link rel="stylesheet" href="../shared/src/space.css">
+<link rel="stylesheet" href="../css/main.css?v=55">
+<!-- Newsreader for the prose: Google Fonts for this preview only -->
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Newsreader:opsz,wght@6..72,400;6..72,500&display=swap">
+<link rel="stylesheet" href="about.css">
+<title>Mark Davis — type designer and font engineer, Brooklyn | WORDMARK</title>
+<meta name="description" content="Mark Davis is a type designer and font engineer in Brooklyn, behind Cal Sans for Cal.com and Geist Serif for Vercel. Type@Cooper; formerly Font Bureau.">
+</head>
+<body>
+
+<!-- top nameplate (the homepage's markup + pin script; it parks one pin-height above the
+     page's first block instead of above "Marks we've made.") -->
+<div id="site-wordmark">WORDMARK</div>
+<script>
+  document.addEventListener('DOMContentLoaded', function () {
+    var nm = document.getElementById('site-wordmark');
+    var hl = document.querySelector('[data-nameplate-park]');
+    if (!nm || !hl) return;
+    var TOP = 60;          // pinned distance from top of viewport
+    var releaseY = 0;
+    function measure() { releaseY = hl.getBoundingClientRect().top + window.scrollY - TOP; }
+    function update() {
+      measure();
+      if (window.scrollY + TOP < releaseY) {
+        nm.style.position = 'fixed';
+        nm.style.top = TOP + 'px';
+      } else {
+        nm.style.position = 'absolute';
+        nm.style.top = releaseY + 'px';
+      }
+    }
+    update();
+    window.addEventListener('scroll', update, { passive: true });
+    window.addEventListener('resize', update);
+    window.addEventListener('load',   update);
+    if (document.fonts && document.fonts.ready) { document.fonts.ready.then(update); }
+  });
+</script>
+
+<!-- theme toggle (the homepage's markup; theme.js drives it) -->
+<div id="theme-toggle" class="wm-theme" role="group" aria-label="Color scheme">
+  <button type="button" class="wm-icon-btn" data-mode="auto" aria-label="Auto color scheme" title="Follow the system setting"><span class="wm-icon material-symbols-outlined wm-icon--rest" style="font-size:20px;--icon-opsz:20;--icon-fill:0" aria-hidden="true" translate="no">brightness_auto</span></button>
+  <button type="button" class="wm-icon-btn" data-mode="light" aria-label="Light color scheme" title="Force the light palette"><span class="wm-icon material-symbols-outlined wm-icon--rest" style="font-size:20px;--icon-opsz:20;--icon-fill:0" aria-hidden="true" translate="no">light_mode</span></button>
+  <button type="button" class="wm-icon-btn" data-mode="dark" aria-label="Dark color scheme" title="Force the dark palette"><span class="wm-icon material-symbols-outlined wm-icon--rest" style="font-size:20px;--icon-opsz:20;--icon-fill:0" aria-hidden="true" translate="no">dark_mode</span></button>
+</div>
+
+<main class="about about--e">
+  <div class="wm-grid e-intro">
+
+    <!-- .wm-lines here only so main.css's --hl-fs / --hl-lh steps resolve for the headline;
+         data-nosnap keeps grid.css's baseline nudge off it (these pages run no gridSnap) -->
+    <header class="e-head wm-lines">
+      <h1 class="work-headline" data-nosnap data-nameplate-park>The typographic practice (and life’s work) of Mark Davis.</h1>
+    </header>
+
+    <figure class="e-photo">
+      <img class="portrait" src="mark-davis-type-thursday.jpg" alt="Mark Davis speaking at Type Thursday, pointing at a slide that asks ‘Keming?’" width="926" height="1158">
+    </figure>
+
+    <div class="e-bio prose">
+      <p>Mark Davis is a type designer and font engineer in Brooklyn, New York. Since 2017 he has worked as type designer and art director of his own practice, now called WORDMARK. In his words: “Effective type is my design mission: typefaces for brands and products, from one-style logotypes to open-source variable families.”</p>
+      <p>His largest project is the type for Cal.com: <a href="../cal-sans/">Cal Sans</a>, Cal Sans UI, Text, and Geo, an open-source, eight-master, six-axis variable family of about 1,000 glyphs and 3,000 kerns, delivered 1.9&nbsp;million times a week through Google Fonts. For Vercel he took over the drawings for Geist Serif, the company’s first serif, then expanded the glyph set, built the variable axis, and kerned it before its release on October 30, 2026, as the fourth Geist family. He is expanding Harvey Serif for Harvey, works on retainer for WELTKERN Type, mastered Shopbop Serif for Pentagram with Margot Lévêque, and took the NYMZO logotype to global launch with Otherward. At BuzzFeed News, in 2016, he designed the Trump “BF Tiny Hand” font, which went viral.</p>
+      <p>He studied at Type@Cooper Condensed at The Cooper Union, critiqued by Christian Schwartz and Tobias Frere-Jones, with a guest critique by Jonathan Hoefler, after a BA in art and graphic design at Taylor University, where he was named Designer of the Year. He then moved from the Midwest to Brooklyn to start at Font Bureau, chosen and placed by Roger Black, where he developed typefaces under Cyrus Highsmith and made specimens for its retail typefaces. He has taught at Queens College, the School of Visual Arts, and the Rhode Island School of Design. In 2026 <a href="https://www.creativeboom.com/resources/the-best-new-typefaces-for-april-2026/">Creative Boom</a> named Cal Sans UI one of the best new typefaces of April, and Abduzeedo featured it.</p>
+    </div>
+
+    <div class="rows e-rows-all">
+        <details class="row" open>
+          <summary><h2 class="row-label head">Talks and teaching</h2><svg class="row-chev wm-chevron" viewBox="0 0 12 12" width="12" height="12" aria-hidden="true"><path d="M4.5 2.5L8 6L4.5 9.5" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"/></svg></summary>
+          <ul class="items">
+            <li><span class="when t-label figs">2023</span><div class="what"><p class="prose">Rhode Island School of Design</p></div></li>
+            <li><span class="when t-label figs">2022</span><div class="what"><p class="prose">School of Visual Arts</p></div></li>
+            <li><span class="when t-label figs">2022</span><div class="what"><p class="prose">Queens College</p></div></li>
+            <li><span class="when t-label figs">2021</span><div class="what"><p class="prose"><a href="https://www.youtube.com/playlist?list=PL5B0ltrBTxaOuyoErKI3TjMY951m0qimy">“Fonts You Should Know,” The Futur</a> <span class="ink-quiet views">80K+ views</span></p></div></li>
+            <li><span class="when t-label figs">2020</span><div class="what"><p class="prose"><a href="https://www.youtube.com/watch?v=BSe_BeNk5cA">The Futur, live interview</a> <span class="ink-quiet views">100K+ views</span></p></div></li>
+          </ul>
+        </details>
+        <details class="row" open>
+          <summary><h2 class="row-label head">Press</h2><svg class="row-chev wm-chevron" viewBox="0 0 12 12" width="12" height="12" aria-hidden="true"><path d="M4.5 2.5L8 6L4.5 9.5" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"/></svg></summary>
+          <ul class="items">
+            <li><span class="when t-label figs">2026</span><div class="what"><p class="prose"><a href="https://www.creativeboom.com/resources/the-best-new-typefaces-for-april-2026/">Creative Boom</a>: best new typefaces of April, Cal Sans UI</p></div></li>
+            <li><span class="when t-label figs">2026</span><div class="what"><p class="prose"><a href="https://abduzeedo.com/node/89294">Abduzeedo</a>: a feature on Cal Sans UI</p></div></li>
+          </ul>
+        </details>
+        <details class="row">
+          <summary><h2 class="row-label head">Earlier work</h2><svg class="row-chev wm-chevron" viewBox="0 0 12 12" width="12" height="12" aria-hidden="true"><path d="M4.5 2.5L8 6L4.5 9.5" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"/></svg></summary>
+          <ul class="items">
+            <li><span class="when t-label figs">2019–2022</span><div class="what"><p class="prose">Tronvig, Junior Art Director, then Art Director, Brooklyn</p><p class="prose prose--small ink-quiet">Primary in-house designer and art director for client marketing and branding: display banners, OOH print, digital OOH video, and wild postings, plus the agency’s own rebrand. Clients included NMWA and VNSNY.</p></div></li>
+            <li><span class="when t-label figs">2017–2019</span><div class="what"><p class="prose">SME Branding, Junior Art Director, New York</p><p class="prose prose--small ink-quiet">Sole designer on select accounts and the team’s typography and print layout specialist, for the Kentucky Derby, Ticketmaster, MLBPA, SUNY Geneseo, the University of North Dakota, Texas Tech, and The Big South.</p></div></li>
+            <li><span class="when t-label figs">2017</span><div class="what"><p class="prose">NBCUniversal, Creative Agency Design Contractor, New York</p><p class="prose prose--small ink-quiet">New logotypes from pen sketch to final, corporate branding initiatives, and logotype consulting.</p></div></li>
+            <li><span class="when t-label figs">2016</span><div class="what"><p class="prose">BuzzFeed News, News Design Contractor, New York</p><p class="prose prose--small ink-quiet">Review templates, a podcast brand, the live election-night TV set, lettering and illustrations for dozens of articles, and the “BF Tiny Hand” Trump handwriting font.</p></div></li>
+            <li><span class="when t-label figs">2015–2016</span><div class="what"><p class="prose">Font Bureau, Font Design Intern, Design &amp; Marketing Contractor, Brooklyn</p><p class="prose prose--small ink-quiet">Developed Ambulia Text, Abagnale, and Gaussian Elongated and Extended under Cyrus Highsmith; retail specimens; the @FBtypeset interactive marketing tool, with Chris Lewis.</p></div></li>
+            <li><span class="when t-label figs">2014–2015</span><div class="what"><p class="prose">Crossway, Design Contractor, Wheaton, Illinois</p><p class="prose prose--small ink-quiet">Illustrations for three books of 1,360+ pages, 70+ book covers mastered for national and international presses, and a restored ESV logo with its app icons.</p></div></li>
+            <li><span class="when t-label figs">2014</span><div class="what"><p class="prose">Typefounding, Font Design Intern, St. Louis</p><p class="prose prose--small ink-quiet">A typeface based on work by Ed Benguiat and Donald Roos, pending distribution by House Industries, and expanded character sets for eight House Industries typefaces.</p></div></li>
+          </ul>
+        </details>
+        <details class="row">
+          <summary><h2 class="row-label head">Select clients</h2><svg class="row-chev wm-chevron" viewBox="0 0 12 12" width="12" height="12" aria-hidden="true"><path d="M4.5 2.5L8 6L4.5 9.5" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"/></svg></summary>
+          <div class="row-body"><p class="prose">WELTKERN, Claude Type, Cal.com, Nike, NBCUniversal, Ticketmaster, BuzzFeed News, Font Bureau, WWD, VNSNY, Helen Keller Intl, Type Network, UND, Kentucky Derby, SUNY Geneseo, NMWA, Texas Tech, The Big South, Taylor University, Crossway, Bureau Gravity, Nick Mrozowski, Dennis Huynh, Dan Pulcrano, Ben Kiel, and Luke Shuman.</p></div>
+        </details>
+        <details class="row">
+          <summary><h2 class="row-label head">Skills</h2><svg class="row-chev wm-chevron" viewBox="0 0 12 12" width="12" height="12" aria-hidden="true"><path d="M4.5 2.5L8 6L4.5 9.5" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"/></svg></summary>
+          <div class="row-body"><p class="prose">Type design, logotype design and customization, editorial design, lettering, typography, photo direction, vector illustration, large-format printing, and Twitter, Facebook, and Instagram ads.</p></div>
+        </details>
+        <details class="row row--contact" open>
+          <summary><h2 class="row-label head">Contact</h2><svg class="row-chev wm-chevron" viewBox="0 0 12 12" width="12" height="12" aria-hidden="true"><path d="M4.5 2.5L8 6L4.5 9.5" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"/></svg></summary>
+          <div class="row-body">
+            <dl class="e-contact">
+              <div>
+                <dt class="t-label">Email</dt>
+                <dd class="t-ui"><a data-mail>mark&#128386;wordmark.nyc</a></dd>
+                <dd class="t-ui ink-quiet">Brooklyn, New York</dd>
+              </div>
+              <div>
+                <dt class="t-label">Social</dt>
+                <dd class="t-ui"><a href="https://www.instagram.com/wordmark.nyc/" target="_blank" rel="noopener">ig wordmark</a></dd>
+                <dd class="t-ui"><a href="https://www.instagram.com/markycdavis/" target="_blank" rel="noopener">ig mark</a></dd>
+                <dd class="t-ui"><a href="https://x.com/MarkFonts" target="_blank" rel="noopener">X</a></dd>
+                <dd class="t-ui"><a href="https://www.linkedin.com/in/markfonts/" target="_blank" rel="noopener">LinkedIn</a></dd>
+              </div>
+              <div>
+                <dt class="t-label">Code</dt>
+                <dd class="t-ui"><a href="https://github.com/MarkFonts" target="_blank" rel="noopener">GitHub</a></dd>
+              </div>
+            </dl>
+            <p class="e-cv"><a class="lnk prose" href="Mark-Davis-CV.pdf">CV (PDF)</a></p>
+          </div>
+        </details>
+    </div>
+
+  </div>
+</main>
+
+<!-- footer brick (the homepage's markup and mailto guard, verbatim) -->
+<footer class="about-footer ">
+  <div class="wm-grid">
+    <div class="footer-brick">
+      <nav class="footer-links" aria-label="Contact links">
+        <a href="https://www.instagram.com/wordmark.nyc/" target="_blank" rel="noopener">ig</a>
+        <a href="https://www.instagram.com/markycdavis/" target="_blank" rel="noopener" aria-label="Instagram, Mark Davis">ig·md</a>
+        <a href="https://twitter.com/MarkFonts" target="_blank" rel="noopener">tw</a>
+        <a href="https://www.linkedin.com/in/markfonts/" target="_blank" rel="noopener">in</a>
+        <a id="contact-link" rel="noopener">mark&#128386;wordmark.nyc</a>
+        <script>
+          var u="mark",d="wordmark.nyc",s="Let%E2%80%99s+leave+a+mark",b="We+should+talk%21";
+          var link=document.getElementById("contact-link");
+          link.href="mailto:"+u+String.fromCodePoint(0x1F582)+d+"?subject="+s+"&body="+b;
+          function armMailto(){link.href="mailto:"+u+"@"+d+"?subject="+s+"&body="+b;}
+          link.addEventListener("mousedown",armMailto);
+          link.addEventListener("focus",armMailto);
+        </script>
+      </nav>
+      <p class="footer-credit">&copy; 2026 Mark Davis and WORDMARK.<br>Letterbox footer pretext effect was created by <a href="https://charlieclark.co/" target="_blank" rel="noopener">Charlie Clark</a>.</p>
+    </div>
+  </div>
+</footer>
+
+<!-- footer letterbox (the homepage's two canvases, stacked in flow) -->
+<div class="lb-stack">
+  <div id="footer-letterbox">
+    <canvas id="lb-footer" aria-label="WORDMARK"></canvas>
+  </div>
+  <div id="footer-letterbox-front" aria-hidden="true">
+    <canvas id="lb-footer-front" aria-hidden="true"></canvas>
+  </div>
+</div>
+
+<!-- the page's own email links: the same guard as the footer (no real "@" in the markup
+     until a genuine pointer-down or focus) -->
+<script>
+  document.querySelectorAll('a[data-mail]').forEach(function (a) {
+    var u = "mark", d = "wordmark.nyc";
+    a.textContent = u + "@" + d;
+    a.href = "mailto:" + u + String.fromCodePoint(0x1F582) + d;
+    function arm() { a.href = "mailto:" + u + "@" + d; }
+    a.addEventListener("mousedown", arm);
+    a.addEventListener("focus", arm);
+    a.addEventListener("touchstart", arm, { passive: true });
+  });
+</script>
+<script src="../js/site.js?v=15"></script>
+<script type="module">
+  import { createLetterbox } from '../shared/src/letterbox.js';
+  // Same letterbox as the homepage (index.html), same options; site.js reads topPadVh.
+  var lb = createLetterbox(document.getElementById('lb-footer'), {
+    words:           ['WORDMARK'],
+    largeFontFamily: '"CalSans", -apple-system, sans-serif',
+    fillFontFamily:  '"CalSans", -apple-system, sans-serif',
+    fillSize:        10,
+    widthFraction:   0.98,
+    topPadVh:        0.2,
+    maxWidth:        Infinity,
+    minFillSize:     6,
+    ink:             '--text',
+    layers:          { front: [document.getElementById('lb-footer-front')], groups: 3, speed: 0.0016, minWidth: 681 },
+    pointer:         'window',
+    hdr:             { gain: 1, twinkle: { mode: 'stars', share: 1 / 6, peak: 2.5 } },
+  });
+  document.fonts.ready.then(function () { if (lb) lb.init(); });
+</script>
+<script src="ab.js"></script>
+<script type="module">
+  import { mountThemeSwitch } from '../shared/src/theme.js';
+  mountThemeSwitch(document.getElementById('theme-toggle'));
+</script>
+</body>
+</html>
