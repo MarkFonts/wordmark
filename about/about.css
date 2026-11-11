@@ -22,6 +22,14 @@
   src: url('../fonts/Newsreader-latin.woff2') format('woff2');
   unicode-range: U+0000-00FF, U+0131, U+0152-0153, U+02BB-02BC, U+02C6, U+02DA, U+02DC, U+0304, U+0308, U+0329, U+2000-206F, U+20AC, U+2122, U+2191, U+2193, U+2212, U+2215, U+FEFF, U+FFFD;
 }
+@font-face {
+  font-family: 'Newsreader';
+  font-style: italic;
+  font-weight: 200 800;
+  font-display: swap;
+  src: url('../fonts/Newsreader-latin-italic.woff2') format('woff2');
+  unicode-range: U+0000-00FF, U+0131, U+0152-0153, U+02BB-02BC, U+02C6, U+02DA, U+02DC, U+0304, U+0308, U+0329, U+2000-206F, U+20AC, U+2122, U+2191, U+2193, U+2212, U+2215, U+FEFF, U+FFFD;
+}
 
 :root {
   /* the chrome face, as type.css asks the host to provide it */
@@ -427,3 +435,9 @@ html[data-abid="e"] .about .e-head .work-headline {
    item column's full width at 16:9, under its caption line; no chrome of its own. */
 .items .what .embed { display: block; width: 100%; aspect-ratio: 16 / 9; border: 0; margin-top: 9px; background: var(--surface, rgba(127,127,127,.08)); }
 .items .what .embed--audio { aspect-ratio: auto; height: 166px; }   /* the SoundCloud visual player's own height */
+
+/* Revision 20: press headlines are italic <cite>s. Newsreader has the italic (self-hosted latin
+   subset above); on E the prose is Cal Sans, whose italic is the ital axis, so the cite keeps
+   font-style normal and turns the axis instead. */
+.items .what cite { font-style: italic; }
+html[data-abid="e"] .about .items .what cite { font-style: normal; font-variation-settings: 'wght' 400, 'ital' 1; }
