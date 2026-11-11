@@ -31,6 +31,12 @@
 .about-ring__g {
   animation: about-ring-spin 12s linear infinite;
 }
+/* IDLE COSTS NOTHING. A ring that is not showing is visibility: hidden with its spin paused:
+   48 text-clipped spans in a rotating layer repaint every frame otherwise, and two of them at
+   opacity 0 pinned a renderer at full CPU (Mark, 2026-11-10 night). The corner ring pauses
+   off screen the same way (js sets .is-off from an IntersectionObserver). */
+.about-ring.is-idle, .about-ring.is-off { visibility: hidden; }
+.about-ring.is-idle .about-ring__g, .about-ring.is-off .about-ring__g { animation-play-state: paused; }
 @keyframes about-ring-spin { to { transform: rotate(360deg); } }
 @media (prefers-reduced-motion: reduce) { .about-ring__g { animation: none; } }
 
@@ -88,8 +94,9 @@
     z-index: 120;
     opacity: 0;
     scale: 0.8;
-    transition: opacity 0.18s, scale 0.26s cubic-bezier(0.2, 0.8, 0.2, 1);
+    transition: opacity 0.18s, scale 0.26s cubic-bezier(0.2, 0.8, 0.2, 1), visibility 0s 0.32s;
   }
+  .about-ring--cursor.is-on, .about-ring--cursor.is-out { visibility: visible; transition-delay: 0s; }
   .about-ring--cursor.is-on { opacity: 1; scale: 1; }
   /* leaving: shrinks and crossfades with the cursor while still tracking it */
   .about-ring--cursor.is-out { scale: 0.6; transition: opacity 0.28s, scale 0.3s cubic-bezier(0.4, 0, 0.6, 1); }

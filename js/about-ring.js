@@ -126,12 +126,13 @@
       targets.forEach(function (t) {
         var r = ring('about-ring--cursor', t.getAttribute('data-ring'));
         rings.push(r); byTarget.set(t, r);
+        r.classList.add('is-idle');
         document.body.appendChild(r);
         layout(r);
         r.style.translate = x.toFixed(1) + 'px ' + y.toFixed(1) + 'px';
       });
       el = cur ? byTarget.get(cur) : rings[0];
-      if (on && el) el.classList.add('is-on');
+      if (on && el) el.classList.remove('is-idle'), el.classList.add('is-on');
     } else if (me) {
       var corner = ring('about-ring--corner', me.getAttribute('data-ring'));
       rings.push(corner);
@@ -140,6 +141,11 @@
       corner.style.width = d; corner.style.height = d;
       me.appendChild(corner);
       layout(corner);
+      if ('IntersectionObserver' in window) {
+        new IntersectionObserver(function (es) {
+          corner.classList.toggle('is-off', !es[0].isIntersecting);
+        }, { rootMargin: '10% 0px' }).observe(me);
+      }
     }
   }
   build();
@@ -165,7 +171,7 @@
         cur = t; el = byTarget.get(t);
         on = true; x = tx = e.clientX; y = ty = e.clientY;
         clearTimeout(out); out = 0;
-        el.classList.remove('is-out');
+        el.classList.remove('is-out', 'is-idle');
         el.classList.add('is-on');
         if (!raf) frame();
       });
@@ -174,7 +180,7 @@
         on = false;
         r.classList.remove('is-on');
         r.classList.add('is-out');
-        out = setTimeout(function () { r.classList.remove('is-out'); out = 0; }, 320);
+        out = setTimeout(function () { r.classList.remove('is-out'); r.classList.add('is-idle'); out = 0; }, 320);
       });
     });
   }
