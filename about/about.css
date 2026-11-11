@@ -335,9 +335,10 @@
 .about .e-head.wm-lines { --lead-title: 30px; }
 
 
-/* Revision 11: Contact's columns start at the heading's left edge, not on the item column. The
-   other rows keep their date column; the gaps between Email / Social / Code are unchanged. */
-.row--contact > .row-body { padding-inline-start: 0; }
+/* Revision 11 (Contact's columns at the heading's left edge) was reversed in Revision 21, Mark
+   2026-11-11: Contact starts on the item column like every other run-in body. Its three tracks
+   (Revision 12) still fit: 4 + 4 + 4 of the 20 columns right of the date column from 1024,
+   3 + 3 + 3 of the 10 right of it between 600 and 1023. */
 
 /* Revision 12 (as corrected): Contact's Social column starts on the ITEM column of the rows above
    (where "Rhode Island School of Design" starts), and Code one more such step to the right. Each
@@ -441,3 +442,7 @@ html[data-abid="e"] .about .e-head .work-headline {
    font-style normal and turns the axis instead. */
 .items .what cite { font-style: italic; }
 html[data-abid="e"] .about .items .what cite { font-style: normal; font-variation-settings: 'wght' 400, 'ital' 1; }
+
+/* Revision 21: the nameplate links home. main.css makes #site-wordmark pointer-transparent
+   (a nameplate, not a control, on the homepage); here the anchor inside it takes the pointer. */
+#site-wordmark a { color: inherit; text-decoration: none; pointer-events: auto; }
