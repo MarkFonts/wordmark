@@ -453,3 +453,6 @@ html[data-abid="e"] .about .items .what cite { font-style: normal; font-variatio
 /* Revision 21: the nameplate links home. main.css makes #site-wordmark pointer-transparent
    (a nameplate, not a control, on the homepage); here the anchor inside it takes the pointer. */
 #site-wordmark a { color: inherit; text-decoration: none; pointer-events: auto; }
+/* and on hover it slides to wght 400, SHRP 100 (Mark, 2026-11-10), GEOM 100 held */
+#site-wordmark a { font-variation-settings: 'wght' 700, 'GEOM' 100, 'SHRP' 0; transition: font-variation-settings .25s cubic-bezier(.3, 0, .2, 1); }
+#site-wordmark a:hover { font-variation-settings: 'wght' 400, 'GEOM' 100, 'SHRP' 100; }
