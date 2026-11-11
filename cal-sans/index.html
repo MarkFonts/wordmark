@@ -41,7 +41,9 @@
 <link rel="stylesheet" href="../shared/src/grid.css">
 <link rel="stylesheet" href="../shared/src/dialHandle.css">
 <link rel="stylesheet" href="../shared/src/chip.css">
-<link rel="stylesheet" href="../css/case.css?v=122">
+<link rel="stylesheet" href="../css/case.css?v=123">
+<link rel="stylesheet" href="../css/marquee.css?v=2">
+<link rel="stylesheet" href="../css/about-ring.css?v=16">
 </head>
 <body>
 
@@ -60,7 +62,7 @@
       <button type="button" class="wm-icon-btn" data-mode="light" aria-label="Light colour scheme" title="Force the light palette"><span class="wm-icon material-symbols-outlined wm-icon--rest" style="font-size:20px;--icon-opsz:20;--icon-fill:0" aria-hidden="true" translate="no">light_mode</span></button>
       <button type="button" class="wm-icon-btn" data-mode="dark" aria-label="Dark colour scheme" title="Force the dark palette"><span class="wm-icon material-symbols-outlined wm-icon--rest" style="font-size:20px;--icon-opsz:20;--icon-fill:0" aria-hidden="true" translate="no">dark_mode</span></button>
     </div>
-    <a class="pill" href="https://cal.com/davis" target="_blank" rel="noopener">Let&rsquo;s talk type <span class="arrow">&#x2197;</span></a>
+    <a class="pill" data-marquee href="https://cal.com/davis" target="_blank" rel="noopener">Let&rsquo;s talk type <span class="arrow">&#x2197;</span></a>
   </div>
 </nav>
 
@@ -472,13 +474,13 @@
       <p class="made-cap made-cap--lead"><strong>Tools built on the way.</strong> Not for want of features, for want of fewer: a proofer with the client&rsquo;s own UI as its preview tabs and two optical sizes side by side in one paragraph panel, and nothing in the way. Four tools came out of that.</p>
       <div class="tools">
         <a class="tool tool--shot made-theme" href="https://wordproof.app/calcom/calsans/">
-          <img class="for-light" src="img/proofer-ui-light.webp" width="2000" height="1305" data-shot="mac" style="--shot-scale: .643" loading="lazy" alt="Wordproof showing the Cal.com component board">
-          <img class="for-dark" src="img/proofer-ui-dark.webp" width="2000" height="1305" data-shot="mac" style="--shot-scale: .643" loading="lazy" alt="Wordproof showing the Cal.com component board, dark">
+          <img class="for-light" data-ring="Try Wordproof" data-ring-src="cs_wordproof" src="img/proofer-ui-light.webp" width="2000" height="1305" data-shot="mac" style="--shot-scale: .643" loading="lazy" alt="Wordproof showing the Cal.com component board">
+          <img class="for-dark" data-ring="Try Wordproof" data-ring-src="cs_wordproof" src="img/proofer-ui-dark.webp" width="2000" height="1305" data-shot="mac" style="--shot-scale: .643" loading="lazy" alt="Wordproof showing the Cal.com component board, dark">
           <span class="tool-name">Wordproof <span class="arrow">&#x2197;</span></span>
           <span class="tool-text">The font in Cal.com&rsquo;s real screens as preview tabs: booking pages, the app, the component board, and a paragraph panel that sets two optical sizes side by side.</span>
         </a>
         <div class="tool tool--shot">
-          <a href="../recalsans/"><img src="img/recal.webp" width="2000" height="1305" data-shot="mac" style="--shot-scale: .643" loading="lazy" alt="ReCal Sans, the builder, with geometric form, optical size and weight controls"></a>
+          <a href="../recalsans/"><img data-ring="Try ReCal" data-ring-reps="5" data-ring-src="cs_recal" src="img/recal.webp" width="2000" height="1305" data-shot="mac" style="--shot-scale: .643" loading="lazy" alt="ReCal Sans, the builder, with geometric form, optical size and weight controls"></a>
           <a class="tool-name" href="../recalsans/">ReCal <span class="arrow">&#x2197;</span></a>
           <span class="tool-text">Pick the defaults, bake them in, and download your own cut of Cal Sans from the browser. After DJR&rsquo;s <a href="https://input.djr.com/download/" target="_blank" rel="noopener">Input downloader</a> and Belleve Invis&rsquo;s <a href="https://github.com/be5invis/Iosevka" target="_blank" rel="noopener">Iosevka</a>.</span>
         </div>
@@ -489,7 +491,7 @@
           <span class="tool-text">Every kerning pair across all eight masters at once, roman and italic optionally linked, with the curve a value takes from text to display. After Adobe&rsquo;s <a href="https://github.com/adobe-type-tools/kernalytics-rf-ext" target="_blank" rel="noopener">Kernalytics</a>, MIT.</span>
         </div>
         <a class="tool tool--shot" href="https://github.com/calcom/sans/tree/main/scripts" target="_blank" rel="noopener">
-          <img src="img/calbuild.webp" width="1666" height="1790" data-shot="mac" loading="lazy" alt="Terminal: calbuild validating 8 masters, compiling the variable font and instancing 384 static styles">
+          <img data-ring="Read the Docs" data-ring-src="cs_calbuild" src="img/calbuild.webp" width="1666" height="1790" data-shot="mac" loading="lazy" alt="Terminal: calbuild validating 8 masters, compiling the variable font and instancing 384 static styles">
           <span class="tool-name">calbuild <span class="arrow">&#x2197;</span></span>
           <span class="tool-text">The build, start to finish: metrics, validation, the variable font, the statics, the packages for Google Fonts, npm and jsDelivr. In the Cal Sans repo, under scripts.</span>
         </a>
@@ -591,8 +593,8 @@
   <h2 class="sec-title">One weight earned the trust</h2>
   <p class="close-para">A startup doesn&rsquo;t buy a font family, it buys a stronger brand. Cal.com trusted one weight to replace a standard, and every stage since served the brand it built.</p>
   <div class="close-cta">
-    <a class="pill pill--lg" href="https://github.com/calcom/sans" target="_blank" rel="noopener">Download Cal Sans <span class="arrow">&#x2197;</span></a>
-    <a class="pill pill--lg pill--ghost" href="https://cal.com/davis" target="_blank" rel="noopener">Let&rsquo;s talk type <span class="arrow">&#x2197;</span></a>
+    <a class="pill pill--lg" data-marquee href="https://github.com/calcom/sans" target="_blank" rel="noopener">Download Cal Sans <span class="arrow">&#x2197;</span></a>
+    <a class="pill pill--lg pill--ghost" data-marquee href="https://cal.com/davis" target="_blank" rel="noopener">Let&rsquo;s talk type <span class="arrow">&#x2197;</span></a>
   </div>
   <div class="get-list get-list--close">
     <a class="code" href="https://fonts.google.com/specimen/Cal+Sans" target="_blank" rel="noopener"><span>fonts.google.com/specimen/Cal+Sans</span><span class="where">Google Fonts &#x2197;</span></a>
@@ -636,5 +638,7 @@
   import { mountThemeSwitch } from '../shared/src/theme.js';
   mountThemeSwitch(document.getElementById('theme-toggle'));
 </script>
+<script src="../js/marquee.js?v=1" defer></script>
+<script src="../js/about-ring.js?v=21" defer></script>
 </body>
 </html>

@@ -24,27 +24,43 @@
   var reps = +q.get('reps') || (fine ? 3 : 2);
   var centre = q.get('center') === '0' ? '' : (fine ? '[click]' : '>tap<');   /* the word in the middle */
   var n = 0;
-  function pathText(txt) { return (txt + '  ').repeat(reps); }
+  var GAP = '\u2002\u2002';   /* two en spaces between repeats */
+  function pathText(txt, n) { return (txt + GAP).repeat(n); }
+  /* a target may ask for its own repeat count (data-ring-reps, e.g. 4 for a short "Try ReCal",
+     which otherwise needs a lot of tracking to close the circle) and keeps the page's type size
+     unless it also sets data-ring-size (viewBox units) */
+  var SIZE = { 2: 21.3, 3: 14.2, 4: 10.6 };
+  function spec(t) {
+    var n = +(t && t.getAttribute('data-ring-reps')) || reps;
+    var sz = +(t && t.getAttribute('data-ring-size')) || SIZE[reps] || 14.2;
+    return { n: n, size: sz };
+  }
 
   /* SDR: SVG textPath. The repeats close the circle exactly: measure the natural run once
      the font is in and spread the difference over the characters as letter-spacing. */
-  function ringSVG(cls, txt) {
+  function ringSVG(cls, txt, sp) {
     var id = 'about-ring-path-' + (++n);
     var svg = document.createElementNS('http://www.w3.org/2000/svg', 'svg');
     svg.setAttribute('viewBox', '0 0 200 200');
     svg.setAttribute('aria-hidden', 'true');
     svg.setAttribute('class', 'about-ring about-ring--svg ' + cls);
-    svg.setAttribute('data-reps', reps);
+    svg.setAttribute('data-reps', sp.n);
+    svg.style.fontSize = sp.size + 'px';
     var r = 78, c = 2 * Math.PI * r;
+    var reps_html = '';
+    for (var k = 0; k < sp.n; k++) reps_html += '<tspan>' + txt + GAP + '</tspan>';
     svg.innerHTML =
       '<defs><path id="' + id + '" d="M100,100 m-' + r + ',0 a' + r + ',' + r + ' 0 1,1 ' + 2 * r + ',0 a' + r + ',' + r + ' 0 1,1 -' + 2 * r + ',0"/></defs>' +
-      '<g class="about-ring__g"><text><textPath href="#' + id + '">' + pathText(txt) + '</textPath></text></g>' +
+      '<g class="about-ring__g"><text><textPath href="#' + id + '">' + reps_html + '</textPath></text></g>' +
       (centre ? '<text class="about-ring__c" x="100" y="100" text-anchor="middle" dominant-baseline="central">' + centre.replace(/</g, '&lt;').replace(/>/g, '&gt;') + '</text>' : '');
-    var t = svg.querySelector('text'), len = t.textContent.length;
+    var t = svg.querySelector('text'), tspans = t.querySelectorAll('tspan');
     svg.__layout = function () {
+      /* the repeats close the circle with TRACKING: the slack is spread over every character
+         (Mark, 2026-11-11: Cal Sans caps are tight, the ring wants air and the movement carries
+         it). A short word asks for more repeats (data-ring-reps) when the tracking would be much. */
       t.style.letterSpacing = '0';
-      var l = t.getComputedTextLength();
-      if (l) t.style.letterSpacing = ((c - l) / len).toFixed(3) + 'px';
+      var l = t.getComputedTextLength(), n = t.textContent.length;
+      if (l) t.style.letterSpacing = ((c - l) / n).toFixed(3) + 'px';
     };
     return svg;
   }
@@ -52,11 +68,12 @@
   /* HDR: one span per letter, each rotated onto the circle, filled from the PQ swatch. The
      letters sit the way the SVG's do: baseline on the 78/200 radius, reading clockwise from
      the left. Spacing closes the circle the same way. */
-  function ringHTML(cls, txt) {
+  function ringHTML(cls, txt, sp) {
     var el = document.createElement('div');
     el.className = 'about-ring about-ring--hdr ' + cls;
     el.setAttribute('aria-hidden', 'true');
-    el.setAttribute('data-reps', reps);
+    el.setAttribute('data-reps', sp.n);
+    el.style.fontSize = 'calc(var(--d) * ' + sp.size + ' / 200)';
     var g = document.createElement('div');
     g.className = 'about-ring__g';
     el.appendChild(g);
@@ -65,7 +82,7 @@
       c.className = 'about-ring__c'; c.textContent = centre;
       el.appendChild(c);
     }
-    var spans = pathText(txt).toUpperCase().split('').map(function (ch) {
+    var spans = pathText(txt, sp.n).toUpperCase().split('').map(function (ch) {
       var s = document.createElement('span');
       s.textContent = ch;
       g.appendChild(s);
@@ -78,10 +95,11 @@
       var fs = parseFloat(getComputedStyle(spans[0]).fontSize);
       var ws = spans.map(function (s) { s.style.transform = ''; return s.getBoundingClientRect().width; });
       var total = ws.reduce(function (a, b) { return a + b; }, 0);
-      var extra = (C - total) / ws.length, cum = 0;
+      var extra = (C - total) / ws.length, cum = 0;   /* tracking: the slack over every character */
       spans.forEach(function (s, i) {
-        var mid = cum + (ws[i] + extra) / 2;
-        cum += ws[i] + extra;
+        var w = ws[i] + extra;
+        var mid = cum + w / 2;
+        cum += w;
         var deg = -90 + mid / R * 180 / Math.PI;
         /* line-height 1: the box centre sits ~0.3em above the baseline, so lift by R + 0.3em
            to put the baseline on the radius */
@@ -91,7 +109,7 @@
     return el;
   }
 
-  function ring(cls, txt) { return hdr ? ringHTML(cls, txt) : ringSVG(cls, txt); }
+  function ring(cls, txt, t) { var sp = spec(t); return hdr ? ringHTML(cls, txt, sp) : ringSVG(cls, txt, sp); }
   function layout(el) {
     el.__layout();
     if (document.fonts && document.fonts.ready) document.fonts.ready.then(el.__layout);
@@ -124,7 +142,7 @@
     rings.forEach(teardown); rings = []; byTarget.clear();
     if (fine) {
       targets.forEach(function (t) {
-        var r = ring('about-ring--cursor', t.getAttribute('data-ring'));
+        var r = ring('about-ring--cursor', t.getAttribute('data-ring'), t);
         rings.push(r); byTarget.set(t, r);
         r.classList.add('is-idle');
         document.body.appendChild(r);
@@ -134,7 +152,7 @@
       el = cur ? byTarget.get(cur) : rings[0];
       if (on && el) el.classList.remove('is-idle'), el.classList.add('is-on');
     } else if (me) {
-      var corner = ring('about-ring--corner', me.getAttribute('data-ring'));
+      var corner = ring('about-ring--corner', me.getAttribute('data-ring'), me);
       rings.push(corner);
       /* pixel fallback for the CSS size, so a stale stylesheet can never let it go 100% wide */
       var d = Math.round(window.innerWidth * 0.41) + 'px';

@@ -1,0 +1,52 @@
+/* marquee.css -- the pill's marquee hover (Mark, 2026-11-11; prototyped in _proto-marquee.html).
+   A pill with data-marquee keeps its label as one copy in a track of copies. At rest the track
+   sits so its anchor copy is exactly where the label is, the other copies invisible. On hover the
+   track starts moving from there, left to right, slow (6s a run), and the neighbours snap in on
+   both sides already moving at the same speed. On leave the copy nearest the spot slides into it
+   (the one that just passed comes back; one approaching within 10% of the pitch finishes
+   forward), stays lit while the others fade, and the track resets silently under the label.
+   Press slides the letters to Cal Sans's ital axis. js/marquee.js builds the track and measures.
+   The pill never changes width; idle costs nothing (the animation is paused at rest). */
+.pill[data-marquee] {
+  position: relative;
+  overflow: clip;
+  --mq-dur: 6s;          /* one run's width of travel */
+  --mq-dir: 1;           /* 1 = left to right */
+  --mq-gap: 1em;
+  --mq-x0: 0px;          /* js: the translate that puts the anchor on the label */
+  --mq-runw: 0px;        /* js: one run's width */
+  --ital: 0;
+  font-variation-settings: 'wght' var(--wght, 700), 'GEOM' var(--geom, 50), 'ital' var(--ital);   /* case.css drives --wght/--geom; the homepage pill is 700 / 50 */
+  transition: opacity 0.15s, font-variation-settings .22s;
+}
+.pill[data-marquee]:active { --ital: 1; }
+.pill[data-marquee] .mq-lab { display: inline-flex; align-items: center; gap: .3em; }
+.pill[data-marquee] .mq-track {
+  position: absolute; inset: 0;
+  box-sizing: border-box;
+  padding: inherit;         /* the pill's own box, lift included, whatever the page's pill is */
+  padding-inline: 0;
+  display: flex; align-items: center;
+  white-space: nowrap;
+  pointer-events: none;
+  transform: translateX(var(--mq-x0));
+  animation: mq-run var(--mq-dur) linear infinite paused;
+}
+.pill[data-marquee] .mq-run { display: flex; align-items: center; gap: var(--mq-gap); padding-inline-end: var(--mq-gap); flex: none; }
+.pill[data-marquee] .mq-run > span { display: inline-flex; align-items: center; gap: .3em; opacity: 0; transition: opacity .5s cubic-bezier(0, .95, .1, 1); }
+.pill[data-marquee] .mq-run > span.anchor { opacity: 0; transition: none; }
+@keyframes mq-run {
+  from { transform: translateX(var(--mq-x0)); }
+  to   { transform: translateX(calc(var(--mq-x0) + var(--mq-dir) * var(--mq-runw))); }
+}
+.pill[data-marquee].is-on .mq-lab { visibility: hidden; }
+.pill[data-marquee].is-on .mq-track { animation-play-state: running; }
+.pill[data-marquee].is-on .mq-run > span { opacity: 1; }
+.pill[data-marquee].is-out .mq-lab { visibility: hidden; }
+.pill[data-marquee].is-out .mq-run > span { transition: opacity .3s ease-out; }
+.pill[data-marquee].is-out .mq-run > span.landing { opacity: 1; transition: none; }
+/* the marquee is the hover: no dim, no arrow nudge */
+.pill[data-marquee]:hover { opacity: 1; }
+.pill[data-marquee]:hover .arrow { transform: none; }
+@media (prefers-reduced-motion: reduce) { .pill[data-marquee] .mq-track { animation: none; } }
+@media (hover: none) { .pill[data-marquee] .mq-track { display: none; } }
