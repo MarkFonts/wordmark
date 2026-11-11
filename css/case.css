@@ -128,6 +128,10 @@ section[id] { scroll-margin-top: var(--nav-h); }
   letter-spacing: 0.1em;
   text-decoration: none;
   transition: font-variation-settings .25s cubic-bezier(.3, 0, .2, 1);
+  /* the word is narrower at 400, so the box holds its 700 width: the nav's middle links must
+     not move on the hover (Mark, 2026-11-11) */
+  display: inline-block;
+  min-width: 7.2em;
 }
 /* the nameplate hover from the About pages (Mark, 2026-11-10): wght 700 -> 400, SHRP 0 -> 100,
    GEOM held, full ink */
