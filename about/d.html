@@ -43,13 +43,119 @@
 <link rel="stylesheet" href="../shared/src/type.css">
 <link rel="stylesheet" href="../shared/src/space.css">
 <link rel="stylesheet" href="../css/main.css?v=55">
-<!-- Newsreader for the prose: Google Fonts for this preview only -->
-<link rel="preconnect" href="https://fonts.googleapis.com">
-<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Newsreader:opsz,wght@6..72,400;6..72,500&display=swap">
+<link rel="preload" as="font" type="font/woff2" crossorigin href="../fonts/Newsreader-latin.woff2">
 <link rel="stylesheet" href="about.css">
 <title>About WORDMARK — Mark Davis, type design studio in Brooklyn</title>
 <meta name="description" content="WORDMARK is Mark Davis’s type design practice in Brooklyn: custom typefaces and logotypes for Vercel, Cal.com, and Pentagram, from logotypes to variable families.">
+<meta property="og:title" content="About WORDMARK — Mark Davis, type design studio in Brooklyn">
+<meta property="og:description" content="WORDMARK is Mark Davis’s type design practice in Brooklyn: custom typefaces and logotypes for Vercel, Cal.com, and Pentagram, from logotypes to variable families.">
+<meta property="og:image" content="https://wordmark.nyc/about/og-about.jpg">
+<meta property="og:image:width" content="2400">
+<meta property="og:image:height" content="1260">
+<meta property="og:image:alt" content="About — the WORDMARK letterbox, the word set in small type, and wordmark.nyc">
+<meta property="og:url" content="https://wordmark.nyc/about/">
+<meta property="og:video" content="https://wordmark.nyc/about/og-about.mp4">
+<meta property="og:video:secure_url" content="https://wordmark.nyc/about/og-about.mp4">
+<meta property="og:video:type" content="video/mp4">
+<meta property="og:video:width" content="1200">
+<meta property="og:video:height" content="630">
+<meta property="og:type" content="website">
+<meta property="og:site_name" content="WORDMARK">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:site" content="@MarkFonts">
+<meta name="twitter:image" content="https://wordmark.nyc/about/og-about.jpg">
+<script type="application/ld+json">
+{
+ "@context": "https://schema.org",
+ "@type": "AboutPage",
+ "@id": "https://wordmark.nyc/about/#studio",
+ "url": "https://wordmark.nyc/about/",
+ "name": "About WORDMARK",
+ "description": "WORDMARK is Mark Davis’s type design practice in Brooklyn.",
+ "isPartOf": {
+  "@type": "WebSite",
+  "url": "https://wordmark.nyc/",
+  "name": "WORDMARK"
+ },
+ "mainEntity": {
+  "@type": "Organization",
+  "@id": "https://wordmark.nyc/#organization",
+  "name": "WORDMARK",
+  "alternateName": "Wordmark NYC",
+  "url": "https://wordmark.nyc/",
+  "logo": "https://wordmark.nyc/og.jpg?v=2",
+  "description": "Type design studio in Brooklyn, New York: custom typefaces and logotypes for brands and products, from one-style logotypes to open-source variable families.",
+  "foundingDate": "2017",
+  "email": "mark@wordmark.nyc",
+  "address": {
+   "@type": "PostalAddress",
+   "addressLocality": "Brooklyn",
+   "addressRegion": "NY",
+   "postalCode": "11206",
+   "addressCountry": "US"
+  },
+  "founder": {
+   "@type": "Person",
+   "@id": "https://wordmark.nyc/about/#mark-davis",
+   "name": "Mark Davis",
+   "givenName": "Mark",
+   "familyName": "Davis",
+   "jobTitle": "Type designer and font engineer",
+   "description": "Type designer and font engineer in Brooklyn, New York; founder of WORDMARK. Designer of Cal Sans for Cal.com and Geist Serif for Vercel.",
+   "url": "https://wordmark.nyc/about/",
+   "image": "https://wordmark.nyc/about/mark-davis-portrait-2026.jpg",
+   "email": "mark@wordmark.nyc",
+   "worksFor": {
+    "@id": "https://wordmark.nyc/#organization"
+   },
+   "alumniOf": [
+    {
+     "@type": "EducationalOrganization",
+     "name": "Type@Cooper, The Cooper Union"
+    },
+    {
+     "@type": "EducationalOrganization",
+     "name": "Rhode Island School of Design"
+    }
+   ],
+   "homeLocation": {
+    "@type": "Place",
+    "name": "Brooklyn, New York"
+   },
+   "sameAs": [
+    "https://www.instagram.com/wordmark.nyc/",
+    "https://www.instagram.com/markycdavis/",
+    "https://x.com/MarkFonts",
+    "https://www.linkedin.com/in/markfonts/",
+    "https://github.com/MarkFonts",
+    "https://www.youtube.com/playlist?list=PL5B0ltrBTxaOuyoErKI3TjMY951m0qimy"
+   ],
+   "knowsAbout": [
+    "type design",
+    "font engineering",
+    "variable fonts",
+    "logotypes",
+    "OpenType"
+   ]
+  },
+  "sameAs": [
+   "https://www.instagram.com/wordmark.nyc/",
+   "https://www.instagram.com/markycdavis/",
+   "https://x.com/MarkFonts",
+   "https://www.linkedin.com/in/markfonts/",
+   "https://github.com/MarkFonts"
+  ],
+  "knowsAbout": [
+   "type design",
+   "font engineering",
+   "variable fonts",
+   "logotypes",
+   "custom typefaces",
+   "OpenType"
+  ]
+ }
+}
+</script>
 </head>
 <body>
 
@@ -141,7 +247,7 @@
     </div>
 
     <section class="d-founder" aria-label="Founder">
-      <img class="portrait" src="mark-davis-portrait-2026.jpg" alt="Mark Davis, studio portrait" width="1280" height="1600" loading="lazy">
+      <img class="portrait" src="mark-davis-portrait-2026-640.jpg" srcset="mark-davis-portrait-2026-320.jpg 320w, mark-davis-portrait-2026-640.jpg 640w, mark-davis-portrait-2026.jpg 1280w" sizes="(max-width: 599px) 30vw, 116px" alt="Mark Davis, studio portrait" width="1280" height="1600" loading="lazy" decoding="async">
       <div class="d-founder-text">
         <h2 class="t-ui">Mark Davis, founder</h2>
         <p class="prose prose--small">Mark Davis studied at Type@Cooper, critiqued by Christian Schwartz and Tobias Frere-Jones, and moved from the Midwest to Brooklyn to start at Font Bureau, chosen and placed by Roger Black, under Cyrus Highsmith. He has since taught at Queens College, the School of Visual Arts, and the Rhode Island School of Design.</p>
