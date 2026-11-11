@@ -10,15 +10,15 @@
         xmlns:image="http://www.google.com/schemas/sitemap-image/1.1">
   <url>
     <loc>https://wordmark.nyc/</loc>
-    <lastmod>2026-10-06</lastmod>
+    <lastmod>2026-11-11</lastmod>
   </url>
   <url>
     <loc>https://wordmark.nyc/about/</loc>
-    <lastmod>2026-11-10</lastmod>
+    <lastmod>2026-11-11</lastmod>
   </url>
   <url>
     <loc>https://wordmark.nyc/cal-sans/</loc>
-    <lastmod>2026-10-10</lastmod>
+    <lastmod>2026-11-11</lastmod>
     <image:image>
       <image:loc>https://wordmark.nyc/cal-sans/og.png</image:loc>
     </image:image>
