@@ -12,6 +12,17 @@
  * loaded from Google Fonts for this preview only (TYPOGRAPHY.md: the system page never loads it).
  */
 
+/* Newsreader, self-hosted: Google Fonts' latin subset of the variable font (opsz 6-72, wght 200-800),
+   fonts/Newsreader-latin.woff2. The prose uses 400 and 500; opsz follows the size. */
+@font-face {
+  font-family: 'Newsreader';
+  font-style: normal;
+  font-weight: 200 800;
+  font-display: swap;
+  src: url('../fonts/Newsreader-latin.woff2') format('woff2');
+  unicode-range: U+0000-00FF, U+0131, U+0152-0153, U+02BB-02BC, U+02C6, U+02DA, U+02DC, U+0304, U+0308, U+0329, U+2000-206F, U+20AC, U+2122, U+2191, U+2193, U+2212, U+2215, U+FEFF, U+FFFD;
+}
+
 :root {
   /* the chrome face, as type.css asks the host to provide it */
   --ui-font: 'CalSans', -apple-system, sans-serif;
@@ -348,3 +359,47 @@
    column as on the homepage: ig / ig·md / tw | in / email */
 .about-footer .footer-links { grid-template-rows: repeat(3, auto); grid-auto-flow: column; }
 
+
+/* ═══ E · Geist Serif headline, Cal Sans copy (Mark, 2026-11-10) ═══════════════════════
+   E is the page that stamps <html data-abid="e"> before first paint. On it:
+   - every .prose block takes the homepage body setup, main.css .para: Cal Sans wght 400, 16/24,
+     opsz from size, the homepage's feature settings (dlig/ss20/calt off, no ligatures); the bio
+     paragraphs take .para's muted ink, the row items keep their own inks. Measure and spacing stay.
+   - the headline is Geist Serif Regular (fonts/GeistSerifVF.woff2, Vercel's released family, one
+     axis ELSH 0-100 left at its default), weight 400, no tracking, at the .work-headline sizes.
+   D keeps Newsreader prose; the @font-face below is only fetched on E. */
+@font-face {
+  font-family: 'Geist Serif';
+  src: url('../fonts/GeistSerifVF.woff2') format('woff2');
+  font-weight: 400;
+  font-style: normal;
+  font-display: swap;
+}
+html[data-abid="e"] .about .prose {
+  font-family: 'CalSans', -apple-system, sans-serif;
+  font-variation-settings: 'wght' 400;
+  font-optical-sizing: auto;
+  font-size: 16px;
+  line-height: 24px;
+  font-feature-settings: 'dlig' 0, 'ss20' 0, 'calt' 0;
+  font-variant-ligatures: no-common-ligatures no-discretionary-ligatures no-contextual;
+  font-variant-numeric: normal;
+  hanging-punctuation: none;
+}
+html[data-abid="e"] .about .e-bio { color: var(--text-muted); }
+html[data-abid="e"] .about .items .what .prose--small { margin-top: 0; }
+
+html[data-abid="e"] .about .e-head .work-headline {
+  font-family: 'Geist Serif', Georgia, serif;
+  font-weight: 400;
+  font-variation-settings: normal;
+  font-feature-settings: normal;
+  font-variant-ligatures: normal;
+  letter-spacing: 0;
+  /* cap alignment for Geist Serif's metrics (hhea 1005 / -295 per 1000, capHeight 710):
+     air above the capitals = (--lh - 1.3em) / 2 + 1.005em - .71em = --lh / 2 - .355em */
+  margin-top: calc(0.355em - var(--lh) / 2);
+}
+@media (max-width: 680px) {
+  html[data-abid="e"] .about .e-head .work-headline { margin-top: 0; }
+}
