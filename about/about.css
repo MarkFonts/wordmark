@@ -403,3 +403,22 @@ html[data-abid="e"] .about .e-head .work-headline {
 @media (max-width: 680px) {
   html[data-abid="e"] .about .e-head .work-headline { margin-top: 0; }
 }
+
+/* Revision 18: the footer brick's two columns sit on Contact's tracks (Revision 12), so
+   ig / ig·md / tw | in / email line up under Email | Social. The second track is the step
+   Contact uses at that width: the date column + gutter from 1024 up, three grid columns
+   between 600 and 1023. Phone (<=599) keeps the homepage brick as it is. */
+@media (min-width: 600px) {
+  .about-footer .footer-links { column-gap: var(--grid-gutter); }
+}
+@media (min-width: 1024px) {
+  .about-footer { --when-cols: 4; }
+  .about-footer .footer-links {
+    grid-template-columns: repeat(2, calc(var(--when-cols) * var(--grid-col) + (var(--when-cols) - 1) * var(--grid-gutter)));
+  }
+}
+@media (min-width: 600px) and (max-width: 1023px) {
+  .about-footer .footer-links {
+    grid-template-columns: repeat(2, calc(3 * var(--grid-col) + 2 * var(--grid-gutter)));
+  }
+}

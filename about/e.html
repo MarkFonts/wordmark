@@ -86,7 +86,6 @@
   "description": "Type designer and font engineer in Brooklyn, New York; founder of WORDMARK. Designer of Cal Sans for Cal.com and Geist Serif for Vercel.",
   "url": "https://wordmark.nyc/about/",
   "image": "https://wordmark.nyc/about/mark-davis-portrait-2026.jpg",
-  "email": "mark@wordmark.nyc",
   "worksFor": {
    "@type": "Organization",
    "@id": "https://wordmark.nyc/#organization",
@@ -96,7 +95,6 @@
    "logo": "https://wordmark.nyc/og.jpg?v=2",
    "description": "Type design studio in Brooklyn, New York: custom typefaces and logotypes for brands and products, from one-style logotypes to open-source variable families.",
    "foundingDate": "2017",
-   "email": "mark@wordmark.nyc",
    "address": {
     "@type": "PostalAddress",
     "addressLocality": "Brooklyn",
@@ -318,13 +316,13 @@
      until a genuine pointer-down or focus) -->
 <script>
   document.querySelectorAll('a[data-mail]').forEach(function (a) {
-    var u = "mark", d = "wordmark.nyc";
-    a.textContent = u + "@" + d;
-    a.href = "mailto:" + u + String.fromCodePoint(0x1F582) + d;
-    function arm() { a.href = "mailto:" + u + "@" + d; }
-    a.addEventListener("mousedown", arm);
-    a.addEventListener("focus", arm);
-    a.addEventListener("touchstart", arm, { passive: true });
+    // the footer brick's guard, verbatim: the text keeps Cal Sans's at_spam_trap glyph (U+1F582,
+    // drawn as an @) and the href carries it too until a real mousedown or focus swaps in the "@"
+    var u="mark",d="wordmark.nyc",s="Let%E2%80%99s+leave+a+mark",b="We+should+talk%21";
+    a.href="mailto:"+u+String.fromCodePoint(0x1F582)+d+"?subject="+s+"&body="+b;
+    function armMailto(){a.href="mailto:"+u+"@"+d+"?subject="+s+"&body="+b;}
+    a.addEventListener("mousedown",armMailto);
+    a.addEventListener("focus",armMailto);
   });
 </script>
 <script src="../js/site.js?v=15"></script>
