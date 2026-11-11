@@ -197,6 +197,19 @@
 .e-head  { --span: 12; --span-md: 6; grid-row: 1; }
 .e-photo { --start: 14; --span: 11; --start-md: 7; --span-md: 6; grid-row: 1 / span 2; margin: 0; }
 .e-bio   { --span: 12; --span-md: 6; grid-row: 2; margin-top: 36px; }
+/* Revision 23 (Mark, 2026-11-11): the photo keeps its 11 columns and moves left as the window
+   widens, because the copy's 27em measure stops growing. From 1360, copy 1-10 and photo 12-22
+   (two columns empty on the right). From 1600, copy 1-9 and photo 11-21: three columns empty on the
+   right, the copy's tenth and the gap empty on the left. Eleven columns hold 27em from 1360,
+   nine from 1600. */
+@media (min-width: 1360px) {
+  .e-head, .e-bio { --span: 10; }
+  .e-photo { --start: 12; }
+}
+@media (min-width: 1600px) {
+  .e-head, .e-bio { --span: 9; }
+  .e-photo { --start: 11; }
+}
 /* the headline's CAP HEIGHT, not its line box, meets the portrait's top edge. Cal Sans: ascent .9,
    descent .245 (1.145em of content), capitals ~.72em, so the air above them is
    (--lh - 1.145em) / 2 + .9em - .72em = --lh / 2 - .3925em at every --hl-fs step */
