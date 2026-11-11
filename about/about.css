@@ -434,7 +434,14 @@ html[data-abid="e"] .about .e-head .work-headline {
 
 /* Revision 19: the Chris Do interview embedded under Press on both pages. The player takes the
    item column's full width at 16:9, under its caption line; no chrome of its own. */
-.items .what .embed { display: block; width: 100%; aspect-ratio: 16 / 9; border: 0; margin-top: 9px; background: var(--surface, rgba(127,127,127,.08)); }
+.items .what .embed { display: block; width: 100%; aspect-ratio: 16 / 9; border: 0; margin-top: 12px; background: var(--surface, rgba(127,127,127,.08)); }
+/* Revision 22: players cap at 10 of the 24 columns from 1024 (8 of 12 below), so on a wide
+   screen they do not run the whole item column, and a row that carries one gets 36px of air
+   below instead of the 12px pitch of one-line items (Mark, 2026-11-10: "smushed") */
+.items .what .embed { max-width: calc(10 * var(--grid-col) + 9 * var(--grid-gutter)); }
+@media (max-width: 1023px) { .items .what .embed { max-width: calc(8 * var(--grid-col) + 7 * var(--grid-gutter)); } }
+@media (max-width: 680px) { .items .what .embed { max-width: none; } }
+.items > li:has(.embed) + li { margin-top: 36px; }
 .items .what .embed--audio { aspect-ratio: auto; height: 166px; }   /* the SoundCloud visual player's own height */
 
 /* Revision 20: press headlines are italic <cite>s. Newsreader has the italic (self-hosted latin
