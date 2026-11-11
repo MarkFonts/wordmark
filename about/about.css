@@ -1,0 +1,350 @@
+/* about.css -- the two about-page directions (d.html, e.html), on the house system.
+ *
+ * Loaded AFTER css/main.css and the shared tokens (color, corners, motion, type, space, grid),
+ * so everything here is an override or an addition, never a second palette:
+ *   - ground and inks are color.css + main.css's light #f5faff; nothing new
+ *   - sizes are the type.css roles (--type-*-size / --type-*-lead) and the poster scale
+ *   - inks are --ink-full / --ink-quiet / --ink-faint on --text-rgb (type.css)
+ *   - columns are grid.css's 24 (12 below 1024); every leading and every vertical space
+ *     between text blocks is N x 3px (--bl), so baselines stay on the house line
+ *
+ * Faces: Cal Sans for the statement, headings and chrome; Newsreader for prose. Newsreader is
+ * loaded from Google Fonts for this preview only (TYPOGRAPHY.md: the system page never loads it).
+ */
+
+:root {
+  /* the chrome face, as type.css asks the host to provide it */
+  --ui-font: 'CalSans', -apple-system, sans-serif;
+  --ui-fvs: 'wght' 400, 'GEOM' 25;
+  /* headings sit at the Base landing, GEOM 50 (TYPOGRAPHY.md I, "headings sitting above UI
+     copy"); weight stays at 400 -- display and title spend size, nothing else */
+  --head-fvs: 'wght' 400, 'GEOM' 50;
+  --serif: 'Newsreader', Georgia, 'Times New Roman', serif;
+}
+
+/* ── the page frame ─────────────────────────────────────────── */
+.about {
+  /* clear the pinned nameplate: it sits at top 60 (32px on a 36 lead on desktop) */
+  padding-top: 192px;
+}
+@media (max-width: 680px) {
+  .about { padding-top: 147px; }
+}
+
+/* the house ink classes, written against the host's --text-rgb so they follow the theme */
+.about .ink-quiet { color: rgba(var(--text-rgb), var(--ink-quiet)); }
+.about .ink-faint { color: rgba(var(--text-rgb), var(--ink-faint)); }
+
+/* ── shared type ────────────────────────────────────────────── */
+:where(.about) :where(h1, h2, h3, p, dl, dt, dd, ul, ol, li, figure) { margin: 0; padding: 0; }
+:where(.about) :where(ul, ol) { list-style: none; }
+
+/* Cal Sans headings: the role's size, the Base landing, opsz from size */
+.about .head {
+  font-family: var(--ui-font);
+  font-variation-settings: var(--head-fvs);
+  font-optical-sizing: auto;
+  font-kerning: normal;
+  font-feature-settings: 'kern' 1;
+  color: rgba(var(--text-rgb), var(--ink-full));
+}
+
+/* Newsreader prose: the lede role (18/27), opsz follows size, ligatures and kerning back on
+   (main.css's reset turns liga/calt off for Cal Sans), oldstyle figures in running text */
+.about .prose {
+  font-family: var(--serif);
+  font-weight: 400;
+  font-variation-settings: normal;
+  font-optical-sizing: auto;
+  font-size: var(--type-lede-size);
+  line-height: var(--type-lede-lead);
+  font-kerning: normal;
+  font-feature-settings: 'kern' 1, 'liga' 1, 'calt' 1, 'onum' 1, 'pnum' 1;
+  font-variant-ligatures: common-ligatures contextual;
+  color: rgba(var(--text-rgb), var(--ink-full));
+  text-wrap: pretty;
+  hyphens: manual;
+  hanging-punctuation: first;
+  max-width: 27em;                 /* 486px at 18px: 63 characters of Newsreader, measured */
+}
+.about .prose p + p { margin-top: 12px; }   /* four units: the paragraph break, on the line */
+
+/* the footnote size: the body role, 16/24 */
+.about .prose--small {
+  font-size: var(--type-body-size);
+  line-height: var(--type-body-lead);
+}
+
+/* links in prose and lists: the rule signal (type.css .sig-rule), quiet underline */
+.about a { color: inherit; }
+.about .prose a,
+.about .lnk {
+  text-decoration: underline;
+  text-decoration-thickness: 1px;
+  text-underline-offset: .22em;
+  text-decoration-color: rgba(var(--text-rgb), var(--ink-faint));
+  transition: text-decoration-color var(--dur-fast, 140ms);
+}
+.about .prose a:hover,
+.about .lnk:hover { text-decoration-color: currentColor; }
+.about .t-ui a, .about .t-label a { text-decoration: none; }
+.about .t-ui a:hover { text-decoration: underline; text-decoration-thickness: 1px; text-underline-offset: .22em; }
+
+/* figures where they are data, not prose: lining + tabular so a column of dates aligns */
+.about .figs { font-feature-settings: 'tnum' 1, 'lnum' 1; font-variant-numeric: tabular-nums lining-nums; }
+
+/* hairlines: the one --border, or full ink where the wireframe draws a strong rule */
+.about .rule      { border: 0; border-top: 1px solid var(--border); margin: 0; }
+.about .rule--ink { border-top-color: rgba(var(--text-rgb), var(--ink-full)); }
+
+/* ═══ PORTRAITS ══════════════════════════════════════════════ */
+/* the footer portrait's corner (main.css --r) on the house superellipse; the files are
+   Mark's own crops (4:5), so the box takes their ratio and nothing is cropped further */
+.about .portrait {
+  display: block;
+  width: 100%;
+  height: auto;
+  aspect-ratio: 4 / 5;
+  object-fit: cover;
+  border-radius: var(--r);
+  background: rgba(127, 127, 127, 0.1);
+}
+
+/* ═══ D · the studio speaks ═══════════════════════════════════ */
+/* Left on the house grid, the homepage's own columns: the statement takes cols 1-16 of 24
+   (1-10 of 12), the prose sits under it on the 27em measure from the same left edge. */
+.d-statement {
+  --start: 1; --span: 16; --start-md: 1; --span-md: 10;
+  font-size: var(--type-display-size);
+  line-height: var(--type-display-lead);
+  text-wrap: balance;
+}
+@media (max-width: 680px) { .d-statement { --span-md: 12; } }
+@media (max-width: 599px) {
+  .d-statement { font-size: var(--type-title-size); line-height: var(--type-title-lead); }
+}
+
+.d-prose { --start: 1; --span: 16; --start-md: 1; --span-md: 12; margin-top: 48px; }
+@media (max-width: 680px) { .d-prose { margin-top: 36px; } }
+
+/* the three columns under the mission. A .wm-cols row across all 24 of the page's columns (12
+   below 1024), so its gutters are the work rows' gutters; the columns take 5 + 5 + 5 of the
+   statement's 16 (4 + 4 + 4 of 12). Each heading hangs from a 1px full-ink hairline, the
+   homepage's .fig-rule, and sits under it the way .fig-text sits under that rule. */
+.d-cols { margin-top: 48px; row-gap: 33px; align-items: start; }
+.d-cols > .d-col:nth-child(1) { --start: 1;  --span: 5; --start-md: 1; --span-md: 4; }
+.d-cols > .d-col:nth-child(2) { --start: 6;  --span: 5; --start-md: 5; --span-md: 4; }
+.d-cols > .d-col:nth-child(3) { --start: 11; --span: 5; --start-md: 9; --span-md: 4; }
+.d-col { border-top: 1px solid rgba(var(--text-rgb), var(--ink-full)); padding-top: 12px; }
+.d-col h2 { margin-bottom: 9px; }
+.d-releases li + li { margin-top: 6px; }
+.d-releases .ink-quiet { display: block; }
+@media (max-width: 680px) {
+  .d-cols { margin-top: 36px; }
+  .d-cols > .d-col:nth-child(n) { --start-md: 1; --span-md: 12; }
+}
+/* wire-D's hairline between the columns and the prose: the one --border, the statement's width */
+.about .d-cols-rule { --start: 1; --span: 16; --start-md: 1; --span-md: 12; margin-top: 48px; }
+@media (max-width: 680px) { .about .d-cols-rule { margin-top: 36px; } }
+
+/* the founder, low and small: on the prose measure, the portrait a quarter of it, left,
+   "Mark Davis, founder" and one paragraph beside it */
+.d-founder {
+  --start: 1; --span: 16; --start-md: 1; --span-md: 12;
+  margin-top: 96px;
+  max-width: calc(27 * var(--type-lede-size));
+  display: grid;
+  grid-template-columns: 1fr 3fr;
+  column-gap: var(--grid-gutter);
+  align-items: start;
+}
+.d-founder h2 { margin-bottom: 6px; }
+@media (max-width: 599px) {
+  .d-founder { grid-template-columns: 1fr; row-gap: 21px; margin-top: 72px; }
+  .d-founder .portrait { width: 30%; min-width: 96px; }
+}
+
+.d-rows { --start: 1; --span: 16; --start-md: 1; --span-md: 12; margin-top: 72px; }
+
+/* ═══ E · the partner page ════════════════════════════════════ */
+.e-intro { row-gap: 0; align-items: start; }
+.e-head  { --start: 1; --span: 24; --start-md: 1; --span-md: 12; }
+/* the page's one heading IS the homepage's .work-headline (main.css: Cal Sans 600, opsz 45,
+   GEOM 50, --hl-fs on its --lh steps, balanced), Mark's call, revision 8. Nothing restyles it here
+   but the cap alignment below. */
+
+/* draft one's head row, restored: name + place in cols 1-12, the 4:5 headshot in 14-24
+   (~45%), top-aligned with the name's capitals; the bio runs on in the left column under it */
+.e-head  { --span: 12; --span-md: 6; grid-row: 1; }
+.e-photo { --start: 14; --span: 11; --start-md: 7; --span-md: 6; grid-row: 1 / span 2; margin: 0; }
+.e-bio   { --span: 12; --span-md: 6; grid-row: 2; margin-top: 36px; }
+/* the headline's CAP HEIGHT, not its line box, meets the portrait's top edge. Cal Sans: ascent .9,
+   descent .245 (1.145em of content), capitals ~.72em, so the air above them is
+   (--lh - 1.145em) / 2 + .9em - .72em = --lh / 2 - .3925em at every --hl-fs step */
+.about .e-head .work-headline { margin-top: calc(0.3925em - var(--lh) / 2); }
+@media (max-width: 680px) {
+  .e-head  { --span-md: 12; }
+  .e-photo { --start-md: 1; --span-md: 12; grid-row: 2; margin-top: 36px; }
+  .e-bio   { --span-md: 12; grid-row: 3; margin-top: 36px; }
+  .about .e-head .work-headline { margin-top: 0; }
+}
+
+.e-rows-all { --start: 1; --span: 24; --start-md: 1; --span-md: 12; margin-top: 96px; }
+
+/* ═══ ROWS · one list grammar (wire-F) ═════════════════════════ */
+/* A label and a chevron on a hairline; native <details>. Open rows hold dense items: the date
+   (t-label) in a left column, the line in Newsreader, its description in the quiet ink. */
+.rows { border-bottom: 1px solid var(--border); }
+.row  { border-top: 1px solid var(--border); }
+.row > summary {
+  list-style: none;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--grid-gutter);
+  padding: 15px 0;
+  cursor: pointer;
+}
+.row > summary::-webkit-details-marker { display: none; }
+.row > summary::marker { content: ''; }
+.row-label {
+  font-size: var(--type-title-size);
+  line-height: var(--type-title-lead);
+}
+.row-chev {
+  flex: none;
+  color: rgba(var(--text-rgb), var(--ink-full));
+  transition: transform var(--dur-fast, 140ms), stroke-width var(--dur-fast, 140ms);
+}
+.row-chev path { stroke-width: var(--chevron-stroke, 1.15); transition: stroke-width var(--dur-fast, 140ms); }   /* chevron.css's weights, 1.15 -> 1.35 */
+.row[open] > summary .row-chev { transform: rotate(90deg); }
+.row > summary:hover .row-chev,
+.row > summary:focus-visible .row-chev { --chevron-stroke: 1.35; }
+.row > summary:focus-visible { outline: 1px solid currentColor; outline-offset: 2px; }
+
+.row > .items,
+.row > .row-body {
+  /* revision 10: the open content ends 48px above the next hairline (space.css --spacing-08, two
+     steps up from the 24px step the old 27 sat on), so a section's last item no longer reads as
+     the start of the next section's list; the 3px above the first item is unchanged */
+  padding: 3px 0 var(--spacing-08, 48px);
+}
+
+/* Revision 17: ONE row grid for both pages, set here and nowhere else. The date column is 4 page
+   columns (2 of 12 below 1024) on D and on E alike, so the item column, and Contact's
+   heading edge / item column / one step on, sit at the same x on both pages at every width. */
+.rows { --when-cols: 4; }
+@media (max-width: 1023px) { .rows { --when-cols: 2; } }
+.items > li {
+  display: grid;
+  grid-template-columns: calc(var(--when-cols) * var(--grid-col) + (var(--when-cols) - 1) * var(--grid-gutter)) minmax(0, 1fr);
+  column-gap: var(--grid-gutter);
+  align-items: baseline;
+}
+.items > li + li { margin-top: 12px; }
+/* a run-in body (clients, skills, contact) starts on the items' text column, not the label's */
+.row > .row-body { padding-inline-start: calc(var(--when-cols) * var(--grid-col) + var(--when-cols) * var(--grid-gutter)); }
+.items .when { white-space: nowrap; }
+.items .what .prose--small { margin-top: 3px; }
+.items .views { white-space: nowrap; }
+@media (max-width: 680px) {
+  .items > li { display: block; }
+  .row > .row-body { padding-inline-start: 0; }
+  .items > li + li { margin-top: 15px; }
+  .items .when { display: block; margin-bottom: 3px; }
+  .items .views { display: block; }
+}
+
+/* contact, inside its row */
+.e-contact {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  column-gap: var(--grid-gutter);
+  row-gap: 24px;
+  max-width: calc(16 * var(--grid-col) + 15 * var(--grid-gutter));
+}
+.e-contact dt { margin-bottom: 6px; }
+@media (max-width: 599px) { .e-contact { grid-template-columns: 1fr; } }
+.e-cv { margin-top: 27px; }
+
+/* ═══ FOOTER + LETTERBOX ══════════════════════════════════════ */
+/* The homepage nests its footer inside the closing work row and pins the letterbox to the
+   viewport (site.js drives the reveal off .closing + four .work-items, which these pages do
+   not have, so that script returns early). Here the footer is its own block after <main> and
+   the letterbox sits in flow under it, on every width. */
+.about-footer {
+  position: relative;
+  z-index: 2;
+  margin-top: 144px;
+  padding: 0 0 36px;
+}
+@media (max-width: 680px) { .about-footer { margin-top: 96px; } }
+@media (min-width: 768px) { .about-footer { padding-bottom: 36px; } }
+.about-footer .footer-brick { --start: 1; --span: 10; --start-md: 1; --span-md: 7; }
+@media (max-width: 680px) { .about-footer .footer-brick { --span-md: 12; } }
+.about-footer .footer-links { column-gap: clamp(40px, 11vw, 160px); }
+
+/* the two letterbox canvases stacked: back in flow, front laid over it. On a phone site.js's
+   anchor pulls the back up under the footer with an inline margin; from 681 main.css forces
+   margin-top: 0 !important on the containers for its fixed reveal, so the stack takes the
+   same pull itself (20vh of the canvas is blank headroom; the letters land 15px under). */
+.lb-stack { position: relative; display: flow-root; }
+#footer-letterbox,
+#footer-letterbox-front { background: transparent; }
+#lb-footer { background: transparent; }
+@media (min-width: 681px) {
+  .lb-stack { margin-top: calc(15px - 20vh); }
+  #footer-letterbox,
+  #footer-letterbox-front {
+    position: relative;
+    bottom: auto;
+    transform: none;
+    will-change: auto;
+  }
+  #footer-letterbox-front { position: absolute; left: 0; right: 0; bottom: 0; }
+}
+
+/* compound words in the statement stay whole: "one-style" and "open-source" never split at
+   their hyphen across a line (the text is verbatim, so no non-breaking hyphen character) */
+.about .nobr { white-space: nowrap; }
+
+/* Revision 8: at 681-1023 main.css gives .work-headline --lh: var(--lead-title). grid.css defines
+   that as var(--type-title-lead, 30px). The homepage does not load type.css, so it gets the 30px
+   fallback. This page does, and type.css's --type-title-lead is round(nearest, 1.15em, 3px):
+   an unregistered custom property whose em resolves against the 28px headline, giving 33px.
+   Pin the homepage's number so the headline leads exactly as it does there. */
+.about .e-head.wm-lines { --lead-title: 30px; }
+
+
+/* Revision 11: Contact's columns start at the heading's left edge, not on the item column. The
+   other rows keep their date column; the gaps between Email / Social / Code are unchanged. */
+.row--contact > .row-body { padding-inline-start: 0; }
+
+/* Revision 12 (as corrected): Contact's Social column starts on the ITEM column of the rows above
+   (where "Rhode Island School of Design" starts), and Code one more such step to the right. Each
+   track is the date column's width (--when-cols columns + their inner gutters) and the gap is one
+   gutter, so the step Email -> Social -> Code is exactly the date column + gutter. From 1024 up.
+   Between 600 and 1023 the date column is only 2 of 12 columns (~90px at 768), narrower than the
+   122px email address, so there the step stays at three grid columns, the tightest that clears it.
+   Phone stacking (<=599) is unchanged. */
+@media (min-width: 1024px) {
+  .e-contact {
+    grid-template-columns: repeat(3, calc(var(--when-cols) * var(--grid-col) + (var(--when-cols) - 1) * var(--grid-gutter)));
+    max-width: none;
+  }
+}
+@media (min-width: 600px) and (max-width: 1023px) {
+  .e-contact {
+    grid-template-columns: repeat(3, calc(3 * var(--grid-col) + 2 * var(--grid-gutter)));
+    max-width: none;
+  }
+}
+
+/* Revision 13: two Instagrams in Contact ("Instagram (WORDMARK)", "Instagram (Mark)"); the longer
+   label must not wrap inside D's 3-column track */
+.e-contact dd { white-space: nowrap; }
+/* and in the footer brick: the personal account ("ig·md") follows the studio "ig". Five links in
+   the brick's two columns, filled column-first in three rows, so the email stays in the right
+   column as on the homepage: ig / ig·md / tw | in / email */
+.about-footer .footer-links { grid-template-rows: repeat(3, auto); grid-auto-flow: column; }
+
