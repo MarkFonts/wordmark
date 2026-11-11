@@ -1,0 +1,115 @@
+/* about-ring.css -- the About affordance on the homepage: the desk portrait above the footer
+   is the link to /about/. Mouse: the pointer vanishes over it and a rotating ring of text,
+   ABOUT WORDMARK, takes its place and trails it (js/about-ring.js moves it). Phone: no hover,
+   so the portrait, hidden there until now, comes back full width above the footer and the ring
+   sits on its bottom-right corner, half over the photo, half over the page.
+   Two paints, chosen by js/about-ring.js: on an HDR screen in the dark theme the letters are live DOM text
+   filled from a 1000-nit PQ swatch (background-clip: text, no blend); otherwise SVG text in
+   white difference blend, white over the photo and the dark page, black over the light one. */
+
+.footer-portrait .about-me { display: block; position: relative; pointer-events: auto; text-decoration: none; }
+/* the Cal Sans figure: an overlay link over the two theme images (desktop: the fig is
+   pointer-transparent, its links are not), so the ring reads ABOUT CAL.COM there */
+.work-img .work-link { position: absolute; inset: 0; z-index: 1; border-radius: inherit; pointer-events: auto; }
+
+.about-ring {
+  --d: 224px;              /* the ring's diameter; the corner ring overrides it */
+  display: block;
+  pointer-events: none;
+  overflow: visible;
+  font-family: 'CalSans', sans-serif;
+  font-weight: 700;
+  --ital: 0;
+  font-variation-settings: 'wght' 700, 'ital' var(--ital);
+  text-transform: uppercase;
+  transition: --ital .22s cubic-bezier(.3, 0, .2, 1);
+}
+/* press: the letters slide into the ital axis and back on release. Cal Sans ital runs 0-1;
+   the slide is a registered custom property so the axis value itself interpolates. */
+@property --ital { syntax: '<number>'; inherits: true; initial-value: 0; }
+.about-ring.is-down { --ital: 1; }
+.about-ring__g {
+  animation: about-ring-spin 12s linear infinite;
+}
+@keyframes about-ring-spin { to { transform: rotate(360deg); } }
+@media (prefers-reduced-motion: reduce) { .about-ring__g { animation: none; } }
+
+/* ── SDR paint: SVG text on a path ───────────────────────────────── */
+.about-ring--svg {
+  fill: #fff;
+  font-size: 14.2px;       /* viewBox units: three repeats and their gaps close the circle */
+}
+.about-ring--svg[data-reps="2"] { font-size: 21.3px; }
+.about-ring--svg[data-reps="4"] { font-size: 10.6px; }
+.about-ring--svg .about-ring__g { transform-box: view-box; transform-origin: 100px 100px; mix-blend-mode: difference; }
+/* the word in the middle: the house signal, no blend; viewBox units; it does not spin */
+.about-ring--svg .about-ring__c { font-size: 11px; text-transform: none; fill: var(--signal); }
+
+/* ── HDR paint: a span per letter, PQ-white through the glyphs ───── */
+.about-ring--hdr {
+  position: relative;
+  font-size: calc(var(--d) * 14.2 / 200);
+  dynamic-range-limit: no-limit;
+}
+.about-ring--hdr[data-reps="2"] { font-size: calc(var(--d) * 21.3 / 200); }
+.about-ring--hdr[data-reps="4"] { font-size: calc(var(--d) * 10.6 / 200); }
+.about-ring--hdr .about-ring__g { position: absolute; inset: 0; }
+.about-ring--hdr span {
+  position: absolute;
+  left: 50%; top: 50%;
+  line-height: 1;
+  white-space: pre;
+  background: url('../assets/about-ring/hdr-white-1000.avif') center / 100% 100%;
+  -webkit-background-clip: text;
+  background-clip: text;
+  color: transparent;
+  -webkit-text-fill-color: transparent;
+  padding-block: .2em; margin-block: -.2em;   /* or the clip misses the glyph's edges */
+  dynamic-range-limit: no-limit;
+  font-variation-settings: 'wght' 700, 'ital' var(--ital);
+}
+.about-ring--hdr .about-ring__c {
+  transform: translate(-50%, -50%);
+  font-size: calc(var(--d) * 11 / 200);
+  text-transform: none;
+  /* the signal #eeff41 at 500 nits, the letterbox twinkle's peak (2.5 x reference white).
+     Dark only: js/about-ring.js builds the HDR ring only in the dark theme */
+  background-image: url('../assets/about-ring/hdr-acid-dark-500.avif');
+}
+
+/* ── mouse: the ring is the cursor ───────────────────────────────── */
+@media (hover: hover) and (pointer: fine) {
+  [data-ring] { cursor: none; }
+  .about-ring--cursor {
+    position: fixed;
+    left: 0; top: 0;
+    width: var(--d); height: var(--d);
+    margin: calc(var(--d) / -2) 0 0 calc(var(--d) / -2);   /* centred on the pointer */
+    z-index: 120;
+    opacity: 0;
+    scale: 0.8;
+    transition: opacity 0.18s, scale 0.26s cubic-bezier(0.2, 0.8, 0.2, 1);
+  }
+  .about-ring--cursor.is-on { opacity: 1; scale: 1; }
+  /* leaving: shrinks and crossfades with the cursor while still tracking it */
+  .about-ring--cursor.is-out { scale: 0.6; transition: opacity 0.28s, scale 0.3s cubic-bezier(0.4, 0, 0.6, 1); }
+}
+
+/* ── phone: the portrait returns, the ring on its corner ─────────── */
+@media (max-width: 680px) {
+  .footer-portrait {
+    display: block;
+    margin-inline: calc(-1 * var(--grid-margin));   /* full bleed, like the work images */
+    margin-top: 48px;
+    margin-bottom: calc(0.15 * var(--ring-d) + 24px);   /* room for the part of the ring below the photo */
+    --ring-d: 41vw;
+  }
+  .footer-portrait img { width: 100%; height: auto; display: block; border-radius: 0; }
+  .about-ring--corner {
+    --d: var(--ring-d);
+    position: absolute;
+    right: 2vw;
+    bottom: calc(-0.15 * var(--ring-d));   /* centre 0.35 d above the photo's edge, as mocked */
+    width: var(--d); height: var(--d);
+  }
+}
