@@ -422,3 +422,8 @@ html[data-abid="e"] .about .e-head .work-headline {
     grid-template-columns: repeat(2, calc(3 * var(--grid-col) + 2 * var(--grid-gutter)));
   }
 }
+
+/* Revision 19: the Chris Do interview embedded under Press on both pages. The player takes the
+   item column's full width at 16:9, under its caption line; no chrome of its own. */
+.items .what .embed { display: block; width: 100%; aspect-ratio: 16 / 9; border: 0; margin-top: 9px; background: var(--surface, rgba(127,127,127,.08)); }
+.items .what .embed--audio { aspect-ratio: auto; height: 166px; }   /* the SoundCloud visual player's own height */
