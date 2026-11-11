@@ -127,7 +127,11 @@ section[id] { scroll-margin-top: var(--nav-h); }
   font-size: 15px;
   letter-spacing: 0.1em;
   text-decoration: none;
+  transition: font-variation-settings .25s cubic-bezier(.3, 0, .2, 1);
 }
+/* the nameplate hover from the About pages (Mark, 2026-11-10): wght 700 -> 400, SHRP 0 -> 100,
+   GEOM held, full ink */
+.cs-home:hover { --wght: 400; --shrp: 100; }
 .cs-links { display: none; gap: clamp(16px, 2.4vw, 32px); }
 .cs-links a {
   font-size: 13px;
