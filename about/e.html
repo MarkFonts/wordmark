@@ -21,6 +21,10 @@
   }
   try { localStorage.setItem(K, page); } catch (e) {}
   d.setAttribute('data-abid', page);
+  /* the address stays /about/: the assigner sent the browser here, this hands the URL back
+     without a reload (a reload runs the assigner again, which lands on the stored variant).
+     Before gtag below, so the page_view's location is /about/ too. */
+  try { if (/\/about\/[de]\.html$/.test(location.pathname)) history.replaceState(null, '', '/about/' + location.hash); } catch (e) {}
 })();
 </script>
 <script async src="https://www.googletagmanager.com/gtag/js?id=G-MZ4M1P8P1P"></script>
