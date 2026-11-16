@@ -71,9 +71,13 @@
     mon.style.fontSize = '100px';
     fall.querySelectorAll('div:not(.mon)').forEach(function (r) { if (r.offsetHeight) used += r.offsetHeight + 6; });
     var span = mon.querySelector('span'), label = mon.querySelector('i');
-    var byHeight = fall.clientHeight - used;
+    /* desktop has a fixed stage, so the leftover height counts; on phones the card grows with it,
+       so the word just fills the width */
+    var staged = matchMedia('(min-width: 961px)').matches;
+    var byHeight = staged ? fall.clientHeight - used : Infinity;
     var byWidth = 100 * (mon.clientWidth - span.offsetLeft + mon.offsetLeft) / span.offsetWidth;
-    var size = Math.max(96, Math.floor(Math.min(byHeight, byWidth)));
+    var size = Math.floor(Math.min(byHeight, byWidth));
+    if (staged) size = Math.max(96, size);
     mon.style.fontSize = size + 'px';
     label.textContent = size;
   }
@@ -95,7 +99,7 @@
     el.classList.toggle('is-on', on);
     var byWidth = 100 * el.clientWidth / w * 0.99;
     var room = demo.clientHeight - parseFloat(cs.paddingTop) - parseFloat(cs.paddingBottom) - (foot ? foot.offsetHeight : 0) - parseFloat(cs.rowGap || 0);
-    var byHeight = room / (2 * 1.05);
+    var byHeight = matchMedia('(min-width: 961px)').matches ? room / (2 * 1.05) : Infinity;   /* phones: the card grows, so width rules */
     el.style.fontSize = Math.max(40, Math.floor(Math.min(byWidth, byHeight))) + 'px';
   }
   fitLegible();

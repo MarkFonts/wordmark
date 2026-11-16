@@ -631,8 +631,8 @@ a.code:hover .where { color: var(--signal-ink); }
 /* the Tailwind scale up to 9xl; case.js shortens each row's words to what fits */
 .d-fall { display: grid; grid-template-columns: minmax(0, 1fr); gap: 6px; align-content: center; flex: 1; min-height: 0; overflow: hidden; }
 .d-fall div { display: flex; align-items: baseline; gap: 16px; white-space: nowrap; line-height: 1.05; }
-.d-fall .xl { display: none; }
-@media (min-width: 961px) { .d-fall .xl { display: flex; } .d-fall .sm { display: none; } }
+.d-fall .xl:not(.mon) { display: none; }   /* phones keep the giant "Billion", sized to the width */
+@media (min-width: 961px) { .d-fall .xl:not(.mon) { display: flex; } .d-fall .sm { display: none; } }
 /* the last row takes whatever height is left; case.js sizes it */
 .d-fall .mon { line-height: 1; }
 .d-fall i {
