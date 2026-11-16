@@ -48,32 +48,64 @@
   });
 
   /* size waterfall: each row says as much as its width allows */
-  var FALL = ['A billion meetings by 2030', 'Shall meet', 'Cal'];
+  /* the top row of the fall gets its own short line: "A billion, 2030" at 96, "A billion by 2030" when it stops at 72 */
+  var FALL = ['A billion meetings by 2030', 'A billion', 'Billion'];
+  function fallFor(row) {
+    var top = row.classList.contains('xl') ? 'A billion, 2030' : row.classList.contains('sm') ? 'A billion by 2030' : null;
+    return top ? [FALL[0], top].concat(FALL.slice(1)) : FALL;
+  }
   function fitFall() {
     document.querySelectorAll('.d-fall div:not(.mon)').forEach(function (row) {
-      var span = row.querySelector('span');
+      var span = row.querySelector('span'), fall = fallFor(row);
       if (!row.clientWidth) return;
-      for (var k = 0; k < FALL.length; k++) {
-        span.textContent = FALL[k];
+      for (var k = 0; k < fall.length; k++) {
+        span.textContent = fall[k];
         if (span.getBoundingClientRect().right <= row.getBoundingClientRect().right + 0.5) break;
       }
     });
-    /* the monster: as big as the leftover height allows, capped by the row's width */
+    /* the monster: as big as the leftover height allows, capped by the row's width -- a specimen
+       fills its card, so it is exempt from the poster scale (which tops out at 192) */
     var mon = document.querySelector('.d-fall .mon');
     if (!mon || !mon.clientWidth) return;
     var fall = mon.parentElement, used = 0;
     mon.style.fontSize = '100px';
     fall.querySelectorAll('div:not(.mon)').forEach(function (r) { if (r.offsetHeight) used += r.offsetHeight + 6; });
     var span = mon.querySelector('span'), label = mon.querySelector('i');
-    var byHeight = fall.clientHeight - used;
+    /* desktop has a fixed stage, so the leftover height counts; on phones the card grows with it,
+       so the word just fills the width */
+    var staged = matchMedia('(min-width: 961px)').matches;
+    var byHeight = staged ? fall.clientHeight - used : Infinity;
     var byWidth = 100 * (mon.clientWidth - span.offsetLeft + mon.offsetLeft) / span.offsetWidth;
-    var size = Math.max(96, Math.floor(Math.min(byHeight, byWidth)));
+    var size = Math.floor(Math.min(byHeight, byWidth));
+    if (staged) size = Math.max(96, size);
     mon.style.fontSize = size + 'px';
     label.textContent = size;
   }
   fitFall();
   window.addEventListener('resize', fitFall);
-  if (document.fonts && document.fonts.ready) document.fonts.ready.then(fitFall);
+
+  /* legible your way: "Illia Hill / 11:10, Il1" as big as the stage allows -- its longer line
+     fills the width in its wider state, both lines fit the height */
+  function fitLegible() {
+    var el = document.getElementById('d-legible');
+    if (!el || !el.clientWidth) return;
+    var demo = el.parentElement, foot = demo.querySelector('.demo-foot'), cs = getComputedStyle(demo);
+    el.style.fontSize = '100px';
+    var rg = document.createRange(), w = 0, on = el.classList.contains('is-on');
+    [false, true].forEach(function (tailed) {   /* the tailed forms run wider: fit whichever is wider */
+      el.classList.toggle('is-on', tailed); rg.selectNodeContents(el);
+      [].forEach.call(rg.getClientRects(), function (r) { w = Math.max(w, r.width); });
+    });
+    el.classList.toggle('is-on', on);
+    var byWidth = 100 * el.clientWidth / w * 0.99;
+    var room = demo.clientHeight - parseFloat(cs.paddingTop) - parseFloat(cs.paddingBottom) - (foot ? foot.offsetHeight : 0) - parseFloat(cs.rowGap || 0);
+    var byHeight = matchMedia('(min-width: 961px)').matches ? room / (2 * 1.05) : Infinity;   /* phones: the card grows, so width rules */
+    el.style.fontSize = Math.max(40, Math.floor(Math.min(byWidth, byHeight))) + 'px';
+  }
+  fitLegible();
+  window.addEventListener('resize', fitLegible);
+  document.querySelectorAll('.look-tab').forEach(function (b) { b.addEventListener('click', function () { requestAnimationFrame(fitLegible); }); });
+  if (document.fonts && document.fonts.ready) document.fonts.ready.then(function () { fitFall(); fitLegible(); });
 
   /* default spacing: the headline sits at 0 for a while, tracks out to +55 and comes back in */
   var head = document.getElementById('d-headline'), track = document.getElementById('d-track');

@@ -629,10 +629,10 @@ a.code:hover .where { color: var(--signal-ink); }
 .d-track.is-stack > span { flex-basis: 100%; }
 .d-track > span { font-size: clamp(14px, 1.3vw, 17px); color: var(--text-muted); }
 /* the Tailwind scale up to 9xl; case.js shortens each row's words to what fits */
-.d-fall { display: grid; grid-template-columns: minmax(0, 1fr); gap: 6px; align-content: start; flex: 1; min-height: 0; overflow: hidden; }
+.d-fall { display: grid; grid-template-columns: minmax(0, 1fr); gap: 6px; align-content: center; flex: 1; min-height: 0; overflow: hidden; }
 .d-fall div { display: flex; align-items: baseline; gap: 16px; white-space: nowrap; line-height: 1.05; }
-.d-fall .xl { display: none; }
-@media (min-width: 961px) { .d-fall .xl { display: flex; } .d-fall .sm { display: none; } }
+.d-fall .xl:not(.mon) { display: none; }   /* phones keep the giant "Billion", sized to the width */
+@media (min-width: 961px) { .d-fall .xl:not(.mon) { display: flex; } .d-fall .sm { display: none; } }
 /* the last row takes whatever height is left; case.js sizes it */
 .d-fall .mon { line-height: 1; }
 .d-fall i {
@@ -649,6 +649,9 @@ a.code:hover .where { color: var(--signal-ink); }
   overflow-wrap: anywhere;
 }
 .d-big.is-on[data-feat="ss18"] { font-feature-settings: 'ss18' 1; }
+/* the legibility pair is sized by case.js to fill the stage; Futura on demand sits centred in it */
+#d-legible { overflow-wrap: normal; white-space: nowrap; }
+.d-futura { margin-block: auto; }
 /* Cal Sans Flex: the switch slides GEOM 25 to 100 linearly; Flex interpolates the alternates */
 .d-futura {
   font-family: 'CalSansFlex', 'CalSans', sans-serif;
