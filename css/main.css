@@ -13,7 +13,7 @@
        url('../fonts/CalSans-VariableFont 1.998 [opsz,wght,GEOM,YTAS,SHRP].ttf?v=2') format('truetype');
   font-weight: 400 700;
   font-style: normal;
-  font-display: swap;
+  font-display: block;   /* never the fallback face: the pages preload this file */
   /* Variable axes (build 1.998) — opsz: 8–45 (default 14) | wght: 400–700 | GEOM: 0–100 (default 25) | YTAS: 720–800 | SHRP: 0–100 | ital: 0–1.
      NO font-variation-settings pin here: pinning 'wght' 400 locks the axis for
      canvas (which can't override it the way DOM elements do per-rule), which
