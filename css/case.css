@@ -198,6 +198,9 @@ section[id] { scroll-margin-top: var(--nav-h); }
   --lh: round(nearest, 1.28em, var(--bl)); line-height: var(--lh);
   text-wrap: pretty;
 }
+/* balanced, so no width leaves "its brand." alone above the second sentence's forced line
+   (a block span per sentence would hide the text from gridSnap and lose the row's shared baseline) */
+.hero-lede { text-wrap: balance; }
 .hero-sub {
   font-size: 16px;
   --lh: round(nearest, 1.6em, var(--bl)); line-height: var(--lh);
@@ -997,10 +1000,32 @@ a.tool-name { color: inherit; text-decoration: none; }
   text-wrap: pretty;
 }
 .quote p + p { margin-top: round(nearest, 0.1em, var(--bl)); }
+/* the opening quote mark hangs, so every line of the quote starts on the same edge (its advance, measured: 0.375em) */
+.quote .hq { display: inline-block; margin-left: -0.375em; }
 .quote--stack p { --ital: 0; --wght: 600; }
 .quote footer { margin-top: 15px; font-size: 13px; color: var(--text-dim); }
 .quote footer a { color: inherit; text-decoration: underline; text-decoration-thickness: 1px; text-underline-offset: 3px; }
 .quote footer a:hover { color: var(--text); }
+/* the endorsements get room between them; each source is two lines, who then where and when,
+   its phrases never split and the arrow never orphaned */
+.prose > .quote { margin-block: round(nearest, clamp(36px, 5vw, 72px), var(--bl)); }
+.prose > .quote + .quote { margin-top: 0; }
+.quote footer.src { line-height: 21px; }
+.src-who, .src-where { display: block; }
+.src .nb { white-space: nowrap; }
+/* one face at a time, left of the bar: the quote nearest the middle of the screen shows its
+   speaker, held at mid-screen while the quote is there; case.js picks which */
+.quote { position: relative; }
+.qtrack { position: absolute; left: -52px; top: 0; bottom: 0; width: 36px; pointer-events: none; }
+.qface { position: sticky; top: calc(50vh - 18px); display: block; width: 36px; height: 36px; border-radius: 50%; overflow: hidden;
+  opacity: 0; scale: .6; transition: opacity .3s ease, scale .3s cubic-bezier(.3, 1.4, .5, 1); }
+.qface img { display: block; width: 100%; height: 100%; object-fit: cover; }
+.quote.is-face .qface { opacity: 1; scale: 1; }
+@media (max-width: 860px) {
+  .prose > .quote { margin-left: 25%; }
+  .qtrack { left: -50px; }
+}
+@media (prefers-reduced-motion: reduce) { .qface { transition: none; } }
 @media (min-width: 861px) {
   .studio { grid-template-columns: 5fr 7fr; gap: round(nearest, clamp(32px, 5vw, 80px), var(--bl)); align-items: start; }
   .studio-side { position: sticky; top: calc(var(--nav-h) + 24px); }

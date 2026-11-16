@@ -549,3 +549,31 @@
   if (document.fonts && document.fonts.ready) document.fonts.ready.then(function () { figs.forEach(function (svg) { svg.querySelectorAll('.ds-grid, .ds-mvp, .ds-ax text').forEach(function (el) { el._box = null; }); }); fit(); });
   if ('ResizeObserver' in window) { var ro = new ResizeObserver(fit); figs.forEach(function (svg) { ro.observe(svg); }); }
 })();
+
+/* endorsements: one speaker's face at a time, for the quote nearest the middle of the screen; the
+   face itself is sticky at mid-screen in css, so scrolling hands it from one quote to the next */
+(function () {
+  var qs = [].slice.call(document.querySelectorAll('.quote[data-face]'));
+  if (!qs.length) return;
+  qs.forEach(function (q) {
+    var tr = document.createElement('span'), f = document.createElement('span'), im = new Image();
+    tr.className = 'qtrack'; f.className = 'qface'; tr.setAttribute('aria-hidden', 'true');
+    im.src = q.dataset.face; im.alt = ''; im.decoding = 'async';
+    f.appendChild(im); tr.appendChild(f); q.prepend(tr);
+  });
+  var on = null;
+  function focus() {
+    var mid = innerHeight / 2, best = null, bd = innerHeight * 0.35;
+    qs.forEach(function (q) {
+      var r = q.getBoundingClientRect(), d = mid < r.top ? r.top - mid : mid > r.bottom ? mid - r.bottom : 0;
+      if (d < bd) { bd = d; best = q; }
+    });
+    if (best === on) return;
+    if (on) on.classList.remove('is-face');
+    if (best) best.classList.add('is-face');
+    on = best;
+  }
+  addEventListener('scroll', focus, { passive: true });
+  addEventListener('resize', focus);
+  focus();
+})();
