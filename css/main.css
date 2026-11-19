@@ -898,12 +898,14 @@ footer {
   .footer-portrait { display: none; }
 }
 
-/* ig  tw · in  email — col 1 sized to the short labels, email defines col 2;
-   tw and email share col 2 so they align. */
+/* ig  tw · in  email · about — col 1 sized to the short labels, email defines col 2;
+   tw and email share col 2 so they align. about comes LAST in the markup so it lands
+   in col 1 under in, not in col 2 pushing email over. */
 .footer-links {
   display: grid;
   grid-template-columns: max-content max-content;
   column-gap: clamp(40px, 11vw, 160px);   /* ig/in ↔ tw/email, still within the copy column */
+  column-gap: min(clamp(40px, 11vw, 160px), 100% - 182px);   /* ...and gives way when the column is narrower than both labels plus the gap (1024–1107px); 182 = about + email at 14px. The line above is the fallback. */
   row-gap: 3px;   /* 21 + 3: the links run on a 24px pitch, the body leading */
   align-items: baseline;
 }
