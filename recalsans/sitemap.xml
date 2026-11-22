@@ -26,4 +26,7 @@
   <url><loc>https://wordmark.nyc/recalsans/gt-america/</loc><changefreq>monthly</changefreq>
     <image:image><image:loc>https://wordmark.nyc/recalsans/og/gt-america.jpg</image:loc><image:title>GT America alternative — ReCal Sans</image:title><image:caption>The word GT America set in ReCal Sans, a free open-source variable alternative to GT America.</image:caption></image:image>
   </url>
+  <url><loc>https://wordmark.nyc/recalsans/gta-art-deco/</loc><changefreq>monthly</changefreq>
+    <image:image><image:loc>https://wordmark.nyc/recalsans/og/gta-art-deco.jpg</image:loc><image:title>GTA Art Deco alternative — ReCal Sans</image:title><image:caption>The word GTA Art Deco set in ReCal Sans, a free open-source variable alternative to GTA Art Deco.</image:caption></image:image>
+  </url>
 </urlset>
