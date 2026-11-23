@@ -8,7 +8,7 @@
   font-weight: 400 700;
   font-style: normal;
   font-display: swap;
-  /* v2: opsz 8–45 (14) | GEOM 0–100 (25) | wght 400–700 | YTAS 1440–1600 | SHRP 0–100 | ital 0–1 */
+  /* v2: opsz 8–45 (14) | GEOM 0–100 (25) | wght 400–700 | YTAS 720–800 | SHRP 0–100 | ital 0–1 */
 }
 /* Cal Sans Flex, from wm-primitives: true HOI — the geometric alternates blend along GEOM on curved
    paths, carried by three hidden helper axes avar2 drives from GEOM. For the Futura demo and the cube. */
@@ -295,7 +295,7 @@ section[id] { scroll-margin-top: var(--nav-h); }
   white-space: nowrap;
   overflow-x: clip;
   overflow-y: visible;
-  font-variation-settings: 'opsz' 45, 'GEOM' 50, 'wght' 600, 'YTAS' 1440, 'SHRP' 0, 'ital' 0;
+  font-variation-settings: 'opsz' 45, 'GEOM' 50, 'wght' 600, 'YTAS' 720, 'SHRP' 0, 'ital' 0;
 }
 /* the release, as a timeline over the word: Cal Sans fixed left, the year fixed right, the version a pill
    that zips along the hairline (fast in, fast out) to where its year falls */
@@ -1069,7 +1069,7 @@ a.tool-name { color: inherit; text-decoration: none; }
   font: inherit; font-family: 'CalSans', sans-serif;
   font-size: var(--tt-size, 100px); --lh: round(nearest, 1.3em, var(--bl)); line-height: var(--lh); letter-spacing: var(--tt-track, 0);
   font-optical-sizing: none;
-  font-variation-settings: 'wght' var(--tt-wght, 400), 'GEOM' var(--tt-geom, 25), 'opsz' var(--tt-opsz, 45), 'YTAS' var(--tt-ytas, 1440), 'SHRP' var(--tt-shrp, 0), 'ital' var(--tt-ital, 0);
+  font-variation-settings: 'wght' var(--tt-wght, 400), 'GEOM' var(--tt-geom, 25), 'opsz' var(--tt-opsz, 45), 'YTAS' var(--tt-ytas, 720), 'SHRP' var(--tt-shrp, 0), 'ital' var(--tt-ital, 0);
   color: var(--text); text-align: center; background: transparent; border: 0; outline: none; resize: none; overflow: auto;
   caret-color: var(--signal-ink);
 }

@@ -191,7 +191,7 @@
   /* ── 2 · day one: Cal.com reads as rings, in every weight ────────────────────────────
      Mark's pick (round 5, D logo): hairline rings in the signal through C, a, the period, c, o and both arches
      of m draw on first; Cal.com condenses out of a faint haze as they draw off. Then, with no dissolve, the drawn
-     logo becomes live Cal Sans -- the same thing: opsz 45, wght 700, YTAS 1502 and the logo's own spacing
+     logo becomes live Cal Sans -- the same thing: opsz 45, wght 700, YTAS 750 and the logo's own spacing
      (measured against the drawn outlines with HarfBuzz; 3.6% of pixels differ, all a hair at the period) -- and
      runs through the family, weight 400-700 and optical size 8-45 at the logo's width, then holds on the font. */
   (function () {
@@ -200,7 +200,7 @@
     var piece = window.hlMaterialize.logo(stage, card, { blur: 31, grain: 0.35, spread: 43 });
     var svg = piece.svg, plainBox = piece.plainG.parentNode;
     /* the logo in the font: the outlines' instance, size, origin and per-letter spacing (font units, 2000/em) */
-    var BASE = { opsz: 45, GEOM: 50, wght: 700, YTAS: 1502 }, FS0 = 521.64, X0 = -13.04, Y0 = 391.23;
+    var BASE = { opsz: 45, GEOM: 50, wght: 700, YTAS: 750 }, FS0 = 521.64, X0 = -13.04, Y0 = 391.23;
     var KERN = [0, 14.1, 38.0, -24.9, -60.3, -9.1, 50.6];   /* before each of C a l . c o m, on top of the font's own kerning */
     var text = el('text', { 'font-family': "'CalSans', sans-serif", fill: 'currentColor', y: Y0.toFixed(2), style: 'display:none' }, svg);
     text.textContent = 'Cal.com';
@@ -264,7 +264,7 @@
     { tag: 'wght', label: 'Weight',          min: 400,  max: 700,  step: 1,    value: 600,  year: 2025 },
     { tag: 'GEOM', label: 'Geometry',        min: 0,    max: 100,  step: 1,    value: 50,   year: 2025 },
     { tag: 'opsz', label: 'Optical size',    min: 8,    max: 45,   step: 1,    value: 45,   year: 2026 },
-    { tag: 'YTAS', label: 'Ascender height', min: 1440, max: 1600, step: 1,    value: 1440, year: 2026 },
+    { tag: 'YTAS', label: 'Ascender height', min: 720, max: 800, step: 1,    value: 720, year: 2026 },
     { tag: 'SHRP', label: 'Sharpness',       min: 0,    max: 100,  step: 1,    value: 0,    year: 2026 },
     { tag: 'ital', label: 'Italic',          min: 0,    max: 1,    step: 0.01, value: 0,    year: 2026 }
   ];

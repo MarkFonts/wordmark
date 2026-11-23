@@ -248,7 +248,7 @@
         var idx = []; verts.forEach(function (v, i) { if (a.dataset.only !== 'opsz10' || v.style.getPropertyValue('--y') === '1') idx.push(i); });
         return { idx: idx, ties: idx.map(function () { var t = document.createElement('i'); t.className = 'tie'; stage.insertBefore(t, cube); return t; }) };
       });
-      var AX = { GEOM: 25, YTAS: 1440, SHRP: 0, opsz: 10 };
+      var AX = { GEOM: 25, YTAS: 720, SHRP: 0, opsz: 10 };
       /* the two switches under the stage: the virtual masters' pull, and the Flex cut */
       var pull = true;
       /* with a mouse, a virtual master's influence is how near the pointer is to it, shown by the ring
