@@ -905,7 +905,7 @@ footer {
   display: grid;
   grid-template-columns: max-content max-content;
   column-gap: clamp(40px, 11vw, 160px);   /* ig/in ↔ tw/email, still within the copy column */
-  column-gap: min(clamp(40px, 11vw, 160px), 100% - 182px);   /* ...and gives way when the column is narrower than both labels plus the gap (1024–1107px); 182 = about + email at 14px. The line above is the fallback. */
+  column-gap: min(clamp(40px, 11vw, 160px), 100% - 185px);   /* ...and gives way when the column is narrower than both labels plus the gap (1024–1107px); 185 = about + email at 14px in Cal Sans 2.020 (was 182 in 1.998). The line above is the fallback. */
   row-gap: 3px;   /* 21 + 3: the links run on a 24px pitch, the body leading */
   align-items: baseline;
 }
