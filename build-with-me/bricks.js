@@ -38,7 +38,7 @@
       }
       add('1', 1, 2, z); add('2', 2, 2, z);
       // the hood: four 2×4s and two 2×2s, the middle lane running from under the windshield to the nose
-      if (mid) { add('4', 4, 2, z); add('4', 12, 2, z); add('4', 16, 2, z); }
+      if (mid) { p.push({ k: '4', x: 5, y: 2, z: 2, d: 1, c: 'R', t: Math.PI / 2 }); add('4', 12, 2, z); add('4', 16, 2, z); }   // the first 2×4 lies across the car under the fastback
       else {
         add('2', 13, 2, z); add('4', 15, 2, z);                                                            // the beltline: a 1×6 along the outside, 1×2s lengthwise behind it
         add('1', 4, 2, z); add('X', 5, 2, z ? 5 : 0);
@@ -370,13 +370,27 @@
       for (var i = 0; i < list.length; i++) {
         var b = list[i], s = b.pose[from], d = b.pose[to];
         var a = easeOut(clamp01((u - s.leave) / .7));               // rise to the cloud
-        var e = easeIn(clamp01((u - 1.9 - d.land * 1.9) / .55));     // drop into place
+        var e = easeIn(clamp01((u - 2.5 - d.land * 1.9) / .55));     // drop into place
         var hy = b.hy + Math.sin(t * 1.3 + b.ph) * .25;
         var mx = s.x + (b.hx - s.x) * a, my = s.y + (hy - s.y) * a, mz = s.z + (b.hz - s.z) * a;
         var o = i * 9, col = COL.key[b.c];
-        if (kind === 'W' || kind === 'H' || kind === 'P') {          // wheels roll along the ground, the roof lifts straight up: out early, back late
-          var w = clamp01((u - (to === 'car' ? 3.9 : .15)) / 1.7); w = w * w * (3 - 2 * w);
-          D[o] = s.x + (d.x - s.x) * w; D[o + 1] = s.y + (d.y - s.y) * w; D[o + 2] = s.z; D[o + 3] = 0; D[o + 4] = s.turn; D[o + 8] = 0;
+        if (kind === 'W' || kind === 'H') {
+          // wheels roll along the ground: away once the bottom rows have lifted off, back in before the first brick lands
+          var w = clamp01((u - (to === 'car' ? 1.35 : 1.25)) / 1.1); w = w * w * (3 - 2 * w);
+          D[o] = s.x + (d.x - s.x) * w; D[o + 1] = s.y; D[o + 2] = s.z; D[o + 3] = 0; D[o + 4] = s.turn; D[o + 8] = 0;
+          D[o + 5] = col[0]; D[o + 6] = col[1]; D[o + 7] = col[2];
+          continue;
+        }
+        if (kind === 'P') {
+          // the roof plate goes up to the cloud like any brick, then stows away out of the top of the frame when the
+          // wheels roll off; it comes back down to the cloud as they roll in, and lands last
+          var st = clamp01((u - (to === 'car' ? 1.35 : 1.25)) / 1.1); st = st * st * (3 - 2 * st);
+          var up = from === 'car' ? a : 1, away = to === 'car' ? (from === 'car' ? 0 : 1 - st) : (from === 'car' ? st : 1);
+          var sx = from === 'car' ? s.x : b.hx, sy = from === 'car' ? s.y : hy, sz = from === 'car' ? s.z : b.hz;
+          var px = sx + (b.hx - sx) * up, py = sy + (hy - sy) * up + 46 * away, pz = sz + (b.hz - sz) * up;
+          var pe = to === 'car' ? e : 0;
+          D[o] = px + (d.x - px) * pe; D[o + 1] = py + (d.y - py) * pe; D[o + 2] = pz + (d.z - pz) * pe;
+          D[o + 3] = (b.yaw + Math.sin(t * .5 + b.ph) * .5) * up * (1 - pe) * (1 - away); D[o + 4] = 0; D[o + 8] = 0;
           D[o + 5] = col[0]; D[o + 6] = col[1]; D[o + 7] = col[2];
           continue;
         }
