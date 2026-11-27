@@ -80,7 +80,7 @@ code { font-family: ui-monospace, 'SF Mono', Menlo, monospace; font-size: .86em;
 .pill .arrow { position: relative; top: 0.06em; }
 
 /* concealed: two phrases in the text that show an old build when the pointer finds them */
-.moc { cursor: inherit; -webkit-tap-highlight-color: transparent; }
+.moc:not(a) { cursor: inherit; } .moc { -webkit-tap-highlight-color: transparent; }
 #moc-pop {
   position: fixed; z-index: 40; left: 0; top: 0; width: min(300px, 62vw); pointer-events: none;
   background: var(--surface); border: 1px solid var(--line-hi); border-radius: 6px; padding: 6px 6px 9px;
@@ -209,7 +209,7 @@ footer a:hover { color: var(--text); }
 <section class="grid" id="why">
   <p class="kicker">Same bricks,<br>different thing</p>
   <div class="lede">
-    <p>A box of bricks comes with instructions for one car. <span class="moc" data-moc="dino" data-src="moc-dino-2005.jpg" data-cap="Brickshelf, 2005">A lot of people stop there.</span> The second thing you build is the better one, because it is yours.</p>
+    <p>A box of bricks comes with instructions for one car. A lot of people stop there. The second thing you build is the better one, because it is yours.</p>
     <p class="quiet">Most fonts ship glued. You may look at the car, and you may rent it by the seat. An open-source font ships as bricks: the sources, the build, and a license that says go ahead. That is the kind I draw.</p>
   </div>
 </section>
@@ -282,7 +282,7 @@ footer a:hover { color: var(--text); }
 
 <footer class="grid">
   <p class="l">&copy; 2026 Mark Davis and WORDMARK. Set in Cal Sans and Geist Serif.</p>
-  <p class="r">Building in public <a href="https://www.brickshelf.com/cgi-bin/gallery.php?i=1431379" target="_blank" rel="noopener">since 2005</a>.</p>
+  <p class="r">Building in public <a class="moc" data-moc="dino" data-src="moc-dino-2005.jpg" data-cap="Brickshelf, 2005" href="https://www.brickshelf.com/cgi-bin/gallery.php?i=1431379" target="_blank" rel="noopener">since 2005</a>.</p>
 </footer>
 
 <div id="moc-pop" aria-hidden="true"><img alt="" width="640" height="480"><span></span></div>
@@ -308,7 +308,7 @@ footer a:hover { color: var(--text); }
     el.addEventListener('pointerenter', function (e) { if (e.pointerType !== 'touch') show(el, e.clientX, e.clientY); });
     el.addEventListener('pointermove', function (e) { if (e.pointerType !== 'touch') place(e.clientX, e.clientY); });
     el.addEventListener('pointerleave', hide);
-    el.addEventListener('click', function (e) { if (open === el) hide(); else show(el, e.clientX, e.clientY); e.stopPropagation(); });
+    if (el.tagName !== 'A') el.addEventListener('click', function (e) { if (open === el) hide(); else show(el, e.clientX, e.clientY); e.stopPropagation(); });
   });
   document.addEventListener('click', hide);
   addEventListener('scroll', hide, { passive: true });
