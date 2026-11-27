@@ -11,6 +11,10 @@
  *
  * .para keeps its `hyphens: auto` and its &shy; marks: those are what renders when this
  * script does not, and the rag path never breaks a word in any case.
+ *
+ * A paragraph may hold links. The fit works on the paragraph's plain text, so each link is
+ * remembered as a range of that text and put back around the same words in the fitted lines
+ * (as two anchors when the words fall on two lines).
  */
 /* Versioned like every other asset here: the engine is vendored from wm-primitives, and a
    bare module URL is served from cache after a re-vendor. Bump on every re-vendor. */
@@ -18,7 +22,41 @@ import { layoutParagraph, lineStyle } from './flattersatz.js?v=2'
 
 const RAG = 0.10
 
+// where each link sits in the paragraph's text, read once before the first fit replaces the markup
+const linksOf = new WeakMap()
+function readLinks(el) {
+  const out = []
+  for (const a of el.querySelectorAll('a[href]')) {
+    const before = document.createRange()
+    before.setStart(el, 0); before.setEnd(a, 0)
+    const start = before.toString().length
+    out.push({ start, end: start + a.textContent.length, href: a.getAttribute('href'), target: a.getAttribute('target'), rel: a.getAttribute('rel') })
+  }
+  return out
+}
+
+// one fitted line's text, with any link that crosses it put back as an anchor
+function fill(span, line, from, links) {
+  const hits = links.filter((k) => k.start < from + line.length && k.end > from)
+  if (!hits.length) { span.textContent = line; return }
+  let at = 0
+  for (const k of hits) {
+    const a0 = Math.max(k.start - from, 0), a1 = Math.min(k.end - from, line.length)
+    if (a0 > at) span.append(line.slice(at, a0))
+    const a = document.createElement('a')
+    a.href = k.href
+    if (k.target) a.target = k.target
+    if (k.rel) a.rel = k.rel
+    a.textContent = line.slice(a0, a1)
+    span.append(a)
+    at = a1
+  }
+  if (at < line.length) span.append(line.slice(at))
+}
+
 function fit(el) {
+  if (!linksOf.has(el)) linksOf.set(el, readLinks(el))
+  const links = linksOf.get(el)
   const text = el.dataset.ragText ?? (el.dataset.ragText = el.textContent)
   const lines = layoutParagraph(text, el, {
     mode: 'flattersatz',
@@ -26,11 +64,15 @@ function fit(el) {
   })
   if (!lines) return
   el.textContent = ''
+  let cursor = 0
   for (const l of lines) {
     const row = document.createElement('div')
     const span = document.createElement('span')
     Object.assign(span.style, lineStyle(l))
-    span.textContent = l.text
+    // each line is a run of the paragraph's own text: find where it starts, so links land on the right words
+    const from = text.indexOf(l.text, cursor)
+    if (from < 0 || !links.length) span.textContent = l.text
+    else { fill(span, l.text, from, links); cursor = from + l.text.length }
     row.appendChild(span)
     el.appendChild(row)
   }
