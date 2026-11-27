@@ -39,11 +39,11 @@
         p.push({ k: '1', x: 6.5, y: 1, z: zt, d: 1, c: 'R', t: Math.PI / 2 }); add('X', 8, 1, zo);
       }
       add('1', 1, 2, z); add('2', 2, 2, z); add('1', 14, 2, z); add('1', 16, 2, z); add('2', 17, 2, z);
-      if (mid) { add('4', 4, 2, z); add('1', 13, 2, z); }
+      add('1', 13, 2, z);
+      if (mid) add('4', 4, 2, z);
       else {                                                            // the beltline: a 1×6 along the outside, 1×2s lengthwise behind it
         add('1', 4, 2, z); add('X', 5, 2, z ? 5 : 0);
-        // nothing behind the beltline: the cabin is open; one 1×2 under each windshield pillar
-        add('1', 11, 2, z); add('2', 12, 2, z);
+        // nothing behind the beltline: the cabin is open
       }                // no floor where the seats would be
       if (mid) { add('1', 0, 2, z); add('1', 19, 2, z); }
       else [0, 1].forEach(function (dz) {
@@ -55,6 +55,8 @@
     });
     // eight more headlight bricks inside the cabin, on its back and front walls, studs facing in
     p.push({ k: 'X', x: 12.5, y: 2, z: 2.5, d: 1, c: 'R', t: Math.PI / 2 });   // a 1×6 across the hood
+    // everything under the windshield is headlight bricks, studs facing back into the cabin: twelve of them
+    [11, 12].forEach(function (x) { [0, 1, 2, 3, 4, 5].forEach(function (z) { add('E', x, 2, z, -1); }); });
     add('P', 6, 5, 0);                                                  // roof
     [4, 16].forEach(function (x) { [[-.35, -.47], [4.95, 6.35]].forEach(function (zz) {
       add('W', x - 1.5, -1 + .04, zz[0], 1, 'K'); add('H', x - .8, -1 + .625, zz[1], 1, 'G');
@@ -69,22 +71,25 @@
       { k: 'T', x: 8, y: 12, z: 0 }, { k: 'T', x: 10, y: 12, z: 0, d: -1 }, { k: 'L', x: 2, y: 14, z: 0, d: -1 }, { k: 'L', x: 15, y: 14, z: 0 },
       { k: 'L', x: 6, y: 14, z: 0 }, { k: 'L', x: 11, y: 14, z: 0, d: -1 }, { k: 'L', x: 3, y: 15, z: 0, d: -1 }, { k: 'L', x: 14, y: 15, z: 0 },
       { k: 'M', x: 2, y: 9, z: 0 }, { k: 'M', x: 13, y: 11, z: 0 }, { k: 'M', x: 5, y: 6, z: 0 }, { k: 'M', x: 9, y: 4, z: 0 },
-      { k: 'X', x: 7, y: 3, z: 1 }, { k: 'X', x: 10, y: 9, z: 1 }, { k: 'X', x: 6, y: 8, z: 1 }, { k: 'X', x: 9, y: 6, z: 1 },
-      { k: 'X', x: 6, y: 10, z: 1 }, { k: 'X', x: 6, y: 11, z: 1 }, { k: 'X', x: 9, y: 7, z: 1 }, { k: 'E', x: 15, y: 13, z: 1, t: -Math.PI / 2 },
-      { k: 'O', x: 15.37, y: 13, z: 1.5175, t: -Math.PI / 2 }, { k: 'E', x: 5, y: 12, z: 1, t: -Math.PI / 2 }, { k: 'O', x: 5.37, y: 12, z: 1.5175, t: -Math.PI / 2 }, { k: 'E', x: 3, y: 11, z: 1, t: -Math.PI / 2 },
-      { k: 'O', x: 3.37, y: 11, z: 1.5175, t: -Math.PI / 2 }, { k: 'E', x: 9, y: 1, z: 1, t: -Math.PI / 2 }, { k: 'O', x: 9.37, y: 1, z: 1.5175, t: -Math.PI / 2 }, { k: 'E', x: 8, y: 9, z: 1, t: -Math.PI / 2 },
-      { k: 'O', x: 8.37, y: 9, z: 1.5175, t: -Math.PI / 2 }, { k: 'E', x: 14, y: 8, z: 1, t: -Math.PI / 2 }, { k: 'E', x: 14, y: 5, z: 1, t: -Math.PI / 2 }, { k: 'E', x: 17, y: 9, z: 1, t: -Math.PI / 2 },
-      { k: 'P', x: 7, y: 8.3333, z: -3.2, tilt: Math.PI / 2 }, { k: '1', x: 10, y: 1, z: 0 }, { k: '1', x: 13, y: 5, z: 0 }, { k: '1', x: 17, y: 8, z: 1 },
-      { k: '1', x: 1, y: 9, z: 0 }, { k: '1', x: 9, y: 9, z: 0 }, { k: '1', x: 16, y: 9, z: 1 }, { k: '1', x: 18, y: 9, z: 0 },
-      { k: '1', x: 1, y: 10, z: 1 }, { k: '1', x: 12, y: 10, z: 0 }, { k: '1', x: 12, y: 11, z: 1 }, { k: '1', x: 12, y: 12, z: 0 },
-      { k: '1', x: 3, y: 13, z: 0 }, { k: '1', x: 14, y: 13, z: 1 }, { k: '1', x: 16, y: 13, z: 0 }, { k: '1', x: 5, y: 14, z: 0 },
-      { k: '1', x: 14, y: 14, z: 0 }, { k: '2', x: 15, y: 7, z: 0 }, { k: '2', x: 1, y: 11, z: 0 }, { k: '2', x: 7, y: 4, z: 0 },
-      { k: '2', x: 15, y: 8, z: 1 }, { k: '1', x: 9, y: 0, z: 0 }, { k: '1', x: 10, y: 0, z: 0 }, { k: '1', x: 4, y: 13, z: 1 },
-      { k: '1', x: 5, y: 13, z: 0 }, { k: '2', x: 6, y: 13, z: 0 }, { k: '2', x: 13, y: 10, z: 1 }, { k: '4', x: 15, y: 10, z: 0 },
-      { k: '2', x: 6, y: 12, z: 0 }, { k: '2', x: 6, y: 9, z: 1 }, { k: '2', x: 3, y: 7, z: 0 }, { k: '2', x: 3, y: 12, z: 1 },
-      { k: '2', x: 4, y: 11, z: 0 }, { k: '2', x: 17, y: 11, z: 0 }, { k: '2', x: 2, y: 8, z: 1 }, { k: '2', x: 4, y: 8, z: 1 },
-      { k: '2', x: 12, y: 13, z: 0 }, { k: '2', x: 9, y: 2, z: 1 }, { k: '2', x: 12, y: 8, z: 0 }, { k: '2', x: 5, y: 5, z: 0 },
-      { k: '2', x: 7, y: 5, z: 0 }, { k: 'O', x: 7.37, y: 9.5262, z: 2.0, t: -Math.PI / 2, tilt: -Math.PI / 2 }, { k: 'O', x: 15.37, y: 8.5262, z: 2.0, t: -Math.PI / 2, tilt: -Math.PI / 2 }, { k: 'O', x: 10.37, y: 2.5263, z: 2.0, t: -Math.PI / 2, tilt: -Math.PI / 2 }] } };
+      { k: 'X', x: 7, y: 8, z: 1 }, { k: 'X', x: 8, y: 10, z: 1 }, { k: 'X', x: 5, y: 11, z: 1 }, { k: 'X', x: 9, y: 6, z: 1 },
+      { k: 'X', x: 11, y: 9, z: 1 }, { k: 'X', x: 12, y: 7, z: 1 }, { k: 'X', x: 7, y: 3, z: 1 }, { k: 'E', x: 3, y: 12, z: 1, t: -Math.PI / 2 },
+      { k: 'O', x: 3.37, y: 12, z: 1.5175, t: -Math.PI / 2 }, { k: 'E', x: 15, y: 8, z: 1, t: -Math.PI / 2 }, { k: 'O', x: 15.37, y: 8, z: 1.5175, t: -Math.PI / 2 }, { k: 'E', x: 4, y: 7, z: 1, t: -Math.PI / 2 },
+      { k: 'O', x: 4.37, y: 7, z: 1.5175, t: -Math.PI / 2 }, { k: 'E', x: 6, y: 5, z: 1, t: -Math.PI / 2 }, { k: 'O', x: 6.37, y: 5, z: 1.5175, t: -Math.PI / 2 }, { k: 'E', x: 2, y: 8, z: 1, t: -Math.PI / 2 },
+      { k: 'O', x: 2.37, y: 8, z: 1.5175, t: -Math.PI / 2 }, { k: 'E', x: 8, y: 4, z: 1, t: -Math.PI / 2 }, { k: 'E', x: 16, y: 13, z: 1, t: -Math.PI / 2 }, { k: 'E', x: 5, y: 13, z: 1, t: -Math.PI / 2 },
+      { k: 'E', x: 6, y: 9, z: 1, t: -Math.PI / 2 }, { k: 'E', x: 14, y: 10, z: 1, t: -Math.PI / 2 }, { k: 'E', x: 9, y: 7, z: 1, t: -Math.PI / 2 }, { k: 'E', x: 14, y: 13, z: 1, t: -Math.PI / 2 },
+      { k: 'E', x: 18, y: 9, z: 1, t: -Math.PI / 2 }, { k: 'E', x: 17, y: 11, z: 1, t: -Math.PI / 2 }, { k: 'E', x: 1, y: 9, z: 1, t: -Math.PI / 2 }, { k: 'E', x: 17, y: 8, z: 1, t: -Math.PI / 2 },
+      { k: 'E', x: 13, y: 8, z: 1, t: -Math.PI / 2 }, { k: 'E', x: 8, y: 9, z: 1, t: -Math.PI / 2 }, { k: 'E', x: 7, y: 10, z: 1, t: -Math.PI / 2 }, { k: 'E', x: 12, y: 11, z: 1, t: -Math.PI / 2 },
+      { k: 'P', x: 7, y: 8.3333, z: -3.2, tilt: Math.PI / 2 }, { k: '1', x: 7, y: 4, z: 0 }, { k: '1', x: 5, y: 5, z: 0 }, { k: '1', x: 1, y: 8, z: 0 },
+      { k: '1', x: 14, y: 8, z: 0 }, { k: '1', x: 16, y: 8, z: 0 }, { k: '1', x: 18, y: 8, z: 0 }, { k: '1', x: 7, y: 9, z: 0 },
+      { k: '1', x: 17, y: 9, z: 0 }, { k: '1', x: 1, y: 10, z: 0 }, { k: '1', x: 6, y: 10, z: 0 }, { k: '1', x: 11, y: 11, z: 0 },
+      { k: '1', x: 18, y: 11, z: 1 }, { k: '1', x: 12, y: 12, z: 0 }, { k: '1', x: 15, y: 13, z: 0 }, { k: '1', x: 5, y: 14, z: 0 },
+      { k: '1', x: 14, y: 14, z: 0 }, { k: '1', x: 6, y: 15, z: 0 }, { k: '1', x: 13, y: 15, z: 0 }, { k: '2', x: 7, y: 5, z: 0 },
+      { k: '4', x: 1, y: 11, z: 0 }, { k: '2', x: 4, y: 12, z: 0 }, { k: '2', x: 6, y: 12, z: 0 }, { k: '2', x: 9, y: 2, z: 0 },
+      { k: '2', x: 15, y: 10, z: 1 }, { k: '2', x: 17, y: 10, z: 0 }, { k: '2', x: 3, y: 8, z: 0 }, { k: '2', x: 5, y: 8, z: 0 },
+      { k: '2', x: 2, y: 7, z: 1 }, { k: '2', x: 9, y: 9, z: 0 }, { k: '2', x: 9, y: 1, z: 0 }, { k: '2', x: 10, y: 7, z: 0 },
+      { k: '2', x: 9, y: 0, z: 1 }, { k: '2', x: 3, y: 13, z: 0 }, { k: '2', x: 6, y: 13, z: 0 }, { k: '2', x: 13, y: 5, z: 0 },
+      { k: '2', x: 12, y: 13, z: 0 }, { k: 'O', x: 3.37, y: 7.5263, z: 2.0, t: -Math.PI / 2, tilt: -Math.PI / 2 }, { k: 'O', x: 10.37, y: 0.5262, z: 2.0, t: -Math.PI / 2, tilt: -Math.PI / 2 }, { k: 'O', x: 18.37, y: 11.5262, z: 2.0, t: -Math.PI / 2, tilt: -Math.PI / 2 },
+      { k: '1', x: 7, y: 4, z: 2 }, { k: '1', x: 11, y: 11, z: 2 }] } };
   var LOOP = ['car', 'heart'];
   var NAMES = LOOP;
   var KINDS = ['1', '2', '4', 'X', 'L', 'J', 'E', 'P', 'M', 'W', 'H', 'U', 'O', 'T'];   // T is clear: drawn last
@@ -257,7 +262,7 @@
   /* ── GL ─────────────────────────────────────────────── */
   var VS = '#version 300 es\n' +
     'in vec3 aP; in vec3 aN; in vec3 iO; in float iYaw; in float iT; in vec3 iC; in float iX;\n' +
-    'uniform vec3 uCtr; uniform vec3 uCam; uniform vec2 uS; out vec3 vC;\n' +
+    'uniform vec3 uCtr; uniform vec3 uCam; uniform vec2 uS; uniform float uTop; out vec3 vC;\n' +
     'vec3 rot(vec3 p, float a){ float c=cos(a*.6), s=sin(a*.6); p=vec3(p.x, p.y*c-p.z*s, p.y*s+p.z*c);\n' +
     '  c=cos(a); s=sin(a); return vec3(p.x*c+p.z*s, p.y, -p.x*s+p.z*c); }\n' +
     'vec3 turn(vec3 p, float a){ float c=cos(a), s=sin(a); return vec3(p.x*c+p.z*s, p.y, -p.x*s+p.z*c); }\n' +
@@ -265,8 +270,8 @@
     'void main(){ vec3 n=rot(tip(turn(aN,iT),iX),iYaw); vec3 q=rot(tip(turn(aP-uCtr,iT),iX),iYaw)+uCtr+iO-uCam;\n' +
     '  float x1=.70711*(q.x-q.z), z1=.70711*(q.x+q.z);\n' +
     '  float y2=q.y*.81650-z1*.57735, z2=q.y*.57735+z1*.81650;\n' +
-    '  vC=iC*(.69+.31*n.y+.09*n.z-.09*n.x);\n' +
-    '  gl_Position=vec4(x1*uS.x, y2*uS.y, -z2*.01, 1.); }';
+    '  vC=iC*(.69+.31*n.y+.09*n.z-.09*n.x)*(uTop > .5 ? .45+.085*(q.y+9.5) : 1.);\n' +
+    '  gl_Position = uTop > .5 ? vec4(q.x*uS.x, -q.z*uS.y, -q.y*.01, 1.) : vec4(x1*uS.x, y2*uS.y, -z2*.01, 1.); }';
   var FS = '#version 300 es\nprecision mediump float; in vec3 vC; uniform float uA; out vec4 o; void main(){ o=vec4(vC*uA,uA); }';
   function sh(type, src) { var s = gl.createShader(type); gl.shaderSource(s, src); gl.compileShader(s);
     if (!gl.getShaderParameter(s, gl.COMPILE_STATUS)) throw new Error(gl.getShaderInfoLog(s)); return s; }
@@ -274,7 +279,9 @@
   gl.attachShader(prog, sh(gl.VERTEX_SHADER, VS)); gl.attachShader(prog, sh(gl.FRAGMENT_SHADER, FS));
   ['aP', 'aN', 'iO', 'iYaw', 'iT', 'iC', 'iX'].forEach(function (a, i) { gl.bindAttribLocation(prog, i, a); });
   gl.linkProgram(prog); gl.useProgram(prog);
-  var uCtr = gl.getUniformLocation(prog, 'uCtr'), uCam = gl.getUniformLocation(prog, 'uCam'), uS = gl.getUniformLocation(prog, 'uS'), uA = gl.getUniformLocation(prog, 'uA');
+  var uCtr = gl.getUniformLocation(prog, 'uCtr'), uCam = gl.getUniformLocation(prog, 'uCam'), uS = gl.getUniformLocation(prog, 'uS'), uA = gl.getUniformLocation(prog, 'uA'), uTop = gl.getUniformLocation(prog, 'uTop');
+  // for looking things over: ?view=top looks straight down, ?hide=L,T,U,P leaves those kinds of piece out
+  var TOP = /[?&]view=top/.test(location.search), HIDE = ((/[?&]hide=([\w,]+)/.exec(location.search) || [0, ''])[1]).split(',');
 
   function mesh(verts, instances) {
     var vao = gl.createVertexArray(); gl.bindVertexArray(vao);
@@ -356,10 +363,11 @@
     gl.uniform3f(uCam, PLATE_X / 2, 9.5, PLATE_Z / 2);
     gl.uniform2f(uS, 2 * px / W, 2 * px / Hpx);
     var pd = plate.data; pd[0] = pd[1] = pd[2] = pd[3] = 0; pd[4] = 0; pd[8] = 0; pd[5] = COL.plate[0]; pd[6] = COL.plate[1]; pd[7] = COL.plate[2];
-    gl.uniform3f(uCtr, 0, 0, 0); gl.uniform1f(uA, 1);
+    gl.uniform3f(uCtr, 0, 0, 0); gl.uniform1f(uA, 1); gl.uniform1f(uTop, TOP ? 1 : 0);
     gl.bindVertexArray(plate.vao); gl.bindBuffer(gl.ARRAY_BUFFER, plate.ib); gl.bufferSubData(gl.ARRAY_BUFFER, 0, pd);
     gl.drawArraysInstanced(gl.TRIANGLES, 0, plate.verts, 1);
     KINDS.forEach(function (kind) {
+      if (HIDE.indexOf(kind) >= 0) return;
       var m = KIND[kind].gl, c = KIND[kind].ctr;
       gl.uniform3f(uCtr, c[0], c[1], c[2]);
       gl.bindVertexArray(m.vao); gl.bindBuffer(gl.ARRAY_BUFFER, m.ib); gl.bufferSubData(gl.ARRAY_BUFFER, 0, m.data);

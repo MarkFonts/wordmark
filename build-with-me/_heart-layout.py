@@ -56,19 +56,19 @@ LIT=set()
 picks=[]
 free=[c for c,v in occ.items() if v=='.' and 1<=c[1]<=13]
 for _ in range(3000):
-    if len(picks)==8: break
+    if len(picks)==20: break
     c=random.choice(free)
-    if all(abs(c[0]-p[0])+abs(c[1]-p[1])>2 for p in picks): picks.append(c)
-if len(picks)!=8: print('picks',len(picks)); sys.exit(3)
+    if all(abs(c[0]-p[0])+abs(c[1]-p[1])>1 for p in picks): picks.append(c)
+if len(picks)!=20: print('picks',len(picks)); sys.exit(3)
 for x,r in picks:
     take([(x,r)],'E'); P.append(('E',x,r,1,'z'))
     if len(LIT)<5: LIT.add((x,r)); P.append(('O',x+.37,r,1.5175,'z'))
 P.append(('P',7,6+2.8/1.2,-3.2,'tilt'))
 plain=sum(1 for v in occ.values() if v=='.')
-print('plain cells',plain,'need',62)
+print('plain cells',plain,'need',56)
 for r in range(15,-1,-1): print('%2d '%r+''.join(occ.get((x,r),' ') for x in range(W)))
-if plain!=62: sys.exit(3)
-need={4:1,2:19,1:20}
+if plain!=56: sys.exit(3)
+need={4:1,2:17,1:18}
 runs=[]
 for r in range(16):
     x=0
@@ -82,7 +82,7 @@ random.seed(SEED)
 best=None
 odd=sum(1 for r,a,n in runs if n%2)
 print('odd runs',odd)
-if odd>20 or (20-odd)%2: sys.exit(3)
+if odd>18 or (18-odd)%2: sys.exit(3)
 for attempt in range(4000):
     left=dict(need); out=[]; ok=True
     segs=[]
@@ -115,6 +115,10 @@ for c in ups:
     if len(chosen)==3: break
 if len(chosen)<3: sys.exit(3)
 for x,r in chosen: P.append(('O',x+.37,r+1+(.1275-.58*1.2)/1.2,2.0,'up'))
+# two spare 1x2 bricks stand a stud proud of the face
+flat2=[(x,r) for (x,r),v in occ.items() if v=='.' and (x,r) not in out_cells and (x,r-1) not in chosen and 2<=r<=12]
+random.shuffle(flat2)
+for x,r in flat2[:2]: P.append(('1',x,r,2,1))
 flat=[(x,r) for (x,r),v in occ.items() if v=='.' and (x,r) not in out_cells]
 fl=set(flat); spots=[(x,r) for x,r in flat if all((x+i,r) in fl for i in range(6)) and all((x+i,r-1) not in chosen for i in range(6)) and 2<=r<=13 and all(abs(r-q[1])>1 for q in inw)]
 
