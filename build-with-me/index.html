@@ -132,20 +132,20 @@ section.hero { border-top: 0; }
 .kicker { grid-column: 1 / span 7; font-size: 14px; line-height: 21px; color: var(--text-muted); }
 
 /* the one divider that is a collage: prints dropped on a table, oldest first */
-section.collage { padding-block: 48px 60px; overflow: clip; }
-.collage .prints { grid-column: 1 / -1; display: flex; justify-content: center; align-items: center; }
+section.collage { padding-block: 60px 72px; overflow: clip; }
+.collage .prints { grid-column: 1 / -1; display: flex; flex-wrap: wrap; justify-content: center; align-items: center; }
 .collage figure {
-  flex: none; margin: 0 -1.5%; padding: 7px 7px 26px; background: #f4f1ea; border-radius: 3px;
+  flex: none; margin: -14px -1.2%; padding: 7px 7px 26px; background: #f4f1ea; border-radius: 3px;
   box-shadow: 0 1px 0 rgba(0,0,0,.25), 0 14px 36px rgba(0,0,0,.38);
   transform: rotate(var(--r)) translateY(var(--y, 0)); transition: transform .25s cubic-bezier(.2,.8,.2,1);
   position: relative;
 }
 .collage figure:hover { transform: rotate(0deg) translateY(-6px) scale(1.04); z-index: 2; }
-.collage img { display: block; height: clamp(150px, 22vw, 340px); width: auto; border-radius: 1px; }
+.collage img { display: block; height: clamp(140px, 19vw, 300px); width: auto; border-radius: 1px; }
 @media (max-width: 680px) {
   .collage .prints { flex-wrap: wrap; row-gap: 0; }
   .collage figure { margin: -10px -6px; padding: 5px 5px 18px; }
-  .collage img { height: 42vw; }
+  .collage img { height: 38vw; }
 }
 @media (prefers-reduced-motion: reduce) { .collage figure { transition: none; } }
 
@@ -237,7 +237,10 @@ footer a:hover { color: var(--text); }
     <figure style="--r:-4deg; --y:6px"><img src="photo-first-builds.jpg" width="658" height="800" loading="lazy" alt="A boy sitting on the carpet with his dad, building instructions on the floor and a white brick-built machine on the table beside them."></figure>
     <figure style="--r:2.5deg; --y:-10px"><img src="moc-dino-2005.jpg" width="640" height="479" loading="lazy" alt="A red brick-built dinosaur with blue legs, 2005."></figure>
     <figure style="--r:-2deg; --y:12px"><img src="moc-robot-2006.jpg" width="597" height="640" loading="lazy" alt="A white and black brick-built robot raising one arm, 2006."></figure>
-    <figure style="--r:3.5deg; --y:-4px"><img src="photo-alt-build.jpg" width="600" height="800" loading="lazy" alt="A car set rebuilt into a creature, standing in front of its own box."></figure>
+    <figure style="--r:3deg; --y:-4px"><img src="photo-white-figure.jpg" width="600" height="800" loading="lazy" alt="A slim white brick-built figure with a sword and a round shield, on a shelf."></figure>
+    <figure style="--r:-3deg; --y:8px"><img src="photo-black-figure.jpg" width="600" height="800" loading="lazy" alt="A tall black and silver brick-built figure with claws and a blaster."></figure>
+    <figure style="--r:2deg; --y:-8px"><img src="photo-mech-and-truck.jpg" width="600" height="800" loading="lazy" alt="A grey brick-built walking machine reaching a claw toward a yellow brick-built truck."></figure>
+    <figure style="--r:-2.5deg; --y:4px"><img src="photo-shelf.jpg" width="600" height="800" loading="lazy" alt="A shelf crowded with brick-built robots and a model museum."></figure>
   </div>
 </section>
 
