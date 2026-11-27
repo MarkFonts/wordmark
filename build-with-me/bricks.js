@@ -32,20 +32,20 @@
         add('2', 2, 0, z); add('4', 4, 0, z); add('4', 8, 0, z); add('4', 12, 0, z); add('2', 16, 0, z);
         add('2', 2, 1, z); add('1', 4, 1, z); add('4', 5, 1, z); add('4', 9, 1, z); add('4', 13, 1, z); add('1', 17, 1, z);
       } else {
-        var md = z === 0 ? -1 : 1; add('M', 2, 0, z, md, 'Y'); add('2', 6, 0, z); add('4', 8, 0, z); add('2', 12, 0, z); add('M', 14, 0, z, md, 'Y');
+        var md = z === 0 ? -1 : 1; add('M', 2, 0, z, md); add('2', 6, 0, z); add('4', 8, 0, z); add('2', 12, 0, z); add('M', 14, 0, z, md);
         add('4', 6, 1, z); add('4', 10, 1, z);
       }
       add('1', 1, 2, z); add('2', 2, 2, z); add('4', 4, 2, z); add('4', 8, 2, z); add('4', 12, 2, z); add('1', 16, 2, z); add('2', 17, 2, z);
       if (mid) { add('1', 0, 2, z); add('1', 19, 2, z); }
       else [0, 1].forEach(function (dz) {
         add('E', 0, 2, z + dz, -1); add('E', 19, 2, z + dz, 1);
-        add('O', -.24, 2, z + dz, 1, 'B'); add('O', 20, 2, z + dz, 1, 'B');
+        add('O', -.09, 2, z + dz, 1, 'B'); add('O', 19.89, 2, z + dz, 1, 'B');
       });
       add('L', 2, 3, z, -1); add('2', 5, 3, z); add('T', 11, 3, z, 1);  // fastback, windshield
       add('L', 4, 4, z, -1);
     });
     add('P', 6, 5, 0);                                                  // roof
-    [4, 16].forEach(function (x) { [[.05, -.07], [4.55, 5.95]].forEach(function (zz) {
+    [4, 16].forEach(function (x) { [[-.35, -.47], [4.95, 6.35]].forEach(function (zz) {
       add('W', x - 1.5, -1 + .04, zz[0], 1, 'K'); add('H', x - .8, -1 + .625, zz[1], 1, 'G');
     }); });
     return p;
@@ -189,9 +189,9 @@
     function pt(rad, a) { return [2 + rad * Math.cos(a), cy + rad * Math.sin(a)]; }
     for (i = 0; i < N; i++) {
       var a0 = Math.PI * i / N, a1 = Math.PI * (i + 1) / N;
-      prism(v, [pt(r, a0), pt(R, a0), pt(R, a1), pt(r, a1)], g, 2 - g);
+      prism(v, [pt(r, a0), pt(R, a0), pt(R, a1), pt(r, a1)], g, 2.5);
     }
-    box(v, 2 + r, .03, g, 2 + R, cy, 2 - g); box(v, 2 - R, .03, g, 2 - r, cy, 2 - g);     // feet
+    box(v, 2 + r, .03, g, 2 + R, cy, 2.5); box(v, 2 - R, .03, g, 2 - r, cy, 2.5);     // feet
     box(v, 1, 1.5 * H, g, 3, 2 * H, 2 - g);                                               // crown block
     for (i = 1; i < 3; i++) for (var j = 0; j < 2; j++) stud(v, i + .5, 2 * H, j + .5);
     box(v, g, H, g, 1, H + .4, 1); stud(v, .5, H + .4, .5);                               // tabs
@@ -200,10 +200,10 @@
   }
   function headlightMesh() {
     var v = [], g = .03;
-    box(v, g, .03, g, 1 - g, H, 1 - g); stud(v, .5, H, .5);
+    box(v, g, .03, g, .89, H, 1 - g); box(v, .89, .03, g, 1 - g, .2, 1 - g); stud(v, .5, H, .5);   // recessed face, a lip at the foot
     return new Float32Array(v);
   }
-  function lightMesh() { var v = []; cyl(v, .5, 0, H / 2, .36, .24, 10, 'x'); return new Float32Array(v); }
+  function lightMesh() { var v = []; cyl(v, .5, 0, .58 * H, .3, .2, 10, 'x'); return new Float32Array(v); }
   function roofMesh() { var v = []; box(v, .03, .02, .03, 6 - .03, .4, 6 - .03); return new Float32Array(v); }
   function wheelMesh() { var v = []; cyl(v, 1.5, 0, 1.5, 1.5, 1.4, 20, 'z'); return new Float32Array(v); }
   function hubMesh() { var v = []; cyl(v, .8, 0, .8, .8, .1, 14, 'z'); return new Float32Array(v); }
@@ -257,7 +257,7 @@
     'T': { mesh: prismMesh([[.03, .03], [1.97, .03], [1.97, .3], [1, 2 * H], [.03, 2 * H]], [[.5, 2 * H]]), ctr: [1, H, 1] },
     // tall inverted slope 2×2×2 (the bumpers): foot one stud long, full top
     'J': { mesh: prismMesh([[.03, .03], [1, .03], [1.97, 2 * H - .3], [1.97, 2 * H], [.03, 2 * H]], [[.5, 2 * H], [1.5, 2 * H]]), ctr: [1, H, 1] },
-    'E': { mesh: headlightMesh(), ctr: [.5, H / 2, .5] }, 'O': { mesh: lightMesh(), ctr: [.12, H / 2, .5] },
+    'E': { mesh: headlightMesh(), ctr: [.5, H / 2, .5] }, 'O': { mesh: lightMesh(), ctr: [.1, .58 * H, .5] },
     'P': { mesh: roofMesh(), ctr: [3, .2, 3] }, 'M': { mesh: mudguardMesh(), ctr: [2, H, 1] },
     'W': { mesh: wheelMesh(), ctr: [1.5, 1.5, .7] }, 'H': { mesh: hubMesh(), ctr: [.8, .8, .05] }
   };
