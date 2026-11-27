@@ -29,12 +29,11 @@
       var mid = z === 2;
       add('J', 0, 0, z, -1); add('J', 18, 0, z, 1);                    // bumpers: tall inverted slopes
       if (mid) {
-        add('2', 2, 0, z); add('4', 4, 0, z); add('4', 8, 0, z); add('4', 12, 0, z); add('2', 16, 0, z);
-        add('2', 2, 1, z); add('1', 4, 1, z); add('4', 5, 1, z); add('4', 9, 1, z); add('4', 13, 1, z); add('1', 17, 1, z);
+        // only the axle blocks: the middle of the car is hollow where nothing shows
+        [0, 1].forEach(function (y) { [2, 4, 14, 16].forEach(function (x) { add('2', x, y, z); }); });
       } else {
         var md = z === 0 ? -1 : 1; add('M', 2, 0, z, md); add('2', 6, 0, z); add('4', 8, 0, z); add('2', 12, 0, z); add('M', 14, 0, z, md);
         add('4', 6, 1, z); add('4', 10, 1, z);
-        [2, 5, 14, 17].forEach(function (x) { add('1', x, 1, z); });                      // a 1×2 on each mudguard wing
       }
       add('1', 1, 2, z); add('2', 2, 2, z); add('4', 4, 2, z); add('4', 8, 2, z); add('4', 12, 2, z); add('1', 16, 2, z); add('2', 17, 2, z);
       if (mid) { add('1', 0, 2, z); add('1', 19, 2, z); }
@@ -45,8 +44,10 @@
       add('L', 2, 3, z, -1); add('2', 5, 3, z); if (z < 4) add('T', 11, 3, z + 1, 1, 'C'); else { add('U', 11, 3, 0, 1); add('U', 11, 3, 5, 1); }   // clear windshield, a red 1×2 pillar each side  // fastback, windshield
       add('L', 4, 4, z, -1);
     });
+    // seats: eight more headlight bricks inside the cabin, two rows of four
+    [8, 10].forEach(function (x) { [1, 2, 3, 4].forEach(function (z) { add('E', x, 3, z, 1); }); });
     add('P', 6, 5, 0);                                                  // roof
-    [4, 16].forEach(function (x) { [[-1.1, -1.22], [6, 7.1]].forEach(function (zz) {
+    [4, 16].forEach(function (x) { [[-.35, -.47], [4.95, 6.35]].forEach(function (zz) {
       add('W', x - 1.5, -1 + .04, zz[0], 1, 'K'); add('H', x - .8, -1 + .625, zz[1], 1, 'G');
     }); });
     return p;
@@ -58,27 +59,25 @@
       { k: 'J', x: 3, y: 5, z: 0, d: -1 }, { k: 'J', x: 15, y: 5, z: 0 }, { k: 'U', x: 0, y: 12, z: 1, d: -1 }, { k: 'U', x: 18, y: 12, z: 1 },
       { k: 'T', x: 8, y: 12, z: 0 }, { k: 'T', x: 10, y: 12, z: 0, d: -1 }, { k: 'L', x: 1, y: 14, z: 0, d: -1 }, { k: 'L', x: 16, y: 14, z: 0 },
       { k: 'L', x: 6, y: 14, z: 0 }, { k: 'L', x: 11, y: 14, z: 0, d: -1 }, { k: 'L', x: 3, y: 15, z: 0, d: -1 }, { k: 'L', x: 14, y: 15, z: 0 },
-      { k: 'M', x: 2, y: 9, z: 0 }, { k: '1', x: 2, y: 10, z: 0 }, { k: '1', x: 5, y: 10, z: 0 }, { k: 'W', x: 2.5, y: 8.042, z: 2 },
-      { k: 'H', x: 3.2, y: 8.625, z: 3.1 }, { k: 'M', x: 14, y: 9, z: 0 }, { k: '1', x: 14, y: 10, z: 0 }, { k: '1', x: 17, y: 10, z: 0 },
-      { k: 'W', x: 14.5, y: 8.042, z: 2 }, { k: 'H', x: 15.2, y: 8.625, z: 3.1 }, { k: 'M', x: 6, y: 5, z: 0 }, { k: '1', x: 6, y: 6, z: 0 },
-      { k: '1', x: 9, y: 6, z: 0 }, { k: 'W', x: 6.5, y: 4.042, z: 2 }, { k: 'H', x: 7.2, y: 4.625, z: 3.1 }, { k: 'M', x: 10, y: 5, z: 0 },
-      { k: '1', x: 10, y: 6, z: 0 }, { k: '1', x: 13, y: 6, z: 0 }, { k: 'W', x: 10.5, y: 4.042, z: 2 }, { k: 'H', x: 11.2, y: 4.625, z: 3.1 },
-      { k: 'E', x: 8, y: 8, z: 1, t: -Math.PI / 2 }, { k: 'O', x: 8.37, y: 8, z: 1.5175, t: -Math.PI / 2 }, { k: 'E', x: 9, y: 8, z: 1, t: -Math.PI / 2 }, { k: 'O', x: 9.37, y: 8, z: 1.5175, t: -Math.PI / 2 },
-      { k: 'E', x: 10, y: 8, z: 1, t: -Math.PI / 2 }, { k: 'O', x: 10.37, y: 8, z: 1.5175, t: -Math.PI / 2 }, { k: 'E', x: 11, y: 8, z: 1, t: -Math.PI / 2 }, { k: 'O', x: 11.37, y: 8, z: 1.5175, t: -Math.PI / 2 },
-      { k: 'E', x: 8, y: 10, z: 1, t: -Math.PI / 2 }, { k: 'O', x: 8.37, y: 10, z: 1.5175, t: -Math.PI / 2 }, { k: 'E', x: 9, y: 10, z: 1, t: -Math.PI / 2 }, { k: 'O', x: 9.37, y: 10, z: 1.5175, t: -Math.PI / 2 },
-      { k: 'E', x: 10, y: 10, z: 1, t: -Math.PI / 2 }, { k: 'O', x: 10.37, y: 10, z: 1.5175, t: -Math.PI / 2 }, { k: 'E', x: 11, y: 10, z: 1, t: -Math.PI / 2 }, { k: 'O', x: 11.37, y: 10, z: 1.5175, t: -Math.PI / 2 },
-      { k: 'P', x: 7, y: 8.3333, z: -3.2, tilt: Math.PI / 2 }, { k: '2', x: 6, y: 10, z: 0 }, { k: '1', x: 14, y: 6, z: 0 }, { k: '4', x: 1, y: 7, z: 0 },
-      { k: '4', x: 5, y: 7, z: 0 }, { k: '4', x: 9, y: 7, z: 0 }, { k: '2', x: 13, y: 7, z: 0 }, { k: '4', x: 15, y: 7, z: 0 },
-      { k: '4', x: 2, y: 12, z: 0 }, { k: '1', x: 6, y: 12, z: 0 }, { k: '1', x: 7, y: 12, z: 0 }, { k: '2', x: 18, y: 10, z: 0 },
-      { k: '4', x: 12, y: 12, z: 0 }, { k: '2', x: 16, y: 12, z: 0 }, { k: '4', x: 0, y: 8, z: 0 }, { k: '4', x: 4, y: 8, z: 0 },
-      { k: '1', x: 9, y: 0, z: 0 }, { k: '1', x: 10, y: 0, z: 0 }, { k: '2', x: 9, y: 1, z: 0 }, { k: '1', x: 5, y: 6, z: 0 },
-      { k: '2', x: 7, y: 4, z: 0 }, { k: '4', x: 9, y: 4, z: 0 }, { k: '2', x: 14, y: 14, z: 0 }, { k: '4', x: 6, y: 9, z: 0 },
-      { k: '4', x: 10, y: 9, z: 0 }, { k: '1', x: 14, y: 5, z: 0 }, { k: '1', x: 6, y: 15, z: 0 }, { k: '1', x: 5, y: 5, z: 0 },
-      { k: '2', x: 4, y: 14, z: 0 }, { k: '2', x: 9, y: 2, z: 0 }, { k: '4', x: 12, y: 13, z: 0 }, { k: '2', x: 16, y: 13, z: 0 },
-      { k: '2', x: 7, y: 3, z: 0 }, { k: '4', x: 9, y: 3, z: 0 }, { k: '4', x: 12, y: 8, z: 0 }, { k: '4', x: 16, y: 8, z: 0 },
-      { k: '1', x: 13, y: 15, z: 0 }, { k: '2', x: 18, y: 9, z: 0 }, { k: '2', x: 0, y: 9, z: 0 }, { k: '4', x: 2, y: 13, z: 0 },
-      { k: '2', x: 6, y: 13, z: 0 }, { k: '4', x: 0, y: 11, z: 0 }, { k: '4', x: 4, y: 11, z: 0 }, { k: '4', x: 8, y: 11, z: 0 },
-      { k: '4', x: 12, y: 11, z: 0 }, { k: '4', x: 16, y: 11, z: 0 }, { k: '2', x: 12, y: 10, z: 0 }, { k: '2', x: 0, y: 10, z: 0 }] } };
+      { k: 'M', x: 2, y: 9, z: 0 }, { k: 'M', x: 13, y: 11, z: 0 }, { k: 'M', x: 5, y: 6, z: 0 }, { k: 'M', x: 9, y: 4, z: 0 },
+      { k: 'E', x: 4, y: 13, z: 1, t: -Math.PI / 2 }, { k: 'O', x: 4.37, y: 13, z: 1.5175, t: -Math.PI / 2 }, { k: 'E', x: 7, y: 13, z: 1, t: -Math.PI / 2 }, { k: 'O', x: 7.37, y: 13, z: 1.5175, t: -Math.PI / 2 },
+      { k: 'E', x: 16, y: 10, z: 1, t: -Math.PI / 2 }, { k: 'O', x: 16.37, y: 10, z: 1.5175, t: -Math.PI / 2 }, { k: 'E', x: 9, y: 3, z: 1, t: -Math.PI / 2 }, { k: 'O', x: 9.37, y: 3, z: 1.5175, t: -Math.PI / 2 },
+      { k: 'E', x: 12, y: 3, z: 1, t: -Math.PI / 2 }, { k: 'O', x: 12.37, y: 3, z: 1.5175, t: -Math.PI / 2 }, { k: 'E', x: 18, y: 9, z: 1, t: -Math.PI / 2 }, { k: 'O', x: 18.37, y: 9, z: 1.5175, t: -Math.PI / 2 },
+      { k: 'E', x: 9, y: 6, z: 1, t: -Math.PI / 2 }, { k: 'O', x: 9.37, y: 6, z: 1.5175, t: -Math.PI / 2 }, { k: 'E', x: 14, y: 6, z: 1, t: -Math.PI / 2 }, { k: 'O', x: 14.37, y: 6, z: 1.5175, t: -Math.PI / 2 },
+      { k: 'E', x: 7, y: 8, z: 1, t: -Math.PI / 2 }, { k: 'E', x: 14, y: 8, z: 1, t: -Math.PI / 2 }, { k: 'E', x: 13, y: 7, z: 1, t: -Math.PI / 2 }, { k: 'E', x: 4, y: 7, z: 1, t: -Math.PI / 2 },
+      { k: 'E', x: 4, y: 11, z: 1, t: -Math.PI / 2 }, { k: 'E', x: 2, y: 12, z: 1, t: -Math.PI / 2 }, { k: 'E', x: 5, y: 12, z: 1, t: -Math.PI / 2 }, { k: 'E', x: 19, y: 11, z: 1, t: -Math.PI / 2 },
+      { k: 'P', x: 7, y: 8.3333, z: -3.2, tilt: Math.PI / 2 }, { k: '1', x: 1, y: 9, z: -0.5 }, { k: '1', x: 1, y: 10, z: 1 }, { k: '1', x: 12, y: 12, z: 0.5 },
+      { k: '1', x: 17, y: 12, z: 0 }, { k: '1', x: 6, y: 15, z: 0.5 }, { k: '1', x: 13, y: 15, z: 0 }, { k: '1', x: 2, y: 13, z: 0.5 },
+      { k: '1', x: 3, y: 13, z: 0.5 }, { k: '4', x: 6, y: 9, z: -0.5 }, { k: '4', x: 10, y: 9, z: 0 }, { k: '4', x: 14, y: 9, z: 0 },
+      { k: '4', x: 5, y: 5, z: 0 }, { k: '2', x: 9, y: 0, z: 0.5 }, { k: '4', x: 1, y: 8, z: 0.5 }, { k: '2', x: 5, y: 8, z: 0 },
+      { k: '2', x: 17, y: 11, z: 0.5 }, { k: '2', x: 13, y: 5, z: 0 }, { k: '2', x: 7, y: 3, z: 0 }, { k: '2', x: 6, y: 12, z: 0 },
+      { k: '4', x: 0, y: 11, z: 0 }, { k: '2', x: 4, y: 14, z: -0.5 }, { k: '4', x: 10, y: 6, z: 0.5 }, { k: '2', x: 9, y: 2, z: 1 },
+      { k: '2', x: 17, y: 10, z: 0 }, { k: '2', x: 3, y: 12, z: -0.5 }, { k: '2', x: 9, y: 1, z: 0 }, { k: '4', x: 12, y: 13, z: 1 },
+      { k: '2', x: 16, y: 13, z: 0 }, { k: '4', x: 9, y: 7, z: 0 }, { k: '2', x: 5, y: 13, z: 0 }, { k: '2', x: 2, y: 7, z: 0 },
+      { k: '4', x: 5, y: 11, z: -0.5 }, { k: '4', x: 9, y: 11, z: 0 }, { k: '2', x: 7, y: 4, z: 0 }, { k: '4', x: 6, y: 10, z: 0 },
+      { k: '2', x: 10, y: 10, z: 0.5 }, { k: '4', x: 12, y: 10, z: 1 }, { k: '2', x: 10, y: 3, z: 0 }, { k: '2', x: 14, y: 14, z: 0 },
+      { k: '2', x: 8, y: 8, z: 0 }, { k: '2', x: 10, y: 8, z: 0 }, { k: '2', x: 12, y: 8, z: 0 }, { k: '4', x: 15, y: 8, z: 0 },
+      { k: '4', x: 14, y: 7, z: 0 }] } };
   var LOOP = ['car', 'heart'];
   var NAMES = LOOP;
   var KINDS = ['1', '2', '4', 'L', 'J', 'E', 'O', 'P', 'M', 'W', 'H', 'U', 'T'];   // T is clear: drawn last
@@ -121,6 +120,10 @@
       b.leave = maxY ? (1 - b.y / maxY) * .8 + rnd(i + m * 31) * .2 : 0;
     });
     KINDS.forEach(function (kind) {
+      if (k !== 'car' && (kind === 'W' || kind === 'H')) {     // wheels roll off the plate and wait
+        pool[kind].forEach(function (b) { var c = b.pose.car; b.pose[k] = { x: c.x + 34, y: c.y, z: c.z, turn: c.turn, tilt: 0, land: 0, leave: 0 }; });
+        return;
+      }
       var free = pool[kind].slice(), want = order.filter(function (b) { return b.kind === kind; });
       if (want.length !== free.length) throw new Error('bricks: ' + k + ' uses ' + want.length + ' of kind ' + kind + ', the set has ' + free.length);
       // the car says which color goes where; the others take the pieces as they come, shuffled per build
@@ -210,23 +213,18 @@
     studs.forEach(function (q) { for (var j = 0; j < (deep || 2); j++) stud(v, q[0], q[1], j + .5); });
     return new Float32Array(v);
   }
-  // mudguard (part 18974), low-poly: a single thin ring on the outside (z 2..3.1, a stud proud
-  // of the body), and right next to it the flat studded top: a 2×2 block with a 1×2 wing at each end.
-  // The ring's crown is flush with the block's stud tops.
+  // mudguard (part 18974), low-poly: a thin round arch 4 studs long that stands half a stud proud
+  // of the body, with the 2×2 studded block on its crown. The wheel sits inside it.
   function mudguardMesh() {
-    var v = [], g = .03, cy = .35, N = 10, i, j;
-    function pt(rx, ry, a) { return [2 + rx * Math.cos(a), cy + ry * Math.sin(a)]; }
+    var v = [], g = .03, cy = .22, R = 1.97, r = 1.85, N = 12, i, j;
+    function pt(rad, a) { return [2 + rad * Math.cos(a), cy + rad * Math.sin(a)]; }
     for (i = 0; i < N; i++) {
       var a0 = Math.PI * i / N, a1 = Math.PI * (i + 1) / N;
-      prism(v, [pt(1.67, 1.97, a0), pt(1.95, 2.25, a0), pt(1.95, 2.25, a1), pt(1.67, 1.97, a1)], 1.97, 3.1);
+      prism(v, [pt(r, a0), pt(R, a0), pt(R, a1), pt(r, a1)], g, 2.5);
     }
-    box(v, 3.67, .03, 1.97, 3.95, cy, 3.1); box(v, .05, .03, 1.97, .33, cy, 3.1);         // feet
-    box(v, 1, H, g, 3, 2 * H, 2 - g);                                                     // block
+    box(v, 2 + r, .03, g, 2 + R, cy, 2.5); box(v, 2 - R, .03, g, 2 - r, cy, 2.5);         // feet
+    box(v, 1, 1.95, g, 3, 2 * H, 2 - g);                                                  // crown block
     for (i = 1; i < 3; i++) for (j = 0; j < 2; j++) stud(v, i + .5, 2 * H, j + .5);
-    [0, 3].forEach(function (x) {                                                         // wings
-      box(v, x ? x : g, H - .4, g, x ? 4 - g : 1, H, 2 - g);
-      for (j = 0; j < 2; j++) stud(v, x + .5, H, j + .5);
-    });
     return new Float32Array(v);
   }
   function headlightMesh() {
@@ -237,7 +235,7 @@
   }
   function lightMesh() { var v = []; cyl(v, .5, 0, .58 * H, .4, .255, 12, 'x'); return new Float32Array(v); }
   function roofMesh() { var v = []; box(v, .03, .02, .03, 6 - .03, .4, 6 - .03); return new Float32Array(v); }
-  function wheelMesh() { var v = []; cyl(v, 1.5, 0, 1.5, 1.5, 1.1, 20, 'z'); return new Float32Array(v); }
+  function wheelMesh() { var v = []; cyl(v, 1.5, 0, 1.5, 1.5, 1.4, 20, 'z'); return new Float32Array(v); }
   function hubMesh() { var v = []; cyl(v, .8, 0, .8, .8, .1, 14, 'z'); return new Float32Array(v); }
   function plateMesh() {
     var v = [];
@@ -293,7 +291,7 @@
     'J': { mesh: prismMesh([[.03, .03], [1, .03], [1.97, 2 * H - .3], [1.97, 2 * H], [.03, 2 * H]], [[.5, 2 * H], [1.5, 2 * H]]), ctr: [1, H, 1] },
     'E': { mesh: headlightMesh(), ctr: [.5, H / 2, .5] }, 'O': { mesh: lightMesh(), ctr: [.13, .58 * H, .5] },
     'P': { mesh: roofMesh(), ctr: [3, .2, 3] }, 'M': { mesh: mudguardMesh(), ctr: [2, H, 1] },
-    'W': { mesh: wheelMesh(), ctr: [1.5, 1.5, .55] }, 'H': { mesh: hubMesh(), ctr: [.8, .8, .05] }
+    'W': { mesh: wheelMesh(), ctr: [1.5, 1.5, .7] }, 'H': { mesh: hubMesh(), ctr: [.8, .8, .05] }
   };
   KINDS.forEach(function (k) { KIND[k].gl = mesh(KIND[k].mesh, pool[k].length); });
   gl.enable(gl.DEPTH_TEST); gl.enable(gl.CULL_FACE); gl.clearColor(0, 0, 0, 0);
@@ -319,6 +317,12 @@
         var hy = b.hy + Math.sin(t * 1.3 + b.ph) * .25;
         var mx = s.x + (b.hx - s.x) * a, my = s.y + (hy - s.y) * a, mz = s.z + (b.hz - s.z) * a;
         var o = i * 9, col = COL.key[b.c];
+        if (kind === 'W' || kind === 'H') {                         // roll along the ground: out early, back late
+          var w = clamp01((u - (to === 'car' ? 3.9 : .15)) / 1.7); w = w * w * (3 - 2 * w);
+          D[o] = s.x + (d.x - s.x) * w; D[o + 1] = s.y; D[o + 2] = s.z; D[o + 3] = 0; D[o + 4] = s.turn; D[o + 8] = 0;
+          D[o + 5] = col[0]; D[o + 6] = col[1]; D[o + 7] = col[2];
+          continue;
+        }
         D[o] = mx + (d.x - mx) * e; D[o + 1] = my + (d.y - my) * e; D[o + 2] = mz + (d.z - mz) * e;
         D[o + 3] = (b.yaw + Math.sin(t * .5 + b.ph) * .5) * a * (1 - e);
         D[o + 4] = s.turn + (d.turn - s.turn) * (a * .5 + e * .5);   // slopes turn around in the air
