@@ -469,6 +469,9 @@ body {
 .pill:hover { opacity: 0.78; }
 .pill .arrow { position: relative; top: 0.02em; transition: transform 0.2s; }
 .pill:hover .arrow { transform: translateX(0.15em); }
+/* the scrollover is the hover (shared/src/scrollover.css): no dim, no arrow nudge */
+.pill[data-scrollover]:hover { opacity: 1; }
+.pill[data-scrollover]:hover .arrow { transform: none; }
 
 /* the second call, as Apple pairs them: the same pill, outlined. The ring is an inset shadow, so both pills
    are exactly the same height on the line */
