@@ -34,6 +34,7 @@
       } else {
         var md = z === 0 ? -1 : 1; add('M', 2, 0, z, md); add('2', 6, 0, z); add('4', 8, 0, z); add('2', 12, 0, z); add('M', 14, 0, z, md);
         add('4', 6, 1, z); add('4', 10, 1, z);
+        [2, 5, 14, 17].forEach(function (x) { add('1', x, 1, z); });                      // a 1×2 on each mudguard wing
       }
       add('1', 1, 2, z); add('2', 2, 2, z); add('4', 4, 2, z); add('4', 8, 2, z); add('4', 12, 2, z); add('1', 16, 2, z); add('2', 17, 2, z);
       if (mid) { add('1', 0, 2, z); add('1', 19, 2, z); }
@@ -45,7 +46,7 @@
       add('L', 4, 4, z, -1);
     });
     add('P', 6, 5, 0);                                                  // roof
-    [4, 16].forEach(function (x) { [[-.35, -.47], [4.95, 6.35]].forEach(function (zz) {
+    [4, 16].forEach(function (x) { [[-.5, -.62], [5.1, 6.5]].forEach(function (zz) {
       add('W', x - 1.5, -1 + .04, zz[0], 1, 'K'); add('H', x - .8, -1 + .625, zz[1], 1, 'G');
     }); });
     return p;
@@ -182,20 +183,23 @@
     studs.forEach(function (q) { for (var j = 0; j < (deep || 2); j++) stud(v, q[0], q[1], j + .5); });
     return new Float32Array(v);
   }
-  // mudguard (part 18974): a thin round arch 4 studs long, a 2×2 studded block on its crown,
-  // and a one-stud tab at each end on the inner side (z 0..1)
+  // mudguard (part 18974), low-poly: a single thin ring on the outside (z 2..2.5, half a stud proud
+  // of the body), and right next to it the flat studded top: a 2×2 block with a 1×2 wing at each end.
+  // The ring's crown is flush with the block's stud tops.
   function mudguardMesh() {
-    var v = [], g = .03, cy = .22, R = 1.97, r = 1.72, N = 18, i;
-    function pt(rad, a) { return [2 + rad * Math.cos(a), cy + rad * Math.sin(a)]; }
+    var v = [], g = .03, cy = .35, N = 10, i, j;
+    function pt(rx, ry, a) { return [2 + rx * Math.cos(a), cy + ry * Math.sin(a)]; }
     for (i = 0; i < N; i++) {
       var a0 = Math.PI * i / N, a1 = Math.PI * (i + 1) / N;
-      prism(v, [pt(r, a0), pt(R, a0), pt(R, a1), pt(r, a1)], g, 2.5);
+      prism(v, [pt(1.67, 1.97, a0), pt(1.95, 2.25, a0), pt(1.95, 2.25, a1), pt(1.67, 1.97, a1)], 1.97, 2.5);
     }
-    box(v, 2 + r, .03, g, 2 + R, cy, 2.5); box(v, 2 - R, .03, g, 2 - r, cy, 2.5);     // feet
-    box(v, 1, 1.5 * H, g, 3, 2 * H, 2 - g);                                               // crown block
-    for (i = 1; i < 3; i++) for (var j = 0; j < 2; j++) stud(v, i + .5, 2 * H, j + .5);
-    box(v, g, H, g, 1, H + .4, 1); stud(v, .5, H + .4, .5);                               // tabs
-    box(v, 3, H, g, 4 - g, H + .4, 1); stud(v, 3.5, H + .4, .5);
+    box(v, 3.67, .03, 1.97, 3.95, cy, 2.5); box(v, .05, .03, 1.97, .33, cy, 2.5);         // feet
+    box(v, 1, H, g, 3, 2 * H, 2 - g);                                                     // block
+    for (i = 1; i < 3; i++) for (j = 0; j < 2; j++) stud(v, i + .5, 2 * H, j + .5);
+    [0, 3].forEach(function (x) {                                                         // wings
+      box(v, x ? x : g, H - .4, g, x ? 4 - g : 1, H, 2 - g);
+      for (j = 0; j < 2; j++) stud(v, x + .5, H, j + .5);
+    });
     return new Float32Array(v);
   }
   function headlightMesh() {
