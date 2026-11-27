@@ -39,7 +39,7 @@
       if (mid) { add('1', 0, 2, z); add('1', 19, 2, z); }
       else [0, 1].forEach(function (dz) {
         add('E', 0, 2, z + dz, -1); add('E', 19, 2, z + dz, 1);
-        add('O', -.09, 2, z + dz, 1, 'B'); add('O', 19.89, 2, z + dz, 1, 'B');
+        add('O', -.145, 2, z + dz, 1, 'B'); add('O', 19.89, 2, z + dz, 1, 'B');   // a blue round 1×1 plate pressed onto each side stud
       });
       add('L', 2, 3, z, -1); add('2', 5, 3, z); if (z < 4) add('T', 11, 3, z + 1, 1, 'C'); else { add('U', 11, 3, 0, 1); add('U', 11, 3, 5, 1); }   // clear windshield, a red 1×2 pillar each side  // fastback, windshield
       add('L', 4, 4, z, -1);
@@ -201,9 +201,10 @@
   function headlightMesh() {
     var v = [], g = .03;
     box(v, g, .03, g, .89, H, 1 - g); box(v, .89, .03, g, 1 - g, .2, 1 - g); stud(v, .5, H, .5);   // recessed face, a lip at the foot
+    cyl(v, .5, .89, .58 * H, .3, .2, 8, 'x');                                              // the side stud
     return new Float32Array(v);
   }
-  function lightMesh() { var v = []; cyl(v, .5, 0, .58 * H, .3, .2, 10, 'x'); return new Float32Array(v); }
+  function lightMesh() { var v = []; cyl(v, .5, 0, .58 * H, .4, .255, 12, 'x'); return new Float32Array(v); }
   function roofMesh() { var v = []; box(v, .03, .02, .03, 6 - .03, .4, 6 - .03); return new Float32Array(v); }
   function wheelMesh() { var v = []; cyl(v, 1.5, 0, 1.5, 1.5, 1.4, 20, 'z'); return new Float32Array(v); }
   function hubMesh() { var v = []; cyl(v, .8, 0, .8, .8, .1, 14, 'z'); return new Float32Array(v); }
@@ -258,7 +259,7 @@
     // tall inverted slope 2×2×2 (the bumpers): foot one stud long, full top
     'U': { mesh: prismMesh([[.03, .03], [1.97, .03], [1.97, .3], [1, 2 * H], [.03, 2 * H]], [[.5, 2 * H]], 1), ctr: [1, H, .5] },
     'J': { mesh: prismMesh([[.03, .03], [1, .03], [1.97, 2 * H - .3], [1.97, 2 * H], [.03, 2 * H]], [[.5, 2 * H], [1.5, 2 * H]]), ctr: [1, H, 1] },
-    'E': { mesh: headlightMesh(), ctr: [.5, H / 2, .5] }, 'O': { mesh: lightMesh(), ctr: [.1, .58 * H, .5] },
+    'E': { mesh: headlightMesh(), ctr: [.5, H / 2, .5] }, 'O': { mesh: lightMesh(), ctr: [.13, .58 * H, .5] },
     'P': { mesh: roofMesh(), ctr: [3, .2, 3] }, 'M': { mesh: mudguardMesh(), ctr: [2, H, 1] },
     'W': { mesh: wheelMesh(), ctr: [1.5, 1.5, .7] }, 'H': { mesh: hubMesh(), ctr: [.8, .8, .05] }
   };
