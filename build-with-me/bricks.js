@@ -216,13 +216,13 @@
   // mudguard (part 18974), low-poly: a thin round arch 4 studs long that stands half a stud proud
   // of the body, with the 2×2 studded block on its crown. The wheel sits inside it.
   function mudguardMesh() {
-    var v = [], g = .03, cy = .22, R = 1.97, r = 1.72, N = 18, i, j;
+    var v = [], g = .03, cy = .22, R = 1.97, r = 1.85, N = 14, i, j;
     function pt(rad, a) { return [2 + rad * Math.cos(a), cy + rad * Math.sin(a)]; }
     for (i = 0; i < N; i++) {
       var a0 = Math.PI * i / N, a1 = Math.PI * (i + 1) / N;
-      prism(v, [pt(r, a0), pt(R, a0), pt(R, a1), pt(r, a1)], g, 2.5);
+      prism(v, [pt(r, a0), pt(R, a0), pt(R, a1), pt(r, a1)], 2, 2.5);   // only a thin ring out front, nothing arching back over the wheel
     }
-    box(v, 2 + r, .03, g, 2 + R, cy, 2.5); box(v, 2 - R, .03, g, 2 - r, cy, 2.5);         // feet
+    box(v, 2 + r, .03, 2, 2 + R, cy, 2.5); box(v, 2 - R, .03, 2, 2 - r, cy, 2.5);         // feet
     box(v, 1, 1.95, g, 3, 2 * H, 2 - g);                                                  // crown block
     for (i = 1; i < 3; i++) for (j = 0; j < 2; j++) stud(v, i + .5, 2 * H, j + .5);
     return new Float32Array(v);
