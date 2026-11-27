@@ -35,18 +35,22 @@
         var md = z === 0 ? -1 : 1; add('M', 2, 0, z, md); add('2', 6, 0, z); add('4', 8, 0, z); add('2', 12, 0, z); add('M', 14, 0, z, md);
         add('4', 6, 1, z); add('4', 10, 1, z);
       }
-      add('1', 1, 2, z); add('2', 2, 2, z); add('4', 4, 2, z); add('4', 12, 2, z); add('1', 16, 2, z); add('2', 17, 2, z);
+      add('1', 1, 2, z); add('2', 2, 2, z); add('4', 4, 2, z); add('1', 12, 2, z);
+      add('X', 13, 2, z); add('X', 13, 2, z + 1);                         // the hood: 1×6 bricks, lengthwise
       if (mid) add('2', 10, 2, z); else add('4', 8, 2, z);                // no floor where the seats would be
       if (mid) { add('1', 0, 2, z); add('1', 19, 2, z); }
       else [0, 1].forEach(function (dz) {
         add('E', 0, 2, z + dz, -1); add('E', 19, 2, z + dz, 1);
         add('O', -.145, 2, z + dz, 1, 'B'); add('O', 19.89, 2, z + dz, 1, 'B');   // a blue round 1×1 plate pressed onto each side stud
       });
-      add('L', 2, 3, z, -1); add('2', 5, 3, z); if (z < 4) add('T', 11, 3, z + 1, 1, 'C'); else { add('U', 11, 3, 0, 1); add('U', 11, 3, 5, 1); }   // clear windshield, a red 1×2 pillar each side  // fastback, windshield
+      add('L', 2, 3, z, -1);
+      if (mid) add('2', 5, 3, z); else p.push({ k: '1', x: 5.5, y: 3, z: z ? 3.5 : .5, d: 1, c: 'R', t: Math.PI / 2 });   // a 1×2 turned lengthwise, inside the 1×6
+      if (z < 4) add('T', 11, 3, z + 1, 1, 'C'); else { add('U', 11, 3, 0, 1); add('U', 11, 3, 5, 1); }   // clear windshield, a red 1×2 pillar each side  // fastback, windshield
       add('L', 4, 4, z, -1);
     });
     // eight more headlight bricks inside the cabin, on its back and front walls, studs facing in
     [1, 2, 3, 4].forEach(function (z) { add('E', 7, 3, z, 1); add('E', 10, 3, z, -1); });
+    add('X', 5, 3, 0); add('X', 5, 3, 5);                               // the coupe's sides: a 1×6 brick each, under the window
     add('P', 6, 5, 0);                                                  // roof
     [4, 16].forEach(function (x) { [[-.35, -.47], [4.95, 6.35]].forEach(function (zz) {
       add('W', x - 1.5, -1 + .04, zz[0], 1, 'K'); add('H', x - .8, -1 + .625, zz[1], 1, 'G');
@@ -61,27 +65,27 @@
       { k: 'T', x: 8, y: 12, z: 0 }, { k: 'T', x: 10, y: 12, z: 0, d: -1 }, { k: 'L', x: 1, y: 14, z: 0, d: -1 }, { k: 'L', x: 16, y: 14, z: 0 },
       { k: 'L', x: 6, y: 14, z: 0 }, { k: 'L', x: 11, y: 14, z: 0, d: -1 }, { k: 'L', x: 3, y: 15, z: 0, d: -1 }, { k: 'L', x: 14, y: 15, z: 0 },
       { k: 'M', x: 2, y: 9, z: 0 }, { k: 'M', x: 13, y: 11, z: 0 }, { k: 'M', x: 5, y: 6, z: 0 }, { k: 'M', x: 9, y: 4, z: 0 },
-      { k: 'E', x: 2, y: 13, z: 1, t: -Math.PI / 2 }, { k: 'O', x: 2.37, y: 13, z: 1.5175, t: -Math.PI / 2 }, { k: 'E', x: 5, y: 13, z: 1, t: -Math.PI / 2 }, { k: 'O', x: 5.37, y: 13, z: 1.5175, t: -Math.PI / 2 },
-      { k: 'E', x: 4, y: 12, z: 1, t: -Math.PI / 2 }, { k: 'O', x: 4.37, y: 12, z: 1.5175, t: -Math.PI / 2 }, { k: 'E', x: 7, y: 12, z: 1, t: -Math.PI / 2 }, { k: 'O', x: 7.37, y: 12, z: 1.5175, t: -Math.PI / 2 },
-      { k: 'E', x: 12, y: 11, z: 1, t: -Math.PI / 2 }, { k: 'O', x: 12.37, y: 11, z: 1.5175, t: -Math.PI / 2 }, { k: 'E', x: 4, y: 8, z: 1, t: -Math.PI / 2 }, { k: 'E', x: 7, y: 8, z: 1, t: -Math.PI / 2 },
-      { k: 'E', x: 19, y: 11, z: 1, t: -Math.PI / 2 }, { k: 'E', x: 7, y: 3, z: 1, t: -Math.PI / 2 }, { k: 'E', x: 10, y: 3, z: 1, t: -Math.PI / 2 }, { k: 'E', x: 11, y: 6, z: 1, t: -Math.PI / 2 },
-      { k: 'E', x: 14, y: 6, z: 1, t: -Math.PI / 2 }, { k: 'E', x: 8, y: 10, z: 1, t: -Math.PI / 2 }, { k: 'E', x: 13, y: 10, z: 1, t: -Math.PI / 2 }, { k: 'E', x: 10, y: 9, z: 1, t: -Math.PI / 2 },
-      { k: 'E', x: 13, y: 7, z: 1, t: -Math.PI / 2 }, { k: 'P', x: 7, y: 8.3333, z: -3.2, tilt: Math.PI / 2 }, { k: '1', x: 2, y: 7, z: 0 }, { k: '1', x: 1, y: 9, z: 0 },
-      { k: '1', x: 12, y: 12, z: 0 }, { k: '1', x: 17, y: 12, z: 0 }, { k: '2', x: 5, y: 12, z: 0 }, { k: '4', x: 0, y: 11, z: 0 },
-      { k: '4', x: 4, y: 11, z: 0 }, { k: '4', x: 8, y: 11, z: 0 }, { k: '2', x: 3, y: 7, z: 1 }, { k: '2', x: 12, y: 6, z: 1 },
-      { k: '4', x: 11, y: 9, z: 0 }, { k: '4', x: 15, y: 9, z: 1 }, { k: '4', x: 8, y: 8, z: 0 }, { k: '4', x: 12, y: 8, z: 1 },
-      { k: '2', x: 16, y: 8, z: 0 }, { k: '2', x: 9, y: 0, z: 0 }, { k: '1', x: 2, y: 12, z: 0 }, { k: '1', x: 3, y: 12, z: 0 },
-      { k: '2', x: 9, y: 2, z: 1 }, { k: '1', x: 13, y: 5, z: 0 }, { k: '1', x: 14, y: 5, z: 0 }, { k: '2', x: 17, y: 11, z: 0 },
-      { k: '2', x: 4, y: 14, z: 0 }, { k: '2', x: 14, y: 10, z: 1 }, { k: '4', x: 16, y: 10, z: 0 }, { k: '4', x: 12, y: 13, z: 0 },
-      { k: '2', x: 16, y: 13, z: 0 }, { k: '4', x: 5, y: 5, z: 0 }, { k: '2', x: 3, y: 13, z: 1 }, { k: '2', x: 9, y: 6, z: 0 },
-      { k: '2', x: 5, y: 8, z: 0 }, { k: '2', x: 6, y: 13, z: 0 }, { k: '2', x: 7, y: 4, z: 1 }, { k: '2', x: 9, y: 1, z: 0 },
-      { k: '2', x: 6, y: 10, z: 0 }, { k: '2', x: 8, y: 3, z: 0 }, { k: '2', x: 2, y: 8, z: 0 }, { k: '4', x: 6, y: 9, z: 1 },
-      { k: '2', x: 14, y: 14, z: 0 }, { k: '2', x: 11, y: 3, z: 1 }, { k: '2', x: 0, y: 10, z: 0 }, { k: '4', x: 9, y: 10, z: 1 },
-      { k: '4', x: 14, y: 7, z: 0 }, { k: '4', x: 9, y: 7, z: 0 }, { k: 'O', x: 14.37, y: 8.5262, z: 2.0, t: -Math.PI / 2, tilt: -Math.PI / 2 }, { k: 'O', x: 8.37, y: 9.5262, z: 2.0, t: -Math.PI / 2, tilt: -Math.PI / 2 },
-      { k: 'O', x: 10.37, y: 2.5263, z: 2.0, t: -Math.PI / 2, tilt: -Math.PI / 2 }] } };
+      { k: 'X', x: 12, y: 10, z: 1 }, { k: 'X', x: 6, y: 8, z: 1 }, { k: 'X', x: 9, y: 6, z: 1 }, { k: 'X', x: 7, y: 3, z: 1 },
+      { k: 'E', x: 11, y: 7, z: 1, t: -Math.PI / 2 }, { k: 'O', x: 11.37, y: 7, z: 1.5175, t: -Math.PI / 2 }, { k: 'E', x: 5, y: 5, z: 1, t: -Math.PI / 2 }, { k: 'O', x: 5.37, y: 5, z: 1.5175, t: -Math.PI / 2 },
+      { k: 'E', x: 8, y: 5, z: 1, t: -Math.PI / 2 }, { k: 'O', x: 8.37, y: 5, z: 1.5175, t: -Math.PI / 2 }, { k: 'E', x: 4, y: 12, z: 1, t: -Math.PI / 2 }, { k: 'O', x: 4.37, y: 12, z: 1.5175, t: -Math.PI / 2 },
+      { k: 'E', x: 7, y: 12, z: 1, t: -Math.PI / 2 }, { k: 'O', x: 7.37, y: 12, z: 1.5175, t: -Math.PI / 2 }, { k: 'E', x: 12, y: 13, z: 1, t: -Math.PI / 2 }, { k: 'E', x: 17, y: 13, z: 1, t: -Math.PI / 2 },
+      { k: 'E', x: 5, y: 8, z: 1, t: -Math.PI / 2 }, { k: 'E', x: 16, y: 8, z: 1, t: -Math.PI / 2 }, { k: 'E', x: 2, y: 7, z: 1, t: -Math.PI / 2 }, { k: 'E', x: 12, y: 11, z: 1, t: -Math.PI / 2 },
+      { k: 'E', x: 6, y: 10, z: 1, t: -Math.PI / 2 }, { k: 'E', x: 11, y: 10, z: 1, t: -Math.PI / 2 }, { k: 'E', x: 8, y: 9, z: 1, t: -Math.PI / 2 }, { k: 'E', x: 19, y: 9, z: 1, t: -Math.PI / 2 },
+      { k: 'E', x: 19, y: 11, z: 1, t: -Math.PI / 2 }, { k: 'P', x: 7, y: 8.3333, z: -3.2, tilt: Math.PI / 2 }, { k: '1', x: 12, y: 12, z: 0 }, { k: '1', x: 17, y: 12, z: 0 },
+      { k: '2', x: 9, y: 0, z: 0 }, { k: '2', x: 9, y: 1, z: 0 }, { k: '2', x: 9, y: 2, z: 0 }, { k: '2', x: 7, y: 4, z: 1 },
+      { k: '2', x: 6, y: 5, z: 0 }, { k: '2', x: 13, y: 5, z: 0 }, { k: '2', x: 3, y: 7, z: 1 }, { k: '1', x: 9, y: 7, z: 0 },
+      { k: '1', x: 10, y: 7, z: 0 }, { k: '1', x: 12, y: 7, z: 0 }, { k: '1', x: 13, y: 7, z: 0 }, { k: '4', x: 14, y: 7, z: 0 },
+      { k: '4', x: 1, y: 8, z: 0 }, { k: '4', x: 12, y: 8, z: 0 }, { k: '2', x: 17, y: 8, z: 0 }, { k: '2', x: 0, y: 9, z: 0 },
+      { k: '2', x: 6, y: 9, z: 0 }, { k: '4', x: 9, y: 9, z: 0 }, { k: '4', x: 13, y: 9, z: 0 }, { k: '2', x: 17, y: 9, z: 0 },
+      { k: '2', x: 0, y: 10, z: 0 }, { k: '4', x: 7, y: 10, z: 1 }, { k: '2', x: 18, y: 10, z: 0 }, { k: '4', x: 0, y: 11, z: 0 },
+      { k: '4', x: 4, y: 11, z: 0 }, { k: '4', x: 8, y: 11, z: 0 }, { k: '2', x: 17, y: 11, z: 0 }, { k: '2', x: 2, y: 12, z: 0 },
+      { k: '2', x: 5, y: 12, z: 0 }, { k: '2', x: 2, y: 13, z: 0 }, { k: '4', x: 4, y: 13, z: 0 }, { k: '4', x: 13, y: 13, z: 0 },
+      { k: '1', x: 4, y: 14, z: 0 }, { k: '1', x: 5, y: 14, z: 0 }, { k: '1', x: 14, y: 14, z: 0 }, { k: '1', x: 15, y: 14, z: 0 },
+      { k: 'O', x: 8.37, y: 10.5262, z: 2.0, t: -Math.PI / 2, tilt: -Math.PI / 2 }, { k: 'O', x: 7.37, y: 4.5263, z: 2.0, t: -Math.PI / 2, tilt: -Math.PI / 2 }, { k: 'O', x: 3.37, y: 7.5263, z: 2.0, t: -Math.PI / 2, tilt: -Math.PI / 2 }, { k: 'X', x: 13, y: 9, z: 2 },
+      { k: 'X', x: 2, y: 13, z: 2 }, { k: 'X', x: 1, y: 11, z: 2 }, { k: 'X', x: 12, y: 7, z: 2 }] } };
   var LOOP = ['car', 'heart'];
   var NAMES = LOOP;
-  var KINDS = ['1', '2', '4', 'L', 'J', 'E', 'P', 'M', 'W', 'H', 'U', 'O', 'T'];   // T is clear: drawn last
+  var KINDS = ['1', '2', '4', 'X', 'L', 'J', 'E', 'P', 'M', 'W', 'H', 'U', 'O', 'T'];   // T is clear: drawn last
 
   function hex(h) { return [parseInt(h.slice(1, 3), 16) / 255, parseInt(h.slice(3, 5), 16) / 255, parseInt(h.slice(5, 7), 16) / 255]; }
   function colors() {
@@ -155,10 +159,10 @@
              cx, y + h, cz, 0, 1, 0, x1, y + h, z1, 0, 1, 0, x0, y + h, z0, 0, 1, 0);
     }
   }
-  function brickMesh(n) {
-    var v = [], g = .03;
-    box(v, g, .03, g, n - g, H, 2 - g);
-    for (var i = 0; i < n; i++) for (var j = 0; j < 2; j++) stud(v, i + .5, H, j + .5);
+  function brickMesh(n, deep) {
+    var v = [], g = .03; deep = deep || 2;
+    box(v, g, .03, g, n - g, H, deep - g);
+    for (var i = 0; i < n; i++) for (var j = 0; j < deep; j++) stud(v, i + .5, H, j + .5);
     return new Float32Array(v);
   }
   // a prism: a convex profile in x–y (counter-clockwise seen from +z), pulled from z0 to z1
@@ -285,7 +289,7 @@
   var plate = mesh(plateMesh(), 1);
   var KIND = {
     '1': { mesh: brickMesh(1), ctr: [.5, H / 2, 1] }, '2': { mesh: brickMesh(2), ctr: [1, H / 2, 1] },
-    '4': { mesh: brickMesh(4), ctr: [2, H / 2, 1] },
+    '4': { mesh: brickMesh(4), ctr: [2, H / 2, 1] }, 'X': { mesh: brickMesh(6, 1), ctr: [3, H / 2, .5] },
     // slope 33° 3×2: one stud row high, falling over two studs to a lip
     'L': { mesh: prismMesh([[.03, .03], [2.97, .03], [2.97, .3], [1, H], [.03, H]], [[.5, H]]), ctr: [1.5, H / 2, 1] },
     // tall slope 2×2×2 (the windshield)
