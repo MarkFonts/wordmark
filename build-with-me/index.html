@@ -140,15 +140,15 @@ section.collage { padding-block: 60px 72px; overflow: clip; }
   transform: rotate(var(--r)) translateY(var(--y, 0)); transition: transform .25s cubic-bezier(.2,.8,.2,1);
   position: relative;
 }
-.collage figure:first-child { z-index: 3; }
-.collage figure:nth-child(2), .collage figure:nth-child(3) { z-index: 2; }   /* dated prints sit above the undated */
+.collage figure:first-child { z-index: 4; }
+.collage figure:nth-child(2) { z-index: 3; } .collage figure:nth-child(3) { z-index: 2; }   /* dated prints sit above the undated */
 .collage figure:nth-child(n+2) figcaption { left: auto; right: 9px; }   /* nothing lies over it: its right edge is the build */
 .collage figcaption {
   position: absolute; left: 9px; bottom: 5px; font-size: 12px; line-height: 15px; color: #6b665c;
   font-feature-settings: 'tnum' 1; letter-spacing: .02em;
 }
-.collage figure:hover { transform: rotate(0deg) translateY(-6px) scale(1.04); z-index: 4; }
-.collage img { display: block; height: clamp(140px, 19vw, 300px); width: auto; border-radius: 1px; }
+.collage figure:hover { transform: rotate(0deg) translateY(-6px) scale(1.04); z-index: 5; }
+.collage img { display: block; height: clamp(130px, 16.5vw, 300px); width: auto; border-radius: 1px; }
 @media (max-width: 680px) {
   .collage .prints { flex-wrap: wrap; row-gap: 0; }
   .collage figure { margin: -10px -6px; padding: 5px 5px 18px; }
@@ -249,7 +249,6 @@ footer a:hover { color: var(--text); }
     <figure style="--r:3deg; --y:-4px"><img src="photo-white-figure.jpg" width="600" height="800" loading="lazy" alt="A slim white brick-built figure with a sword and a round shield, on a shelf."></figure>
     <figure style="--r:-3deg; --y:8px"><img src="photo-black-figure.jpg" width="600" height="800" loading="lazy" alt="A tall black and silver brick-built figure with claws and a blaster."></figure>
     <figure style="--r:2deg; --y:-8px"><img src="photo-mech-and-truck.jpg" width="800" height="683" loading="lazy" alt="A grey brick-built walking machine reaching a claw toward a yellow brick-built truck."></figure>
-    <figure style="--r:-2.5deg; --y:4px"><img src="photo-shelf.jpg" width="600" height="800" loading="lazy" alt="A shelf crowded with brick-built robots and a model museum."></figure>
   </div>
 </section>
 
