@@ -6,7 +6,7 @@ const wait = (ms) => new Promise((done) => setTimeout(done, ms));
   const p = await b.newPage();
   await p.setViewport({ width: 1440, height: 900, deviceScaleFactor: 2 });
   p.on('console', (m) => { if (m.type() === 'error') console.log('console error:', m.text().slice(0, 200)); });
-  await p.emulateMediaFeatures([{ name: 'prefers-color-scheme', value: 'dark' }]);
+  await p.emulateMediaFeatures([{ name: 'prefers-color-scheme', value: process.argv[5] || 'dark' }]);
   await p.goto('http://localhost:8824/gliffdiff/', { waitUntil: 'networkidle0' });
   const inputs = await p.$$eval('input[type=file]', (els) => els.map((e) => ({ id: e.id, name: e.name, accept: e.accept, multiple: e.multiple, cls: e.className })));
   console.log(JSON.stringify(inputs));
@@ -24,8 +24,9 @@ const wait = (ms) => new Promise((done) => setTimeout(done, ms));
   await wait(4000);
   await p.mouse.move(1070, 566, { steps: 8 });   // hover the lowercase a
   await wait(1500);
+  console.log('theme', await p.evaluate(() => document.documentElement.getAttribute('data-theme') + ' | ' + document.documentElement.className + ' | ' + getComputedStyle(document.body).backgroundColor));
   console.log('--- after');
   console.log((await p.evaluate(() => document.body.innerText)).slice(0, 900));
-  await p.screenshot({ path: process.argv[4], clip: { x: 266, y: 0, width: 757, height: 900 } });   // the comparison, same shape as the page's proof print
+  await p.screenshot({ path: process.argv[4] });   // the whole window
   await b.close();
 })().catch((e) => { console.log('ERR', e.message); process.exit(1); });
