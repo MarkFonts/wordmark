@@ -2,7 +2,7 @@
 Grid: 1 stud wide = 20, 1 brick tall = 24. Every piece is 2 studs deep unless noted (headlight brick, 1x6, half slopes: front row only)."""
 import random, sys
 
-SET = {'8': 2, '6': 2, '4': 5, '2': 18, '1': 6, 'X': 2, 'E': 18, 'M': 4, 'J': 6, 'L': 6, 'T': 2, 'U': 2}
+SET = {'4': 11, '2': 20, '1': 6, 'X': 2, 'E': 18, 'M': 4, 'J': 6, 'L': 6, 'T': 2, 'U': 2}
 
 SHAPES = {
  'R': """
@@ -51,6 +51,52 @@ SHAPES = {
 ######.......######
 ######.......######
 .#####.......#####.
+""",
+ 'H light': """
+.##..........##.
+#####......#####
+#####......#####
+#####......#####
+#####......#####
+#####......#####
+################
+################
+################
+#####......#####
+#####......#####
+#####......#####
+#####......#####
+.###........###.
+""",
+ 'n light': """
+#####..#######...
+################.
+#################
+######.....######
+#####.......#####
+#####.......#####
+#####.......#####
+#####.......#####
+#####.......#####
+#####.......#####
+#####.......#####
+#####.......#####
+.####.......####.
+""",
+ 'a': """
+...########..#####
+.#################
+##################
+######......######
+#####.......######
+#####.......######
+#####.......######
+#####.......######
+#####.......######
+######......######
+##################
+.#################
+...########..#####
 """,
  'C': """
 ....###########....
@@ -114,7 +160,7 @@ def solve(name, seed):
     if nM < 4: return None
     # long bricks
     rows_used = []
-    for kind, n, lay in [('8', 8, 'both'), ('8', 8, 'both'), ('6', 6, 'both'), ('6', 6, 'both'), ('X', 6, 'front'), ('X', 6, 'front')]:
+    for kind, n, lay in [('X', 6, 'front'), ('X', 6, 'front')]:
         ok = False
         for _ in range(600):
             r = random.randint(0, H - 1); x = random.randint(0, W - n)
@@ -156,10 +202,10 @@ def solve(name, seed):
             else: tiles.append(('1', a + n - 1, r)); segs.append([r, a, n - 1])
         else: segs.append([r, a, n])
     S = sum(q[2] for q in segs); cap = [q[2] // 4 for q in segs]; best = None
-    for nf in range(min(5, sum(cap)), -1, -1):
+    for nf in range(min(SET['4'], sum(cap)), -1, -1):
         for p in range(0, (6 - odd) // 2 + 1):
             t = (S - 4 * nf - 2 * p) / 2
-            if t == int(t) and 0 <= t <= 18: best = (nf, int(t), p); break
+            if t == int(t) and 0 <= t <= SET['2']: best = (nf, int(t), p); break
         if best: break
     if not best: return None
     nf, t, p = best
@@ -224,7 +270,7 @@ def draw(sol, X0, Y0, layer):
 
 def main():
     out = []; y = 150; maxw = 0
-    for name in ['R', 'H', 'n', 'C']:
+    for name in ['a', 'R', 'H', 'H light', 'n', 'n light', 'C']:
         sol = None
         for seed in range(1, 4000):
             sol = solve(name, seed)
@@ -234,17 +280,17 @@ def main():
         print(name, 'seed', sol['seed'], 'spare', sol['spare'])
         for r in range(H - 1, -1, -1): print('  ' + ''.join(sol['occ'].get((x, r), ' ') for x in range(W)))
         pw = W * 20; xf, xb = 150, 150 + pw + 80
-        out.append('<g id="%s">' % name)
-        out.append('<text x="40" y="%d" font-family="Helvetica" font-size="72" font-weight="bold" fill="#111">%s</text>' % (y + 70, name))
+        out.append('<g id="%s">' % name.replace(' ', '-'))
+        out.append('<text x="40" y="%d" font-family="Helvetica" font-size="72" font-weight="bold" fill="#111">%s</text>' % (y + 70, name[0]) + ('<text x="40" y="%d" font-family="Helvetica" font-size="12" fill="#555">light</text>' % (y + 92) if 'light' in name else ''))
         out.append('<text x="%d" y="%d" font-family="Helvetica" font-size="11" fill="#555">FRONT ROW</text><text x="%d" y="%d" font-family="Helvetica" font-size="11" fill="#555">BACK ROW</text>' % (xf, y - 12, xb, y - 12))
-        out.append('<g id="%s-front">%s</g><g id="%s-back">%s</g>' % (name, draw(sol, xf, y, 'front'), name, draw(sol, xb, y, 'back')))
+        out.append('<g>%s</g><g>%s</g>' % (draw(sol, xf, y, 'front'), draw(sol, xb, y, 'back')))
         sp = ', '.join('%d × %s' % (v, {'8': '2×8', '6': '2×6', '4': '2×4', '2': '2×2', '1': '1×2', 'X': '1×6', 'E': 'headlight brick', 'J': 'inverted slope', 'L': 'slope 3×2', 'T': 'clear slope', 'U': 'half slope', 'M': 'mudguard'}[k]) for k, v in sol['spare'].items()) or 'none'
         out.append('<text x="%d" y="%d" font-family="Helvetica" font-size="12" fill="#111">%d studs wide × %d bricks tall. Left over from the set: %s</text>' % (xf, y + H * 24 + 22, W, H, sp))
         out.append('</g>')
         maxw = max(maxw, xb + pw); y += H * 24 + 110
-    legend = [(C_BRICK, 'brick, 2 deep'), (C_LONG, '2×6, 2×8, 1×6'), (C_HEAD, 'headlight brick, front row only'), (C_SLOPE, 'slope or inverted slope'), (C_CLEAR, 'clear windshield slope'), (C_MUD, 'mudguard')]
+    legend = [(C_BRICK, 'brick, 2 deep'), (C_LONG, '1×6, front row only'), (C_HEAD, 'headlight brick, front row only'), (C_SLOPE, 'slope or inverted slope'), (C_CLEAR, 'clear windshield slope'), (C_MUD, 'mudguard')]
     lg = ''.join('<rect x="%d" y="62" width="22" height="14" fill="%s" stroke="%s"/><text x="%d" y="74" font-family="Helvetica" font-size="12" fill="#111">%s</text>' % (40 + i * 215, c, INK, 68 + i * 215, t) for i, (c, t) in enumerate(legend))
-    head = ('<text x="40" y="34" font-family="Helvetica" font-size="20" font-weight="bold" fill="#111">build-with-me: letter candidates from the car’s pieces</text>'
+    head = ('<text x="40" y="34" font-family="Helvetica" font-size="20" font-weight="bold" fill="#111">build-with-me: letter candidates from the car’s pieces (set without 2×6 and 2×8)</text>'
             '<text x="40" y="52" font-family="Helvetica" font-size="12" fill="#555">Side on, 1 stud = 20 wide, 1 brick = 24 tall. Two layers per letter. Dashed boxes in the back row are empty: the piece in front is only one stud deep. Wheels roll away; light plates and the roof plate are not drawn.</text>')
     Wd = max(maxw + 60, 1340)
     svg = '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 %d %d" width="%d" height="%d"><rect width="100%%" height="100%%" fill="#fff"/>%s%s%s</svg>' % (Wd, y, Wd, y, head, lg, ''.join(out))
