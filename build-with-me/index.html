@@ -134,28 +134,30 @@ section.hero { border-top: 0; }
 
 /* the one divider that is a collage: prints dropped on a table, oldest first */
 section.collage { padding-block: 60px 72px; overflow: clip; }
-.collage .prints { grid-column: 1 / -1; display: flex; flex-wrap: wrap; justify-content: center; align-items: center; }
+.collage .prints { grid-column: 1 / -1; display: flex; flex-wrap: wrap; justify-content: center; align-items: center; position: relative; }   /* one pile: the prints overlap, and the drift below opens them up */
 .collage figure {
   flex: none; margin: -14px -1.2%; padding: 7px 7px 26px; background: #f4f1ea; border-radius: 3px;
   box-shadow: 0 1px 0 rgba(0,0,0,.25), 0 14px 36px rgba(0,0,0,.38);
-  /* each print drifts a little with the pointer and with the scroll, by its own depth (--d, px): script at the end sets --px, --py, --s */
-  --tx: calc(var(--px, 0) * var(--d, 10) * 1px); --ty: calc(var(--y, 0px) + (var(--py, 0) + var(--s, 0) * 1.6) * var(--d, 10) * 1px);
+  /* each print drifts with the pointer and the scroll by its own depth (--d, px): the big ones are near and move most. The script at the end sets --px, --py, --s */
+  --tx: calc(var(--px, 0) * var(--d, 10) * -3.4px); --ty: calc((var(--py, 0) * -.5 + var(--s, 0) * .9) * var(--d, 10) * 1px);
   transform: translate3d(var(--tx), var(--ty), 0) rotate(var(--r)); transition: transform .35s cubic-bezier(.2,.8,.2,1);
   position: relative;
 }
 /* each print lies over the next, so no right edge (the 1995 build, every year) is covered */
-.collage figure:nth-child(1) { z-index: 6; }
-.collage figure:nth-child(2) { z-index: 5; }
-.collage figure:nth-child(3) { z-index: 4; }
-.collage figure:nth-child(4) { z-index: 3; }
-.collage figure:nth-child(5) { z-index: 2; }
-.collage figure:nth-child(6) { z-index: 1; }
+.collage figure:nth-child(1) { z-index: 8; }
+.collage figure:nth-child(2) { z-index: 7; }
+.collage figure:nth-child(3) { z-index: 6; }
+.collage figure:nth-child(4) { z-index: 5; }
+.collage figure:nth-child(5) { z-index: 4; }
+.collage figure:nth-child(6) { z-index: 3; }
+.collage figure:nth-child(7) { z-index: 2; }
+.collage figure:nth-child(8) { z-index: 1; }
 .collage figure:nth-child(n+2) figcaption { left: auto; right: 9px; }   /* nothing lies over it: its right edge is the build */
 .collage figcaption {
   position: absolute; left: 9px; bottom: 5px; font-size: 12px; line-height: 15px; color: #6b665c;
   font-feature-settings: 'tnum' 1; letter-spacing: .02em;
 }
-.collage figure:hover { transform: translate3d(var(--tx), calc(var(--ty) - 6px), 0) rotate(0deg) scale(1.04); z-index: 9; }
+.collage figure:hover { transform: translate3d(var(--tx), calc(var(--ty) - 6px), 0) rotate(0deg) scale(1.04); z-index: 12; }
 .collage img { display: block; height: clamp(130px, 16.5vw, 300px); width: auto; border-radius: 1px; }
 @media (max-width: 680px) {
   .collage .prints { flex-wrap: wrap; row-gap: 0; }
@@ -164,7 +166,15 @@ section.collage { padding-block: 60px 72px; overflow: clip; }
   .collage figure:nth-child(n+2) figcaption { right: 6px; }
   .collage img { height: 38vw; }
 }
-@media (prefers-reduced-motion: reduce) { .collage figure { transition: none; --tx: 0px; --ty: var(--y, 0px); } }
+/* from tablet up the prints are scattered, some big and some small, instead of standing in a row */
+@media (min-width: 681px) {
+  /* wider than the page: the page edges crop the outer prints, and moving the pointer pans them into view */
+  .collage .prints { display: block; height: clamp(340px, 40vw, 600px); margin-inline: calc(-1 * var(--margin) - 7vw); }
+  .collage .prints figure { position: absolute; left: var(--x); top: var(--t); margin: 0; z-index: var(--z); }
+  .collage .prints figure:hover { z-index: 60; }
+  .collage .prints img { height: calc(clamp(340px, 40vw, 600px) * var(--h)); }
+}
+@media (prefers-reduced-motion: reduce) { .collage figure { transition: none; --tx: 0px; --ty: 0px; } }
 
 /* every reason: roll over the block and its proof pops up as a print in the gap by the numeral */
 .reason--pop { position: relative; }
@@ -274,11 +284,16 @@ footer a:hover { color: var(--text); }
   </div>
 </section>
 
-<section class="collage grid" aria-label="Photos: building, 1995 to 2001">
+<section class="collage grid" aria-label="Photos: thirty years of building">
   <div class="prints">
-    <figure style="--d:7; --r:-4deg; --y:6px"><img src="photo-first-builds.jpg" width="658" height="800" loading="lazy" alt="A boy sitting on the carpet with his dad, building instructions on the floor and a white brick-built machine on the table beside them, 1995."><figcaption>1995</figcaption></figure>
-    <figure style="--d:14; --r:2.5deg; --y:-10px"><img src="photo-explorer-2001.jpg" width="900" height="689" loading="lazy" alt="A blue and white brick-built spaceship with three engines firing, flying over a sandy crater: a picture from a book made in 2001."><figcaption>2001</figcaption></figure>
-    <figure style="--d:9; --r:-2deg; --y:10px"><img src="drawing-exploded-2001.jpg" width="785" height="900" loading="lazy" alt="A hand-drawn exploded diagram of a brick-built vehicle: grey hull pieces, a long yellow plate, small yellow bricks, and wheels, with arrows showing where each one goes, 2001."><figcaption>2001</figcaption></figure>
+    <figure style="--x:0%; --t:6%; --h:0.62; --d:34; --z:34; --r:-4deg"><img src="photo-first-builds.jpg" width="658" height="800" loading="lazy" alt="A boy sitting on the carpet with his dad, building instructions on the floor and a white brick-built machine on the table beside them, 1995."><figcaption>1995</figcaption></figure>
+    <figure style="--x:22%; --t:40%; --h:0.5; --d:30; --z:30; --r:2.5deg"><img src="photo-explorer-2001.jpg" width="900" height="689" loading="lazy" alt="A blue and white brick-built spaceship with three engines firing, flying over a sandy crater: a picture from a book made in 2001."><figcaption>2001</figcaption></figure>
+    <figure style="--x:27%; --t:0%; --h:0.4; --d:18; --z:18; --r:-2deg"><img src="drawing-exploded-2001.jpg" width="785" height="900" loading="lazy" alt="A hand-drawn exploded diagram of a brick-built vehicle: grey hull pieces, a long yellow plate, small yellow bricks, and wheels, with arrows showing where each one goes, 2001."><figcaption>2001</figcaption></figure>
+    <figure style="--x:46%; --t:8%; --h:0.3; --d:9; --z:9; --r:3deg"><img src="moc-dino-2005.jpg" width="640" height="640" loading="lazy" alt="A red brick-built dinosaur with blue legs, 2005."><figcaption>2005</figcaption></figure>
+    <figure style="--x:52%; --t:50%; --h:0.34; --d:11; --z:11; --r:-3deg"><img src="moc-robot-2006.jpg" width="597" height="640" loading="lazy" alt="A white and black brick-built robot raising one arm, 2006."><figcaption>2006</figcaption></figure>
+    <figure style="--x:61%; --t:3%; --h:0.41; --d:20; --z:20; --r:2deg"><img src="photo-mech-and-truck.jpg" width="800" height="683" loading="lazy" alt="A grey brick-built walking machine reaching a claw toward a yellow brick-built truck."><figcaption>2014 · 2021</figcaption></figure>
+    <figure style="--x:78%; --t:28%; --h:0.66; --d:36; --z:36; --r:-2.5deg"><img src="photo-black-figure.jpg" width="600" height="800" loading="lazy" alt="A tall black and silver brick-built figure with claws and a blaster."><figcaption>2022</figcaption></figure>
+    <figure style="--x:67%; --t:56%; --h:0.36; --d:13; --z:13; --r:3deg"><img src="photo-white-figure.jpg" width="600" height="800" loading="lazy" alt="A slim white brick-built figure with a sword and a round shield, on a shelf."><figcaption>2023</figcaption></figure>
   </div>
 </section>
 
@@ -313,13 +328,6 @@ footer a:hover { color: var(--text); }
   </div>
 </section>
 
-<section class="collage grid" aria-label="Photos: building, 2005 and 2006">
-  <div class="prints">
-    <figure style="--d:15; --r:2.5deg; --y:-10px"><img src="moc-dino-2005.jpg" width="640" height="640" loading="lazy" alt="A red brick-built dinosaur with blue legs, 2005."><figcaption>2005</figcaption></figure>
-    <figure style="--d:10; --r:-2deg; --y:12px"><img src="moc-robot-2006.jpg" width="597" height="640" loading="lazy" alt="A white and black brick-built robot raising one arm, 2006."><figcaption>2006</figcaption></figure>
-  </div>
-</section>
-
 <section class="reason reason--pop grid">
   <div class="numeral" aria-hidden="true">4</div>
   <figure class="pop-print"><a href="/gliffdiff/" target="_blank" rel="noopener"><picture><source media="(prefers-color-scheme: light)" srcset="proof-gliffdiff-light.jpg?v=3"><img src="proof-gliffdiff.jpg?v=3" width="1440" height="900" loading="lazy" alt="GliffDiff comparing glyphs: the lowercase a of Times New Roman overlaid on Newsreader’s, with each face’s vertical metrics as dashed lines, beside a grid of every glyph to pick from."></picture></a><figcaption>GliffDiff</figcaption></figure>
@@ -337,14 +345,6 @@ footer a:hover { color: var(--text); }
     <h2>Paid for once, free for everyone after</h2>
     <p>Open does not mean unpaid. A company commissions a typeface because it needs one; that commission pays for the drawing. The license then hands the result to everybody else.</p>
     <p><b>The client gets a typeface the whole world helps carry.</b> It turns up in other people’s products, tutorials, and templates, with the client’s name on it. No ad buy does that.</p>
-  </div>
-</section>
-
-<section class="collage grid" aria-label="Photos: building, 2014 to 2023">
-  <div class="prints">
-    <figure style="--d:16; --r:3deg; --y:-4px"><img src="photo-mech-and-truck.jpg" width="800" height="683" loading="lazy" alt="A grey brick-built walking machine reaching a claw toward a yellow brick-built truck."><figcaption>2014 · 2021</figcaption></figure>
-    <figure style="--d:9; --r:-3deg; --y:8px"><img src="photo-black-figure.jpg" width="600" height="800" loading="lazy" alt="A tall black and silver brick-built figure with claws and a blaster."><figcaption>2022</figcaption></figure>
-    <figure style="--d:13; --r:2deg; --y:-8px"><img src="photo-white-figure.jpg" width="600" height="800" loading="lazy" alt="A slim white brick-built figure with a sword and a round shield, on a shelf."><figcaption>2023</figcaption></figure>
   </div>
 </section>
 
@@ -376,7 +376,7 @@ footer a:hover { color: var(--text); }
 
 <div id="moc-pop" aria-hidden="true"><img alt="" width="640" height="480"><span></span></div>
 <script>
-/* the photo prints drift with the pointer (x and y) and with the scroll, each by its own depth */
+/* the photo prints drift with the pointer (x and y) and with the scroll, each by its own depth: big prints most, small ones least */
 (function () {
   var secs = [].slice.call(document.querySelectorAll('section.collage'));
   if (!secs.length || matchMedia('(prefers-reduced-motion: reduce)').matches) return;
