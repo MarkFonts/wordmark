@@ -18,12 +18,12 @@ for r,x in [(1,7),(3,5),(5,3)]:
     take([(x,r+1),(x+1,r+1),(x+1,r)],'J'); P.append(('J',x,r,0,-1))
     xm=mir(x,2); take([(xm,r+1),(xm+1,r+1),(xm,r)],'J'); P.append(('J',xm,r,0,1))
 # shoulders: U (front row only) outside, clear T at the cleft
-take([(0,12),(1,12),(1,13)],'U'); P.append(('U',0,12,1,-1))
-take([(18,12),(19,12),(18,13)],'U'); P.append(('U',18,12,1,1))
+take([(1,12),(2,12),(2,13)],'U'); P.append(('U',1,12,1,-1))
+take([(17,12),(18,12),(17,13)],'U'); P.append(('U',17,12,1,1))
 take([(8,12),(9,12),(8,13)],'T'); P.append(('T',8,12,0,1))
 take([(10,12),(11,12),(11,13)],'T'); P.append(('T',10,12,0,-1))
 # L slopes on the lobes
-for x,r,d in [(1,14,-1),(6,14,1),(3,15,-1)]:
+for x,r,d in [(2,14,-1),(6,14,1),(3,15,-1)]:
     take([(x+i,r) for i in range(3)],'L'); P.append(('L',x,r,0,d))
     xm=mir(x,3); take([(xm+i,r) for i in range(3)],'L'); P.append(('L',xm,r,0,-d))
 # mudguards with a 1x2 on each wing
@@ -56,19 +56,19 @@ LIT=set()
 picks=[]
 free=[c for c,v in occ.items() if v=='.' and 1<=c[1]<=13]
 for _ in range(3000):
-    if len(picks)==16: break
+    if len(picks)==8: break
     c=random.choice(free)
     if all(abs(c[0]-p[0])+abs(c[1]-p[1])>2 for p in picks): picks.append(c)
-if len(picks)!=16: print('picks',len(picks)); sys.exit(3)
+if len(picks)!=8: print('picks',len(picks)); sys.exit(3)
 for x,r in picks:
     take([(x,r)],'E'); P.append(('E',x,r,1,'z'))
     if len(LIT)<5: LIT.add((x,r)); P.append(('O',x+.37,r,1.5175,'z'))
 P.append(('P',7,6+2.8/1.2,-3.2,'tilt'))
 plain=sum(1 for v in occ.values() if v=='.')
-print('plain cells',plain,'need',70)
+print('plain cells',plain,'need',62)
 for r in range(15,-1,-1): print('%2d '%r+''.join(occ.get((x,r),' ') for x in range(W)))
-if plain!=70: sys.exit(3)
-need={4:1,2:20,1:26}
+if plain!=62: sys.exit(3)
+need={4:1,2:19,1:20}
 runs=[]
 for r in range(16):
     x=0
@@ -82,7 +82,7 @@ random.seed(SEED)
 best=None
 odd=sum(1 for r,a,n in runs if n%2)
 print('odd runs',odd)
-if odd>26 or (26-odd)%2: sys.exit(3)
+if odd>20 or (20-odd)%2: sys.exit(3)
 for attempt in range(4000):
     left=dict(need); out=[]; ok=True
     segs=[]
