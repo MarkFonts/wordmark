@@ -260,10 +260,30 @@
     for (i = 0; i < 4; i++) for (j = 0; j < 2; j++) stud(v, i + .5, top, j + .5);
     return new Float32Array(v);
   }
+  // a tube along y (outer wall, inner wall, top rim), turned onto another axis like cyl
+  function tube(v, cx, y, cz, R, r, h, S, axis) {
+    var st = v.length, i;
+    for (i = 0; i < S; i++) {
+      var a0 = i / S * 6.2832, a1 = (i + 1) / S * 6.2832, am = (a0 + a1) / 2, c0 = Math.cos(a0), s0 = Math.sin(a0), c1 = Math.cos(a1), s1 = Math.sin(a1);
+      var nx = Math.cos(am), nz = Math.sin(am), t = y + h;
+      var X0 = cx + c0 * R, Z0 = cz + s0 * R, X1 = cx + c1 * R, Z1 = cz + s1 * R, x0 = cx + c0 * r, z0 = cz + s0 * r, x1 = cx + c1 * r, z1 = cz + s1 * r;
+      v.push(X0, y, Z0, nx, 0, nz, X0, t, Z0, nx, 0, nz, X1, t, Z1, nx, 0, nz, X0, y, Z0, nx, 0, nz, X1, t, Z1, nx, 0, nz, X1, y, Z1, nx, 0, nz,   // outside
+             x0, y, z0, -nx, 0, -nz, x1, t, z1, -nx, 0, -nz, x0, t, z0, -nx, 0, -nz, x0, y, z0, -nx, 0, -nz, x1, y, z1, -nx, 0, -nz, x1, t, z1, -nx, 0, -nz, // inside
+             x0, t, z0, 0, 1, 0, X1, t, Z1, 0, 1, 0, X0, t, Z0, 0, 1, 0, x0, t, z0, 0, 1, 0, x1, t, z1, 0, 1, 0, X1, t, Z1, 0, 1, 0);                    // rim
+    }
+    for (i = st; i < v.length; i += 3) {
+      var X = v[i], Y = v[i + 1], Z = v[i + 2];
+      if (axis === 'z') { v[i] = Z; v[i + 1] = X; v[i + 2] = Y; } else if (axis === 'x') { v[i] = Y; v[i + 1] = Z; v[i + 2] = X; }
+    }
+  }
+  // headlight brick, low-poly: recessed front face with a lip at the foot and a hollow stud; a square hole in the back
   function headlightMesh() {
-    var v = [], g = .03;
-    box(v, g, .03, g, .89, H, 1 - g); box(v, .89, .03, g, 1 - g, .2, 1 - g); stud(v, .5, H, .5);   // recessed face, a lip at the foot
-    cyl(v, .5, .89, .58 * H, .3, .2, 8, 'x');                                              // the side stud
+    var v = [], g = .03, d = .3, y0 = .38, y1 = .98, z0 = .22, z1 = .78;   // the back hole: d deep, y0..y1 by z0..z1
+    box(v, g + d, .03, g, .89, H, 1 - g);                                  // body, in front of the hole
+    box(v, g, .03, g, g + d, y0, 1 - g); box(v, g, y1, g, g + d, H, 1 - g);   // the hole's frame: below, above,
+    box(v, g, y0, g, g + d, y1, z0); box(v, g, y0, z1, g + d, y1, 1 - g);     // and the two sides
+    box(v, .89, .03, g, 1 - g, .2, 1 - g); stud(v, .5, H, .5);             // lip at the foot, stud on top
+    tube(v, .5, .89, .58 * H, .3, .17, .2, 6, 'x');                        // the hollow side stud
     return new Float32Array(v);
   }
   function lightMesh() { var v = []; cyl(v, .5, 0, .58 * H, .4, .255, 12, 'x'); return new Float32Array(v); }
