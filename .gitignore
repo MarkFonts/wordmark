@@ -21,3 +21,6 @@ fonts/Matter*
 
 # og:video render scratch (cal-sans/og/render.cjs)
 cal-sans/og/.frames/
+
+# local scratch: working files, originals, renders. Never published.
+_scratch/
