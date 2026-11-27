@@ -46,13 +46,40 @@
       add('L', 4, 4, z, -1);
     });
     add('P', 6, 5, 0);                                                  // roof
-    [4, 16].forEach(function (x) { [[-.5, -.62], [5.1, 6.5]].forEach(function (zz) {
+    [4, 16].forEach(function (x) { [[-1.1, -1.22], [6, 7.1]].forEach(function (zz) {
       add('W', x - 1.5, -1 + .04, zz[0], 1, 'K'); add('H', x - .8, -1 + .625, zz[1], 1, 'G');
     }); });
     return p;
   }
-  var MODELS = { car: { w: 20, slots: 3, lift: 1, pieces: carPieces() } };
-  var LOOP = ['car'];
+  var MODELS = { car: { w: 20, slots: 3, lift: 1, pieces: carPieces() },
+    // the heart: generated (design/heart2.py) from the car's exact pieces, one slot deep
+    heart: { w: 20, slots: 1, pieces: [
+      { k: 'J', x: 7, y: 1, z: 0, d: -1 }, { k: 'J', x: 11, y: 1, z: 0 }, { k: 'J', x: 5, y: 3, z: 0, d: -1 }, { k: 'J', x: 13, y: 3, z: 0 },
+      { k: 'J', x: 3, y: 5, z: 0, d: -1 }, { k: 'J', x: 15, y: 5, z: 0 }, { k: 'U', x: 0, y: 12, z: 1, d: -1 }, { k: 'U', x: 18, y: 12, z: 1 },
+      { k: 'T', x: 8, y: 12, z: 0 }, { k: 'T', x: 10, y: 12, z: 0, d: -1 }, { k: 'L', x: 1, y: 14, z: 0, d: -1 }, { k: 'L', x: 16, y: 14, z: 0 },
+      { k: 'L', x: 6, y: 14, z: 0 }, { k: 'L', x: 11, y: 14, z: 0, d: -1 }, { k: 'L', x: 3, y: 15, z: 0, d: -1 }, { k: 'L', x: 14, y: 15, z: 0 },
+      { k: 'M', x: 2, y: 9, z: 0 }, { k: '1', x: 2, y: 10, z: 0 }, { k: '1', x: 5, y: 10, z: 0 }, { k: 'W', x: 2.5, y: 8.042, z: 2 },
+      { k: 'H', x: 3.2, y: 8.625, z: 3.1 }, { k: 'M', x: 14, y: 9, z: 0 }, { k: '1', x: 14, y: 10, z: 0 }, { k: '1', x: 17, y: 10, z: 0 },
+      { k: 'W', x: 14.5, y: 8.042, z: 2 }, { k: 'H', x: 15.2, y: 8.625, z: 3.1 }, { k: 'M', x: 6, y: 5, z: 0 }, { k: '1', x: 6, y: 6, z: 0 },
+      { k: '1', x: 9, y: 6, z: 0 }, { k: 'W', x: 6.5, y: 4.042, z: 2 }, { k: 'H', x: 7.2, y: 4.625, z: 3.1 }, { k: 'M', x: 10, y: 5, z: 0 },
+      { k: '1', x: 10, y: 6, z: 0 }, { k: '1', x: 13, y: 6, z: 0 }, { k: 'W', x: 10.5, y: 4.042, z: 2 }, { k: 'H', x: 11.2, y: 4.625, z: 3.1 },
+      { k: 'E', x: 8, y: 8, z: 1, t: -Math.PI / 2 }, { k: 'O', x: 8.37, y: 8, z: 1.5175, t: -Math.PI / 2 }, { k: 'E', x: 9, y: 8, z: 1, t: -Math.PI / 2 }, { k: 'O', x: 9.37, y: 8, z: 1.5175, t: -Math.PI / 2 },
+      { k: 'E', x: 10, y: 8, z: 1, t: -Math.PI / 2 }, { k: 'O', x: 10.37, y: 8, z: 1.5175, t: -Math.PI / 2 }, { k: 'E', x: 11, y: 8, z: 1, t: -Math.PI / 2 }, { k: 'O', x: 11.37, y: 8, z: 1.5175, t: -Math.PI / 2 },
+      { k: 'E', x: 8, y: 10, z: 1, t: -Math.PI / 2 }, { k: 'O', x: 8.37, y: 10, z: 1.5175, t: -Math.PI / 2 }, { k: 'E', x: 9, y: 10, z: 1, t: -Math.PI / 2 }, { k: 'O', x: 9.37, y: 10, z: 1.5175, t: -Math.PI / 2 },
+      { k: 'E', x: 10, y: 10, z: 1, t: -Math.PI / 2 }, { k: 'O', x: 10.37, y: 10, z: 1.5175, t: -Math.PI / 2 }, { k: 'E', x: 11, y: 10, z: 1, t: -Math.PI / 2 }, { k: 'O', x: 11.37, y: 10, z: 1.5175, t: -Math.PI / 2 },
+      { k: 'P', x: 7, y: 8.3333, z: -3.2, tilt: Math.PI / 2 }, { k: '2', x: 6, y: 10, z: 0 }, { k: '1', x: 14, y: 6, z: 0 }, { k: '4', x: 1, y: 7, z: 0 },
+      { k: '4', x: 5, y: 7, z: 0 }, { k: '4', x: 9, y: 7, z: 0 }, { k: '2', x: 13, y: 7, z: 0 }, { k: '4', x: 15, y: 7, z: 0 },
+      { k: '4', x: 2, y: 12, z: 0 }, { k: '1', x: 6, y: 12, z: 0 }, { k: '1', x: 7, y: 12, z: 0 }, { k: '2', x: 18, y: 10, z: 0 },
+      { k: '4', x: 12, y: 12, z: 0 }, { k: '2', x: 16, y: 12, z: 0 }, { k: '4', x: 0, y: 8, z: 0 }, { k: '4', x: 4, y: 8, z: 0 },
+      { k: '1', x: 9, y: 0, z: 0 }, { k: '1', x: 10, y: 0, z: 0 }, { k: '2', x: 9, y: 1, z: 0 }, { k: '1', x: 5, y: 6, z: 0 },
+      { k: '2', x: 7, y: 4, z: 0 }, { k: '4', x: 9, y: 4, z: 0 }, { k: '2', x: 14, y: 14, z: 0 }, { k: '4', x: 6, y: 9, z: 0 },
+      { k: '4', x: 10, y: 9, z: 0 }, { k: '1', x: 14, y: 5, z: 0 }, { k: '1', x: 6, y: 15, z: 0 }, { k: '1', x: 5, y: 5, z: 0 },
+      { k: '2', x: 4, y: 14, z: 0 }, { k: '2', x: 9, y: 2, z: 0 }, { k: '4', x: 12, y: 13, z: 0 }, { k: '2', x: 16, y: 13, z: 0 },
+      { k: '2', x: 7, y: 3, z: 0 }, { k: '4', x: 9, y: 3, z: 0 }, { k: '4', x: 12, y: 8, z: 0 }, { k: '4', x: 16, y: 8, z: 0 },
+      { k: '1', x: 13, y: 15, z: 0 }, { k: '2', x: 18, y: 9, z: 0 }, { k: '2', x: 0, y: 9, z: 0 }, { k: '4', x: 2, y: 13, z: 0 },
+      { k: '2', x: 6, y: 13, z: 0 }, { k: '4', x: 0, y: 11, z: 0 }, { k: '4', x: 4, y: 11, z: 0 }, { k: '4', x: 8, y: 11, z: 0 },
+      { k: '4', x: 12, y: 11, z: 0 }, { k: '4', x: 16, y: 11, z: 0 }, { k: '2', x: 12, y: 10, z: 0 }, { k: '2', x: 0, y: 10, z: 0 }] } };
+  var LOOP = ['car', 'heart'];
   var NAMES = LOOP;
   var KINDS = ['1', '2', '4', 'L', 'J', 'E', 'O', 'P', 'M', 'W', 'H', 'U', 'T'];   // T is clear: drawn last
 
@@ -68,7 +95,7 @@
   function place(m) {
     var x0 = Math.floor((PLATE_X - m.w) / 2), z0 = (PLATE_Z - m.slots * 2) / 2;
     return m.pieces.map(function (q) {
-      return { kind: q.k, x: x0 + q.x, y: (q.y + (m.lift || 0)) * H, z: z0 + q.z, turn: q.d < 0 ? Math.PI : 0, c: q.c };
+      return { kind: q.k, x: x0 + q.x, y: (q.y + (m.lift || 0)) * H, z: z0 + q.z, turn: q.t !== undefined ? q.t : q.d < 0 ? Math.PI : 0, tilt: q.tilt || 0, c: q.c };
     });
   }
   var TILED = {}; NAMES.forEach(function (k) { TILED[k] = place(MODELS[k]); });
@@ -80,7 +107,7 @@
     var seed = i + 2;
     pool[b.kind].push({
       c: b.c,
-      hx: 1 + rnd(seed + .1) * (PLATE_X - 6), hy: 13.5 + rnd(seed + .2) * 2.6, hz: 1 + rnd(seed + .3) * (PLATE_Z - 4),
+      hx: 1 + rnd(seed + .1) * (PLATE_X - 6), hy: 21 + rnd(seed + .2) * 2.6, hz: 1 + rnd(seed + .3) * (PLATE_Z - 4),
       yaw: (rnd(seed + .4) - .5) * 2.4, ph: rnd(seed + .5) * 6.28,
       pose: {}
     });
@@ -183,7 +210,7 @@
     studs.forEach(function (q) { for (var j = 0; j < (deep || 2); j++) stud(v, q[0], q[1], j + .5); });
     return new Float32Array(v);
   }
-  // mudguard (part 18974), low-poly: a single thin ring on the outside (z 2..2.5, half a stud proud
+  // mudguard (part 18974), low-poly: a single thin ring on the outside (z 2..3.1, a stud proud
   // of the body), and right next to it the flat studded top: a 2×2 block with a 1×2 wing at each end.
   // The ring's crown is flush with the block's stud tops.
   function mudguardMesh() {
@@ -191,9 +218,9 @@
     function pt(rx, ry, a) { return [2 + rx * Math.cos(a), cy + ry * Math.sin(a)]; }
     for (i = 0; i < N; i++) {
       var a0 = Math.PI * i / N, a1 = Math.PI * (i + 1) / N;
-      prism(v, [pt(1.67, 1.97, a0), pt(1.95, 2.25, a0), pt(1.95, 2.25, a1), pt(1.67, 1.97, a1)], 1.97, 2.5);
+      prism(v, [pt(1.67, 1.97, a0), pt(1.95, 2.25, a0), pt(1.95, 2.25, a1), pt(1.67, 1.97, a1)], 1.97, 3.1);
     }
-    box(v, 3.67, .03, 1.97, 3.95, cy, 2.5); box(v, .05, .03, 1.97, .33, cy, 2.5);         // feet
+    box(v, 3.67, .03, 1.97, 3.95, cy, 3.1); box(v, .05, .03, 1.97, .33, cy, 3.1);         // feet
     box(v, 1, H, g, 3, 2 * H, 2 - g);                                                     // block
     for (i = 1; i < 3; i++) for (j = 0; j < 2; j++) stud(v, i + .5, 2 * H, j + .5);
     [0, 3].forEach(function (x) {                                                         // wings
@@ -210,7 +237,7 @@
   }
   function lightMesh() { var v = []; cyl(v, .5, 0, .58 * H, .4, .255, 12, 'x'); return new Float32Array(v); }
   function roofMesh() { var v = []; box(v, .03, .02, .03, 6 - .03, .4, 6 - .03); return new Float32Array(v); }
-  function wheelMesh() { var v = []; cyl(v, 1.5, 0, 1.5, 1.5, 1.4, 20, 'z'); return new Float32Array(v); }
+  function wheelMesh() { var v = []; cyl(v, 1.5, 0, 1.5, 1.5, 1.1, 20, 'z'); return new Float32Array(v); }
   function hubMesh() { var v = []; cyl(v, .8, 0, .8, .8, .1, 14, 'z'); return new Float32Array(v); }
   function plateMesh() {
     var v = [];
@@ -221,12 +248,13 @@
 
   /* ── GL ─────────────────────────────────────────────── */
   var VS = '#version 300 es\n' +
-    'in vec3 aP; in vec3 aN; in vec3 iO; in float iYaw; in float iT; in vec3 iC;\n' +
+    'in vec3 aP; in vec3 aN; in vec3 iO; in float iYaw; in float iT; in vec3 iC; in float iX;\n' +
     'uniform vec3 uCtr; uniform vec3 uCam; uniform vec2 uS; out vec3 vC;\n' +
     'vec3 rot(vec3 p, float a){ float c=cos(a*.6), s=sin(a*.6); p=vec3(p.x, p.y*c-p.z*s, p.y*s+p.z*c);\n' +
     '  c=cos(a); s=sin(a); return vec3(p.x*c+p.z*s, p.y, -p.x*s+p.z*c); }\n' +
     'vec3 turn(vec3 p, float a){ float c=cos(a), s=sin(a); return vec3(p.x*c+p.z*s, p.y, -p.x*s+p.z*c); }\n' +
-    'void main(){ vec3 n=rot(turn(aN,iT),iYaw); vec3 q=rot(turn(aP-uCtr,iT),iYaw)+uCtr+iO-uCam;\n' +
+    'vec3 tip(vec3 p, float a){ float c=cos(a), s=sin(a); return vec3(p.x, p.y*c-p.z*s, p.y*s+p.z*c); }\n' +
+    'void main(){ vec3 n=rot(turn(tip(aN,iX),iT),iYaw); vec3 q=rot(turn(tip(aP-uCtr,iX),iT),iYaw)+uCtr+iO-uCam;\n' +
     '  float x1=.70711*(q.x-q.z), z1=.70711*(q.x+q.z);\n' +
     '  float y2=q.y*.81650-z1*.57735, z2=q.y*.57735+z1*.81650;\n' +
     '  vC=iC*(.69+.31*n.y+.09*n.z-.09*n.x);\n' +
@@ -236,7 +264,7 @@
     if (!gl.getShaderParameter(s, gl.COMPILE_STATUS)) throw new Error(gl.getShaderInfoLog(s)); return s; }
   var prog = gl.createProgram();
   gl.attachShader(prog, sh(gl.VERTEX_SHADER, VS)); gl.attachShader(prog, sh(gl.FRAGMENT_SHADER, FS));
-  ['aP', 'aN', 'iO', 'iYaw', 'iT', 'iC'].forEach(function (a, i) { gl.bindAttribLocation(prog, i, a); });
+  ['aP', 'aN', 'iO', 'iYaw', 'iT', 'iC', 'iX'].forEach(function (a, i) { gl.bindAttribLocation(prog, i, a); });
   gl.linkProgram(prog); gl.useProgram(prog);
   var uCtr = gl.getUniformLocation(prog, 'uCtr'), uCam = gl.getUniformLocation(prog, 'uCam'), uS = gl.getUniformLocation(prog, 'uS'), uA = gl.getUniformLocation(prog, 'uA');
 
@@ -245,10 +273,10 @@
     var vb = gl.createBuffer(); gl.bindBuffer(gl.ARRAY_BUFFER, vb); gl.bufferData(gl.ARRAY_BUFFER, verts, gl.STATIC_DRAW);
     gl.enableVertexAttribArray(0); gl.vertexAttribPointer(0, 3, gl.FLOAT, false, 24, 0);
     gl.enableVertexAttribArray(1); gl.vertexAttribPointer(1, 3, gl.FLOAT, false, 24, 12);
-    var data = new Float32Array(instances * 8);
+    var data = new Float32Array(instances * 9);
     var ib = gl.createBuffer(); gl.bindBuffer(gl.ARRAY_BUFFER, ib); gl.bufferData(gl.ARRAY_BUFFER, data, gl.DYNAMIC_DRAW);
-    [[2, 3, 0], [3, 1, 12], [4, 1, 16], [5, 3, 20]].forEach(function (a) {
-      gl.enableVertexAttribArray(a[0]); gl.vertexAttribPointer(a[0], a[1], gl.FLOAT, false, 32, a[2]); gl.vertexAttribDivisor(a[0], 1);
+    [[2, 3, 0], [3, 1, 12], [4, 1, 16], [5, 3, 20], [6, 1, 32]].forEach(function (a) {
+      gl.enableVertexAttribArray(a[0]); gl.vertexAttribPointer(a[0], a[1], gl.FLOAT, false, 36, a[2]); gl.vertexAttribDivisor(a[0], 1);
     });
     return { vao: vao, ib: ib, data: data, verts: verts.length / 6, instances: instances };
   }
@@ -265,7 +293,7 @@
     'J': { mesh: prismMesh([[.03, .03], [1, .03], [1.97, 2 * H - .3], [1.97, 2 * H], [.03, 2 * H]], [[.5, 2 * H], [1.5, 2 * H]]), ctr: [1, H, 1] },
     'E': { mesh: headlightMesh(), ctr: [.5, H / 2, .5] }, 'O': { mesh: lightMesh(), ctr: [.13, .58 * H, .5] },
     'P': { mesh: roofMesh(), ctr: [3, .2, 3] }, 'M': { mesh: mudguardMesh(), ctr: [2, H, 1] },
-    'W': { mesh: wheelMesh(), ctr: [1.5, 1.5, .7] }, 'H': { mesh: hubMesh(), ctr: [.8, .8, .05] }
+    'W': { mesh: wheelMesh(), ctr: [1.5, 1.5, .55] }, 'H': { mesh: hubMesh(), ctr: [.8, .8, .05] }
   };
   KINDS.forEach(function (k) { KIND[k].gl = mesh(KIND[k].mesh, pool[k].length); });
   gl.enable(gl.DEPTH_TEST); gl.enable(gl.CULL_FACE); gl.clearColor(0, 0, 0, 0);
@@ -290,10 +318,11 @@
         var e = easeIn(clamp01((u - 1.9 - d.land * 1.9) / .55));     // drop into place
         var hy = b.hy + Math.sin(t * 1.3 + b.ph) * .25;
         var mx = s.x + (b.hx - s.x) * a, my = s.y + (hy - s.y) * a, mz = s.z + (b.hz - s.z) * a;
-        var o = i * 8, col = COL.key[b.c];
+        var o = i * 9, col = COL.key[b.c];
         D[o] = mx + (d.x - mx) * e; D[o + 1] = my + (d.y - my) * e; D[o + 2] = mz + (d.z - mz) * e;
         D[o + 3] = (b.yaw + Math.sin(t * .5 + b.ph) * .5) * a * (1 - e);
         D[o + 4] = s.turn + (d.turn - s.turn) * (a * .5 + e * .5);   // slopes turn around in the air
+        D[o + 8] = s.tilt + (d.tilt - s.tilt) * (a * .5 + e * .5);
         D[o + 5] = col[0]; D[o + 6] = col[1]; D[o + 7] = col[2];
       }
     });
@@ -309,10 +338,10 @@
     resize(); if (!W || !Hpx) return;
     fill(t);
     gl.viewport(0, 0, W, Hpx); gl.clear(gl.COLOR_BUFFER_BIT | gl.DEPTH_BUFFER_BIT);
-    var px = Math.min(W / 26, Hpx / 21);        // pixels per stud
-    gl.uniform3f(uCam, PLATE_X / 2, 4.9, PLATE_Z / 2);
+    var px = Math.min(W / 26, Hpx / 31);        // pixels per stud
+    gl.uniform3f(uCam, PLATE_X / 2, 9.5, PLATE_Z / 2);
     gl.uniform2f(uS, 2 * px / W, 2 * px / Hpx);
-    var pd = plate.data; pd[0] = pd[1] = pd[2] = pd[3] = 0; pd[4] = 0; pd[5] = COL.plate[0]; pd[6] = COL.plate[1]; pd[7] = COL.plate[2];
+    var pd = plate.data; pd[0] = pd[1] = pd[2] = pd[3] = 0; pd[4] = 0; pd[8] = 0; pd[5] = COL.plate[0]; pd[6] = COL.plate[1]; pd[7] = COL.plate[2];
     gl.uniform3f(uCtr, 0, 0, 0); gl.uniform1f(uA, 1);
     gl.bindVertexArray(plate.vao); gl.bindBuffer(gl.ARRAY_BUFFER, plate.ib); gl.bufferSubData(gl.ARRAY_BUFFER, 0, pd);
     gl.drawArraysInstanced(gl.TRIANGLES, 0, plate.verts, 1);
