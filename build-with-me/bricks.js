@@ -14,47 +14,51 @@
   if (!gl) { document.documentElement.classList.add('no-webgl'); return; }
 
   var H = 1.2;                    // brick height in stud units
-  var PLATE_X = 16, PLATE_Z = 10; // baseplate, studs
+  var PLATE_X = 24, PLATE_Z = 10; // baseplate, studs
   var P = 7.6;                    // seconds per build
   var reduce = matchMedia('(prefers-reduced-motion: reduce)');
   var light = matchMedia('(prefers-color-scheme: light)');
 
   /* ── models ─────────────────────────────────────────── */
-  var MODELS = {
-    car: { w: 12, slots: 3, pieces: [
-      [0,0,2,2,0,'B'], [0,0,8,2,0,'B'], [0,0,10,'I',1,'R'], [0,2,2,2,0,'B'], [0,2,8,2,0,'B'], [0,2,10,'I',1,'R'], [0,1,5,2,0,'R'],
-      [1,0,0,'I',-1,'R'], [1,0,2,4,0,'R'], [1,0,6,4,0,'R'], [1,0,10,1,0,'R'], [1,0,11,1,0,'Y'], [1,1,0,'I',-1,'R'], [1,1,2,4,0,'R'], [1,1,6,4,0,'R'], [1,1,10,'I',1,'R'], [1,2,0,'I',-1,'R'], [1,2,2,4,0,'R'], [1,2,6,4,0,'R'], [1,2,10,1,0,'R'], [1,2,11,1,0,'Y'],
-      [2,0,2,'S',-1,'B'], [2,0,4,4,0,'B'], [2,0,8,'S',1,'B'], [2,1,2,'S',-1,'B'], [2,1,4,4,0,'R'], [2,1,8,'S',1,'B'], [2,2,2,'S',-1,'B'], [2,2,4,4,0,'B'], [2,2,8,'S',1,'B'],
-      [3,0,3,4,0,'R'], [3,0,7,2,0,'R'], [3,1,3,2,0,'R'], [3,1,5,4,0,'R'], [3,2,3,4,0,'R'], [3,2,7,2,0,'R']] },
-    a: { w: 13, slots: 1, pieces: [
-      [0,0,3,'I',-1], [0,0,5,4,0], [0,0,9,4,0],
-      [1,0,2,'I',-1], [1,0,4,1,0], [1,0,5,4,0], [1,0,9,4,0],
-      [2,0,1,'I',-1], [2,0,3,'S',1], [2,0,8,'S',-1], [2,0,10,2,0], [2,0,12,1,0],
-      [3,0,0,'I',-1], [3,0,2,2,0], [3,0,9,4,0],
-      [4,0,0,4,0], [4,0,9,2,0], [4,0,11,2,0],
-      [5,0,0,2,0], [5,0,2,2,0], [5,0,9,4,0],
-      [6,0,0,'S',-1], [6,0,2,2,0], [6,0,9,4,0],
-      [7,0,1,'S',-1], [7,0,3,'I',1], [7,0,8,'I',-1], [7,0,10,1,0], [7,0,11,2,0],
-      [8,0,2,'S',-1], [8,0,4,4,0], [8,0,8,4,0], [8,0,12,1,0],
-      [9,0,3,'S',-1], [9,0,5,4,0], [9,0,9,4,0]] },
-    heart: { w: 14, slots: 1, pieces: [
-      [0,0,5,'I',-1], [0,0,7,'I',1],
-      [1,0,3,'I',-1], [1,0,5,4,0], [1,0,9,'I',1],
-      [2,0,1,'I',-1], [2,0,3,4,0], [2,0,7,4,0], [2,0,11,'I',1],
-      [3,0,0,4,0], [3,0,4,4,0], [3,0,8,4,0], [3,0,12,2,0],
-      [4,0,0,2,0], [4,0,2,4,0], [4,0,6,4,0], [4,0,10,4,0],
-      [5,0,0,4,0], [5,0,4,2,0], [5,0,6,4,0], [5,0,10,1,0], [5,0,11,1,0], [5,0,12,2,0],
-      [6,0,0,'S',-1], [6,0,2,1,0], [6,0,3,4,0], [6,0,7,2,0], [6,0,9,2,0], [6,0,11,1,0], [6,0,12,'S',1],
-      [7,0,1,'S',-1], [7,0,3,2,0], [7,0,5,'S',1], [7,0,7,'S',-1], [7,0,9,2,0], [7,0,11,'S',1]] }
-  };
-  var LOOP = ['a', 'car', 'heart'];
+  // the car is Mark's Illustrator side view (edit car.svg), 20 studs long, pulled three slots deep.
+  // a piece here is {k: kind, x, y (in bricks), z (in studs), d: dir, c: color}
+  function carPieces() {
+    var p = [];
+    function add(k, x, y, z, d, c) { p.push({ k: k, x: x, y: y, z: z, d: d || 1, c: c || 'R' }); }
+    [0, 2, 4].forEach(function (z) {
+      var mid = z === 2;
+      add('J', 0, 0, z, -1); add('J', 18, 0, z, 1);                    // bumpers: tall inverted slopes
+      if (mid) {
+        add('2', 2, 0, z); add('4', 4, 0, z); add('4', 8, 0, z); add('4', 12, 0, z); add('2', 16, 0, z);
+        add('2', 2, 1, z); add('1', 4, 1, z); add('4', 5, 1, z); add('4', 9, 1, z); add('4', 13, 1, z); add('1', 17, 1, z);
+      } else {
+        add('M', 2, 0, z); add('2', 6, 0, z); add('4', 8, 0, z); add('2', 12, 0, z); add('M', 14, 0, z);
+        add('4', 6, 1, z); add('4', 10, 1, z);
+      }
+      add('1', 1, 2, z); add('2', 2, 2, z); add('4', 4, 2, z); add('4', 8, 2, z); add('4', 12, 2, z); add('1', 16, 2, z); add('2', 17, 2, z);
+      if (mid) { add('1', 0, 2, z); add('1', 19, 2, z); }
+      else [0, 1].forEach(function (dz) {
+        add('E', 0, 2, z + dz, -1); add('E', 19, 2, z + dz, 1);
+        add('O', -.24, 2, z + dz, 1, 'B'); add('O', 20, 2, z + dz, 1, 'B');
+      });
+      add('L', 2, 3, z, -1); add('2', 5, 3, z); add('T', 11, 3, z, 1);  // fastback, windshield
+      add('L', 4, 4, z, -1);
+    });
+    add('P', 6, 5, 0);                                                  // roof
+    [4, 16].forEach(function (x) { [[.05, -.07], [4.55, 5.95]].forEach(function (zz) {
+      add('W', x - 1.5, -1 + .04, zz[0], 1, 'K'); add('H', x - .8, -1 + .625, zz[1], 1, 'G');
+    }); });
+    return p;
+  }
+  var MODELS = { car: { w: 20, slots: 3, lift: 1, pieces: carPieces() } };
+  var LOOP = ['car'];
   var NAMES = LOOP;
-  var KINDS = ['1', '2', '4', 'S', 'I'];
+  var KINDS = ['1', '2', '4', 'L', 'T', 'J', 'E', 'O', 'P', 'M', 'W', 'H'];
 
   function hex(h) { return [parseInt(h.slice(1, 3), 16) / 255, parseInt(h.slice(3, 5), 16) / 255, parseInt(h.slice(5, 7), 16) / 255]; }
   function colors() {
     return {
-      key: { R: hex('#e8402f'), B: hex('#2f5fd0'), Y: hex(light.matches ? '#f2c200' : '#ffd92e') },
+      key: { R: hex('#e8402f'), B: hex('#1487c9'), Y: hex(light.matches ? '#f2c200' : '#ffd92e'), K: hex(light.matches ? '#1c1c20' : '#34343c'), G: hex('#c9ccd2') },
       plate: hex(light.matches ? '#dfe5ec' : '#202020')
     };
   }
@@ -63,7 +67,7 @@
   function place(m) {
     var x0 = Math.floor((PLATE_X - m.w) / 2), z0 = (PLATE_Z - m.slots * 2) / 2;
     return m.pieces.map(function (q) {
-      return { kind: String(q[3]), x: x0 + q[2], y: q[0] * H, z: z0 + q[1] * 2, turn: q[4] < 0 ? Math.PI : 0, c: q[5] };
+      return { kind: q.k, x: x0 + q.x, y: (q.y + (m.lift || 0)) * H, z: z0 + q.z, turn: q.d < 0 ? Math.PI : 0, c: q.c };
     });
   }
   var TILED = {}; NAMES.forEach(function (k) { TILED[k] = place(MODELS[k]); });
@@ -154,6 +158,55 @@
     for (var i = 0; i < 2; i++) for (var j = 0; j < 2; j++) stud(v, i + .5, H, j + .5);
     return new Float32Array(v);
   }
+  // a cylinder along y, both caps; turned onto another axis by a cyclic swap (keeps the winding)
+  function cyl(v, cx, y, cz, r, h, S, axis) {
+    var st = v.length, i;
+    for (i = 0; i < S; i++) {
+      var a0 = i / S * 6.2832, a1 = (i + 1) / S * 6.2832, am = (a0 + a1) / 2;
+      var x0 = cx + Math.cos(a0) * r, z0 = cz + Math.sin(a0) * r, x1 = cx + Math.cos(a1) * r, z1 = cz + Math.sin(a1) * r;
+      var nx = Math.cos(am), nz = Math.sin(am);
+      v.push(x0, y, z0, nx, 0, nz, x0, y + h, z0, nx, 0, nz, x1, y + h, z1, nx, 0, nz,
+             x0, y, z0, nx, 0, nz, x1, y + h, z1, nx, 0, nz, x1, y, z1, nx, 0, nz,
+             cx, y + h, cz, 0, 1, 0, x1, y + h, z1, 0, 1, 0, x0, y + h, z0, 0, 1, 0,
+             cx, y, cz, 0, -1, 0, x0, y, z0, 0, -1, 0, x1, y, z1, 0, -1, 0);
+    }
+    if (axis === 'y') return;
+    for (i = st; i < v.length; i += 3) {
+      var X = v[i], Y = v[i + 1], Z = v[i + 2];
+      if (axis === 'z') { v[i] = Z; v[i + 1] = X; v[i + 2] = Y; } else { v[i] = Y; v[i + 1] = Z; v[i + 2] = X; }
+    }
+  }
+  function prismMesh(pts, studs, deep) {
+    var v = [], g = .03;
+    prism(v, pts, g, (deep || 2) - g);
+    studs.forEach(function (q) { for (var j = 0; j < (deep || 2); j++) stud(v, q[0], q[1], j + .5); });
+    return new Float32Array(v);
+  }
+  // mudguard: 4 long, 2 bricks tall, a round arch cut through it
+  function mudguardMesh() {
+    var v = [], g = .03, top = 2 * H, r = 1.75, cy = .35, N = 16, i;
+    function arc(x) { var d = x - 2; return Math.abs(d) >= r ? .03 : Math.max(.03, cy + Math.sqrt(r * r - d * d)); }
+    var xs = [g, 2 - r];
+    for (i = 1; i <= N; i++) xs.push(2 - r + 2 * r * i / N);
+    xs.push(4 - g);
+    for (i = 0; i < xs.length - 1; i++) {
+      var a = xs[i], b = xs[i + 1];
+      var ya = i === 0 ? .03 : arc(a), yb = i === xs.length - 2 ? .03 : arc(b);
+      if (i === 0) yb = .03; if (i === xs.length - 2) ya = .03;
+      prism(v, [[a, ya], [b, yb], [b, top], [a, top]], g, 2 - g);
+    }
+    for (i = 0; i < 4; i++) for (var j = 0; j < 2; j++) stud(v, i + .5, top, j + .5);
+    return new Float32Array(v);
+  }
+  function headlightMesh() {
+    var v = [], g = .03;
+    box(v, g, .03, g, 1 - g, H, 1 - g); stud(v, .5, H, .5);
+    return new Float32Array(v);
+  }
+  function lightMesh() { var v = []; cyl(v, .5, 0, H / 2, .36, .24, 10, 'x'); return new Float32Array(v); }
+  function roofMesh() { var v = []; box(v, .03, .02, .03, 6 - .03, .4, 6 - .03); return new Float32Array(v); }
+  function wheelMesh() { var v = []; cyl(v, 1.5, 0, 1.5, 1.5, 1.4, 20, 'z'); return new Float32Array(v); }
+  function hubMesh() { var v = []; cyl(v, .8, 0, .8, .8, .1, 14, 'z'); return new Float32Array(v); }
   function plateMesh() {
     var v = [];
     box(v, 0, -.4, 0, PLATE_X, 0, PLATE_Z);
@@ -197,8 +250,16 @@
   var plate = mesh(plateMesh(), 1);
   var KIND = {
     '1': { mesh: brickMesh(1), ctr: [.5, H / 2, 1] }, '2': { mesh: brickMesh(2), ctr: [1, H / 2, 1] },
-    '4': { mesh: brickMesh(4), ctr: [2, H / 2, 1] }, 'S': { mesh: slopeMesh(), ctr: [1, H / 2, 1] },
-    'I': { mesh: invertedMesh(), ctr: [1, H / 2, 1] }
+    '4': { mesh: brickMesh(4), ctr: [2, H / 2, 1] },
+    // slope 33° 3×2: one stud row high, falling over two studs to a lip
+    'L': { mesh: prismMesh([[.03, .03], [2.97, .03], [2.97, .3], [1, H], [.03, H]], [[.5, H]]), ctr: [1.5, H / 2, 1] },
+    // tall slope 2×2×2 (the windshield)
+    'T': { mesh: prismMesh([[.03, .03], [1.97, .03], [1.97, .3], [1, 2 * H], [.03, 2 * H]], [[.5, 2 * H]]), ctr: [1, H, 1] },
+    // tall inverted slope 2×2×2 (the bumpers): foot one stud long, full top
+    'J': { mesh: prismMesh([[.03, .03], [1, .03], [1.97, 2 * H - .3], [1.97, 2 * H], [.03, 2 * H]], [[.5, 2 * H], [1.5, 2 * H]]), ctr: [1, H, 1] },
+    'E': { mesh: headlightMesh(), ctr: [.5, H / 2, .5] }, 'O': { mesh: lightMesh(), ctr: [.12, H / 2, .5] },
+    'P': { mesh: roofMesh(), ctr: [3, .2, 3] }, 'M': { mesh: mudguardMesh(), ctr: [2, H, 1] },
+    'W': { mesh: wheelMesh(), ctr: [1.5, 1.5, .7] }, 'H': { mesh: hubMesh(), ctr: [.8, .8, .05] }
   };
   KINDS.forEach(function (k) { KIND[k].gl = mesh(KIND[k].mesh, pool[k].length); });
   gl.enable(gl.DEPTH_TEST); gl.enable(gl.CULL_FACE); gl.clearColor(0, 0, 0, 0);
@@ -242,7 +303,7 @@
     resize(); if (!W || !Hpx) return;
     fill(t);
     gl.viewport(0, 0, W, Hpx); gl.clear(gl.COLOR_BUFFER_BIT | gl.DEPTH_BUFFER_BIT);
-    var px = Math.min(W / 19.5, Hpx / 21);        // pixels per stud
+    var px = Math.min(W / 26, Hpx / 21);        // pixels per stud
     gl.uniform3f(uCam, PLATE_X / 2, 4.9, PLATE_Z / 2);
     gl.uniform2f(uS, 2 * px / W, 2 * px / Hpx);
     var pd = plate.data; pd[0] = pd[1] = pd[2] = pd[3] = 0; pd[4] = 0; pd[5] = COL.plate[0]; pd[6] = COL.plate[1]; pd[7] = COL.plate[2];
