@@ -13,7 +13,7 @@ const wait = (ms) => new Promise((done) => setTimeout(done, ms));
   await p.evaluate(async () => { for (let y = 0; y < document.body.scrollHeight; y += 700) { scrollTo(0, y); await new Promise((d) => setTimeout(d, 120)); } scrollTo(0, 0); });
   await wait(1500);
   const info = await p.evaluate(() => {
-    const ANIMATED = ['VariableMorph2', 'OpticalSize', 'CalGraphics-top', 'VariableMorph', 'Interoperable', 'CalThreeWays'];
+    const ANIMATED = ['VariableMorph2', 'OpticalSize', 'Geometry', 'CalGraphics-top', 'VariableMorph', 'Interoperable', 'CalThreeWays'];
     const art = document.querySelector('article.markdown-body'); let A = art.getBoundingClientRect();
     const name = (i) => { const all = i.currentSrc + ' ' + (i.getAttribute('data-canonical-src') || '') + ' ' + [...i.parentElement.querySelectorAll('source')].map((s) => s.srcset + ' ' + (s.getAttribute('data-canonical-src') || '')).join(' '); const m = /documentation\/images\/svg\/([\w-]+?)(-dark)?\.svg/.exec(all); return m ? m[1] : ''; };
     const imgs = [...art.querySelectorAll('img')].filter((i) => ANIMATED.includes(name(i)));
