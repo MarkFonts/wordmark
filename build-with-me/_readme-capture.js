@@ -19,6 +19,8 @@ const wait = (ms) => new Promise((done) => setTimeout(done, ms));
     const imgs = [...art.querySelectorAll('img')].filter((i) => ANIMATED.includes(name(i)));
     // keep the README down to just past the last animated figure we want (the first CalThreeWays)
     const last = imgs.find((i) => name(i) === 'CalThreeWays'); const cut = Math.round(last.getBoundingClientRect().bottom - A.top + 140);
+    // GitHub's own breathing room around the README: without it the text sits flush against the print's edge
+    art.style.boxSizing = 'content-box'; art.style.padding = '30px 34px 0'; art.style.width = A.width + 'px';
     art.style.height = cut + 'px'; art.style.overflow = 'hidden'; A = art.getBoundingClientRect();
     const out = imgs.map((i) => { const r = i.getBoundingClientRect(); return { name: name(i), x: (r.left - A.left) / A.width, y: (r.top - A.top) / A.height, w: r.width / A.width, h: r.height / A.height, loaded: i.complete && i.naturalWidth > 0 }; }).filter((o) => o.y + o.h <= 1);
     imgs.forEach((i) => { i.style.visibility = 'hidden'; });
