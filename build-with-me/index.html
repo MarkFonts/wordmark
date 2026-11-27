@@ -138,10 +138,12 @@ section.collage { padding-block: 60px 72px; overflow: clip; }
 .collage figure {
   flex: none; margin: -14px -1.2%; padding: 7px 7px 26px; background: #f4f1ea; border-radius: 3px;
   box-shadow: 0 1px 0 rgba(0,0,0,.25), 0 14px 36px rgba(0,0,0,.38);
-  transform: rotate(var(--r)) translateY(var(--y, 0)); transition: transform .25s cubic-bezier(.2,.8,.2,1);
+  /* each print drifts a little with the pointer and with the scroll, by its own depth (--d, px): script at the end sets --px, --py, --s */
+  --tx: calc(var(--px, 0) * var(--d, 10) * 1px); --ty: calc(var(--y, 0px) + (var(--py, 0) + var(--s, 0) * 1.6) * var(--d, 10) * 1px);
+  transform: translate3d(var(--tx), var(--ty), 0) rotate(var(--r)); transition: transform .35s cubic-bezier(.2,.8,.2,1);
   position: relative;
 }
-/* each print lies over the next, so no right edge (the 1996 build, every year) is covered */
+/* each print lies over the next, so no right edge (the 1995 build, every year) is covered */
 .collage figure:nth-child(1) { z-index: 6; }
 .collage figure:nth-child(2) { z-index: 5; }
 .collage figure:nth-child(3) { z-index: 4; }
@@ -153,7 +155,7 @@ section.collage { padding-block: 60px 72px; overflow: clip; }
   position: absolute; left: 9px; bottom: 5px; font-size: 12px; line-height: 15px; color: #6b665c;
   font-feature-settings: 'tnum' 1; letter-spacing: .02em;
 }
-.collage figure:hover { transform: rotate(0deg) translateY(-6px) scale(1.04); z-index: 9; }
+.collage figure:hover { transform: translate3d(var(--tx), calc(var(--ty) - 6px), 0) rotate(0deg) scale(1.04); z-index: 9; }
 .collage img { display: block; height: clamp(130px, 16.5vw, 300px); width: auto; border-radius: 1px; }
 @media (max-width: 680px) {
   .collage .prints { flex-wrap: wrap; row-gap: 0; }
@@ -162,7 +164,7 @@ section.collage { padding-block: 60px 72px; overflow: clip; }
   .collage figure:nth-child(n+2) figcaption { right: 6px; }
   .collage img { height: 38vw; }
 }
-@media (prefers-reduced-motion: reduce) { .collage figure { transition: none; } }
+@media (prefers-reduced-motion: reduce) { .collage figure { transition: none; --tx: 0px; --ty: var(--y, 0px); } }
 
 /* every reason: roll over the block and its proof pops up as a print in the gap by the numeral */
 .reason--pop { position: relative; }
@@ -272,14 +274,11 @@ footer a:hover { color: var(--text); }
   </div>
 </section>
 
-<section class="collage grid" aria-label="Photos: thirty years of building">
+<section class="collage grid" aria-label="Photos: building, 1995 to 2006">
   <div class="prints">
-    <figure style="--r:-4deg; --y:6px"><img src="photo-first-builds.jpg" width="658" height="800" loading="lazy" alt="A boy sitting on the carpet with his dad, building instructions on the floor and a white brick-built machine on the table beside them, 1996."><figcaption>1996</figcaption></figure>
-    <figure style="--r:2.5deg; --y:-10px"><img src="moc-dino-2005.jpg" width="640" height="640" loading="lazy" alt="A red brick-built dinosaur with blue legs, 2005."><figcaption>2005</figcaption></figure>
-    <figure style="--r:-2deg; --y:12px"><img src="moc-robot-2006.jpg" width="597" height="640" loading="lazy" alt="A white and black brick-built robot raising one arm, 2006."><figcaption>2006</figcaption></figure>
-    <figure style="--r:3deg; --y:-4px"><img src="photo-mech-and-truck.jpg" width="800" height="683" loading="lazy" alt="A grey brick-built walking machine reaching a claw toward a yellow brick-built truck."><figcaption>2014 · 2021</figcaption></figure>
-    <figure style="--r:-3deg; --y:8px"><img src="photo-black-figure.jpg" width="600" height="800" loading="lazy" alt="A tall black and silver brick-built figure with claws and a blaster."><figcaption>2022</figcaption></figure>
-    <figure style="--r:2deg; --y:-8px"><img src="photo-white-figure.jpg" width="600" height="800" loading="lazy" alt="A slim white brick-built figure with a sword and a round shield, on a shelf."><figcaption>2023</figcaption></figure>
+    <figure style="--d:7; --r:-4deg; --y:6px"><img src="photo-first-builds.jpg" width="658" height="800" loading="lazy" alt="A boy sitting on the carpet with his dad, building instructions on the floor and a white brick-built machine on the table beside them, 1995."><figcaption>1995</figcaption></figure>
+    <figure style="--d:15; --r:2.5deg; --y:-10px"><img src="moc-dino-2005.jpg" width="640" height="640" loading="lazy" alt="A red brick-built dinosaur with blue legs, 2005."><figcaption>2005</figcaption></figure>
+    <figure style="--d:10; --r:-2deg; --y:12px"><img src="moc-robot-2006.jpg" width="597" height="640" loading="lazy" alt="A white and black brick-built robot raising one arm, 2006."><figcaption>2006</figcaption></figure>
   </div>
 </section>
 
@@ -334,6 +333,14 @@ footer a:hover { color: var(--text); }
   </div>
 </section>
 
+<section class="collage grid" aria-label="Photos: building, 2014 to 2023">
+  <div class="prints">
+    <figure style="--d:16; --r:3deg; --y:-4px"><img src="photo-mech-and-truck.jpg" width="800" height="683" loading="lazy" alt="A grey brick-built walking machine reaching a claw toward a yellow brick-built truck."><figcaption>2014 · 2021</figcaption></figure>
+    <figure style="--d:9; --r:-3deg; --y:8px"><img src="photo-black-figure.jpg" width="600" height="800" loading="lazy" alt="A tall black and silver brick-built figure with claws and a blaster."><figcaption>2022</figcaption></figure>
+    <figure style="--d:13; --r:2deg; --y:-8px"><img src="photo-white-figure.jpg" width="600" height="800" loading="lazy" alt="A slim white brick-built figure with a sword and a round shield, on a shelf."><figcaption>2023</figcaption></figure>
+  </div>
+</section>
+
 <section class="license grid" id="license">
   <h2>The license, in four bricks</h2>
   <ul class="bricks4">
@@ -361,6 +368,28 @@ footer a:hover { color: var(--text); }
 </footer>
 
 <div id="moc-pop" aria-hidden="true"><img alt="" width="640" height="480"><span></span></div>
+<script>
+/* the photo prints drift with the pointer (x and y) and with the scroll, each by its own depth */
+(function () {
+  var secs = [].slice.call(document.querySelectorAll('section.collage'));
+  if (!secs.length || matchMedia('(prefers-reduced-motion: reduce)').matches) return;
+  var px = 0, py = 0, raf = 0;
+  function apply() {
+    raf = 0;
+    var vh = innerHeight;
+    secs.forEach(function (sec) {
+      var r = sec.getBoundingClientRect();
+      if (r.bottom < -100 || r.top > vh + 100) return;
+      var s = ((r.top + r.height / 2) - vh / 2) / vh;            // -0.5 … 0.5 as the section crosses the screen
+      sec.style.setProperty('--px', px.toFixed(3)); sec.style.setProperty('--py', py.toFixed(3)); sec.style.setProperty('--s', (-s * 2).toFixed(3));
+    });
+  }
+  function ask() { if (!raf) raf = requestAnimationFrame(apply); }
+  addEventListener('pointermove', function (e) { if (e.pointerType === 'touch') return; px = e.clientX / innerWidth * 2 - 1; py = e.clientY / innerHeight * 2 - 1; ask(); }, { passive: true });
+  addEventListener('scroll', ask, { passive: true }); addEventListener('resize', ask);
+  ask();
+})();
+</script>
 <script src="bricks.js?v=11"></script>
 <script src="../js/marquee.js?v=1" defer></script>
 <script>
