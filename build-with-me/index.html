@@ -164,22 +164,29 @@ section.collage { padding-block: 60px 72px; overflow: clip; }
 }
 @media (prefers-reduced-motion: reduce) { .collage figure { transition: none; } }
 
-/* reason 1: roll over the block and the client's post pops up in the gap by the numeral */
+/* every reason: roll over the block and its proof pops up as a print in the gap by the numeral */
 .reason--pop { position: relative; }
 .pop-print {
-  position: absolute; z-index: 3; left: calc(var(--margin) + 6px); top: 72px; width: clamp(210px, 22.5vw, 340px);
+  position: absolute; z-index: calc(3 + var(--i, 0)); left: calc(var(--margin) + 6px + var(--i, 0) * 18px); top: calc(72px + var(--i, 0) * clamp(150px, 16vw, 250px)); width: clamp(210px, 22.5vw, 340px);
   margin: 0; padding: 7px 7px 26px; background: #f4f1ea; border-radius: 3px;
   box-shadow: 0 1px 0 rgba(0,0,0,.25), 0 14px 36px rgba(0,0,0,.38);
   opacity: 0; pointer-events: none; transform: translateY(18px) rotate(-8deg) scale(.9); transform-origin: 30% 100%;
   transition: opacity .2s ease, transform .32s cubic-bezier(.2,1.3,.4,1);
+  transition-delay: calc(var(--i, 0) * 70ms);
 }
-.reason--pop:hover .pop-print, .reason--pop.on .pop-print { opacity: 1; pointer-events: auto; transform: rotate(-3deg); }
+.reason--pop:hover .pop-print, .reason--pop.on .pop-print { opacity: 1; pointer-events: auto; transform: rotate(var(--tilt, -3deg)); }
 .pop-print img { display: block; width: 100%; height: auto; border-radius: 1px; }
 .pop-print figcaption {
   position: absolute; right: 9px; bottom: 5px; font-size: 12px; line-height: 15px; color: #6b665c;
   font-feature-settings: 'tnum' 1; letter-spacing: .02em;
 }
-@media (max-width: 1023px) { .pop-print { left: auto; right: var(--margin); top: 24px; width: min(52vw, 260px); } }
+/* reason 2's proof is the README itself, scrolling while the print is up */
+.pop-print .scroll { display: block; aspect-ratio: 841 / 1000; overflow: hidden; border-radius: 1px; }
+.pop-print .scroll img { animation: readme-scroll 48s linear infinite paused; }
+.reason--pop:hover .scroll img, .reason--pop.on .scroll img { animation-play-state: running; }
+@keyframes readme-scroll { 0%, 3% { transform: translateY(0); } 97%, 100% { transform: translateY(-87.2%); } }
+@media (prefers-reduced-motion: reduce) { .pop-print .scroll img { animation: none; } }
+@media (max-width: 1023px) { .pop-print { left: auto; right: calc(var(--margin) + var(--i, 0) * 10px); top: calc(24px + var(--i, 0) * min(38vw, 190px)); width: min(52vw, 260px); } }
 @media (prefers-reduced-motion: reduce) { .pop-print { transition: opacity .2s ease; transform: rotate(-3deg); } }
 
 /* reasons: a gigantic grey numeral hung in the empty column */
@@ -244,7 +251,7 @@ footer a:hover { color: var(--text); }
 <main>
 <section class="hero grid">
   <div class="hero-stage">
-    <canvas id="bricks" role="img" aria-label="Construction bricks assemble a letter H, come apart, and rebuild as a car, then a heart, in a loop."></canvas>
+    <canvas id="bricks" role="img" aria-label="One set of 36 construction bricks builds a letter H, comes apart, and is rebuilt as a car, then a heart, in a loop."></canvas>
   </div>
   <div class="hero-copy">
     <p class="eyebrow">WORDMARK × the SIL Open Font License</p>
@@ -286,8 +293,9 @@ footer a:hover { color: var(--text); }
   </div>
 </section>
 
-<section class="reason grid">
+<section class="reason reason--pop grid">
   <div class="numeral" aria-hidden="true">2</div>
+  <figure class="pop-print"><a href="https://github.com/calcom/sans#readme" target="_blank" rel="noopener"><span class="scroll"><img src="proof-readme-scroll.jpg" width="520" height="4829" loading="lazy" alt="The Cal Sans README on GitHub, scrolling: specimens, the axes, and how to install it."></span></a><figcaption>github.com/calcom/sans</figcaption></figure>
   <div class="body">
     <h2>The work shows</h2>
     <p>The sources are public, so the claims are checkable. Cal Sans has 1,546 glyphs, 402,680 kern pairs, and covers 414 languages. You do not have to take my word for any of it: <a href="https://github.com/calcom/sans">open the repository</a> and count.</p>
@@ -295,8 +303,10 @@ footer a:hover { color: var(--text); }
   </div>
 </section>
 
-<section class="reason grid">
+<section class="reason reason--pop grid">
   <div class="numeral" aria-hidden="true">3</div>
+  <figure class="pop-print"><img src="proof-reddit-typography.jpg" width="900" height="755" loading="lazy" alt="A Reddit comment on r/typography reporting that some stylistic sets in the v1.998 build do not work as intended, with details for ss02, ss03, ss05, and ss06."><figcaption>r/typography</figcaption></figure>
+  <figure class="pop-print" style="--i:1; --tilt:2.5deg"><img src="proof-reddit-logodesign.jpg" width="900" height="701" loading="lazy" alt="A Reddit comment on r/logodesign saying Cal Sans UI has potential, but the writer never commits to a font without obliques or italics."><figcaption>r/logodesign</figcaption></figure>
   <div class="body">
     <h2>Open fonts get finished</h2>
     <p>A retail font is finished the day it goes on sale. An open one keeps going. Cal Sans began in 2021 as a single display weight for Cal.com. Today it is one variable font with six axes, roman and italic, from small text to headlines.</p>
@@ -304,8 +314,9 @@ footer a:hover { color: var(--text); }
   </div>
 </section>
 
-<section class="reason grid">
+<section class="reason reason--pop grid">
   <div class="numeral" aria-hidden="true">4</div>
+  <figure class="pop-print"><a href="/gliffdiff/" target="_blank" rel="noopener"><img src="proof-gliffdiff.jpg" width="841" height="1000" loading="lazy" alt="GliffDiff: a proofing tool with modes for comparing glyphs, paragraphs, characters, overlay, waterfall, spacing, and metrics."></a><figcaption>GliffDiff</figcaption></figure>
   <div class="body">
     <h2>Tools can stand on it</h2>
     <p>When the font is open, the tooling can be too. <a href="/recalsans/">ReCal Sans</a> lets anyone tune Cal Sans in the browser and download a font with their decisions baked in. No upload, no account, and no permission to ask for, because the license already gave it.</p>
@@ -313,8 +324,9 @@ footer a:hover { color: var(--text); }
   </div>
 </section>
 
-<section class="reason grid">
+<section class="reason reason--pop grid">
   <div class="numeral" aria-hidden="true">5</div>
+  <figure class="pop-print"><a href="https://github.com/calcom/sans" target="_blank" rel="noopener"><img src="proof-repo.jpg" width="841" height="1000" loading="lazy" alt="The Cal Sans repository on GitHub: OFL-1.1 license, 1.8k stars, 56 forks."></a><figcaption>OFL-1.1</figcaption></figure>
   <div class="body">
     <h2>Paid for once, free for everyone after</h2>
     <p>Open does not mean unpaid. A company commissions a typeface because it needs one; that commission pays for the drawing. The license then hands the result to everybody else.</p>
@@ -349,7 +361,7 @@ footer a:hover { color: var(--text); }
 </footer>
 
 <div id="moc-pop" aria-hidden="true"><img alt="" width="640" height="480"><span></span></div>
-<script src="bricks.js?v=3"></script>
+<script src="bricks.js?v=6"></script>
 <script src="../js/marquee.js?v=1" defer></script>
 <script>
 (function () {
@@ -375,11 +387,17 @@ footer a:hover { color: var(--text); }
     el.addEventListener('pointerleave', hide);
     if (el.tagName !== 'A') el.addEventListener('click', function (e) { if (open === el) hide(); else show(el, e.clientX, e.clientY); e.stopPropagation(); });
   });
-  var popSec = document.querySelector('.reason--pop');
-  if (popSec) {
-    popSec.addEventListener('click', function (e) { if (matchMedia('(hover: none)').matches && !e.target.closest('a')) { popSec.classList.toggle('on'); e.stopPropagation(); } });
-    document.addEventListener('click', function () { popSec.classList.remove('on'); });
-  }
+  var popSecs = document.querySelectorAll('.reason--pop');
+  popSecs.forEach(function (sec) {
+    sec.addEventListener('click', function (e) {
+      if (!matchMedia('(hover: none)').matches || e.target.closest('a')) return;
+      var was = sec.classList.contains('on');
+      popSecs.forEach(function (o) { o.classList.remove('on'); });
+      if (!was) sec.classList.add('on');
+      e.stopPropagation();
+    });
+  });
+  document.addEventListener('click', function () { popSecs.forEach(function (o) { o.classList.remove('on'); }); });
   document.addEventListener('click', hide);
   addEventListener('scroll', hide, { passive: true });
 })();

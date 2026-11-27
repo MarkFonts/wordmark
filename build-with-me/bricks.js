@@ -1,7 +1,7 @@
 /* build-with-me hero: low-poly construction bricks, isometric, WebGL2, no libraries.
    A fixed pool of bricks is taken apart and rebuilt into the next thing, forever.
-   Models are voxel drawings: layers bottom→top, each layer a list of z-slots (a slot is
-   2 studs deep), each slot a string along x. '#' = the brick keeps its own color. */
+   The car is a voxel drawing: layers bottom→top, each layer a list of z-slots (a slot is
+   2 studs deep), each slot a string along x. The other builds are brick lists. */
 (function () {
   'use strict';
   var canvas = document.getElementById('bricks');
@@ -26,46 +26,68 @@
     }
     return layers;
   }
+  // One set: the car's 36 bricks (10 of 2×1, 12 of 2×2, 14 of 2×4; 28 red, 8 blue).
+  // The H and the heart are built from exactly those bricks, brick for brick, colors and all,
+  // so nothing is recolored or left over. They are explicit lists: [layer, slot, x, length, color].
   var MODELS = {
-    H: wall([
-      'WWW.....WWW', 'WWW.....WWW', 'WWW.....WWW',
-      'WWWWWWWWWWW', 'WWWWWWWWWWW',
-      'WWW.....WWW', 'WWW.....WWW', 'WWW.....WWW'], 1),
     car: [
       ['..KK....KK..', '.GGGGGGGGGG.', '..KK....KK..'],
       ['RRRRRRRRRRRY', 'WWWWWWWWWWWW', 'RRRRRRRRRRRY'],
       ['...RKKKKR...', '...WKKKKW...', '...RKKKKR...'],
       ['...RRRRRR...', '...WWWWWW...', '...RRRRRR...']],
-    heart: wall([
-      '.RR...RR.', 'RRRR.RRRR', 'RRRRRRRRR', '.RRRRRRR.',
-      '..RRRRR..', '...RRR...', '....R....'], 2),
-    // hidden: two of Mark's Brickshelf MOCs from 2005–06, as far as 1×n bricks can say them
-    dino: wall([
-      '.........RRRR..', '........RRRYRR.', '........RRRSRS.', 'R.....RRRRR....',
-      'RR..RRRRRRR.R..', '.RRRRRRRRRR....', '....BB..BB.....', '....BBB.BBB....'], 1),
-    robot: wall([
-      'W...WWW...W', 'WW..WEW..WW', '.KKKKKKKKK.', '...KKKKK...',
-      '....KKK....', '...WW.WW...', '...K...K...', '..WW...WW..'], 1)
+    H: { w: 14, slots: 2, bricks: [
+      // a plinth two rows deep, blue in front; the letter stands on the back row
+      [0,1,0,4,'K'],[0,1,4,4,'K'],[0,1,8,2,'K'],[0,1,10,2,'K'],[0,1,12,2,'K'],
+      [0,0,0,4,'G'],[0,0,4,4,'G'],[0,0,8,2,'K'],[0,0,10,2,'G'],[0,0,12,2,'K'],
+      // two legs of 2×4s and a bar of the small bricks
+      [1,0,0,4,'W'],[1,0,10,4,'R'],
+      [2,0,0,4,'W'],[2,0,10,4,'R'],
+      [3,0,0,4,'W'],[3,0,10,4,'R'],
+      [4,0,0,2,'R'],[4,0,2,1,'R'],[4,0,3,1,'R'],[4,0,4,1,'Y'],[4,0,5,2,'R'],[4,0,7,2,'R'],[4,0,9,1,'Y'],[4,0,10,2,'K'],[4,0,12,1,'R'],[4,0,13,1,'R'],
+      [5,0,0,4,'W'],[5,0,10,4,'R'],
+      [6,0,0,2,'W'],[6,0,2,1,'W'],[6,0,3,1,'W'],[6,0,10,4,'R'],
+      [7,0,0,2,'R'],[7,0,2,1,'R'],[7,0,3,1,'R'],[7,0,10,4,'R']] },
+    heart: { w: 9, slots: 2, bricks: [
+      // a blue plinth
+      [0,1,1,4,'K'],[0,1,5,4,'K'],[0,0,1,2,'K'],[0,0,3,2,'K'],[0,0,5,2,'K'],[0,0,7,2,'K'],
+      // front: every red brick but one
+      [1,1,4,1,'R'],
+      [2,1,3,2,'R'],[2,1,5,1,'R'],
+      [3,1,2,1,'R'],[3,1,3,4,'R'],
+      [4,1,1,4,'R'],[4,1,5,1,'R'],[4,1,6,2,'R'],
+      [5,1,0,4,'R'],[5,1,4,1,'R'],[5,1,5,4,'R'],
+      [6,1,0,4,'R'],[6,1,5,4,'R'],
+      [7,1,1,2,'R'],[7,1,6,2,'R'],
+      // back: the same heart again, blue on top of the lobes
+      [1,0,4,1,'Y'],
+      [2,0,3,1,'R'],[2,0,4,2,'G'],
+      [3,0,2,4,'W'],[3,0,6,1,'W'],
+      [4,0,1,2,'W'],[4,0,3,1,'W'],[4,0,4,4,'W'],
+      [5,0,0,4,'G'],[5,0,4,1,'Y'],[5,0,5,4,'G'],
+      [6,0,0,4,'W'],[6,0,5,4,'W'],
+      [7,0,1,2,'K'],[7,0,6,2,'K']] }
   };
   var LOOP = ['H', 'car', 'heart'];
-  var SECRET = ['dino', 'robot'];
-  var NAMES = LOOP.concat(SECRET);
+  var NAMES = LOOP;
 
   function hex(h) { return [parseInt(h.slice(1, 3), 16) / 255, parseInt(h.slice(3, 5), 16) / 255, parseInt(h.slice(5, 7), 16) / 255]; }
+  // The letters in the models mark separate bricks; two paints cover them all:
+  // the body is red, the wheels and windows are blue.
   function colors() {
-    var L = light.matches;
+    var red = hex('#e8402f'), blue = hex('#2f5fd0');
     return {
-      key: { R: hex('#e8402f'), E: hex('#ff3b30'), B: hex('#2f5fd0'), W: hex(L ? '#ffffff' : '#f2f2ee'),
-             K: hex(L ? '#1c1d20' : '#3a3d43'), G: hex('#8f959d'), S: hex('#c9cdd2'), Y: hex(L ? '#96d500' : '#eeff41') },
-      own: (L ? ['#1c1d20', '#1c1d20', '#4a4e55', '#96d500', '#e8402f', '#9aa0a8']
-              : ['#f2f2ee', '#f2f2ee', '#c9cdd2', '#eeff41', '#e8402f', '#8f959d']).map(hex),
-      plate: hex(L ? '#dfe5ec' : '#202020')
+      key: { R: red, W: red, G: red, Y: red, K: blue },
+      plate: hex(light.matches ? '#dfe5ec' : '#202020')
     };
   }
   var COL = colors();
 
   // tile every model into 2×n bricks (n = 1..4), running bond
   function tile(layers) {
+    if (layers.bricks) {
+      var ex0 = Math.floor((PLATE_X - layers.w) / 2), ez0 = (PLATE_Z - layers.slots * 2) / 2;
+      return layers.bricks.map(function (b) { return { n: b[3], x: ex0 + b[2], y: b[0] * H, z: ez0 + b[1] * 2, c: b[4] }; });
+    }
     var out = [], w = 0, slots = 0;
     layers.forEach(function (sl) { slots = Math.max(slots, sl.length); sl.forEach(function (s) { w = Math.max(w, s.length); }); });
     var x0 = Math.floor((PLATE_X - w) / 2), z0 = (PLATE_Z - slots * 2) / 2;
@@ -89,25 +111,21 @@
   }
   var TILED = {}; NAMES.forEach(function (k) { TILED[k] = tile(MODELS[k]); });
 
-  // the pool: per length, as many bricks as the hungriest model needs
-  var count = [0, 0, 0, 0, 0];
-  NAMES.forEach(function (k) {
-    var c = [0, 0, 0, 0, 0]; TILED[k].forEach(function (b) { c[b.n]++; });
-    for (var n = 1; n <= 4; n++) count[n] = Math.max(count[n], c[n]);
-  });
+  // the pool is the car's bricks: each keeps its length and its color for good
   function rnd(i) { var x = Math.sin(i * 127.1 + 311.7) * 43758.5453; return x - Math.floor(x); }
+  var count = [0, 0, 0, 0, 0];
   var pool = [null, [], [], [], []];
-  var seed = 1;
-  for (var n = 1; n <= 4; n++) for (var i = 0; i < count[n]; i++) {
-    seed++;
-    pool[n].push({
-      own: Math.floor(rnd(seed) * 6),
-      hx: 1 + rnd(seed + .1) * (PLATE_X - 2 - n), hy: 11.5 + rnd(seed + .2) * 3, hz: 1 + rnd(seed + .3) * (PLATE_Z - 4),
+  TILED.car.forEach(function (b, i) {
+    var seed = i + 2;
+    count[b.n]++;
+    pool[b.n].push({
+      c: b.c,
+      hx: 1 + rnd(seed + .1) * (PLATE_X - 2 - b.n), hy: 11.5 + rnd(seed + .2) * 3, hz: 1 + rnd(seed + .3) * (PLATE_Z - 4),
       yaw: (rnd(seed + .4) - .5) * 2.4, ph: rnd(seed + .5) * 6.28,
       pose: {}
     });
-  }
-  // give every brick a pose in every model: {x,y,z,c,leave,land} or nothing (it sits the build out)
+  });
+  // every model must be exactly the same set; a brick goes only where its length and color are wanted
   NAMES.forEach(function (k, m) {
     var t = TILED[k], maxY = 0;
     t.forEach(function (b) { maxY = Math.max(maxY, b.y); });
@@ -117,9 +135,15 @@
       b.leave = maxY ? (1 - b.y / maxY) * .8 + rnd(i + m * 31) * .2 : 0;
     });
     for (var n = 1; n <= 4; n++) {
-      var list = order.filter(function (b) { return b.n === n; });
-      var rot = (m * 5) % (count[n] || 1);
-      list.forEach(function (b, j) { pool[n][(j + rot) % count[n]].pose[k] = b; });
+      var free = pool[n].slice();
+      if (m) free = free.slice(m * 3 % free.length).concat(free.slice(0, m * 3 % free.length));   // shuffle who goes where
+      order.filter(function (b) { return b.n === n; }).forEach(function (b) {
+        var at = -1;
+        for (var q = 0; q < free.length; q++) if (free[q].c === b.c) { at = q; break; }
+        if (at < 0) throw new Error('bricks: ' + k + ' wants a 2x' + n + ' ' + b.c + ' the set does not have');
+        free.splice(at, 1)[0].pose[k] = b;
+      });
+      if (free.length) throw new Error('bricks: ' + k + ' leaves ' + free.length + ' 2x' + n + ' unused');
     }
   });
 
@@ -187,7 +211,7 @@
   }
   var plate = mesh(plateMesh(), 1);
   var meshes = [null];
-  for (n = 1; n <= 4; n++) meshes.push(count[n] ? mesh(brickMesh(n), count[n]) : null);
+  for (var n = 1; n <= 4; n++) meshes.push(count[n] ? mesh(brickMesh(n), count[n]) : null);
   gl.enable(gl.DEPTH_TEST); gl.enable(gl.CULL_FACE); gl.clearColor(0, 0, 0, 0);
 
   /* ── timeline ───────────────────────────────────────── */
@@ -196,7 +220,7 @@
   function clamp01(x) { return x < 0 ? 0 : x > 1 ? 1 : x; }
   function easeOut(x) { return 1 - Math.pow(1 - x, 3); }
   function easeIn(x) { return x * x * (3 - 2 * x) * x; }       // slow lift-off, firm landing
-  function colorOf(b, pose) { return pose && pose.c !== '#' ? COL.key[pose.c] : COL.own[b.own]; }
+
 
   function fill(t) {
     var k = Math.floor(t / P), u = t - k * P;
@@ -218,8 +242,8 @@
         D[o + 3] = (b.yaw + Math.sin(t * .5 + b.ph) * .5) * a * (1 - e);
         var s0 = s ? 1 : 0, s1 = d ? 1 : 0, mid = (s || d) ? 1 : 0;
         var sc = s0 + (mid - s0) * a; D[o + 4] = sc + (s1 - sc) * e;
-        var c0 = colorOf(b, s), c1 = colorOf(b, d);
-        D[o + 5] = c0[0] + (c1[0] - c0[0]) * a; D[o + 6] = c0[1] + (c1[1] - c0[1]) * a; D[o + 7] = c0[2] + (c1[2] - c0[2]) * a;
+        var col = COL.key[b.c];
+        D[o + 5] = col[0]; D[o + 6] = col[1]; D[o + 7] = col[2];
       }
     }
   }
@@ -268,7 +292,8 @@
   window.bricks = { setT: function (t) { manual = true; T = t; draw(T); }, play: function () { manual = false; kick(); }, period: P, force: function (k, name) { forced[k] = name; },
     cycle: function () { return Math.floor(T / P); },
     // the hidden builds (index.html's concealed rollovers): the next thing built is `name`
-    next: function (name) { if (MODELS[name]) forced[Math.floor(T / P) + 1] = name; } };
+    next: function (name) { if (LOOP.indexOf(name) >= 0) forced[Math.floor(T / P) + 1] = name; } };
   canvas.classList.add('is-live');
-  kick();
+  var qt = /[?&]t=([\d.]+)/.exec(location.search);
+  if (qt) window.bricks.setT(+qt[1]); else kick();
 })();
