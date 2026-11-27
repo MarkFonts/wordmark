@@ -34,13 +34,13 @@ for x,r in MUD:
 random.seed(SEED)
 random.seed(SEED)
 inw=[]
-for _ in range(400):
-    if len(inw)==7: break
-    r=random.randint(2,11); x=random.randint(0,W-6)
-    cells=[(x+i,r) for i in range(6)]
-    if all(occ.get(c)=='.' for c in cells) and all(abs(r-q[1])>0 for q in inw):
-        take(cells,'X'); inw.append((x,r)); P.append(('X',x,r,1,1)); random.random()
-if len(inw)<7: sys.exit(3)
+for kind,n,z in [('8',8,0),('8',8,0),('6',6,0),('6',6,0),('X',6,1),('X',6,1)]:
+    for _ in range(400):
+        r=random.randint(1,12); x=random.randint(0,W-n)
+        cells=[(x+i,r) for i in range(n)]
+        if all(occ.get(c)=='.' for c in cells) and all(abs(r-q[1])>0 for q in inw):
+            take(cells,kind); inw.append((x,r)); P.append((kind,x,r,z,1)); break
+if len(inw)<6: sys.exit(3)
 def runs_now():
     out=[]
     for r in range(16):
@@ -54,21 +54,26 @@ def runs_now():
     return out
 LIT=set()
 picks=[]
-free=[c for c,v in occ.items() if v=='.' and 1<=c[1]<=13]
-for _ in range(3000):
-    if len(picks)==20: break
-    c=random.choice(free)
-    if all(abs(c[0]-p[0])+abs(c[1]-p[1])>1 for p in picks): picks.append(c)
-if len(picks)!=20: print('picks',len(picks)); sys.exit(3)
+cand=[q for q in runs_now() if 1<=q[0]<=13 and q[2]>=1]
+random.shuffle(cand); rows_used={}
+for r,a,n in cand:
+    if len(picks)>=18: break
+    if rows_used.get(r,0)>=4: continue
+    if n%2: o=random.randrange(0,n,2); new_=[(a+o,r)]
+    else:
+        if n<2 or len(picks)>16: continue
+        ev=random.randrange(0,n-1,2); od=random.choice([q for q in range(ev+1,n,2)]); new_=[(a+ev,r),(a+od,r)]
+    picks+=new_; rows_used[r]=rows_used.get(r,0)+len(new_)
+if len(picks)!=18: print('picks',len(picks)); sys.exit(3)
 for x,r in picks:
     take([(x,r)],'E'); P.append(('E',x,r,1,'z'))
     if len(LIT)<5: LIT.add((x,r)); P.append(('O',x+.37,r,1.5175,'z'))
 P.append(('P',7,6+2.8/1.2,-3.2,'tilt'))
 plain=sum(1 for v in occ.values() if v=='.')
-print('plain cells',plain,'need',56)
+print('plain cells',plain,'need',60)
 for r in range(15,-1,-1): print('%2d '%r+''.join(occ.get((x,r),' ') for x in range(W)))
-if plain!=56: sys.exit(3)
-need={4:1,2:17,1:18}
+if plain!=60: sys.exit(3)
+need={4:5,2:17,1:6}
 runs=[]
 for r in range(16):
     x=0
@@ -82,7 +87,7 @@ random.seed(SEED)
 best=None
 odd=sum(1 for r,a,n in runs if n%2)
 print('odd runs',odd)
-if odd>18 or (18-odd)%2: sys.exit(3)
+if odd>6 or (6-odd)%2: sys.exit(3)
 for attempt in range(4000):
     left=dict(need); out=[]; ok=True
     segs=[]
@@ -116,9 +121,9 @@ for c in ups:
 if len(chosen)<3: sys.exit(3)
 for x,r in chosen: P.append(('O',x+.37,r+1+(.1275-.58*1.2)/1.2,2.0,'up'))
 # two spare 1x2 bricks stand a stud proud of the face
-flat2=[(x,r) for (x,r),v in occ.items() if v=='.' and (x,r) not in out_cells and (x,r-1) not in chosen and 2<=r<=12]
+flat2=[(x,r) for (x,r),v in occ.items() if v=='.' and (x,r) not in out_cells and (x+1,r) not in out_cells and occ.get((x+1,r))=='.' and (x,r-1) not in chosen and (x+1,r-1) not in chosen and 2<=r<=12]
 random.shuffle(flat2)
-for x,r in flat2[:2]: P.append(('1',x,r,2,1))
+for x,r in flat2[:1]: P.append(('2',x,r,2,1))
 flat=[(x,r) for (x,r),v in occ.items() if v=='.' and (x,r) not in out_cells]
 fl=set(flat); spots=[(x,r) for x,r in flat if all((x+i,r) in fl for i in range(6)) and all((x+i,r-1) not in chosen for i in range(6)) and 2<=r<=13 and all(abs(r-q[1])>1 for q in inw)]
 

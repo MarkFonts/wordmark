@@ -33,19 +33,18 @@
         [0, 1].forEach(function (y) { [2, 4, 14, 16].forEach(function (x) { add('2', x, y, z); }); });
       } else {
         var md = z === 0 ? -1 : 1; add('M', 2, 0, z, md); add('M', 14, 0, z, md);
-        // the doors: one stud thick, a 1×6 and a lengthwise 1×2 per row, staggered; nothing behind them
-        var zo = z ? 5 : 0, zt = z ? 4.5 : -.5;
-        add('X', 6, 0, zo); p.push({ k: '1', x: 12.5, y: 0, z: zt, d: 1, c: 'R', t: Math.PI / 2 });
-        p.push({ k: '1', x: 6.5, y: 1, z: zt, d: 1, c: 'R', t: Math.PI / 2 }); add('X', 8, 1, zo);
+        // the doors: a 2×8 along the bottom, a 2×2 and a 2×6 above it
+        add('8', 6, 0, z); add('2', 6, 1, z); add('6', 8, 1, z);
       }
-      add('1', 1, 2, z); add('2', 2, 2, z); add('1', 14, 2, z); add('1', 16, 2, z); add('2', 17, 2, z);
-      add('1', 13, 2, z);
-      if (mid) add('4', 4, 2, z);
-      else {                                                            // the beltline: a 1×6 along the outside, 1×2s lengthwise behind it
+      add('1', 1, 2, z); add('2', 2, 2, z);
+      // the hood: four 2×4s and two 2×2s, the middle lane running from under the windshield to the nose
+      if (mid) { add('4', 4, 2, z); add('4', 12, 2, z); add('4', 16, 2, z); }
+      else {
+        add('2', 13, 2, z); add('4', 15, 2, z);                                                            // the beltline: a 1×6 along the outside, 1×2s lengthwise behind it
         add('1', 4, 2, z); add('X', 5, 2, z ? 5 : 0);
         // nothing behind the beltline: the cabin is open
       }                // no floor where the seats would be
-      if (mid) { add('1', 0, 2, z); add('1', 19, 2, z); }
+      if (mid) add('1', 0, 2, z);
       else [0, 1].forEach(function (dz) {
         add('E', 0, 2, z + dz, -1); add('E', 19, 2, z + dz, 1);
         add('O', -.145, 2, z + dz, 1, 'B'); add('O', 19.89, 2, z + dz, 1, 'B');   // a blue round 1×1 plate pressed onto each side stud
@@ -54,9 +53,8 @@
       add('L', 4, 4, z, -1);
     });
     // eight more headlight bricks inside the cabin, on its back and front walls, studs facing in
-    p.push({ k: 'X', x: 12.5, y: 2, z: 2.5, d: 1, c: 'R', t: Math.PI / 2 });   // a 1×6 across the hood
     // everything under the windshield is headlight bricks, studs facing back into the cabin: twelve of them
-    [11, 12].forEach(function (x) { [0, 1, 2, 3, 4, 5].forEach(function (z) { add('E', x, 2, z, -1); }); });
+    [11, 12].forEach(function (x) { [0, 1, 2, 3, 4, 5].forEach(function (z) { if (x === 11 || z < 2 || z > 3) add('E', x, 2, z, -1); }); });
     add('P', 6, 5, 0);                                                  // roof
     [4, 16].forEach(function (x) { [[-.35, -.47], [4.95, 6.35]].forEach(function (zz) {
       add('W', x - 1.5, -1 + .04, zz[0], 1, 'K'); add('H', x - .8, -1 + .625, zz[1], 1, 'G');
@@ -71,28 +69,48 @@
       { k: 'T', x: 8, y: 12, z: 0 }, { k: 'T', x: 10, y: 12, z: 0, d: -1 }, { k: 'L', x: 2, y: 14, z: 0, d: -1 }, { k: 'L', x: 15, y: 14, z: 0 },
       { k: 'L', x: 6, y: 14, z: 0 }, { k: 'L', x: 11, y: 14, z: 0, d: -1 }, { k: 'L', x: 3, y: 15, z: 0, d: -1 }, { k: 'L', x: 14, y: 15, z: 0 },
       { k: 'M', x: 2, y: 9, z: 0 }, { k: 'M', x: 13, y: 11, z: 0 }, { k: 'M', x: 5, y: 6, z: 0 }, { k: 'M', x: 9, y: 4, z: 0 },
-      { k: 'X', x: 7, y: 8, z: 1 }, { k: 'X', x: 8, y: 10, z: 1 }, { k: 'X', x: 5, y: 11, z: 1 }, { k: 'X', x: 9, y: 6, z: 1 },
-      { k: 'X', x: 11, y: 9, z: 1 }, { k: 'X', x: 12, y: 7, z: 1 }, { k: 'X', x: 7, y: 3, z: 1 }, { k: 'E', x: 3, y: 12, z: 1, t: -Math.PI / 2 },
-      { k: 'O', x: 3.37, y: 12, z: 1.5175, t: -Math.PI / 2 }, { k: 'E', x: 15, y: 8, z: 1, t: -Math.PI / 2 }, { k: 'O', x: 15.37, y: 8, z: 1.5175, t: -Math.PI / 2 }, { k: 'E', x: 4, y: 7, z: 1, t: -Math.PI / 2 },
-      { k: 'O', x: 4.37, y: 7, z: 1.5175, t: -Math.PI / 2 }, { k: 'E', x: 6, y: 5, z: 1, t: -Math.PI / 2 }, { k: 'O', x: 6.37, y: 5, z: 1.5175, t: -Math.PI / 2 }, { k: 'E', x: 2, y: 8, z: 1, t: -Math.PI / 2 },
-      { k: 'O', x: 2.37, y: 8, z: 1.5175, t: -Math.PI / 2 }, { k: 'E', x: 8, y: 4, z: 1, t: -Math.PI / 2 }, { k: 'E', x: 16, y: 13, z: 1, t: -Math.PI / 2 }, { k: 'E', x: 5, y: 13, z: 1, t: -Math.PI / 2 },
-      { k: 'E', x: 6, y: 9, z: 1, t: -Math.PI / 2 }, { k: 'E', x: 14, y: 10, z: 1, t: -Math.PI / 2 }, { k: 'E', x: 9, y: 7, z: 1, t: -Math.PI / 2 }, { k: 'E', x: 14, y: 13, z: 1, t: -Math.PI / 2 },
-      { k: 'E', x: 18, y: 9, z: 1, t: -Math.PI / 2 }, { k: 'E', x: 17, y: 11, z: 1, t: -Math.PI / 2 }, { k: 'E', x: 1, y: 9, z: 1, t: -Math.PI / 2 }, { k: 'E', x: 17, y: 8, z: 1, t: -Math.PI / 2 },
-      { k: 'E', x: 13, y: 8, z: 1, t: -Math.PI / 2 }, { k: 'E', x: 8, y: 9, z: 1, t: -Math.PI / 2 }, { k: 'E', x: 7, y: 10, z: 1, t: -Math.PI / 2 }, { k: 'E', x: 12, y: 11, z: 1, t: -Math.PI / 2 },
-      { k: 'P', x: 7, y: 8.3333, z: -3.2, tilt: Math.PI / 2 }, { k: '1', x: 7, y: 4, z: 0 }, { k: '1', x: 5, y: 5, z: 0 }, { k: '1', x: 1, y: 8, z: 0 },
-      { k: '1', x: 14, y: 8, z: 0 }, { k: '1', x: 16, y: 8, z: 0 }, { k: '1', x: 18, y: 8, z: 0 }, { k: '1', x: 7, y: 9, z: 0 },
-      { k: '1', x: 17, y: 9, z: 0 }, { k: '1', x: 1, y: 10, z: 0 }, { k: '1', x: 6, y: 10, z: 0 }, { k: '1', x: 11, y: 11, z: 0 },
-      { k: '1', x: 18, y: 11, z: 1 }, { k: '1', x: 12, y: 12, z: 0 }, { k: '1', x: 15, y: 13, z: 0 }, { k: '1', x: 5, y: 14, z: 0 },
-      { k: '1', x: 14, y: 14, z: 0 }, { k: '1', x: 6, y: 15, z: 0 }, { k: '1', x: 13, y: 15, z: 0 }, { k: '2', x: 7, y: 5, z: 0 },
-      { k: '4', x: 1, y: 11, z: 0 }, { k: '2', x: 4, y: 12, z: 0 }, { k: '2', x: 6, y: 12, z: 0 }, { k: '2', x: 9, y: 2, z: 0 },
-      { k: '2', x: 15, y: 10, z: 1 }, { k: '2', x: 17, y: 10, z: 0 }, { k: '2', x: 3, y: 8, z: 0 }, { k: '2', x: 5, y: 8, z: 0 },
-      { k: '2', x: 2, y: 7, z: 1 }, { k: '2', x: 9, y: 9, z: 0 }, { k: '2', x: 9, y: 1, z: 0 }, { k: '2', x: 10, y: 7, z: 0 },
-      { k: '2', x: 9, y: 0, z: 1 }, { k: '2', x: 3, y: 13, z: 0 }, { k: '2', x: 6, y: 13, z: 0 }, { k: '2', x: 13, y: 5, z: 0 },
-      { k: '2', x: 12, y: 13, z: 0 }, { k: 'O', x: 3.37, y: 7.5263, z: 2.0, t: -Math.PI / 2, tilt: -Math.PI / 2 }, { k: 'O', x: 10.37, y: 0.5262, z: 2.0, t: -Math.PI / 2, tilt: -Math.PI / 2 }, { k: 'O', x: 18.37, y: 11.5262, z: 2.0, t: -Math.PI / 2, tilt: -Math.PI / 2 },
-      { k: '1', x: 7, y: 4, z: 2 }, { k: '1', x: 11, y: 11, z: 2 }] } };
-  var LOOP = ['car', 'heart'];
+      { k: '8', x: 3, y: 8, z: 0 }, { k: '8', x: 9, y: 10, z: 0 }, { k: '6', x: 7, y: 3, z: 0 }, { k: '6', x: 12, y: 9, z: 0 },
+      { k: 'X', x: 9, y: 7, z: 1 }, { k: 'X', x: 5, y: 11, z: 1 }, { k: 'E', x: 17, y: 7, z: 1, t: -Math.PI / 2 }, { k: 'O', x: 17.37, y: 7, z: 1.5175, t: -Math.PI / 2 },
+      { k: 'E', x: 12, y: 12, z: 1, t: -Math.PI / 2 }, { k: 'O', x: 12.37, y: 12, z: 1.5175, t: -Math.PI / 2 }, { k: 'E', x: 1, y: 9, z: 1, t: -Math.PI / 2 }, { k: 'O', x: 1.37, y: 9, z: 1.5175, t: -Math.PI / 2 },
+      { k: 'E', x: 6, y: 10, z: 1, t: -Math.PI / 2 }, { k: 'O', x: 6.37, y: 10, z: 1.5175, t: -Math.PI / 2 }, { k: 'E', x: 10, y: 9, z: 1, t: -Math.PI / 2 }, { k: 'O', x: 10.37, y: 9, z: 1.5175, t: -Math.PI / 2 },
+      { k: 'E', x: 11, y: 9, z: 1, t: -Math.PI / 2 }, { k: 'E', x: 18, y: 9, z: 1, t: -Math.PI / 2 }, { k: 'E', x: 1, y: 10, z: 1, t: -Math.PI / 2 }, { k: 'E', x: 3, y: 12, z: 1, t: -Math.PI / 2 },
+      { k: 'E', x: 3, y: 11, z: 1, t: -Math.PI / 2 }, { k: 'E', x: 4, y: 11, z: 1, t: -Math.PI / 2 }, { k: 'E', x: 5, y: 5, z: 1, t: -Math.PI / 2 }, { k: 'E', x: 6, y: 5, z: 1, t: -Math.PI / 2 },
+      { k: 'E', x: 9, y: 1, z: 1, t: -Math.PI / 2 }, { k: 'E', x: 10, y: 1, z: 1, t: -Math.PI / 2 }, { k: 'E', x: 2, y: 7, z: 1, t: -Math.PI / 2 }, { k: 'E', x: 1, y: 8, z: 1, t: -Math.PI / 2 },
+      { k: 'E', x: 2, y: 8, z: 1, t: -Math.PI / 2 }, { k: 'P', x: 7, y: 8.3333, z: -3.2, tilt: Math.PI / 2 }, { k: '1', x: 7, y: 13, z: 0 }, { k: '1', x: 16, y: 13, z: 0 },
+      { k: '1', x: 5, y: 14, z: 0 }, { k: '1', x: 14, y: 14, z: 0 }, { k: '1', x: 6, y: 15, z: 0 }, { k: '1', x: 13, y: 15, z: 0 },
+      { k: '2', x: 9, y: 0, z: 0 }, { k: '2', x: 17, y: 11, z: 0 }, { k: '2', x: 15, y: 7, z: 0 }, { k: '2', x: 9, y: 2, z: 0 },
+      { k: '4', x: 9, y: 6, z: 0 }, { k: '2', x: 13, y: 6, z: 1 }, { k: '2', x: 7, y: 5, z: 0 }, { k: '2', x: 17, y: 10, z: 0 },
+      { k: '2', x: 11, y: 11, z: 1 }, { k: '4', x: 3, y: 13, z: 1 }, { k: '2', x: 3, y: 7, z: 0 }, { k: '4', x: 11, y: 8, z: 0 },
+      { k: '4', x: 15, y: 8, z: 0 }, { k: '2', x: 1, y: 11, z: 0 }, { k: '4', x: 12, y: 13, z: 0 }, { k: '2', x: 6, y: 9, z: 1 },
+      { k: '2', x: 8, y: 9, z: 0 }, { k: '2', x: 7, y: 10, z: 1 }, { k: '2', x: 7, y: 4, z: 0 }, { k: '2', x: 4, y: 12, z: 1 },
+      { k: '2', x: 6, y: 12, z: 0 }, { k: '2', x: 13, y: 5, z: 1 }, { k: 'O', x: 8.37, y: 10.5262, z: 2.0, t: -Math.PI / 2, tilt: -Math.PI / 2 }, { k: 'O', x: 4.37, y: 13.5262, z: 2.0, t: -Math.PI / 2, tilt: -Math.PI / 2 },
+      { k: 'O', x: 14.37, y: 6.5263, z: 2.0, t: -Math.PI / 2, tilt: -Math.PI / 2 }, { k: '2', x: 12, y: 8, z: 2 }] },
+    // a bold single-story a, generated (_a-layout.py) from the same pieces
+    a: { w: 16, slots: 1, pieces: [
+      { k: 'J', x: 1, y: 0, z: 0, d: -1 }, { k: 'J', x: 0, y: 2, z: 0, d: -1 }, { k: 'J', x: 9, y: 0, z: 0 }, { k: 'J', x: 14, y: 0, z: 0 },
+      { k: 'J', x: 4, y: 7, z: 0 }, { k: 'J', x: 8, y: 7, z: 0, d: -1 }, { k: 'U', x: 0, y: 10, z: 1, d: -1 }, { k: 'U', x: 0, y: 10, z: 0, d: -1 },
+      { k: 'T', x: 10, y: 12, z: 0 }, { k: 'T', x: 14, y: 12, z: 0 }, { k: 'L', x: 1, y: 12, z: 0, d: -1 }, { k: 'L', x: 3, y: 13, z: 0, d: -1 },
+      { k: 'L', x: 7, y: 13, z: 0 }, { k: 'L', x: 4, y: 4, z: 0 }, { k: 'L', x: 7, y: 4, z: 0, d: -1 }, { k: 'M', x: 0, y: 5, z: 0 },
+      { k: 'M', x: 10, y: 5, z: 0 }, { k: 'M', x: 4, y: 1, z: 0 }, { k: 'M', x: 5, y: 9, z: 0 }, { k: 'P', x: 3, y: 7.3333, z: -3.2, tilt: Math.PI / 2 },
+      { k: '8', x: 8, y: 11, z: 0 }, { k: '8', x: 4, y: 3, z: 0 }, { k: '6', x: 10, y: 9, z: 0 }, { k: '6', x: 10, y: 7, z: 0 },
+      { k: 'X', x: 10, y: 8, z: 1 }, { k: 'X', x: 9, y: 10, z: 1 }, { k: 'E', x: 15, y: 10, z: 1, t: -Math.PI / 2 }, { k: 'O', x: 15.37, y: 10, z: 1.5175, t: -Math.PI / 2 },
+      { k: 'E', x: 9, y: 9, z: 1, t: -Math.PI / 2 }, { k: 'O', x: 9.37, y: 9, z: 1.5175, t: -Math.PI / 2 }, { k: 'E', x: 8, y: 1, z: 1, t: -Math.PI / 2 }, { k: 'O', x: 8.37, y: 1, z: 1.5175, t: -Math.PI / 2 },
+      { k: 'E', x: 14, y: 6, z: 1, t: -Math.PI / 2 }, { k: 'O', x: 14.37, y: 6, z: 1.5175, t: -Math.PI / 2 }, { k: 'E', x: 15, y: 6, z: 1, t: -Math.PI / 2 }, { k: 'O', x: 15.37, y: 6, z: 1.5175, t: -Math.PI / 2 },
+      { k: 'E', x: 13, y: 1, z: 1, t: -Math.PI / 2 }, { k: 'E', x: 12, y: 2, z: 1, t: -Math.PI / 2 }, { k: 'E', x: 13, y: 2, z: 1, t: -Math.PI / 2 }, { k: 'E', x: 14, y: 5, z: 1, t: -Math.PI / 2 },
+      { k: 'E', x: 15, y: 5, z: 1, t: -Math.PI / 2 }, { k: 'E', x: 4, y: 11, z: 1, t: -Math.PI / 2 }, { k: 'E', x: 7, y: 11, z: 1, t: -Math.PI / 2 }, { k: 'E', x: 2, y: 7, z: 1, t: -Math.PI / 2 },
+      { k: 'E', x: 3, y: 7, z: 1, t: -Math.PI / 2 }, { k: 'E', x: 14, y: 3, z: 1, t: -Math.PI / 2 }, { k: 'E', x: 15, y: 3, z: 1, t: -Math.PI / 2 }, { k: 'E', x: 6, y: 8, z: 1, t: -Math.PI / 2 },
+      { k: 'E', x: 7, y: 8, z: 1, t: -Math.PI / 2 }, { k: '1', x: 3, y: 1, z: 1 }, { k: '1', x: 4, y: 9, z: 0 }, { k: '1', x: 4, y: 10, z: 0 },
+      { k: '1', x: 6, y: 13, z: 0 }, { k: '2', x: 2, y: 11, z: 1 }, { k: '2', x: 2, y: 10, z: 1 }, { k: '1', x: 12, y: 13, z: 0 },
+      { k: '1', x: 13, y: 13, z: 1 }, { k: '4', x: 0, y: 8, z: 0 }, { k: '2', x: 14, y: 2, z: 1 }, { k: '2', x: 11, y: 1, z: 1 },
+      { k: '2', x: 2, y: 3, z: 0 }, { k: '4', x: 3, y: 0, z: 0 }, { k: '2', x: 7, y: 0, z: 0 }, { k: '2', x: 5, y: 11, z: 0 },
+      { k: '4', x: 4, y: 12, z: 1 }, { k: '2', x: 8, y: 12, z: 0 }, { k: '4', x: 0, y: 4, z: 0 }, { k: '4', x: 0, y: 9, z: 1 },
+      { k: '2', x: 2, y: 2, z: 0 }, { k: '2', x: 8, y: 2, z: 1 }, { k: '2', x: 10, y: 2, z: 0 }, { k: '2', x: 12, y: 0, z: 1 },
+      { k: '2', x: 12, y: 3, z: 0 }, { k: '2', x: 10, y: 4, z: 0 }, { k: '2', x: 12, y: 4, z: 1 }, { k: '2', x: 14, y: 4, z: 0 },
+      { k: '2', x: 0, y: 7, z: 0 }, { k: '2', x: 12, y: 12, z: 0 }, { k: 'O', x: 4.37, y: 12.5262, z: 2.0, t: -Math.PI / 2, tilt: -Math.PI / 2 }, { k: 'O', x: 13.37, y: 0.5262, z: 2.0, t: -Math.PI / 2, tilt: -Math.PI / 2 },
+      { k: 'O', x: 0.37, y: 9.5262, z: 2.0, t: -Math.PI / 2, tilt: -Math.PI / 2 }, { k: 'L', x: 1, y: 4, z: 2 }] } };
+  var LOOP = ['car', 'a', 'heart'];
   var NAMES = LOOP;
-  var KINDS = ['1', '2', '4', 'X', 'L', 'J', 'E', 'P', 'M', 'W', 'H', 'U', 'O', 'T'];   // T is clear: drawn last
+  var KINDS = ['1', '2', '4', '6', '8', 'X', 'L', 'J', 'E', 'P', 'M', 'W', 'H', 'U', 'O', 'T'];   // T is clear: drawn last
 
   function hex(h) { return [parseInt(h.slice(1, 3), 16) / 255, parseInt(h.slice(3, 5), 16) / 255, parseInt(h.slice(5, 7), 16) / 255]; }
   function colors() {
@@ -298,7 +316,7 @@
   var plate = mesh(plateMesh(), 1);
   var KIND = {
     '1': { mesh: brickMesh(1), ctr: [.5, H / 2, 1] }, '2': { mesh: brickMesh(2), ctr: [1, H / 2, 1] },
-    '4': { mesh: brickMesh(4), ctr: [2, H / 2, 1] }, 'X': { mesh: brickMesh(6, 1), ctr: [3, H / 2, .5] },
+    '4': { mesh: brickMesh(4), ctr: [2, H / 2, 1] }, '6': { mesh: brickMesh(6), ctr: [3, H / 2, 1] }, '8': { mesh: brickMesh(8), ctr: [4, H / 2, 1] }, 'X': { mesh: brickMesh(6, 1), ctr: [3, H / 2, .5] },
     // slope 33° 3×2: one stud row high, falling over two studs to a lip
     'L': { mesh: prismMesh([[.03, .03], [2.97, .03], [2.97, .3], [1, H], [.03, H]], [[.5, H]]), ctr: [1.5, H / 2, 1] },
     // tall slope 2×2×2 (the windshield)
