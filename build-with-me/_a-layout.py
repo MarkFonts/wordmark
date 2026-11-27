@@ -27,13 +27,13 @@ for x,r in MUD:
 P.append(('P',3,5+2.8/1.2,-3.2,'tilt'))
 random.seed(SEED)
 inw=[]
-for kind,n,z in [('8',8,0),('8',8,0),('6',6,0),('6',6,0),('X',6,1),('X',6,1)]:
+for kind,n,z in [('X',6,1),('X',6,1)]:
     for _ in range(400):
         r=random.randint(1,11); x=random.randint(0,W-n)
         cells=[(x+i,r) for i in range(n)]
         if all(occ.get(c)=='.' for c in cells) and all(abs(r-q[1])>0 for q in inw):
             take(cells,kind); inw.append((x,r)); P.append((kind,x,r,z,1)); break
-if len(inw)<6: sys.exit(3)
+if len(inw)<2: sys.exit(3)
 def runs_now():
     out=[]
     for r in range(16):
@@ -62,10 +62,10 @@ for x,r in picks:
     take([(x,r)],'E'); P.append(('E',x,r,1,'z'))
     if len(LIT)<5: LIT.add((x,r)); P.append(('O',x+.37,r,1.5175,'z'))
 plain=sum(1 for v in occ.values() if v=='.')
-print('plain cells',plain,'need',62)
+print('plain cells',plain,'need',90)
 for r in range(13,-1,-1): print('%2d '%r+''.join(occ.get((x,r),' ') for x in range(W)))
-if plain!=62: sys.exit(3)
-need={4:5,2:18,1:6}
+if plain!=90: sys.exit(3)
+need={4:11,2:20,1:6}
 runs=[]
 for r in range(16):
     x=0
