@@ -32,16 +32,6 @@ for x,r in MUD:
     take([(x+i,r+j) for i in range(4) for j in range(2)],'M'); P.append(('M',x,r,0,1))
 # headlights facing out
 random.seed(SEED)
-random.seed(SEED)
-# four of the eight 1x6 bricks sit in the wall, front row
-inw=[]
-for _ in range(400):
-    if len(inw)==4: break
-    r=random.randint(1,12); x=random.randint(0,W-6)
-    cells=[(x+i,r) for i in range(6)]
-    if all(occ.get(c)=='.' for c in cells) and all(abs(r-q[1])>1 for q in inw):
-        take(cells,'X'); inw.append((x,r)); P.append(('X',x,r,1,1))
-if len(inw)<4: (print('FAIL1'),sys.exit(3))
 def runs_now():
     out=[]
     for r in range(16):
@@ -60,25 +50,24 @@ random.shuffle(cand)
 rows_used={}
 for r,a,n in cand:
     if len(picks)>=16: break
-    if rows_used.get(r,0)>=3: continue
+    if rows_used.get(r,0)>=2: continue
     if n%2:
         o=random.randrange(0,n,2); new_=[(a+o,r)]
     else:
-        if n<4 or len(picks)>14: continue
+        if n<6 or len(picks)>14: continue
         ev=random.randrange(0,n-3,2); od=random.choice([q for q in range(ev+3,n,2)]); new_=[(a+ev,r),(a+od,r)]
     if all(abs(c[0]-p[0])+abs(c[1]-p[1])>1 for c in new_ for p in picks):
         picks+=new_; rows_used[r]=rows_used.get(r,0)+len(new_)
-if len(picks)!=16: print('picks',len(picks)); (print('FAIL2'),sys.exit(3))
+if len(picks)!=16: print('picks',len(picks)); sys.exit(3)
 for x,r in picks:
     take([(x,r)],'E'); P.append(('E',x,r,1,'z'))
     if len(LIT)<5: LIT.add((x,r)); P.append(('O',x+.37,r,1.5175,'z'))
 P.append(('P',7,6+2.8/1.2,-3.2,'tilt'))
-
 plain=sum(1 for v in occ.values() if v=='.')
-print('plain cells',plain,'need',88)
+print('plain cells',plain,'need',108)
 for r in range(15,-1,-1): print('%2d '%r+''.join(occ.get((x,r),' ') for x in range(W)))
-if plain!=88: (print('FAIL3'),sys.exit(3))
-need={4:11,2:17,1:10}
+if plain!=108: sys.exit(3)
+need={4:14,2:22,1:8}
 runs=[]
 for r in range(16):
     x=0
@@ -92,30 +81,28 @@ random.seed(SEED)
 best=None
 odd=sum(1 for r,a,n in runs if n%2)
 print('odd runs',odd)
-if odd>10 or (10-odd)%2: (print('FAIL4'),sys.exit(3))
-left=dict(need); out=[]; segs=[]
-for r,a,n in runs:
-    if n%2:
-        if random.random()<.5: out.append(('1',a,r,0,1)); segs.append([r,a+1,n-1])
-        else: out.append(('1',a+n-1,r,0,1)); segs.append([r,a,n-1])
-        left[1]-=1
-    else: segs.append([r,a,n])
-cap=[q[2]//4 for q in segs]
-if sum(cap)>=left[4]:
-    f=[0]*len(segs); todo=left[4]
-    while todo:
-        i=random.choice([j for j in range(len(segs)) if f[j]<cap[j]]); f[i]+=1; todo-=1
-    pairs=left[1]//2; small=[]
-    for i,(r,a,n) in enumerate(segs): small+= [i]*((n-4*f[i])//2)
-    random.shuffle(small); pair_at=small[:pairs]
-    for i,(r,a,n) in enumerate(segs):
-        k2=(n-4*f[i])//2; kp=pair_at.count(i)
-        items=['4']*f[i]+['2']*(k2-kp)+['11']*kp; random.shuffle(items); x=a
-        for it in items:
-            if it=='11': out+=[('1',x,r,0,1),('1',x+1,r,0,1)]; x+=2
-            else: out.append((it,x,r,0,1)); x+=int(it)
-    best=out
-if not best: (print('FAIL5'),sys.exit(3))
+if odd>8 or (8-odd)%2: sys.exit(3)
+for attempt in range(4000):
+    left=dict(need); out=[]; ok=True
+    segs=[]
+    for r,a,n in runs:
+        if n%2:
+            if random.random()<.5: out.append(('1',a,r,0,1)); segs.append((r,a+1,n-1))
+            else: out.append(('1',a+n-1,r,0,1)); segs.append((r,a,n-1))
+            left[1]-=1
+        else: segs.append((r,a,n))
+    for r,a,n in random.sample(segs,len(segs)):
+        x=a
+        while n>0:
+            opts=[k for k in (4,2) if k<=n and left[k]>0]
+            if n>=2 and left[1]>=2: opts.append(11)
+            if not opts: ok=False;break
+            k=random.choices(opts,[ {4:8,2:3,11:1}[o] for o in opts])[0]
+            if k==11: out+= [('1',x,r,0,1),('1',x+1,r,0,1)]; left[1]-=2; x+=2; n-=2
+            else: out.append((str(k),x,r,0,1)); left[k]-=1; x+=k; n-=k
+        if not ok: break
+    if ok and all(v==0 for v in left.values()): best=out;break
+if not best: sys.exit(3)
 tiles=[(k,x,r,random.choice([0,0,0,1]),d) for k,x,r,z,d in best]
 P+=tiles
 # three plates lie face up on the front studs of bricks that stand out
@@ -125,17 +112,8 @@ random.shuffle(ups); chosen=[]
 for c in ups:
     if all(abs(c[0]-q[0])+abs(c[1]-q[1])>4 for q in chosen): chosen.append(c)
     if len(chosen)==3: break
-if len(chosen)<3: (print('FAIL6'),sys.exit(3))
+if len(chosen)<3: sys.exit(3)
 for x,r in chosen: P.append(('O',x+.37,r+1+(.1275-.58*1.2)/1.2,2.0,'up'))
-# the two 1x4 bricks (the car's door tops) stand one stud proud of the face
-flat=[(x,r) for (x,r),v in occ.items() if v=='.' and (x,r) not in out_cells]
-fl=set(flat); spots=[(x,r) for x,r in flat if all((x+i,r) in fl for i in range(6)) and all((x+i,r-1) not in chosen for i in range(6)) and 2<=r<=13]
-random.shuffle(spots); got=[]
-for c in spots:
-    if all(abs(c[1]-q[1])>1 for q in got): got.append(c)
-    if len(got)==4: break
-if len(got)<4: (print('FAIL7'),sys.exit(3))
-for x,r in got: P.append(('X',x,r,2,1))
 def js(p):
     k,x,y,z,d=p
     extra = ", t: -Math.PI / 2" if d=='z' else ", t: -Math.PI / 2, tilt: -Math.PI / 2" if d=='up' else (", tilt: Math.PI / 2" if d=='tilt' else (", d: -1" if d==-1 else ""))
