@@ -1,11 +1,15 @@
 /* build-with-me hero: low-poly construction bricks, isometric, WebGL2, no libraries.
-   One set of 36 pieces is taken apart and rebuilt into the next thing, forever: a car, a bold
-   single-story a, a heart. Every build uses every piece; none fades, shrinks or changes color.
-   A piece is [layer, slot, x, kind, dir, color]: a slot is 2 studs deep; kind is a brick's
-   length (1, 2, 4) or 'S' (2×2 slope) or 'I' (2×2 inverted slope); dir says which way a slope
-   faces (+1: the sloped half is on the +x side). Only the car names colors: the a and the heart
-   are patchwork, each piece arriving in whatever color it has. build-with-me's models were
-   generated and checked to be the same set; the engine throws if they ever are not. */
+   One set of pieces is taken apart and rebuilt into the next thing, forever: a car, a bold
+   single-story a, a heart. Every build uses the same pieces; none fades, shrinks or changes color.
+   The car's wheels roll away and its roof plate lifts out of the frame while the others are up.
+
+   A piece is { k: kind, x (studs), y (bricks), z (studs), d: direction, t: turn, tilt, c: color }.
+   Kinds: '1' '2' '4' are bricks 1, 2, 4 studs long and 2 deep; 'X' a 1×6; 'E' a 1×1 headlight brick;
+   'O' its round plate; 'L' a 3×2 slope; 'T' 'U' tall slopes (clear, and half-deep red); 'J' a tall
+   inverted slope; 'M' a mudguard; 'P' the roof plate; 'W' 'H' wheel and hubcap.
+   The car is written out by hand below (from Mark's side view). The a and the heart are generated:
+   _letters-flat.py and _heart-layout.py solve them from the car's exact set, and the engine throws
+   if a build ever asks for a piece the set does not have. */
 (function () {
   'use strict';
   var canvas = document.getElementById('bricks');
