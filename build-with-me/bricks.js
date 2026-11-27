@@ -41,7 +41,7 @@
         add('E', 0, 2, z + dz, -1); add('E', 19, 2, z + dz, 1);
         add('O', -.09, 2, z + dz, 1, 'B'); add('O', 19.89, 2, z + dz, 1, 'B');
       });
-      add('L', 2, 3, z, -1); add('2', 5, 3, z); add('T', 11, 3, z, 1);  // fastback, windshield
+      add('L', 2, 3, z, -1); add('2', 5, 3, z); if (z < 4) add('T', 11, 3, z + 1, 1, 'C'); else { add('U', 11, 3, 0, 1); add('U', 11, 3, 5, 1); }   // clear windshield, a red 1×2 pillar each side  // fastback, windshield
       add('L', 4, 4, z, -1);
     });
     add('P', 6, 5, 0);                                                  // roof
@@ -53,12 +53,12 @@
   var MODELS = { car: { w: 20, slots: 3, lift: 1, pieces: carPieces() } };
   var LOOP = ['car'];
   var NAMES = LOOP;
-  var KINDS = ['1', '2', '4', 'L', 'T', 'J', 'E', 'O', 'P', 'M', 'W', 'H'];
+  var KINDS = ['1', '2', '4', 'L', 'J', 'E', 'O', 'P', 'M', 'W', 'H', 'U', 'T'];   // T is clear: drawn last
 
   function hex(h) { return [parseInt(h.slice(1, 3), 16) / 255, parseInt(h.slice(3, 5), 16) / 255, parseInt(h.slice(5, 7), 16) / 255]; }
   function colors() {
     return {
-      key: { R: hex('#e8402f'), B: hex('#1487c9'), Y: hex(light.matches ? '#f2c200' : '#ffd92e'), K: hex(light.matches ? '#1c1c20' : '#34343c'), G: hex('#c9ccd2') },
+      key: { R: hex('#e8402f'), B: hex('#1487c9'), Y: hex(light.matches ? '#f2c200' : '#ffd92e'), C: hex('#cfeaff'), K: hex(light.matches ? '#1c1c20' : '#34343c'), G: hex('#c9ccd2') },
       plate: hex(light.matches ? '#dfe5ec' : '#202020')
     };
   }
@@ -226,14 +226,14 @@
     '  float y2=q.y*.81650-z1*.57735, z2=q.y*.57735+z1*.81650;\n' +
     '  vC=iC*(.69+.31*n.y+.09*n.z-.09*n.x);\n' +
     '  gl_Position=vec4(x1*uS.x, y2*uS.y, -z2*.01, 1.); }';
-  var FS = '#version 300 es\nprecision mediump float; in vec3 vC; out vec4 o; void main(){ o=vec4(vC,1.); }';
+  var FS = '#version 300 es\nprecision mediump float; in vec3 vC; uniform float uA; out vec4 o; void main(){ o=vec4(vC*uA,uA); }';
   function sh(type, src) { var s = gl.createShader(type); gl.shaderSource(s, src); gl.compileShader(s);
     if (!gl.getShaderParameter(s, gl.COMPILE_STATUS)) throw new Error(gl.getShaderInfoLog(s)); return s; }
   var prog = gl.createProgram();
   gl.attachShader(prog, sh(gl.VERTEX_SHADER, VS)); gl.attachShader(prog, sh(gl.FRAGMENT_SHADER, FS));
   ['aP', 'aN', 'iO', 'iYaw', 'iT', 'iC'].forEach(function (a, i) { gl.bindAttribLocation(prog, i, a); });
   gl.linkProgram(prog); gl.useProgram(prog);
-  var uCtr = gl.getUniformLocation(prog, 'uCtr'), uCam = gl.getUniformLocation(prog, 'uCam'), uS = gl.getUniformLocation(prog, 'uS');
+  var uCtr = gl.getUniformLocation(prog, 'uCtr'), uCam = gl.getUniformLocation(prog, 'uCam'), uS = gl.getUniformLocation(prog, 'uS'), uA = gl.getUniformLocation(prog, 'uA');
 
   function mesh(verts, instances) {
     var vao = gl.createVertexArray(); gl.bindVertexArray(vao);
@@ -256,6 +256,7 @@
     // tall slope 2×2×2 (the windshield)
     'T': { mesh: prismMesh([[.03, .03], [1.97, .03], [1.97, .3], [1, 2 * H], [.03, 2 * H]], [[.5, 2 * H]]), ctr: [1, H, 1] },
     // tall inverted slope 2×2×2 (the bumpers): foot one stud long, full top
+    'U': { mesh: prismMesh([[.03, .03], [1.97, .03], [1.97, .3], [1, 2 * H], [.03, 2 * H]], [[.5, 2 * H]], 1), ctr: [1, H, .5] },
     'J': { mesh: prismMesh([[.03, .03], [1, .03], [1.97, 2 * H - .3], [1.97, 2 * H], [.03, 2 * H]], [[.5, 2 * H], [1.5, 2 * H]]), ctr: [1, H, 1] },
     'E': { mesh: headlightMesh(), ctr: [.5, H / 2, .5] }, 'O': { mesh: lightMesh(), ctr: [.1, .58 * H, .5] },
     'P': { mesh: roofMesh(), ctr: [3, .2, 3] }, 'M': { mesh: mudguardMesh(), ctr: [2, H, 1] },
@@ -307,14 +308,17 @@
     gl.uniform3f(uCam, PLATE_X / 2, 4.9, PLATE_Z / 2);
     gl.uniform2f(uS, 2 * px / W, 2 * px / Hpx);
     var pd = plate.data; pd[0] = pd[1] = pd[2] = pd[3] = 0; pd[4] = 0; pd[5] = COL.plate[0]; pd[6] = COL.plate[1]; pd[7] = COL.plate[2];
-    gl.uniform3f(uCtr, 0, 0, 0);
+    gl.uniform3f(uCtr, 0, 0, 0); gl.uniform1f(uA, 1);
     gl.bindVertexArray(plate.vao); gl.bindBuffer(gl.ARRAY_BUFFER, plate.ib); gl.bufferSubData(gl.ARRAY_BUFFER, 0, pd);
     gl.drawArraysInstanced(gl.TRIANGLES, 0, plate.verts, 1);
     KINDS.forEach(function (kind) {
       var m = KIND[kind].gl, c = KIND[kind].ctr;
       gl.uniform3f(uCtr, c[0], c[1], c[2]);
       gl.bindVertexArray(m.vao); gl.bindBuffer(gl.ARRAY_BUFFER, m.ib); gl.bufferSubData(gl.ARRAY_BUFFER, 0, m.data);
+      var clear = kind === 'T';
+      if (clear) { gl.enable(gl.BLEND); gl.blendFunc(gl.ONE, gl.ONE_MINUS_SRC_ALPHA); gl.depthMask(false); gl.uniform1f(uA, .4); }
       gl.drawArraysInstanced(gl.TRIANGLES, 0, m.verts, m.instances);
+      if (clear) { gl.disable(gl.BLEND); gl.depthMask(true); gl.uniform1f(uA, 1); }
     });
   }
 
