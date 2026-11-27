@@ -98,6 +98,36 @@ SHAPES = {
 .#################
 ...########..#####
 """,
+ 'a 17': """
+...#######..#####
+.################
+#################
+######.....######
+#####......######
+#####......######
+#####......######
+#####......######
+#####......######
+######.....######
+#################
+.################
+...#######..#####
+""",
+ 'a 16': """
+...######..#####
+.###############
+################
+######....######
+#####......#####
+#####......#####
+#####......#####
+#####......#####
+#####......#####
+######....######
+################
+.###############
+...######..#####
+""",
  'C': """
 ....###########....
 ..###############..
@@ -268,6 +298,36 @@ def draw(sol, X0, Y0, layer):
     return ''.join(o)
 
 
+def export(sol, path):
+    """the solved letter as engine pieces: front-row pieces at z 1, headlight bricks facing out, eight light plates,
+    and whatever the letter has no room for standing behind it, out of sight"""
+    random.seed(sol['seed']); W, H = sol['W'], sol['H']; out = []
+    def js(k, x, y, z, extra=''): out.append("{ k: '%s', x: %s, y: %s, z: %s%s }" % (k, round(x, 4), round(y, 4), z, extra))
+    es = []
+    for k, x, r, lay, d in sol['P']:
+        dd = ', d: -1' if d < 0 else ''
+        if k == 'E': js('E', x, r, 1, ', t: -Math.PI / 2'); es.append((x, r))
+        elif k == 'X': js('X', x, r, 1)
+        elif k == 'U': js('U', x, r, 1, dd); js('U', x, r, 0, dd)
+        else: js(k, x, r, 0, dd)
+    random.shuffle(es)
+    for x, r in es[:8]: js('O', x + .37, r, 1.5175, ', t: -Math.PI / 2')
+    js('P', (W - 6) // 2, 4 + 2.8 / 1.2, -3.2, ', tilt: Math.PI / 2')
+    filled = {c for c in sol['occ']}; behind = set()
+    for k, n in sol['spare'].items():
+        ln = {'4': 4, '2': 2, '1': 1, 'L': 3, 'J': 2, 'T': 2, 'U': 2, 'X': 6, 'E': 1, 'M': 4}[k]; tall = 2 if k in 'JTUM' else 1
+        for _ in range(n // 2 if k == 'U' else n):
+            for _try in range(2000):
+                x, r = random.randint(0, W - ln), random.randint(0, H - tall - 1)
+                cells = [(x + i, r + j) for i in range(ln) for j in range(tall)]
+                if all(c in filled and c not in behind for c in cells) and (r == 0 or all((x + i, r - 1) in behind or True for i in range(ln))):
+                    behind.update(cells)
+                    if k == 'U': js('U', x, r, -1); js('U', x, r, -2)
+                    else: js(k, x, r, -1 if k in 'XE' else -2)
+                    break
+    open(path, 'w').write(",\n      ".join(", ".join(out[i:i + 4]) for i in range(0, len(out), 4)))
+
+
 def main():
     out = []; y = 150; maxw = 0
     for name in ['a', 'R', 'H', 'H light', 'n', 'n light', 'C']:
@@ -278,6 +338,7 @@ def main():
         if not sol: print(name, 'NO SOLUTION'); continue
         W, H = sol['W'], sol['H']
         print(name, 'seed', sol['seed'], 'spare', sol['spare'])
+        if len(sys.argv) > 2 and name == 'a': export(sol, sys.argv[2])
         for r in range(H - 1, -1, -1): print('  ' + ''.join(sol['occ'].get((x, r), ' ') for x in range(W)))
         pw = W * 20; xf, xb = 150, 150 + pw + 80
         out.append('<g id="%s">' % name.replace(' ', '-'))
