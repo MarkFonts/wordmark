@@ -66,16 +66,16 @@
       { k: 'E', x: 9, y: 6, z: 1, t: -Math.PI / 2 }, { k: 'O', x: 9.37, y: 6, z: 1.5175, t: -Math.PI / 2 }, { k: 'E', x: 14, y: 6, z: 1, t: -Math.PI / 2 }, { k: 'O', x: 14.37, y: 6, z: 1.5175, t: -Math.PI / 2 },
       { k: 'E', x: 7, y: 8, z: 1, t: -Math.PI / 2 }, { k: 'E', x: 14, y: 8, z: 1, t: -Math.PI / 2 }, { k: 'E', x: 13, y: 7, z: 1, t: -Math.PI / 2 }, { k: 'E', x: 4, y: 7, z: 1, t: -Math.PI / 2 },
       { k: 'E', x: 4, y: 11, z: 1, t: -Math.PI / 2 }, { k: 'E', x: 2, y: 12, z: 1, t: -Math.PI / 2 }, { k: 'E', x: 5, y: 12, z: 1, t: -Math.PI / 2 }, { k: 'E', x: 19, y: 11, z: 1, t: -Math.PI / 2 },
-      { k: 'P', x: 7, y: 8.3333, z: -3.2, tilt: Math.PI / 2 }, { k: '1', x: 1, y: 9, z: -0.5 }, { k: '1', x: 1, y: 10, z: 1 }, { k: '1', x: 12, y: 12, z: 0.5 },
-      { k: '1', x: 17, y: 12, z: 0 }, { k: '1', x: 6, y: 15, z: 0.5 }, { k: '1', x: 13, y: 15, z: 0 }, { k: '1', x: 2, y: 13, z: 0.5 },
-      { k: '1', x: 3, y: 13, z: 0.5 }, { k: '4', x: 6, y: 9, z: -0.5 }, { k: '4', x: 10, y: 9, z: 0 }, { k: '4', x: 14, y: 9, z: 0 },
-      { k: '4', x: 5, y: 5, z: 0 }, { k: '2', x: 9, y: 0, z: 0.5 }, { k: '4', x: 1, y: 8, z: 0.5 }, { k: '2', x: 5, y: 8, z: 0 },
-      { k: '2', x: 17, y: 11, z: 0.5 }, { k: '2', x: 13, y: 5, z: 0 }, { k: '2', x: 7, y: 3, z: 0 }, { k: '2', x: 6, y: 12, z: 0 },
-      { k: '4', x: 0, y: 11, z: 0 }, { k: '2', x: 4, y: 14, z: -0.5 }, { k: '4', x: 10, y: 6, z: 0.5 }, { k: '2', x: 9, y: 2, z: 1 },
-      { k: '2', x: 17, y: 10, z: 0 }, { k: '2', x: 3, y: 12, z: -0.5 }, { k: '2', x: 9, y: 1, z: 0 }, { k: '4', x: 12, y: 13, z: 1 },
+      { k: 'P', x: 7, y: 8.3333, z: -3.2, tilt: Math.PI / 2 }, { k: '1', x: 1, y: 9, z: 1 }, { k: '1', x: 1, y: 10, z: -1 }, { k: '1', x: 12, y: 12, z: 1 },
+      { k: '1', x: 17, y: 12, z: 0 }, { k: '1', x: 6, y: 15, z: 1 }, { k: '1', x: 13, y: 15, z: 0 }, { k: '1', x: 2, y: 13, z: 1 },
+      { k: '1', x: 3, y: 13, z: 1 }, { k: '4', x: 6, y: 9, z: 1 }, { k: '4', x: 10, y: 9, z: 0 }, { k: '4', x: 14, y: 9, z: 0 },
+      { k: '4', x: 5, y: 5, z: 0 }, { k: '2', x: 9, y: 0, z: 0 }, { k: '4', x: 1, y: 8, z: 0 }, { k: '2', x: 5, y: 8, z: 0 },
+      { k: '2', x: 17, y: 11, z: 0 }, { k: '2', x: 13, y: 5, z: 0 }, { k: '2', x: 7, y: 3, z: 0 }, { k: '2', x: 6, y: 12, z: 0 },
+      { k: '4', x: 0, y: 11, z: 0 }, { k: '2', x: 4, y: 14, z: 1 }, { k: '4', x: 10, y: 6, z: 0 }, { k: '2', x: 9, y: 2, z: -1 },
+      { k: '2', x: 17, y: 10, z: 0 }, { k: '2', x: 3, y: 12, z: 1 }, { k: '2', x: 9, y: 1, z: 0 }, { k: '4', x: 12, y: 13, z: -1 },
       { k: '2', x: 16, y: 13, z: 0 }, { k: '4', x: 9, y: 7, z: 0 }, { k: '2', x: 5, y: 13, z: 0 }, { k: '2', x: 2, y: 7, z: 0 },
-      { k: '4', x: 5, y: 11, z: -0.5 }, { k: '4', x: 9, y: 11, z: 0 }, { k: '2', x: 7, y: 4, z: 0 }, { k: '4', x: 6, y: 10, z: 0 },
-      { k: '2', x: 10, y: 10, z: 0.5 }, { k: '4', x: 12, y: 10, z: 1 }, { k: '2', x: 10, y: 3, z: 0 }, { k: '2', x: 14, y: 14, z: 0 },
+      { k: '4', x: 5, y: 11, z: 1 }, { k: '4', x: 9, y: 11, z: 0 }, { k: '2', x: 7, y: 4, z: 0 }, { k: '4', x: 6, y: 10, z: 0 },
+      { k: '2', x: 10, y: 10, z: 1 }, { k: '4', x: 12, y: 10, z: -1 }, { k: '2', x: 10, y: 3, z: 0 }, { k: '2', x: 14, y: 14, z: 0 },
       { k: '2', x: 8, y: 8, z: 0 }, { k: '2', x: 10, y: 8, z: 0 }, { k: '2', x: 12, y: 8, z: 0 }, { k: '4', x: 15, y: 8, z: 0 },
       { k: '4', x: 14, y: 7, z: 0 }] } };
   var LOOP = ['car', 'heart'];
@@ -216,7 +216,7 @@
   // mudguard (part 18974), low-poly: a thin round arch 4 studs long that stands half a stud proud
   // of the body, with the 2×2 studded block on its crown. The wheel sits inside it.
   function mudguardMesh() {
-    var v = [], g = .03, cy = .22, R = 1.97, r = 1.85, N = 12, i, j;
+    var v = [], g = .03, cy = .22, R = 1.97, r = 1.72, N = 18, i, j;
     function pt(rad, a) { return [2 + rad * Math.cos(a), cy + rad * Math.sin(a)]; }
     for (i = 0; i < N; i++) {
       var a0 = Math.PI * i / N, a1 = Math.PI * (i + 1) / N;
@@ -236,7 +236,7 @@
   function lightMesh() { var v = []; cyl(v, .5, 0, .58 * H, .4, .255, 12, 'x'); return new Float32Array(v); }
   function roofMesh() { var v = []; box(v, .03, .02, .03, 6 - .03, .4, 6 - .03); return new Float32Array(v); }
   function wheelMesh() { var v = []; cyl(v, 1.5, 0, 1.5, 1.5, 1.4, 20, 'z'); return new Float32Array(v); }
-  function hubMesh() { var v = []; cyl(v, .8, 0, .8, .8, .1, 14, 'z'); return new Float32Array(v); }
+  function hubMesh() { var v = []; cyl(v, .8, 0, .8, .8, .05, 14, 'z'); return new Float32Array(v); }
   function plateMesh() {
     var v = [];
     box(v, 0, -.4, 0, PLATE_X, 0, PLATE_Z);

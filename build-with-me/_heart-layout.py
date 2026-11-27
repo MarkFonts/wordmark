@@ -103,7 +103,7 @@ for attempt in range(4000):
         if not ok: break
     if ok and all(v==0 for v in left.values()): best=out;break
 if not best: sys.exit(3)
-P+=[(k,x,r,random.choice([0,0,0,0,.5,.5,-.5,1]),d) for k,x,r,z,d in best]
+P+=[(k,x,r,random.choice([0,0,0,0,0,1,1,-1]),d) for k,x,r,z,d in best]
 def js(p):
     k,x,y,z,d=p
     extra = ", t: -Math.PI / 2" if d=='z' else (", tilt: Math.PI / 2" if d=='tilt' else (", d: -1" if d==-1 else ""))
