@@ -26,7 +26,7 @@
     }
     return layers;
   }
-  // One set: the car's 36 bricks (10 of 2×1, 12 of 2×2, 14 of 2×4; red, white, black, grey, yellow).
+  // One set: the car's 36 bricks (10 of 2×1, 12 of 2×2, 14 of 2×4; 28 red, 8 blue).
   // The H and the heart are built from exactly those bricks, brick for brick, colors and all,
   // so nothing is recolored or left over. They are explicit lists: [layer, slot, x, length, color].
   var MODELS = {
@@ -36,10 +36,10 @@
       ['...RKKKKR...', '...WKKKKW...', '...RKKKKR...'],
       ['...RRRRRR...', '...WWWWWW...', '...RRRRRR...']],
     H: { w: 14, slots: 2, bricks: [
-      // a black and grey plinth, two rows deep; the letter stands on the back row
+      // a plinth two rows deep, blue in front; the letter stands on the back row
       [0,1,0,4,'K'],[0,1,4,4,'K'],[0,1,8,2,'K'],[0,1,10,2,'K'],[0,1,12,2,'K'],
       [0,0,0,4,'G'],[0,0,4,4,'G'],[0,0,8,2,'K'],[0,0,10,2,'G'],[0,0,12,2,'K'],
-      // a white leg with a red cap, a red leg, and a bar of the small bricks
+      // two legs of 2×4s and a bar of the small bricks
       [1,0,0,4,'W'],[1,0,10,4,'R'],
       [2,0,0,4,'W'],[2,0,10,4,'R'],
       [3,0,0,4,'W'],[3,0,10,4,'R'],
@@ -48,7 +48,7 @@
       [6,0,0,2,'W'],[6,0,2,1,'W'],[6,0,3,1,'W'],[6,0,10,4,'R'],
       [7,0,0,2,'R'],[7,0,2,1,'R'],[7,0,3,1,'R'],[7,0,10,4,'R']] },
     heart: { w: 9, slots: 2, bricks: [
-      // a black plinth
+      // a blue plinth
       [0,1,1,4,'K'],[0,1,5,4,'K'],[0,0,1,2,'K'],[0,0,3,2,'K'],[0,0,5,2,'K'],[0,0,7,2,'K'],
       // front: every red brick but one
       [1,1,4,1,'R'],
@@ -58,7 +58,7 @@
       [5,1,0,4,'R'],[5,1,4,1,'R'],[5,1,5,4,'R'],
       [6,1,0,4,'R'],[6,1,5,4,'R'],
       [7,1,1,2,'R'],[7,1,6,2,'R'],
-      // back: the same heart in everything else
+      // back: the same heart again, blue on top of the lobes
       [1,0,4,1,'Y'],
       [2,0,3,1,'R'],[2,0,4,2,'G'],
       [3,0,2,4,'W'],[3,0,6,1,'W'],
@@ -71,12 +71,13 @@
   var NAMES = LOOP;
 
   function hex(h) { return [parseInt(h.slice(1, 3), 16) / 255, parseInt(h.slice(3, 5), 16) / 255, parseInt(h.slice(5, 7), 16) / 255]; }
+  // The letters in the models mark separate bricks; two paints cover them all:
+  // the body is red, the wheels and windows are blue.
   function colors() {
-    var L = light.matches;
+    var red = hex('#e8402f'), blue = hex('#2f5fd0');
     return {
-      key: { R: hex('#e8402f'), W: hex(L ? '#ffffff' : '#f2f2ee'), K: hex(L ? '#1c1d20' : '#3a3d43'),
-             G: hex('#8f959d'), Y: hex(L ? '#96d500' : '#eeff41') },
-      plate: hex(L ? '#dfe5ec' : '#202020')
+      key: { R: red, W: red, G: red, Y: red, K: blue },
+      plate: hex(light.matches ? '#dfe5ec' : '#202020')
     };
   }
   var COL = colors();
@@ -293,5 +294,6 @@
     // the hidden builds (index.html's concealed rollovers): the next thing built is `name`
     next: function (name) { if (LOOP.indexOf(name) >= 0) forced[Math.floor(T / P) + 1] = name; } };
   canvas.classList.add('is-live');
-  kick();
+  var qt = /[?&]t=([\d.]+)/.exec(location.search);
+  if (qt) window.bricks.setT(+qt[1]); else kick();
 })();
