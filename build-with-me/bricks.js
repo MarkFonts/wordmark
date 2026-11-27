@@ -32,7 +32,7 @@
         add('2', 2, 0, z); add('4', 4, 0, z); add('4', 8, 0, z); add('4', 12, 0, z); add('2', 16, 0, z);
         add('2', 2, 1, z); add('1', 4, 1, z); add('4', 5, 1, z); add('4', 9, 1, z); add('4', 13, 1, z); add('1', 17, 1, z);
       } else {
-        add('M', 2, 0, z); add('2', 6, 0, z); add('4', 8, 0, z); add('2', 12, 0, z); add('M', 14, 0, z);
+        var md = z === 0 ? -1 : 1; add('M', 2, 0, z, md, 'Y'); add('2', 6, 0, z); add('4', 8, 0, z); add('2', 12, 0, z); add('M', 14, 0, z, md, 'Y');
         add('4', 6, 1, z); add('4', 10, 1, z);
       }
       add('1', 1, 2, z); add('2', 2, 2, z); add('4', 4, 2, z); add('4', 8, 2, z); add('4', 12, 2, z); add('1', 16, 2, z); add('2', 17, 2, z);
@@ -182,20 +182,20 @@
     studs.forEach(function (q) { for (var j = 0; j < (deep || 2); j++) stud(v, q[0], q[1], j + .5); });
     return new Float32Array(v);
   }
-  // mudguard: 4 long, 2 bricks tall, a round arch cut through it
+  // mudguard (part 18974): a thin round arch 4 studs long, a 2×2 studded block on its crown,
+  // and a one-stud tab at each end on the inner side (z 0..1)
   function mudguardMesh() {
-    var v = [], g = .03, top = 2 * H, r = 1.75, cy = .35, N = 16, i;
-    function arc(x) { var d = x - 2; return Math.abs(d) >= r ? .03 : Math.max(.03, cy + Math.sqrt(r * r - d * d)); }
-    var xs = [g, 2 - r];
-    for (i = 1; i <= N; i++) xs.push(2 - r + 2 * r * i / N);
-    xs.push(4 - g);
-    for (i = 0; i < xs.length - 1; i++) {
-      var a = xs[i], b = xs[i + 1];
-      var ya = i === 0 ? .03 : arc(a), yb = i === xs.length - 2 ? .03 : arc(b);
-      if (i === 0) yb = .03; if (i === xs.length - 2) ya = .03;
-      prism(v, [[a, ya], [b, yb], [b, top], [a, top]], g, 2 - g);
+    var v = [], g = .03, cy = .22, R = 1.97, r = 1.72, N = 18, i;
+    function pt(rad, a) { return [2 + rad * Math.cos(a), cy + rad * Math.sin(a)]; }
+    for (i = 0; i < N; i++) {
+      var a0 = Math.PI * i / N, a1 = Math.PI * (i + 1) / N;
+      prism(v, [pt(r, a0), pt(R, a0), pt(R, a1), pt(r, a1)], g, 2 - g);
     }
-    for (i = 0; i < 4; i++) for (var j = 0; j < 2; j++) stud(v, i + .5, top, j + .5);
+    box(v, 2 + r, .03, g, 2 + R, cy, 2 - g); box(v, 2 - R, .03, g, 2 - r, cy, 2 - g);     // feet
+    box(v, 1, 1.5 * H, g, 3, 2 * H, 2 - g);                                               // crown block
+    for (i = 1; i < 3; i++) for (var j = 0; j < 2; j++) stud(v, i + .5, 2 * H, j + .5);
+    box(v, g, H, g, 1, H + .4, 1); stud(v, .5, H + .4, .5);                               // tabs
+    box(v, 3, H, g, 4 - g, H + .4, 1); stud(v, 3.5, H + .4, .5);
     return new Float32Array(v);
   }
   function headlightMesh() {
