@@ -63,30 +63,30 @@
       { k: 'M', x: 2, y: 9, z: 0 }, { k: 'M', x: 13, y: 11, z: 0 }, { k: 'M', x: 5, y: 6, z: 0 }, { k: 'M', x: 9, y: 4, z: 0 },
       { k: 'E', x: 2, y: 13, z: 1, t: -Math.PI / 2 }, { k: 'O', x: 2.37, y: 13, z: 1.5175, t: -Math.PI / 2 }, { k: 'E', x: 5, y: 13, z: 1, t: -Math.PI / 2 }, { k: 'O', x: 5.37, y: 13, z: 1.5175, t: -Math.PI / 2 },
       { k: 'E', x: 4, y: 12, z: 1, t: -Math.PI / 2 }, { k: 'O', x: 4.37, y: 12, z: 1.5175, t: -Math.PI / 2 }, { k: 'E', x: 7, y: 12, z: 1, t: -Math.PI / 2 }, { k: 'O', x: 7.37, y: 12, z: 1.5175, t: -Math.PI / 2 },
-      { k: 'E', x: 12, y: 11, z: 1, t: -Math.PI / 2 }, { k: 'O', x: 12.37, y: 11, z: 1.5175, t: -Math.PI / 2 }, { k: 'E', x: 4, y: 8, z: 1, t: -Math.PI / 2 }, { k: 'O', x: 4.37, y: 8, z: 1.5175, t: -Math.PI / 2 },
-      { k: 'E', x: 7, y: 8, z: 1, t: -Math.PI / 2 }, { k: 'O', x: 7.37, y: 8, z: 1.5175, t: -Math.PI / 2 }, { k: 'E', x: 19, y: 11, z: 1, t: -Math.PI / 2 }, { k: 'O', x: 19.37, y: 11, z: 1.5175, t: -Math.PI / 2 },
-      { k: 'E', x: 7, y: 3, z: 1, t: -Math.PI / 2 }, { k: 'E', x: 10, y: 3, z: 1, t: -Math.PI / 2 }, { k: 'E', x: 11, y: 6, z: 1, t: -Math.PI / 2 }, { k: 'E', x: 14, y: 6, z: 1, t: -Math.PI / 2 },
-      { k: 'E', x: 8, y: 10, z: 1, t: -Math.PI / 2 }, { k: 'E', x: 13, y: 10, z: 1, t: -Math.PI / 2 }, { k: 'E', x: 10, y: 9, z: 1, t: -Math.PI / 2 }, { k: 'E', x: 13, y: 7, z: 1, t: -Math.PI / 2 },
-      { k: 'P', x: 7, y: 8.3333, z: -3.2, tilt: Math.PI / 2 }, { k: '1', x: 2, y: 7, z: 0 }, { k: '1', x: 1, y: 9, z: 0 }, { k: '1', x: 12, y: 12, z: 0 },
-      { k: '1', x: 17, y: 12, z: 0 }, { k: '2', x: 5, y: 12, z: 0 }, { k: '4', x: 0, y: 11, z: 0 }, { k: '4', x: 4, y: 11, z: 0 },
-      { k: '4', x: 8, y: 11, z: 0 }, { k: '2', x: 3, y: 7, z: 1 }, { k: '2', x: 12, y: 6, z: 1 }, { k: '4', x: 11, y: 9, z: 0 },
-      { k: '4', x: 15, y: 9, z: 1 }, { k: '4', x: 8, y: 8, z: 0 }, { k: '4', x: 12, y: 8, z: 1 }, { k: '2', x: 16, y: 8, z: 0 },
-      { k: '2', x: 9, y: 0, z: 0 }, { k: '1', x: 2, y: 12, z: 0 }, { k: '1', x: 3, y: 12, z: 0 }, { k: '2', x: 9, y: 2, z: 1 },
-      { k: '1', x: 13, y: 5, z: 0 }, { k: '1', x: 14, y: 5, z: 0 }, { k: '2', x: 17, y: 11, z: 0 }, { k: '2', x: 4, y: 14, z: 0 },
-      { k: '2', x: 14, y: 10, z: 1 }, { k: '4', x: 16, y: 10, z: 0 }, { k: '4', x: 12, y: 13, z: 0 }, { k: '2', x: 16, y: 13, z: 0 },
-      { k: '4', x: 5, y: 5, z: 0 }, { k: '2', x: 3, y: 13, z: 1 }, { k: '2', x: 9, y: 6, z: 0 }, { k: '2', x: 5, y: 8, z: 0 },
-      { k: '2', x: 6, y: 13, z: 0 }, { k: '2', x: 7, y: 4, z: 1 }, { k: '2', x: 9, y: 1, z: 0 }, { k: '2', x: 6, y: 10, z: 0 },
-      { k: '2', x: 8, y: 3, z: 0 }, { k: '2', x: 2, y: 8, z: 0 }, { k: '4', x: 6, y: 9, z: 1 }, { k: '2', x: 14, y: 14, z: 0 },
-      { k: '2', x: 11, y: 3, z: 1 }, { k: '2', x: 0, y: 10, z: 0 }, { k: '4', x: 9, y: 10, z: 1 }, { k: '4', x: 14, y: 7, z: 0 },
-      { k: '4', x: 9, y: 7, z: 0 }] } };
+      { k: 'E', x: 12, y: 11, z: 1, t: -Math.PI / 2 }, { k: 'O', x: 12.37, y: 11, z: 1.5175, t: -Math.PI / 2 }, { k: 'E', x: 4, y: 8, z: 1, t: -Math.PI / 2 }, { k: 'E', x: 7, y: 8, z: 1, t: -Math.PI / 2 },
+      { k: 'E', x: 19, y: 11, z: 1, t: -Math.PI / 2 }, { k: 'E', x: 7, y: 3, z: 1, t: -Math.PI / 2 }, { k: 'E', x: 10, y: 3, z: 1, t: -Math.PI / 2 }, { k: 'E', x: 11, y: 6, z: 1, t: -Math.PI / 2 },
+      { k: 'E', x: 14, y: 6, z: 1, t: -Math.PI / 2 }, { k: 'E', x: 8, y: 10, z: 1, t: -Math.PI / 2 }, { k: 'E', x: 13, y: 10, z: 1, t: -Math.PI / 2 }, { k: 'E', x: 10, y: 9, z: 1, t: -Math.PI / 2 },
+      { k: 'E', x: 13, y: 7, z: 1, t: -Math.PI / 2 }, { k: 'P', x: 7, y: 8.3333, z: -3.2, tilt: Math.PI / 2 }, { k: '1', x: 2, y: 7, z: 0 }, { k: '1', x: 1, y: 9, z: 0 },
+      { k: '1', x: 12, y: 12, z: 0 }, { k: '1', x: 17, y: 12, z: 0 }, { k: '2', x: 5, y: 12, z: 0 }, { k: '4', x: 0, y: 11, z: 0 },
+      { k: '4', x: 4, y: 11, z: 0 }, { k: '4', x: 8, y: 11, z: 0 }, { k: '2', x: 3, y: 7, z: 1 }, { k: '2', x: 12, y: 6, z: 1 },
+      { k: '4', x: 11, y: 9, z: 0 }, { k: '4', x: 15, y: 9, z: 1 }, { k: '4', x: 8, y: 8, z: 0 }, { k: '4', x: 12, y: 8, z: 1 },
+      { k: '2', x: 16, y: 8, z: 0 }, { k: '2', x: 9, y: 0, z: 0 }, { k: '1', x: 2, y: 12, z: 0 }, { k: '1', x: 3, y: 12, z: 0 },
+      { k: '2', x: 9, y: 2, z: 1 }, { k: '1', x: 13, y: 5, z: 0 }, { k: '1', x: 14, y: 5, z: 0 }, { k: '2', x: 17, y: 11, z: 0 },
+      { k: '2', x: 4, y: 14, z: 0 }, { k: '2', x: 14, y: 10, z: 1 }, { k: '4', x: 16, y: 10, z: 0 }, { k: '4', x: 12, y: 13, z: 0 },
+      { k: '2', x: 16, y: 13, z: 0 }, { k: '4', x: 5, y: 5, z: 0 }, { k: '2', x: 3, y: 13, z: 1 }, { k: '2', x: 9, y: 6, z: 0 },
+      { k: '2', x: 5, y: 8, z: 0 }, { k: '2', x: 6, y: 13, z: 0 }, { k: '2', x: 7, y: 4, z: 1 }, { k: '2', x: 9, y: 1, z: 0 },
+      { k: '2', x: 6, y: 10, z: 0 }, { k: '2', x: 8, y: 3, z: 0 }, { k: '2', x: 2, y: 8, z: 0 }, { k: '4', x: 6, y: 9, z: 1 },
+      { k: '2', x: 14, y: 14, z: 0 }, { k: '2', x: 11, y: 3, z: 1 }, { k: '2', x: 0, y: 10, z: 0 }, { k: '4', x: 9, y: 10, z: 1 },
+      { k: '4', x: 14, y: 7, z: 0 }, { k: '4', x: 9, y: 7, z: 0 }, { k: 'O', x: 14.37, y: 8.5262, z: 2.0, t: -Math.PI / 2, tilt: -Math.PI / 2 }, { k: 'O', x: 8.37, y: 9.5262, z: 2.0, t: -Math.PI / 2, tilt: -Math.PI / 2 },
+      { k: 'O', x: 10.37, y: 2.5263, z: 2.0, t: -Math.PI / 2, tilt: -Math.PI / 2 }] } };
   var LOOP = ['car', 'heart'];
   var NAMES = LOOP;
-  var KINDS = ['1', '2', '4', 'L', 'J', 'E', 'O', 'P', 'M', 'W', 'H', 'U', 'T'];   // T is clear: drawn last
+  var KINDS = ['1', '2', '4', 'L', 'J', 'E', 'P', 'M', 'W', 'H', 'U', 'O', 'T'];   // T is clear: drawn last
 
   function hex(h) { return [parseInt(h.slice(1, 3), 16) / 255, parseInt(h.slice(3, 5), 16) / 255, parseInt(h.slice(5, 7), 16) / 255]; }
   function colors() {
     return {
-      key: { R: hex('#e8402f'), B: hex('#1487c9'), Y: hex(light.matches ? '#f2c200' : '#ffd92e'), C: hex('#cfeaff'), K: hex(light.matches ? '#1c1c20' : '#34343c'), G: hex('#c9ccd2') },
+      key: { R: hex('#e8402f'), B: hex('#ffd21f'), Y: hex(light.matches ? '#f2c200' : '#ffd92e'), C: hex('#cfeaff'), K: hex(light.matches ? '#1c1c20' : '#34343c'), G: hex('#c9ccd2') },
       plate: hex(light.matches ? '#dfe5ec' : '#202020')
     };
   }
@@ -256,7 +256,7 @@
     '  c=cos(a); s=sin(a); return vec3(p.x*c+p.z*s, p.y, -p.x*s+p.z*c); }\n' +
     'vec3 turn(vec3 p, float a){ float c=cos(a), s=sin(a); return vec3(p.x*c+p.z*s, p.y, -p.x*s+p.z*c); }\n' +
     'vec3 tip(vec3 p, float a){ float c=cos(a), s=sin(a); return vec3(p.x, p.y*c-p.z*s, p.y*s+p.z*c); }\n' +
-    'void main(){ vec3 n=rot(turn(tip(aN,iX),iT),iYaw); vec3 q=rot(turn(tip(aP-uCtr,iX),iT),iYaw)+uCtr+iO-uCam;\n' +
+    'void main(){ vec3 n=rot(tip(turn(aN,iT),iX),iYaw); vec3 q=rot(tip(turn(aP-uCtr,iT),iX),iYaw)+uCtr+iO-uCam;\n' +
     '  float x1=.70711*(q.x-q.z), z1=.70711*(q.x+q.z);\n' +
     '  float y2=q.y*.81650-z1*.57735, z2=q.y*.57735+z1*.81650;\n' +
     '  vC=iC*(.69+.31*n.y+.09*n.z-.09*n.x);\n' +
@@ -357,8 +357,8 @@
       var m = KIND[kind].gl, c = KIND[kind].ctr;
       gl.uniform3f(uCtr, c[0], c[1], c[2]);
       gl.bindVertexArray(m.vao); gl.bindBuffer(gl.ARRAY_BUFFER, m.ib); gl.bufferSubData(gl.ARRAY_BUFFER, 0, m.data);
-      var clear = kind === 'T';
-      if (clear) { gl.enable(gl.BLEND); gl.blendFunc(gl.ONE, gl.ONE_MINUS_SRC_ALPHA); gl.depthMask(false); gl.uniform1f(uA, .4); }
+      var clear = kind === 'T' || kind === 'O';
+      if (clear) { gl.enable(gl.BLEND); gl.blendFunc(gl.ONE, gl.ONE_MINUS_SRC_ALPHA); gl.depthMask(false); gl.uniform1f(uA, kind === 'O' ? .72 : .4); }
       gl.drawArraysInstanced(gl.TRIANGLES, 0, m.verts, m.instances);
       if (clear) { gl.disable(gl.BLEND); gl.depthMask(true); gl.uniform1f(uA, 1); }
     });

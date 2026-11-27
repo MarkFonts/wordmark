@@ -61,7 +61,7 @@ for r,a,n in cand:
 if len(picks)!=16: print('picks',len(picks)); sys.exit(3)
 for x,r in picks:
     take([(x,r)],'E'); P.append(('E',x,r,1,'z'))
-    if len(LIT)<8: LIT.add((x,r)); P.append(('O',x+.37,r,1.5175,'z'))
+    if len(LIT)<5: LIT.add((x,r)); P.append(('O',x+.37,r,1.5175,'z'))
 P.append(('P',7,6+2.8/1.2,-3.2,'tilt'))
 plain=sum(1 for v in occ.values() if v=='.')
 print('plain cells',plain,'need',108)
@@ -103,10 +103,20 @@ for attempt in range(4000):
         if not ok: break
     if ok and all(v==0 for v in left.values()): best=out;break
 if not best: sys.exit(3)
-P+=[(k,x,r,random.choice([0,0,0,1]),d) for k,x,r,z,d in best]
+tiles=[(k,x,r,random.choice([0,0,0,1]),d) for k,x,r,z,d in best]
+P+=tiles
+# three plates lie face up on the front studs of bricks that stand out
+out_cells={(x+i,r) for k,x,r,z,d in tiles if z==1 for i in range(int(k))}
+ups=[(x+i,r) for k,x,r,z,d in tiles if z==1 for i in range(int(k)) if (x+i,r+1) not in out_cells and occ.get((x+i,r+1)) not in ('M',) and occ.get((x+i,r+1))]
+random.shuffle(ups); chosen=[]
+for c in ups:
+    if all(abs(c[0]-q[0])+abs(c[1]-q[1])>4 for q in chosen): chosen.append(c)
+    if len(chosen)==3: break
+if len(chosen)<3: sys.exit(3)
+for x,r in chosen: P.append(('O',x+.37,r+1+(.1275-.58*1.2)/1.2,2.0,'up'))
 def js(p):
     k,x,y,z,d=p
-    extra = ", t: -Math.PI / 2" if d=='z' else (", tilt: Math.PI / 2" if d=='tilt' else (", d: -1" if d==-1 else ""))
+    extra = ", t: -Math.PI / 2" if d=='z' else ", t: -Math.PI / 2, tilt: -Math.PI / 2" if d=='up' else (", tilt: Math.PI / 2" if d=='tilt' else (", d: -1" if d==-1 else ""))
     return "{ k: '%s', x: %s, y: %s, z: %s%s }"%(k,round(x,4),round(y,4),z,extra)
 open('heart2.js','w').write(",\n      ".join(", ".join(js(p) for p in P[i:i+4]) for i in range(0,len(P),4)))
 from collections import Counter
