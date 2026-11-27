@@ -64,10 +64,10 @@ for x,r in picks:
     if len(LIT)<8: LIT.add((x,r)); P.append(('O',x+.37,r,1.5175,'z'))
 P.append(('P',7,6+2.8/1.2,-3.2,'tilt'))
 plain=sum(1 for v in occ.values() if v=='.')
-print('plain cells',plain,'need',110)
+print('plain cells',plain,'need',108)
 for r in range(15,-1,-1): print('%2d '%r+''.join(occ.get((x,r),' ') for x in range(W)))
-if plain!=110: sys.exit(3)
-need={4:15,2:21,1:8}
+if plain!=108: sys.exit(3)
+need={4:14,2:22,1:8}
 runs=[]
 for r in range(16):
     x=0
@@ -103,7 +103,7 @@ for attempt in range(4000):
         if not ok: break
     if ok and all(v==0 for v in left.values()): best=out;break
 if not best: sys.exit(3)
-P+=[(k,x,r,random.choice([0,0,0,0,0,1,1,-1]),d) for k,x,r,z,d in best]
+P+=[(k,x,r,random.choice([0,0,0,1]),d) for k,x,r,z,d in best]
 def js(p):
     k,x,y,z,d=p
     extra = ", t: -Math.PI / 2" if d=='z' else (", tilt: Math.PI / 2" if d=='tilt' else (", d: -1" if d==-1 else ""))
