@@ -163,6 +163,20 @@ section.collage { padding-block: 60px 72px; overflow: clip; }
 }
 @media (prefers-reduced-motion: reduce) { .collage figure { transition: none; } }
 
+/* a single print in the text (the same print as the collage's) */
+figure.print {
+  width: min(380px, 88%); margin: 36px 0 6px 12px; padding: 7px 7px 26px; background: #f4f1ea; border-radius: 3px;
+  box-shadow: 0 1px 0 rgba(0,0,0,.25), 0 14px 36px rgba(0,0,0,.38); position: relative;
+  transform: rotate(var(--r)); transition: transform .25s cubic-bezier(.2,.8,.2,1);
+}
+figure.print:hover { transform: rotate(0deg) translateY(-6px) scale(1.04); }
+figure.print img { display: block; width: 100%; height: auto; border-radius: 1px; }
+figure.print figcaption {
+  position: absolute; right: 9px; bottom: 5px; font-size: 12px; line-height: 15px; color: #6b665c;
+  font-feature-settings: 'tnum' 1; letter-spacing: .02em;
+}
+@media (prefers-reduced-motion: reduce) { figure.print { transition: none; } }
+
 /* reasons: a gigantic grey numeral hung in the empty column */
 .reason { padding-block: 60px; }
 .reason .numeral {
@@ -262,7 +276,8 @@ footer a:hover { color: var(--text); }
   <div class="body">
     <h2>The font goes wherever the brand goes</h2>
     <p>A proprietary license counts things: desktops, pageviews, apps, the agency, the contractor, the customer who embeds your widget. Every new place the brand wants to be starts with an email to legal.</p>
-    <p>An open font has nothing to count. <b>It goes in the repo, the package, the app binary, the pitch deck, and the customer’s fork.</b> Cal Sans installs with <code>npm i cal-sans</code>, and that one line is the whole procurement process.</p>
+    <p>An open font has nothing to count. <b>It goes in the repo, the package, the app binary, the pitch deck, even Google Docs.</b> Cal Sans installs with <code>npm i cal-sans</code>, and that one line is the whole procurement process.</p>
+    <figure class="print" style="--r:2deg"><a href="https://x.com/peer_rich/status/1922330141444718670" target="_blank" rel="noopener"><picture><source media="(prefers-color-scheme: light)" srcset="tweet-cal-sans-in-google-docs.jpg"><img src="tweet-cal-sans-in-google-docs-dark.jpg" width="841" height="1000" loading="lazy" alt="A post by Peer Richelsen of Cal.com: “this is just so fucking cool – Cal Sans in Google Docs”, with a screenshot of Cal Sans checked in the Google Docs font menu."></picture></a><figcaption>2025</figcaption></figure>
   </div>
 </section>
 
