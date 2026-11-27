@@ -213,18 +213,21 @@
     studs.forEach(function (q) { for (var j = 0; j < (deep || 2); j++) stud(v, q[0], q[1], j + .5); });
     return new Float32Array(v);
   }
-  // mudguard (part 18974), low-poly: a thin round arch 4 studs long that stands half a stud proud
-  // of the body, with the 2×2 studded block on its crown. The wheel sits inside it.
+  // mudguard (part 18974), low-poly: a solid 4×2 body two bricks tall with a round pocket for the
+  // wheel cut into its outer face, a back wall behind the wheel, and a thin trim ring standing half
+  // a stud proud around the pocket. Nothing shows through it.
   function mudguardMesh() {
-    var v = [], g = .03, cy = .22, R = 1.97, r = 1.85, N = 14, i, j;
+    var v = [], g = .03, cy = .22, R = 1.97, r = 1.85, N = 14, top = 2 * H, i, j;
     function pt(rad, a) { return [2 + rad * Math.cos(a), cy + rad * Math.sin(a)]; }
-    for (i = 0; i < N; i++) {
-      var a0 = Math.PI * i / N, a1 = Math.PI * (i + 1) / N;
-      prism(v, [pt(r, a0), pt(R, a0), pt(R, a1), pt(r, a1)], 2, 2.5);   // only a thin ring out front, nothing arching back over the wheel
+    box(v, g, .03, g, 4 - g, top, .9);                                                    // back wall
+    for (i = 0; i < N; i++) {                                                             // body around the pocket
+      var a0 = Math.PI * i / N, a1 = Math.PI * (i + 1) / N, p0 = pt(r, a0), p1 = pt(r, a1);
+      prism(v, [p1, p0, [p0[0], top], [p1[0], top]], .9, 2 - g);
+      prism(v, [p0, pt(R, a0), pt(R, a1), p1], 2 - g, 2.5);                               // trim ring
     }
-    box(v, 2 + r, .03, 2, 2 + R, cy, 2.5); box(v, 2 - R, .03, 2, 2 - r, cy, 2.5);         // feet
-    box(v, 1, 1.95, g, 3, 2 * H, 2 - g);                                                  // crown block
-    for (i = 1; i < 3; i++) for (j = 0; j < 2; j++) stud(v, i + .5, 2 * H, j + .5);
+    box(v, 2 + r, .03, .9, 4 - g, top, 2 - g); box(v, g, .03, .9, 2 - r, top, 2 - g);     // sides
+    box(v, 2 + r, .03, 2 - g, 2 + R, cy, 2.5); box(v, 2 - R, .03, 2 - g, 2 - r, cy, 2.5); // ring feet
+    for (i = 0; i < 4; i++) for (j = 0; j < 2; j++) stud(v, i + .5, top, j + .5);
     return new Float32Array(v);
   }
   function headlightMesh() {
