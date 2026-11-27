@@ -152,8 +152,8 @@
       b.leave = maxY ? (1 - b.y / maxY) * .8 + rnd(i + m * 31) * .2 : 0;
     });
     KINDS.forEach(function (kind) {
-      if (k !== 'car' && (kind === 'W' || kind === 'H')) {     // wheels roll off the plate and wait
-        pool[kind].forEach(function (b) { var c = b.pose.car; b.pose[k] = { x: c.x + 34, y: c.y, z: c.z, turn: c.turn, tilt: 0, land: 0, leave: 0 }; });
+      if (k !== 'car' && (kind === 'W' || kind === 'H' || kind === 'P')) {     // wheels roll off the plate and wait; the roof flies up out of sight
+        pool[kind].forEach(function (b) { var c = b.pose.car; b.pose[k] = { x: c.x + (kind === 'P' ? 0 : 34), y: c.y + (kind === 'P' ? 46 : 0), z: c.z, turn: c.turn, tilt: 0, land: 0, leave: 0 }; });
         return;
       }
       var free = pool[kind].slice(), want = order.filter(function (b) { return b.kind === kind; });
@@ -374,9 +374,9 @@
         var hy = b.hy + Math.sin(t * 1.3 + b.ph) * .25;
         var mx = s.x + (b.hx - s.x) * a, my = s.y + (hy - s.y) * a, mz = s.z + (b.hz - s.z) * a;
         var o = i * 9, col = COL.key[b.c];
-        if (kind === 'W' || kind === 'H') {                         // roll along the ground: out early, back late
+        if (kind === 'W' || kind === 'H' || kind === 'P') {          // wheels roll along the ground, the roof lifts straight up: out early, back late
           var w = clamp01((u - (to === 'car' ? 3.9 : .15)) / 1.7); w = w * w * (3 - 2 * w);
-          D[o] = s.x + (d.x - s.x) * w; D[o + 1] = s.y; D[o + 2] = s.z; D[o + 3] = 0; D[o + 4] = s.turn; D[o + 8] = 0;
+          D[o] = s.x + (d.x - s.x) * w; D[o + 1] = s.y + (d.y - s.y) * w; D[o + 2] = s.z; D[o + 3] = 0; D[o + 4] = s.turn; D[o + 8] = 0;
           D[o + 5] = col[0]; D[o + 6] = col[1]; D[o + 7] = col[2];
           continue;
         }
