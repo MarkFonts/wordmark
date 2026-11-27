@@ -441,6 +441,9 @@ body {
   hyphenate-limit-chars: 6 3 3;
   max-width: 38ch;
 }
+/* a sentence in the paragraph that is a link: the page's ink, underlined like the figure links */
+.para a { color: rgb(var(--text-rgb)); text-decoration: underline; text-decoration-thickness: 1px; text-underline-offset: 3px; }
+.para a:hover { text-decoration-thickness: 2px; }
 
 /* the case-study button: the page's one pill, in the logo's weight. It is a component on
    the line: its height is in units (the case study's own pill, 2.2em on the unit, 33px),
